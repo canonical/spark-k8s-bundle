@@ -37,7 +37,7 @@ jobs:
       - id: tests-unit
         name: Run Unittests
         run: |
-          cd python && tox -e unittest
+          cd python && tox -e unit
       - name: Get prefsrc
         run: |
           echo "IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')" >> $GITHUB_ENV
@@ -49,8 +49,8 @@ jobs:
           channel: 1.28-strict/stable
           microk8s-group: snap_microk8s
           microk8s-addons: "rbac dns minio metallb:${{ env.IPADDR }}-${{ env.IPADDR }}"
-      - id: tests-integration
-        name: Run Integration Tests
+      - id: cache-image
+        name: Cache Spark Image Locally
         run: |
           # Download image for avoiding time out
           IMAGE="ghcr.io/canonical/charmed-spark:3.4-22.04_edge"
@@ -58,5 +58,8 @@ jobs:
           docker pull $IMAGE 
           docker save $IMAGE -o image.tar
           microk8s ctr images import --base-name $IMAGE image.tar
+      - id: tests-integration
+        name: Run Integration Tests
+        run: |
           
           cd python && tox -e integration
