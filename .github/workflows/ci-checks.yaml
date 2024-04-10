@@ -1,0 +1,30 @@
+name: Build snap and run tests
+
+on:
+  workflow_call
+
+jobs:
+  checks:
+    name: Code checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version:
+          - '3.9'
+          - '3.10'
+    steps:
+      - id: checkout
+        name: Checkout repo
+        uses: actions/checkout@v4
+      - id: setup-python
+        name: Setup Python
+        uses: actions/setup-python@v5.0.0
+        with:
+          python-version: ${{matrix.python-version}}
+          architecture: x64
+      - id: code-checks
+        name: Make sure the code follows conventions and tests correctly
+        run: |
+          # cd python && tox -e lint 
