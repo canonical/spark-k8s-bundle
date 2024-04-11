@@ -10,12 +10,12 @@ def pod_name():
     return "testpod"
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def admin_pod_name():
     return "testpod-admin"
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def admin_pod(kubeconfig, namespace, admin_pod_name):
 
     _pod = Pod.create(admin_pod_name, namespace, "admin", kubeconfig.fname)

@@ -7,7 +7,7 @@ def _clearnup_registry(registry):
     [registry.delete(account.id) for account in registry.all()]
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def registry(interface):
     registry = K8sServiceAccountRegistry(interface)
     yield registry
