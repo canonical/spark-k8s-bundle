@@ -6,7 +6,7 @@ from spark_test import BINS, PKG_DIR
 from spark_test.core.s3 import Bucket, Credentials
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def credentials():
     output = subprocess.check_output(
         [f"{BINS.relative_to(PKG_DIR) / 's3.sh'}", "create"], cwd=PKG_DIR
@@ -25,12 +25,12 @@ def credentials():
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def bucket_name():
     return "s3-bucket"
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def bucket(credentials, bucket_name):
     _bucket = Bucket.create(bucket_name, credentials)
 

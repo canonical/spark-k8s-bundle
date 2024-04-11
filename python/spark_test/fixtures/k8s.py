@@ -9,7 +9,7 @@ from spark8t.domain import Defaults, KubernetesResourceType
 from spark8t.services import LightKube
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def kubeconfig():
     kubeconfig_file = Path.home() / ".kube" / "config"
 
@@ -19,7 +19,7 @@ def kubeconfig():
         yield KubeConfig.from_env()
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def envs(kubeconfig):
     kubeconfig_env = {"KUBECONFIG": f"{kubeconfig.fname}"} if kubeconfig.fname else {}
 
@@ -30,7 +30,7 @@ def _get_namespaces(interface):
     return [ns.metadata.name for ns in interface.client.list(Namespace)]
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def interface(envs):
     interface = LightKube(envs.kube_config, envs)
     ns_before = _get_namespaces(interface)
@@ -40,15 +40,17 @@ def interface(envs):
         interface.client.delete(Namespace, name=ns)
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def namespace_name():
     return "spark-test"
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def namespace(interface, namespace_name):
+    print("Creating namespace")
     interface.create(KubernetesResourceType.NAMESPACE, namespace_name, None)
     yield namespace_name
+    print("Deleting namespace")
     interface.delete(KubernetesResourceType.NAMESPACE, namespace_name, None)
 
     # To avoid racing conditions

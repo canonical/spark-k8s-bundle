@@ -11,12 +11,12 @@ def pod_name():
     return "my-testpod"
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def admin_pod_name():
     return "my-testpod-admin"
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def namespace_name():
     return "spark-ns"
 

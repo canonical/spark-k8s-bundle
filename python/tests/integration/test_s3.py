@@ -8,12 +8,12 @@ from spark_test.fixtures.service_account import registry, service_account
 from spark_test.utils import assert_logs, get_spark_driver_pods
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def bucket_name():
     return "spark-bucket"
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def namespace_name():
     return "spark-s3"
 
