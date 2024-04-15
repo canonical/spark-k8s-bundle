@@ -20,7 +20,7 @@ To install the package with poetry, checkout the repository
 
 ```bash
 git clone https://github.com/canonical/spark-k8s-bundle.git
-cd spark-k8s-toolkit-py/
+cd spark-k8s-bundle/
 ```
 
 and run 
