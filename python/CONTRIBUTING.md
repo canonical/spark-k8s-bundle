@@ -19,7 +19,7 @@ To build and develop the package in this repository, we advise to use [Poetry](h
 To install the package with poetry, checkout the repository
 
 ```bash
-git clone https://github.com/canonical/spark-k8s-toolkit-py.git
+git clone https://github.com/canonical/spark-k8s-bundle.git
 cd spark-k8s-toolkit-py/
 ```
 
