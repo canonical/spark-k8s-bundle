@@ -3,7 +3,7 @@ import pytest
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
 from spark_test.fixtures.pod import admin_pod, pod
 from spark_test.fixtures.service_account import registry, service_account
-from spark_test.utils import assert_logs, get_spark_driver_pods
+from spark_test.utils import get_spark_drivers
 
 
 @pytest.fixture
@@ -58,15 +58,10 @@ def test_spark_submit(pod, service_account, registry):
         ]
     )
 
-    driver_pods = get_spark_driver_pods(
+    driver_pods = get_spark_drivers(
         registry.kube_interface.client, service_account.namespace
     )
     assert len(driver_pods) == 1
 
-    line_check = assert_logs(
-        registry.kube_interface.client,
-        driver_pods[0].metadata.name,
-        service_account.namespace,
-        ["Pi is roughly"],
-    )
-    assert len(line_check) > 0
+    line_check = filter(lambda line: "Pi is roughly" in line, driver_pods[0].logs())
+    assert next(line_check)

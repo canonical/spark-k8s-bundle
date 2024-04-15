@@ -8,15 +8,12 @@ from lightkube.resources.core_v1 import Namespace
 from spark8t.domain import Defaults, KubernetesResourceType
 from spark8t.services import LightKube
 
+from spark_test.core.pod import get_kube_config
+
 
 @pytest.fixture(scope="session")
 def kubeconfig():
-    kubeconfig_file = Path.home() / ".kube" / "config"
-
-    if kubeconfig_file.exists():
-        yield KubeConfig.from_file(kubeconfig_file.absolute())
-    else:
-        yield KubeConfig.from_env()
+    return get_kube_config(Path.home() / ".kube" / "config")
 
 
 @pytest.fixture(scope="session")
