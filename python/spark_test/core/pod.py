@@ -1,18 +1,56 @@
 import subprocess
+from functools import cached_property
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, Iterator, List
+
+from lightkube import Client, KubeConfig
 
 from spark_test import BINS, PKG_DIR
 
 
+def get_kube_config(kubeconfig_file: Path | None) -> KubeConfig:
+    """Return the KubeConfig from a provided filename.
+
+    Args:
+        kubeconfig_file: Path of the kubeconfig file. If not provided, the
+            default from the environment will be taken.
+
+    Returns:
+        lightkube.KubeConfig instance
+    """
+    if kubeconfig_file.exists():
+        return KubeConfig.from_file(kubeconfig_file.absolute())
+    else:
+        return KubeConfig.from_env()
+
+
 class Pod:
+    """Object representing a running Pod on K8s."""
 
     def __init__(self, pod_name: str, namespace: str, kubeconfig_file: Path | None):
+        """Create an instance of Pod class.
+
+        Args:
+            pod_name: name of the pod on K8s
+            namespace: namespace that the pod belongs to
+            kubeconfig_file: kubeconfig filepath
+        """
         self.pod_name = pod_name
         self.namespace = namespace
         self.kubeconfig_file = kubeconfig_file
 
     def exec(self, cmd: List[str], envs: Dict[str, str] | None = None):
+        """Execute a command on the pod.
+
+        Args:
+            cmd: list of strings representing the command to be executed
+            envs: dictionary representing environment variables to be used
+                in the execution
+
+        Returns:
+            output of the command
+        """
+
         kubeconfig_line = (
             [
                 "--kubeconfig",
@@ -87,7 +125,21 @@ class Pod:
 
         return Pod(pod_name, namespace, kubeconfig_file)
 
+    @cached_property
+    def client(self) -> Client:
+        """Return lightkube.Client instance used by the backend."""
+        kubeconfig = get_kube_config(self.kubeconfig_file)
+        return Client(config=kubeconfig)
+
+    def logs(self) -> Iterator[str]:
+        """Return the logs of the pod."""
+        return (
+            line
+            for line in self.client.log(name=self.pod_name, namespace=self.namespace)
+        )
+
     def delete(self):
+        """Delete the current pod."""
         subprocess.check_output(
             [
                 f"{BINS.relative_to(PKG_DIR) / 'pod.sh'}",

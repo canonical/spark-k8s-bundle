@@ -1,5 +1,6 @@
 import os
 from dataclasses import dataclass
+from typing import List
 
 import boto3
 from botocore.client import Config
@@ -8,23 +9,42 @@ from botocore.exceptions import ClientError
 
 @dataclass
 class Credentials:
+    """Class representing S3 credentials."""
+
     access_key: str
     secret_key: str
     host: str
 
     @property
     def endpoint(self) -> str:
+        """Return the S3 endpoint."""
         return f"http://{self.host}:80"
 
 
 class Bucket:
+    """Class representing a S3 bucket."""
 
     def __init__(self, s3, bucket_name: str):
+        """Create an instance of Bucket class.
+
+        Args:
+            s3: boto3 class representing the S3 session
+            bucket_name: name of the bucket
+        """
         self.s3 = s3
         self.bucket_name = bucket_name
 
     @classmethod
     def create(cls, bucket_name: str, credentials: Credentials):
+        """Create and return an instance of the Bucket class.
+
+        Args:
+            bucket_name: name of the bucket
+            credentials: S3 credentials
+
+        Returns:
+            Bucket object
+        """
 
         config = Config(connect_timeout=60, retries={"max_attempts": 0})
         session = boto3.session.Session(
@@ -42,10 +62,12 @@ class Bucket:
         return Bucket(s3, bucket_name)
 
     def init(self):
+        """Initialize the bucket to be used with Spark."""
         self.s3.put_object(Bucket=self.bucket_name, Key=("spark-events/"))
         return self
 
     def delete(self):
+        """Delete the current pod."""
         if not self.exists():
             return
 
@@ -65,15 +87,19 @@ class Bucket:
         ]
         return len(buckets) > 0
 
-    def exists(self):
+    def exists(self) -> bool:
+        """Check if the bucket exists."""
         return self._exists(self.bucket_name, self.s3)
 
     def upload_file(self, file_name, object_name=None):
         """Upload a file to an S3 bucket
 
-        :param file_name: File to upload
-        :param object_name: S3 object name. If not specified then file_name is used
-        :return: True if file was uploaded, else False
+        Args:
+            file_name: File to upload
+            object_name: S3 object name. If not specified then file_name is used
+
+        Returns:
+             True if file was uploaded, else False
         """
 
         # If S3 object_name was not specified, use file_name
@@ -87,5 +113,6 @@ class Bucket:
             return False
         return True
 
-    def list_objects(self):
+    def list_objects(self) -> List[dict]:
+        """Return the list of object contained in the bucket"""
         return self.s3.list_objects_v2(Bucket=self.bucket_name)["Contents"]

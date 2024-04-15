@@ -34,6 +34,7 @@ def bucket_name():
 def bucket(credentials, bucket_name):
     _bucket = Bucket.create(bucket_name, credentials)
 
+    _bucket.init()
     yield _bucket
 
     _bucket.delete()
