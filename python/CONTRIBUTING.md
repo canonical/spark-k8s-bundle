@@ -34,7 +34,7 @@ poetry install
 When developing we advise you to use virtual environment to confine the installation of this package and its dependencies. Please refer to [venv](https://docs.python.org/3/library/venv.html), [pyenv](https://github.com/pyenv/pyenv) or [conda](https://docs.conda.io/en/latest/), for some tools that help you to create and manage virtual environments. 
 We also advise you to read how Poetry integrates with virtual environments [here](https://python-poetry.org/docs/managing-environments/).   
 
-The project uses [tox](https://tox.wiki/en/latest/) for running CI/CD pipelines and automation on different enviroments, whereas setup of python agnostic components can be done using the [Makefile](./Makefile). 
+The project uses [tox](https://tox.wiki/en/latest/) for running CI/CD pipelines. 
 
 You can create an environment for development with `tox`:
 
