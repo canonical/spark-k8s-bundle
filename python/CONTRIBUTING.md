@@ -5,7 +5,7 @@
 This documents explains the processes and practices recommended for contributing enhancements to this repository.
 
 - Generally, before developing enhancements to this component, you should consider [opening an issue](https://github.com/canonical/spark-k8s-bundle/issues) explaining your problem with examples, and your desired use case.
-- If you would like to chat with us about your use-cases or proposed implementation, you can reach us at [Data Platform Canonical Mattermost public channel](https://chat.charmhub.io/charmhub/channels/data-platform) or [Discourse](https://discourse.charmhub.io/).
+- If you would like to chat with us about your use-cases or proposed implementation, you can reach us at [Data Platform Canonical Matrix public channel](https://matrix.to/#/#charmhub-data-platform:ubuntu.com) or [Discourse](https://discourse.charmhub.io/).
 - All enhancements require review before being merged. Code review typically examines
   - code quality
   - test coverage
