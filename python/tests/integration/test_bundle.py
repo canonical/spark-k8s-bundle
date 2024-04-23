@@ -113,7 +113,7 @@ async def test_deploy_bundle(
         "--trust",
         "-m",
         ops_test.model_full_name,
-        f"{bundle.relative_to(Path.cwd())}",
+        f"./{bundle.relative_to(Path.cwd())}",
         "--overlay",
         "./overlay.yaml",
     ]
