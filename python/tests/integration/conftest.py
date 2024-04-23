@@ -1,16 +1,17 @@
 import os
+from pathlib import Path
 
 import pytest
-from  pathlib import Path
+
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--integration", action="store_true",
-        help="flag to enable integration tests"
+        "--integration", action="store_true", help="flag to enable integration tests"
     )
     parser.addoption(
-        "--bundle", required=False,
-        help="Path to a bundle to be used in integration tests"
+        "--bundle",
+        required=False,
+        help="Path to a bundle to be used in integration tests",
     )
 
 
@@ -18,9 +19,7 @@ def pytest_addoption(parser):
 def bundle(request):
     IE_TEST_DIR = Path(os.path.dirname(__file__))
 
-    BUNDLE_FILE = (
-        IE_TEST_DIR / ".." / ".." / ".." / "releases" / "3.4" / "bundle.yaml"
-    )
+    BUNDLE_FILE = IE_TEST_DIR / ".." / ".." / ".." / "releases" / "3.4" / "bundle.yaml"
 
     bundle = (
         Path(file) if (file := request.config.getoption("--bundle")) else None
@@ -41,5 +40,3 @@ def integration_test(request):
         pytest.skip(
             reason="Integration test, to be skipped when running unittests",
         )
-
-
