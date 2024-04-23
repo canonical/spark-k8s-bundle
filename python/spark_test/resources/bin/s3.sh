@@ -3,7 +3,7 @@
 errcho(){ >&2 echo $@; }
 
 setup_bucket() {
-  errcho $(microk8s.enable minio)
+  # errcho $(microk8s.enable minio)
 
   # Get Access key and secret key from MinIO
   ACCESS_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d)
@@ -16,7 +16,7 @@ setup_bucket() {
 }
 
 teardown_bucket() {
-  errcho $(microk8s.disable minio)
+  # errcho $(microk8s.disable minio)
 
   echo "ok"
 }
