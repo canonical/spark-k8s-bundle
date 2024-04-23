@@ -1,0 +1,141 @@
+bundle: kubernetes
+saas:
+  grafana-dashboards:
+    url: micro:admin/cos.grafana-dashboards
+  prometheus-receive-remote-write:
+    url: micro:admin/cos.prometheus-receive-remote-write
+  traefik:
+    url: micro:admin/cos.traefik
+applications:
+  agent:
+    charm: grafana-agent-k8s
+    channel: latest/stable
+    revision: 64
+    resources:
+      agent-image: 38
+    scale: 1
+    constraints: arch=amd64
+    storage:
+      data: kubernetes,1,1024M
+    trust: true
+  cos-configuration:
+    charm: cos-configuration-k8s
+    channel: latest/stable
+    revision: 46
+    base: ubuntu@20.04/stable
+    resources:
+      git-sync-image: 32
+    scale: 1
+    options:
+      git_branch: main
+      git_depth: 1
+      git_repo: https://github.com/canonical/spark-k8s-bundle
+      grafana_dashboards_path: dashboards/prod/grafana/
+    constraints: arch=amd64
+    storage:
+      content-from-git: kubernetes,1,1024M
+  kyuubi:
+    charm: kyuubi-k8s
+    channel: latest/edge
+    revision: 2
+    resources:
+      kyuubi-image: 1
+    scale: 1
+    options:
+      namespace: spark
+      service-account: spark
+    constraints: arch=amd64
+    trust: true
+  kyuubi-users:
+    charm: postgresql-k8s
+    channel: 14/stable
+    revision: 193
+    resources:
+      postgresql-image: 149
+    scale: 1
+    constraints: arch=amd64
+    storage:
+      pgdata: kubernetes,1,1024M
+    trust: true
+  metastore:
+    charm: postgresql-k8s
+    channel: 14/stable
+    revision: 193
+    resources:
+      postgresql-image: 149
+    scale: 1
+    constraints: arch=amd64
+    storage:
+      pgdata: kubernetes,1,1024M
+    trust: true
+  pushgateway:
+    charm: prometheus-pushgateway-k8s
+    channel: latest/edge
+    revision: 12
+    resources:
+      pushgateway-image: 8
+    scale: 1
+    constraints: arch=amd64
+    storage:
+      pushgateway-store: kubernetes,1,1024M
+  scrape-config:
+    charm: prometheus-scrape-config-k8s
+    channel: latest/stable
+    revision: 47
+    base: ubuntu@20.04/stable
+    scale: 1
+    options:
+      scrape_interval: 10s
+    constraints: arch=amd64
+  s3:
+    charm: s3-integrator
+    channel: latest/edge
+    revision: 17
+    scale: 1
+    options:
+      bucket: $S3_BUCKET
+      endpoint: $S3_ENDPOINT
+      path: spark-events
+    constraints: arch=amd64
+  history-server:
+    charm: spark-history-server-k8s
+    channel: 3.4/stable
+    revision: 15
+    resources:
+      spark-history-server-image: 9
+    scale: 1
+    constraints: arch=amd64
+  integration-hub:
+    charm: spark-integration-hub-k8s
+    channel: latest/edge
+    revision: 2
+    resources:
+      integration-hub-image: 1
+    scale: 1
+    constraints: arch=amd64
+    trust: true
+relations:
+- - integration-hub:s3-credentials
+  - s3:s3-credentials
+- - kyuubi:s3-credentials
+  - s3:s3-credentials
+- - cos-configuration:grafana-dashboards
+  - agent:grafana-dashboards-consumer
+- - scrape-config:configurable-scrape-jobs
+  - pushgateway:metrics-endpoint
+- - scrape-config:metrics-endpoint
+  - agent:metrics-endpoint
+- - pushgateway:push-endpoint
+  - integration-hub:cos
+- - agent:grafana-dashboards-provider
+  - grafana-dashboards:grafana-dashboard
+- - agent:send-remote-write
+  - prometheus-receive-remote-write:receive-remote-write
+- - history-server:s3-credentials
+  - s3:s3-credentials
+- - kyuubi:metastore-db
+  - metastore:database
+- - kyuubi:auth-db
+  - kyuubi-users:database
+- - history-server:ingress
+  - traefik:ingress
