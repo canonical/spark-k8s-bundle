@@ -92,7 +92,7 @@ async def test_deploy_bundle(
             bucket=bucket.bucket_name,
             s3_endpoint=bucket.s3.meta.endpoint_url,
             cos_controller=ops_test.controller_name,
-            cos_model="cos"
+            cos_model="cos",
         )
     else:
         bundle_file = bundle

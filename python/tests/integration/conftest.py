@@ -19,7 +19,9 @@ def pytest_addoption(parser):
 def bundle(request):
     IE_TEST_DIR = Path(os.path.dirname(__file__))
 
-    BUNDLE_FILE = IE_TEST_DIR / ".." / ".." / ".." / "releases" / "3.4" / "bundle.yaml.j2"
+    BUNDLE_FILE = (
+        IE_TEST_DIR / ".." / ".." / ".." / "releases" / "3.4" / "bundle.yaml.j2"
+    )
 
     bundle = (
         Path(file) if (file := request.config.getoption("--bundle")) else None
