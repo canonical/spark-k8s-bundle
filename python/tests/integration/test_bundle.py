@@ -1,4 +1,5 @@
 import logging
+import os.path
 import time
 from pathlib import Path
 
@@ -83,54 +84,49 @@ async def test_deploy_bundle(
     ops_test: OpsTest, credentials, bucket, registry, service_account, bundle
 ):
     """Deploy the bundle."""
-    bundle_data = yaml.safe_load(Path(bundle).read_text())
+    if os.path.splitext(bundle)[1] == ".j2":
+        bundle_file = ops_test.render_bundle(
+            bundle,
+            namespace=service_account.namespace,
+            service_account=service_account.name,
+            bucket=bucket.bucket_name,
+            s3_endpoint=bucket.s3.meta.endpoint_url,
+            cos_controller=ops_test.controller_name,
+            cos_model="cos"
+        )
+    else:
+        bundle_file = bundle
+
+    bundle_data = yaml.safe_load(bundle_file.read_text())
+
     applications = []
 
     for app in bundle_data["applications"]:
         applications.append(app)
 
-    overlay = {}
-    overlay["applications"] = {
-        "s3": {
-            "options": {
-                "bucket": bucket.bucket_name,
-                "endpoint": bucket.s3.meta.endpoint_url,
-            }
-        },
-        "kyuubi": {
-            "options": {
-                "service-account": service_account.name,
-                "namespace": service_account.namespace,
-            }
-        },
-    }
-
-    Path("overlay.yaml").write_text(yaml.dump(overlay))
+    (tmp_bundle := Path("bundle.yaml")).write_text(yaml.dump(bundle_data))
 
     cmds = [
-        "juju",
         "deploy",
         "--trust",
         "-m",
         ops_test.model_full_name,
-        f"./{bundle.relative_to(Path.cwd())}",
-        "--overlay",
-        "./overlay.yaml",
+        f"./{tmp_bundle.name}",
     ]
 
     logger.info(" ".join(cmds))
 
-    retcode, stdout, stderr = await ops_test.run(*cmds)
+    retcode, stdout, stderr = await ops_test.juju(*cmds)
     assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
     logger.info(stdout)
+
+    tmp_bundle.unlink()
 
     await ops_test.model.wait_for_idle(
         apps=["s3"], timeout=2000, idle_period=30, status="blocked"
     )
 
     await set_s3_credentials(ops_test, credentials)
-
-    Path("overlay.yaml").unlink()
 
     with ops_test.model_context("cos") as cos_model:
         await cos_model.wait_for_idle(

@@ -1,11 +1,11 @@
 bundle: kubernetes
 saas:
   grafana-dashboards:
-    url: micro:admin/cos.grafana-dashboards
+    url: {{ cos_controller|default('micro', true) }}:admin/{{ cos_model|default('cos', true) }}.grafana-dashboards
   prometheus-receive-remote-write:
-    url: micro:admin/cos.prometheus-receive-remote-write
+    url: {{ cos_controller|default('micro', true) }}:admin/{{ cos_model|default('cos', true) }}.prometheus-receive-remote-write
   traefik:
-    url: micro:admin/cos.traefik
+    url: {{ cos_controller|default('micro', true) }}:admin/{{ cos_model|default('cos', true) }}.traefik
 applications:
   agent:
     charm: grafana-agent-k8s
@@ -42,8 +42,8 @@ applications:
       kyuubi-image: 1
     scale: 1
     options:
-      namespace: spark
-      service-account: spark
+      namespace: {{ namespace }}
+      service-account: {{ service_account }}
     constraints: arch=amd64
     trust: true
   kyuubi-users:
@@ -93,8 +93,8 @@ applications:
     revision: 17
     scale: 1
     options:
-      bucket: $S3_BUCKET
-      endpoint: $S3_ENDPOINT
+      bucket: {{ bucket }}
+      endpoint: {{ s3_endpoint }}
       path: spark-events
     constraints: arch=amd64
   history-server:
@@ -127,15 +127,15 @@ relations:
   - agent:metrics-endpoint
 - - pushgateway:push-endpoint
   - integration-hub:cos
-- - agent:grafana-dashboards-provider
-  - grafana-dashboards:grafana-dashboard
-- - agent:send-remote-write
-  - prometheus-receive-remote-write:receive-remote-write
 - - history-server:s3-credentials
   - s3:s3-credentials
 - - kyuubi:metastore-db
   - metastore:database
 - - kyuubi:auth-db
   - kyuubi-users:database
+- - agent:grafana-dashboards-provider
+  - grafana-dashboards:grafana-dashboard
+- - agent:send-remote-write
+  - prometheus-receive-remote-write:receive-remote-write
 - - history-server:ingress
   - traefik:ingress
