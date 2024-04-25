@@ -59,6 +59,9 @@ jobs:
       - id: setup-python
         name: Setup Python
         uses: actions/setup-python@v5.0.0
+        with:
+          python-version: "3.10"
+          architecture: x64
       - name: Get prefsrc
         run: |
           echo "IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')" >> $GITHUB_ENV
