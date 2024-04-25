@@ -156,7 +156,11 @@ async def test_deploy_bundle(
                 raise_on_error=False,
             )
 
-    applications = ["history-server", "integration-hub"]
+    applications = list(
+        render_yaml(bundle.main, data, ops_test)["applications"].keys()
+    )
+
+    print(applications)
 
     await ops_test.model.wait_for_idle(
         apps=applications,

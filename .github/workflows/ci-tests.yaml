@@ -9,17 +9,16 @@ jobs:
   checks:
     uses: ./.github/workflows/ci-checks.yaml
 
-  test:
-    name: Unit and Integration Tests
-    # runs-on: ubuntu-latest
-    # timeout-minutes: 60
-    runs-on: [ "self-hosted", "linux", "X64", "jammy", "large" ]
-    timeout-minutes: 60
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     strategy:
       fail-fast: true
       matrix:
         python-version:
-          # - '3.9'
+          - '3.9'
           - '3.10'
     needs:
       - checks
@@ -40,6 +39,26 @@ jobs:
         name: Run Unittests
         run: |
           cd python && tox -e unit
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: [ "self-hosted", "linux", "X64", "jammy", "large" ]
+    timeout-minutes: 60
+    strategy:
+      fail-fast: true
+      matrix:
+        options:
+          -
+          - --cos-model cos
+    needs:
+      - checks
+      - unit-tests
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - id: setup-python
+        name: Setup Python
+        uses: actions/setup-python@v5.0.0
       - name: Get prefsrc
         run: |
           echo "IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')" >> $GITHUB_ENV
@@ -62,6 +81,5 @@ jobs:
           sudo microk8s ctr images import --base-name $IMAGE image.tar
       - id: tests-integration
         name: Run Integration Tests
-        run: |
-          
-          cd python && tox -e integration
+        run: |    
+          cd python && tox run -e integration -- ${{matrix.options}}
