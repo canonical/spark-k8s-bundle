@@ -2,6 +2,11 @@ import os
 from pathlib import Path
 
 import pytest
+import requests
+
+from tests import BUNDLE_FILE, RELEASE_DIR
+
+from .helpers import Bundle, local_tmp_folder
 
 
 def pytest_addoption(parser):
@@ -13,24 +18,48 @@ def pytest_addoption(parser):
         required=False,
         help="Path to a bundle to be used in integration tests",
     )
-
-
-@pytest.fixture
-def bundle(request):
-    IE_TEST_DIR = Path(os.path.dirname(__file__))
-
-    BUNDLE_FILE = (
-        IE_TEST_DIR / ".." / ".." / ".." / "releases" / "3.4" / "bundle.yaml.j2"
+    parser.addoption(
+        "--overlay",
+        action="append",
+        type=str,
+        help="Path to the overlay to be used with the bundle.",
+    )
+    parser.addoption(
+        "--cos-model",
+        required=False,
+        type=str,
+        help="When provided, it deploys COS as well. "
+        "If the model already exists, we assume COS had already been "
+        "deployed.",
     )
 
+
+@pytest.fixture(scope="module")
+def cos_model(request) -> None | str:
+    return request.config.getoption("--cos-model")
+
+
+@pytest.fixture(scope="module")
+def bundle(request, cos_model) -> Bundle[Path]:
     bundle = (
         Path(file) if (file := request.config.getoption("--bundle")) else None
     ) or BUNDLE_FILE
 
-    if not bundle.exists():
-        raise FileNotFoundError("Expected a 'bundle.yaml' to be present")
+    overlays = (
+        [Path(file) for file in files]
+        if (files := request.config.getoption("--overlay"))
+        else (
+            [RELEASE_DIR / "resources" / "overlays" / "cos-integration.yaml.j2"]
+            if cos_model
+            else []
+        )
+    )
 
-    return bundle
+    for file in overlays + [bundle]:
+        if not file.exists():
+            raise FileNotFoundError(file.absolute())
+
+    return Bundle(main=bundle, overlays=overlays)
 
 
 @pytest.fixture

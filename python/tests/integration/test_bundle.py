@@ -1,9 +1,11 @@
 import logging
 import os.path
+import shutil
 import time
 from pathlib import Path
 
 import pytest
+import pytest_asyncio
 import requests
 import yaml
 from pytest_operator.plugin import OpsTest
@@ -14,9 +16,17 @@ from spark_test.fixtures.s3 import bucket, credentials
 from spark_test.fixtures.service_account import registry, service_account
 from spark_test.utils import get_spark_drivers
 
-from .helpers import set_s3_credentials
+from .helpers import (
+    Bundle,
+    deploy_bundle,
+    local_tmp_folder,
+    render_yaml,
+    set_s3_credentials,
+)
 
 logger = logging.getLogger(__name__)
+
+COS_ALIAS = "cos"
 
 
 @pytest.fixture(scope="module")
@@ -39,113 +49,118 @@ def namespace(namespace_name):
     return namespace_name
 
 
+def generate_tmp_file(data: dict, tmp_folder: Path) -> Path:
+    import uuid
+
+    (file := tmp_folder / f"{uuid.uuid4().hex}.yaml").write_text(yaml.dump(data))
+    return file
+
+
+@pytest_asyncio.fixture(scope="module")
+async def cos(ops_test: OpsTest, cos_model):
+    if cos_model and cos_model not in ops_test.models:
+
+        base_url = (
+            "https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays"
+        )
+
+        overlays = ["offers-overlay.yaml", "testing-overlay.yaml"]
+
+        def create_file(path: Path, response: requests.Response):
+            path.write_text(response.content.decode("utf-8"))
+            return path
+
+        with local_tmp_folder("tmp-cos") as tmp_folder:
+            logger.info(tmp_folder)
+
+            cos_bundle = Bundle[str | Path](
+                main="cos-lite",
+                overlays=[
+                    create_file(tmp_folder / overlay, response)
+                    for overlay in overlays
+                    if (response := requests.get(f"{base_url}/{overlay}"))
+                    if response.status_code == 200
+                ],
+            )
+
+            await ops_test.track_model(COS_ALIAS, model_name=cos_model)
+
+            with ops_test.model_context(COS_ALIAS) as model:
+
+                retcode, stdout, stderr = await deploy_bundle(ops_test, cos_bundle)
+                assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
+                logger.info(stdout)
+
+                await model.create_offer("traefik:ingress")
+
+            time.sleep(15)
+
+        yield cos_model
+
+        await ops_test.forget_model(cos_model)
+    else:
+        if cos_model:
+            await ops_test.track_model(COS_ALIAS, model_name=cos_model)
+
+        yield cos_model
+
+        if cos_model:
+            await ops_test.forget_model(cos_model)
+
+
 @pytest.mark.abort_on_fail
-async def test_deploy_cos(ops_test: OpsTest):
-    base_url = (
-        "https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays"
-    )
+@pytest.mark.asyncio
+async def test_deploy_bundle(
+    ops_test: OpsTest, credentials, bucket, registry, service_account, bundle, cos
+):
+    """Deploy the bundle."""
 
-    overlays = ["offers-overlay.yaml", "testing-overlay.yaml"]
+    data = {
+        "namespace": service_account.namespace,
+        "service_account": service_account.name,
+        "bucket": bucket.bucket_name,
+        "s3_endpoint": bucket.s3.meta.endpoint_url,
+    } | ({"cos_controller": ops_test.controller_name, "cos_model": cos} if cos else {})
 
-    await ops_test.track_model("cos", model_name="cos")
+    with local_tmp_folder("tmp") as tmp_folder:
+        logger.info(tmp_folder)
 
-    with ops_test.model_context("cos") as cos_model:
+        bundle_rendered = bundle.map(
+            lambda path: render_yaml(path, data, ops_test)
+        ).map(lambda data: generate_tmp_file(data, tmp_folder))
 
-        # Create overlays
-        for overlay in overlays:
-            response = requests.get(f"{base_url}/{overlay}")
-            Path(overlay).write_text(response.content.decode("utf-8"))
+        retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_rendered)
 
-        cmds = [
-            "juju",
-            "deploy",
-            "--trust",
-            "-m",
-            f"{ops_test.model_full_name}",
-            "cos-lite",
-        ] + sum([["--overlay", f"./{(overlay)}"] for overlay in overlays], [])
-
-        logger.info(" ".join(cmds))
-
-        retcode, stdout, stderr = await ops_test.run(*cmds)
         assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
         logger.info(stdout)
 
-        await cos_model.create_offer("traefik:ingress")
-        time.sleep(15)
-
-        # Delete overlays
-        for overlay in overlays:
-            Path(overlay).unlink()
-
-
-@pytest.mark.abort_on_fail
-async def test_deploy_bundle(
-    ops_test: OpsTest, credentials, bucket, registry, service_account, bundle
-):
-    """Deploy the bundle."""
-    if os.path.splitext(bundle)[1] == ".j2":
-        bundle_file = ops_test.render_bundle(
-            bundle,
-            namespace=service_account.namespace,
-            service_account=service_account.name,
-            bucket=bucket.bucket_name,
-            s3_endpoint=bucket.s3.meta.endpoint_url,
-            cos_controller=ops_test.controller_name,
-            cos_model="cos",
-        )
-    else:
-        bundle_file = bundle
-
-    bundle_data = yaml.safe_load(bundle_file.read_text())
-
-    applications = []
-
-    for app in bundle_data["applications"]:
-        applications.append(app)
-
-    (tmp_bundle := Path("bundle.yaml")).write_text(yaml.dump(bundle_data))
-
-    cmds = [
-        "deploy",
-        "--trust",
-        "-m",
-        ops_test.model_full_name,
-        f"./{tmp_bundle.name}",
-    ]
-
-    logger.info(" ".join(cmds))
-
-    retcode, stdout, stderr = await ops_test.juju(*cmds)
-    assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
-    logger.info(stdout)
-
-    tmp_bundle.unlink()
-
     await ops_test.model.wait_for_idle(
-        apps=["s3"], timeout=2000, idle_period=30, status="blocked"
+        apps=["s3"], timeout=600, idle_period=30, status="blocked"
     )
 
     await set_s3_credentials(ops_test, credentials)
 
-    with ops_test.model_context("cos") as cos_model:
-        await cos_model.wait_for_idle(
-            apps=[
-                "loki",
-                "grafana",
-                "prometheus",
-                "catalogue",
-                "traefik",
-                "alertmanager",
-            ],
-            idle_period=60,
-            timeout=3600,
-            raise_on_error=False,
-        )
+    if cos:
+        with ops_test.model_context(COS_ALIAS) as cos_model:
+            await cos_model.wait_for_idle(
+                apps=[
+                    "loki",
+                    "grafana",
+                    "prometheus",
+                    "catalogue",
+                    "traefik",
+                    "alertmanager",
+                ],
+                idle_period=60,
+                timeout=3600,
+                raise_on_error=False,
+            )
+
+    applications = ["history-server", "integration-hub"]
 
     await ops_test.model.wait_for_idle(
         apps=applications,
-        timeout=3600,
+        timeout=1800,
         idle_period=30,
         status="active",
         raise_on_error=False,  # To be removed
