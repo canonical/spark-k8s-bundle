@@ -144,8 +144,11 @@ async def test_deploy_bundle(
         )
 
     await ops_test.model.wait_for_idle(
-        apps=applications, timeout=3600, idle_period=30, status="active",
-        raise_on_error=False # To be removed
+        apps=applications,
+        timeout=3600,
+        idle_period=30,
+        status="active",
+        raise_on_error=False,  # To be removed
     )
 
     for app in applications:
