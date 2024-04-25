@@ -4,13 +4,13 @@ from pathlib import Path
 import pytest
 
 from tests import BUNDLE_FILE, RELEASE_DIR
+
 from .helpers import Bundle
 
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--integration", action="store_true",
-        help="flag to enable integration tests"
+        "--integration", action="store_true", help="flag to enable integration tests"
     )
     parser.addoption(
         "--bundle",
@@ -28,8 +28,8 @@ def pytest_addoption(parser):
         required=False,
         type=str,
         help="When provided, it deploys COS as well. "
-             "If the model already exists, we assume COS had already been "
-             "deployed.",
+        "If the model already exists, we assume COS had already been "
+        "deployed.",
     )
 
 
@@ -41,9 +41,8 @@ def cos_model(request) -> None | str:
 @pytest.fixture(scope="module")
 def bundle(request, cos_model) -> Bundle[Path]:
     bundle = (
-                 Path(file) if (
-                     file := request.config.getoption("--bundle")) else None
-             ) or BUNDLE_FILE
+        Path(file) if (file := request.config.getoption("--bundle")) else None
+    ) or BUNDLE_FILE
 
     overlays = (
         [Path(file) for file in files]
