@@ -140,21 +140,21 @@ async def test_deploy_bundle(
 
     await set_s3_credentials(ops_test, credentials)
 
-    if cos:
-        with ops_test.model_context(COS_ALIAS) as cos_model:
-            await cos_model.wait_for_idle(
-                apps=[
-                    "loki",
-                    "grafana",
-                    "prometheus",
-                    "catalogue",
-                    "traefik",
-                    "alertmanager",
-                ],
-                idle_period=60,
-                timeout=3600,
-                raise_on_error=False,
-            )
+    # if cos:
+    #     with ops_test.model_context(COS_ALIAS) as cos_model:
+    #         await cos_model.wait_for_idle(
+    #             apps=[
+    #                 "loki",
+    #                 "grafana",
+    #                 "prometheus",
+    #                 "catalogue",
+    #                 "traefik",
+    #                 "alertmanager",
+    #             ],
+    #             idle_period=60,
+    #             timeout=3600,
+    #             raise_on_error=False,
+    #         )
 
     applications = list(render_yaml(bundle.main, data, ops_test)["applications"].keys())
 
@@ -164,8 +164,7 @@ async def test_deploy_bundle(
         apps=applications,
         timeout=1800,
         idle_period=30,
-        status="active",
-        raise_on_error=False,  # To be removed
+        status="active"
     )
 
     for app in applications:
