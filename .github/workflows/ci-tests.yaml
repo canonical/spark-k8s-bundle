@@ -100,9 +100,9 @@ jobs:
             echo Skipping unstable tests
             echo "mark_expression=not unstable" >> $GITHUB_OUTPUT
           fi
-      - id: debugging
-        name: Setup upterm session
-        uses: lhotari/action-upterm@v1
+      # - id: debugging
+      #   name: Setup upterm session
+      #   uses: lhotari/action-upterm@v1
       - id: tests-integration
         name: Run Integration Tests
         run: |    
