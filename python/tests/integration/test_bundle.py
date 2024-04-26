@@ -161,10 +161,7 @@ async def test_deploy_bundle(
     print(applications)
 
     await ops_test.model.wait_for_idle(
-        apps=applications,
-        timeout=1800,
-        idle_period=30,
-        status="active"
+        apps=applications, timeout=1800, idle_period=30, status="active"
     )
 
     for app in applications:
