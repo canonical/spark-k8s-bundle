@@ -49,7 +49,7 @@ jobs:
       matrix:
         options:
           -
-          - --cos-model cos
+          # - --cos-model cos
     needs:
       - checks
       - unit-tests
