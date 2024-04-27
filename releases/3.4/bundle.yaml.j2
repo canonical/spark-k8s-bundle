@@ -2,8 +2,8 @@ bundle: kubernetes
 applications:
   kyuubi:
     charm: kyuubi-k8s
-    channel: "latest/edge"
-    revision: 5
+    channel: latest/edge
+    revision: 6
     resources:
       kyuubi-image: 1
     scale: 1
@@ -46,10 +46,10 @@ applications:
     constraints: arch=amd64
   history-server:
     charm: spark-history-server-k8s
-    channel: 3.4/stable
-    revision: 15
+    channel: 3.4/edge
+    revision: 24
     resources:
-      spark-history-server-image: 9
+      spark-history-server-image:12
     scale: 1
     constraints: arch=amd64
   integration-hub:
