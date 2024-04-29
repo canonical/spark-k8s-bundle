@@ -13,6 +13,12 @@ variable "s3" {
   default = {}
 }
 
+variable "kyuubi_user" {
+  description = "Define the user to be used for running Kyuubi enginers"
+  type = string
+  default = "kyuubi-spark-engine"
+}
+
 variable "cos_model" {
   description = "The name of the model where cos is deployed. If null, don't deploy cos related charms."
   type = string

@@ -1,20 +1,21 @@
 import logging
-import os.path
-import shutil
+import os
 import time
 from pathlib import Path
 
 import pytest
 import pytest_asyncio
 import requests
+import spark8t.domain
 import yaml
 from pytest_operator.plugin import OpsTest
 
+from spark_test.core.s3 import Bucket
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
-from spark_test.fixtures.pod import pod
 from spark_test.fixtures.s3 import bucket, credentials
 from spark_test.fixtures.service_account import registry, service_account
-from spark_test.utils import get_spark_drivers
+from spark8t.domain import ServiceAccount
+from .terraform import Terraform
 
 from .helpers import (
     Bundle,
@@ -108,12 +109,23 @@ async def cos(ops_test: OpsTest, cos_model):
             await ops_test.forget_model(cos_model)
 
 
-@pytest.mark.abort_on_fail
-@pytest.mark.asyncio
-async def test_deploy_bundle(
-    ops_test: OpsTest, credentials, bucket, registry, service_account, bundle, cos
-):
-    """Deploy the bundle."""
+async def deploy_bundle_yaml(
+        bundle: Bundle,
+        service_account: ServiceAccount,
+        bucket: Bucket,
+        cos: str | None,
+        ops_test: OpsTest) -> list[str]:
+    """Deploy the Bundle in YAML format.
+
+    Args:
+        bundle: Bundle object
+        service_account: Kyuubi service account to be used
+        bucket: S3 bucket to be used in the deployment
+        ops_test: OpsTest class
+
+    Returns:
+        list of charms deployed
+    """
 
     data = {
         "namespace": service_account.namespace,
@@ -122,41 +134,70 @@ async def test_deploy_bundle(
         "s3_endpoint": bucket.s3.meta.endpoint_url,
     } | ({"cos_controller": ops_test.controller_name, "cos_model": cos} if cos else {})
 
-    with local_tmp_folder("tmp") as tmp_folder:
+    bundle_content = bundle.map(
+        lambda path: render_yaml(path, data, ops_test)
+    )
+
+    with (local_tmp_folder("tmp") as tmp_folder):
         logger.info(tmp_folder)
 
-        bundle_rendered = bundle.map(
-            lambda path: render_yaml(path, data, ops_test)
-        ).map(lambda data: generate_tmp_file(data, tmp_folder))
+        bundle_tmp = bundle_content.map(
+            lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
+        )
 
-        retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_rendered)
+        retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
 
         assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
         logger.info(stdout)
 
-    await ops_test.model.wait_for_idle(
-        apps=["s3"], timeout=600, idle_period=30, status="blocked"
+    charms: Bundle[list[str]] = bundle_content.map(
+        lambda bundle_data: list(bundle_data["applications"].keys())
     )
 
-    await set_s3_credentials(ops_test, credentials)
+    return charms.main + sum(charms.overlays, [])
 
-    # if cos:
-    #     with ops_test.model_context(COS_ALIAS) as cos_model:
-    #         await cos_model.wait_for_idle(
-    #             apps=[
-    #                 "loki",
-    #                 "grafana",
-    #                 "prometheus",
-    #                 "catalogue",
-    #                 "traefik",
-    #                 "alertmanager",
-    #             ],
-    #             idle_period=60,
-    #             timeout=3600,
-    #             raise_on_error=False,
-    #         )
 
-    applications = list(render_yaml(bundle.main, data, ops_test)["applications"].keys())
+async def deploy_bundle_terraform(
+    bundle: Terraform,
+    service_account: ServiceAccount,
+    bucket: Bucket,
+    cos: str | None,
+    ops_test: OpsTest
+) -> list[str]:
+    tf_vars = {
+        's3': {
+            'bucket': bucket.bucket_name,
+            'endpoint': bucket.s3.meta.endpoint_url,
+        },
+        "kyuubi_user": service_account.name,
+        "model": ops_test.model_name
+    } | ({"cos_model": cos} if cos else {})
+
+    outputs = bundle.apply(tf_vars=tf_vars)
+
+    return list(outputs["charms"]["value"].values())
+
+
+@pytest.mark.abort_on_fail
+@pytest.mark.asyncio
+async def test_deploy_bundle(
+    ops_test: OpsTest, credentials, bucket, registry, service_account, bundle,
+    cos
+):
+    """Deploy the bundle."""
+
+    applications = await ( deploy_bundle_yaml(
+        bundle, service_account, bucket, cos, ops_test
+    ) if isinstance(bundle, Bundle) else deploy_bundle_terraform(
+        bundle, service_account, bucket, cos, ops_test
+    ))
+
+    if "s3" in applications:
+        await ops_test.model.wait_for_idle(
+            apps=["s3"], timeout=600, idle_period=30, status="blocked"
+        )
+
+        await set_s3_credentials(ops_test, credentials)
 
     print(applications)
 

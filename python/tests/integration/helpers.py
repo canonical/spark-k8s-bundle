@@ -22,7 +22,6 @@ class Bundle(Generic[T]):
     def map(self, f: Callable[[T], S]) -> "Bundle[S]":
         return Bundle(main=f(self.main), overlays=[f(item) for item in self.overlays])
 
-
 async def set_s3_credentials(
     ops_test: OpsTest, credentials: Credentials, application_name="s3", num_unit=0
 ) -> Any:
