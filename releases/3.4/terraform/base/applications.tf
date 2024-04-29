@@ -5,12 +5,12 @@ resource "juju_application" "history_server" {
 
   charm {
     name    = "spark-history-server-k8s"
-    channel = "3.4/stable"
-    revision = 15
+    channel = "3.4/edge"
+    revision = 24
   }
 
   resources = {
-      spark-history-server-image = 9
+      spark-history-server-image = 12
   }
 
   units = 1
@@ -52,7 +52,7 @@ resource "juju_application" "kyuubi" {
   charm {
     name    = "kyuubi-k8s"
     channel = "latest/edge"
-    revision = 5
+    revision = 6
   }
 
   resources = {
@@ -122,7 +122,7 @@ resource "juju_application" "hub" {
   charm {
     name    = "spark-integration-hub-k8s"
     channel = "latest/edge"
-    revision = 3
+    revision = 4
   }
 
   resources = {
