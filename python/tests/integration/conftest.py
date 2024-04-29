@@ -16,9 +16,15 @@ def pytest_addoption(parser):
         "--integration", action="store_true", help="flag to enable integration tests"
     )
     parser.addoption(
+        "--release",
+        required=False,
+        help="Path to the release to be used in integration tests",
+    )
+    parser.addoption(
         "--bundle",
         required=False,
-        help="Path to a bundle to be used in integration tests",
+        help="Path to a particular bundle. Using single files for YAML bundles "
+             "and directories for terraforms.",
     )
     parser.addoption(
         "--overlay",
@@ -57,9 +63,17 @@ def backend(request) -> None | str:
 @pytest.fixture(scope="module")
 def bundle(request, cos_model, backend, tmp_path_factory) \
         -> Bundle[Path] | Terraform:
-    bundle: Path = (
-        Path(file) if (file := request.config.getoption("--bundle")) else None
-    ) or RELEASE_DIR / "bundle.yaml.j2"
+
+    if file := request.config.getoption("--bundle"):
+        bundle = Path(file)
+    else:
+        release_dir: Path = (Path(file)
+            if (file := request.config.getoption("--release"))
+            else None
+        ) or RELEASE_DIR
+
+        bundle = release_dir / "terraform" if backend == "terraform" \
+            else release_dir / "yaml" / "bundle.yaml.j2"
 
     if backend == "terraform":
         tmp_path = tmp_path_factory.mktemp(uuid.uuid4().hex) / "terraform"
@@ -73,7 +87,7 @@ def bundle(request, cos_model, backend, tmp_path_factory) \
             [Path(file) for file in files]
             if (files := request.config.getoption("--overlay"))
             else (
-                [RELEASE_DIR / "resources" / "overlays" / "cos-integration.yaml.j2"]
+                [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
                 if cos_model
                 else []
             )

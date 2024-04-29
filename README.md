@@ -3,8 +3,9 @@
 This repository contains relevant artifacts for deploying and testing Charmed Spark bundles. In particular:
 
 * [python](./python) contains the `spark-test` package that provides some utilities and fixtures to easily implement Charmed Spark tests. Find more information [here](./python/README.md)
-* [releases](./releases) contains some Juju YAML bundles to easily deploy Charmed Spark on K8s
-* [terraform](./terraform) contains some Terraforms scripts to deploy Charmed Spark using the Juju Terraform provider
+* [releases](./releases) contains the artifacts for the different channels, supporting the following backends:
+  * [yaml](./releases/3.4/yaml) using Juju YAML bundles to easily deploy Charmed Spark on K8s
+  * [terraform](releases/3.4/terraform) using Terraforms scripts to deploy Charmed Spark using the Juju Terraform provider
 
 ## Contributing
 

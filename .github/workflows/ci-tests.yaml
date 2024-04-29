@@ -47,7 +47,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        options:
+        backend:
+          - --backend yaml
+          - --backend terraform
+        cos:
           -
           - --cos-model cos
     needs:
@@ -102,4 +105,4 @@ jobs:
       - id: tests-integration
         name: Run Integration Tests
         run: |    
-          cd python && tox run -e integration -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.options }}
+          cd python && tox run -e integration -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.backend }} ${{ matrix.cos }}
