@@ -1,17 +1,25 @@
+import json
+import logging
 import os
 import shutil
+import subprocess
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Callable, Generic, Optional, TypeVar
 
+import boto3
 import yaml
+from botocore.exceptions import ClientError, SSLError
 from pytest_operator.plugin import OpsTest
 
 from spark_test.core.s3 import Credentials
 
+logger = logging.getLogger(__name__)
+
 T = TypeVar("T")
 S = TypeVar("S")
+SECRET_NAME_PREFIX = "integrator-hub-conf-"
 
 
 @dataclass
@@ -82,3 +90,65 @@ def local_tmp_folder(name: str = "tmp"):
     yield tmp_folder
 
     shutil.rmtree(tmp_folder)
+
+
+def get_secret_data(namespace: str, service_account: str):
+    """Retrieve secret data for a given namespace and secret."""
+    command = ["kubectl", "get", "secret", "-n", namespace, "--output", "json"]
+    secret_name = f"{SECRET_NAME_PREFIX}{service_account}"
+    try:
+        output = subprocess.run(command, check=True, capture_output=True)
+        # output.stdout.decode(), output.stderr.decode(), output.returncode
+        result = output.stdout.decode()
+        logger.info(f"Command: {command}")
+        logger.info(f"Secrets for namespace: {namespace}")
+        logger.info(f"Request secret: {secret_name}")
+        secrets = json.loads(result)
+        data = {}
+        for secret in secrets["items"]:
+            name = secret["metadata"]["name"]
+            logger.info(f"\t secretName: {name}")
+            if name == secret_name:
+                data = {}
+                if "data" in secret:
+                    data = secret["data"]
+        return data
+    except subprocess.CalledProcessError as e:
+        return e.stdout.decode(), e.stderr.decode(), e.returncode
+
+
+def generate_tmp_file(data: dict, tmp_folder: Path) -> Path:
+    import uuid
+
+    (file := tmp_folder / f"{uuid.uuid4().hex}.yaml").write_text(yaml.dump(data))
+    return file
+
+
+def list_s3_objects(path: str, bucket: str, credentials: Credentials) -> Optional[str]:
+    """List folders inside a specified bucket."""
+    session = boto3.session.Session(
+        aws_access_key_id=credentials.access_key,
+        aws_secret_access_key=credentials.secret_key,
+    )
+    s3 = session.client(
+        "s3",
+        endpoint_url=credentials.endpoint or "https://s3.amazonaws.com",
+    )
+
+    try:
+        objs = []
+        objects = s3.list_objects_v2(Bucket=bucket)
+        for ob in objects["Contents"]:
+            logger.info(ob)
+            objs.append(ob["Key"])
+        return objs
+
+    except ClientError:
+        logger.error("Invalid S3 credentials...")
+        return None
+    except SSLError:
+        logger.error("SSL validation failed...")
+        return None
+    except Exception as e:
+        logger.error(f"S3 related error {e}")
+        return None
