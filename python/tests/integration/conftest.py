@@ -24,7 +24,7 @@ def pytest_addoption(parser):
         "--bundle",
         required=False,
         help="Path to a particular bundle. Using single files for YAML bundles "
-             "and directories for terraforms.",
+        "and directories for terraforms.",
     )
     parser.addoption(
         "--overlay",
@@ -46,7 +46,7 @@ def pytest_addoption(parser):
         default="yaml",
         type=str,
         help="Which backend to use for bundle. Supported values are either "
-             "yaml (default) or terraform.",
+        "yaml (default) or terraform.",
     )
 
 
@@ -61,19 +61,20 @@ def backend(request) -> None | str:
 
 
 @pytest.fixture(scope="module")
-def bundle(request, cos_model, backend, tmp_path_factory) \
-        -> Bundle[Path] | Terraform:
+def bundle(request, cos_model, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
 
     if file := request.config.getoption("--bundle"):
         bundle = Path(file)
     else:
-        release_dir: Path = (Path(file)
-            if (file := request.config.getoption("--release"))
-            else None
+        release_dir: Path = (
+            Path(file) if (file := request.config.getoption("--release")) else None
         ) or RELEASE_DIR
 
-        bundle = release_dir / "terraform" if backend == "terraform" \
+        bundle = (
+            release_dir / "terraform"
+            if backend == "terraform"
             else release_dir / "yaml" / "bundle.yaml.j2"
+        )
 
     if backend == "terraform":
         tmp_path = tmp_path_factory.mktemp(uuid.uuid4().hex) / "terraform"
