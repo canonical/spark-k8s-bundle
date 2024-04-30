@@ -9,10 +9,11 @@ jobs:
   checks:
     uses: ./.github/workflows/ci-checks.yaml
 
-  test:
-    name: Unit and Integration Tests
+  unit-tests:
+    name: Unit Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 10
+
     strategy:
       fail-fast: true
       matrix:
@@ -32,19 +33,42 @@ jobs:
           architecture: x64
       - name: Install tox & poetry
         run: |
-          pipx install tox
-          pipx install poetry
+          pip install tox
+          pip install poetry
       - id: tests-unit
         name: Run Unittests
         run: |
           cd python && tox -e unit
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        options:
+          -
+          - --cos-model cos
+    needs:
+      - checks
+      - unit-tests
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - id: setup-python
+        name: Setup Python
+        uses: actions/setup-python@v5.0.0
+        with:
+          python-version: "3.10"
+          architecture: x64
       - name: Get prefsrc
         run: |
           echo "IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')" >> $GITHUB_ENV
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@main
         with:
-          juju-channel: 3.1/stable
+          juju-channel: 3.4/stable
           provider: microk8s
           channel: 1.28-strict/stable
           microk8s-group: snap_microk8s
@@ -58,8 +82,24 @@ jobs:
           docker pull $IMAGE 
           docker save $IMAGE -o image.tar
           sudo microk8s ctr images import --base-name $IMAGE image.tar
+          docker rmi $IMAGE
+          rm image.tar
+      - name: Install tox & poetry
+        run: |
+          pip install tox
+          pip install poetry
+      - name: Select tests
+        id: select-tests
+        run: |
+          if [ "${{ github.event_name }}" == "schedule" ]
+          then
+            echo Running unstable and stable tests
+            echo "mark_expression=" >> $GITHUB_OUTPUT
+          else
+            echo Skipping unstable tests
+            echo "mark_expression=not unstable" >> $GITHUB_OUTPUT
+          fi
       - id: tests-integration
         name: Run Integration Tests
-        run: |
-          
-          cd python && tox -e integration
+        run: |    
+          cd python && tox run -e integration -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.options }}

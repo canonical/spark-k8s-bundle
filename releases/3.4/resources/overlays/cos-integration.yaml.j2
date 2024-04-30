@@ -1,0 +1,70 @@
+bundle: kubernetes
+saas:
+  grafana-dashboards:
+    url: {{ cos_controller|default('micro', true) }}:admin/{{ cos_model|default('cos', true) }}.grafana-dashboards
+  prometheus-receive-remote-write:
+    url: {{ cos_controller|default('micro', true) }}:admin/{{ cos_model|default('cos', true) }}.prometheus-receive-remote-write
+  traefik:
+    url: {{ cos_controller|default('micro', true) }}:admin/{{ cos_model|default('cos', true) }}.traefik
+applications:
+  agent:
+    charm: grafana-agent-k8s
+    channel: latest/stable
+    revision: 64
+    resources:
+      agent-image: 38
+    scale: 1
+    constraints: arch=amd64
+    storage:
+      data: kubernetes,1,1024M
+    trust: true
+  cos-configuration:
+    charm: cos-configuration-k8s
+    channel: latest/stable
+    revision: 46
+    base: ubuntu@20.04/stable
+    resources:
+      git-sync-image: 32
+    scale: 1
+    options:
+      git_branch: dpe-3966-spark-bundle-yaml
+      git_depth: 1
+      git_repo: https://github.com/canonical/spark-k8s-bundle
+      grafana_dashboards_path: releases/3.4/resources/grafana/
+    constraints: arch=amd64
+    storage:
+      content-from-git: kubernetes,1,1024M
+  pushgateway:
+    charm: prometheus-pushgateway-k8s
+    channel: latest/edge
+    revision: 12
+    resources:
+      pushgateway-image: 8
+    scale: 1
+    constraints: arch=amd64
+    storage:
+      pushgateway-store: kubernetes,1,1024M
+  scrape-config:
+    charm: prometheus-scrape-config-k8s
+    channel: latest/stable
+    revision: 47
+    base: ubuntu@20.04/stable
+    scale: 1
+    options:
+      scrape_interval: 10s
+    constraints: arch=amd64
+relations:
+- - cos-configuration:grafana-dashboards
+  - agent:grafana-dashboards-consumer
+- - scrape-config:configurable-scrape-jobs
+  - pushgateway:metrics-endpoint
+- - scrape-config:metrics-endpoint
+  - agent:metrics-endpoint
+- - pushgateway:push-endpoint
+  - integration-hub:cos
+- - agent:grafana-dashboards-provider
+  - grafana-dashboards:grafana-dashboard
+- - agent:send-remote-write
+  - prometheus-receive-remote-write:receive-remote-write
+- - history-server:ingress
+  - traefik:ingress
