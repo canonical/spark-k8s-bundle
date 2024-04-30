@@ -43,7 +43,6 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-22.04
-    # [ "self-hosted", "linux", "X64", "jammy", "large" ]
     timeout-minutes: 60
     strategy:
       fail-fast: false
