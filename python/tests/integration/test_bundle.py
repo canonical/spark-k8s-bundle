@@ -23,6 +23,7 @@ from spark_test.fixtures.service_account import registry, service_account
 from .helpers import (
     Bundle,
     deploy_bundle,
+    generate_tmp_file,
     local_tmp_folder,
     render_yaml,
     set_s3_credentials,
@@ -52,13 +53,6 @@ def namespace_name(ops_test: OpsTest):
 @pytest.fixture(scope="module")
 def namespace(namespace_name):
     return namespace_name
-
-
-def generate_tmp_file(data: dict, tmp_folder: Path) -> Path:
-    import uuid
-
-    (file := tmp_folder / f"{uuid.uuid4().hex}.yaml").write_text(yaml.dump(data))
-    return file
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -201,7 +195,7 @@ async def test_deploy_bundle(
 
         await set_s3_credentials(ops_test, credentials)
 
-    print(applications)
+    logger.info(f"Applications: {applications}")
 
     await ops_test.model.wait_for_idle(
         apps=applications,
