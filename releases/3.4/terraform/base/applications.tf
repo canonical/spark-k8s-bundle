@@ -1,3 +1,6 @@
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
 resource "juju_application" "history_server" {
   name = "history-server"
 

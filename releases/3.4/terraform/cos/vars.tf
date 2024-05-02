@@ -1,3 +1,6 @@
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
 variable "model" {
   description = "The name of the Juju Model to deploy to"
   type        = string

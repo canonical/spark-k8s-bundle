@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
 
 setup_microk8s() {
   sudo snap install microk8s --channel=1.28/stable --classic

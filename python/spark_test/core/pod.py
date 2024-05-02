@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
 import subprocess
 from functools import cached_property
 from pathlib import Path

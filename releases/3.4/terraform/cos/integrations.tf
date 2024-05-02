@@ -1,3 +1,6 @@
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
 data "juju_offer" "grafana_dashboards" {
   url = local.endpoints.dashboards
 }

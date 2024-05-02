@@ -1,3 +1,6 @@
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
 output "charms" {
   value = {
     history_server = juju_application.history_server.name

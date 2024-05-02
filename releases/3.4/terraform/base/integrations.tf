@@ -1,3 +1,6 @@
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
 resource "juju_integration" "s3_history_server" {
   model      = var.model
 
