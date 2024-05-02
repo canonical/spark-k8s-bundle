@@ -15,8 +15,11 @@ import boto3
 import yaml
 from botocore.exceptions import ClientError, SSLError
 from pytest_operator.plugin import OpsTest
+from spark8t.domain import ServiceAccount
 
-from spark_test.core.s3 import Credentials
+from spark_test.core.s3 import Bucket, Credentials
+
+from .terraform import Terraform
 
 T = TypeVar("T")
 S = TypeVar("S")
@@ -156,3 +159,71 @@ def list_s3_objects(path: str, bucket: str, credentials: Credentials) -> Optiona
     except Exception as e:
         logger.error(f"S3 related error {e}")
         return None
+
+
+async def deploy_bundle_yaml(
+    bundle: Bundle,
+    service_account: ServiceAccount,
+    bucket: Bucket,
+    cos: str | None,
+    ops_test: OpsTest,
+) -> list[str]:
+    """Deploy the Bundle in YAML format.
+
+    Args:
+        bundle: Bundle object
+        service_account: Kyuubi service account to be used
+        bucket: S3 bucket to be used in the deployment
+        ops_test: OpsTest class
+
+    Returns:
+        list of charms deployed
+    """
+
+    data = {
+        "namespace": service_account.namespace,
+        "service_account": service_account.name,
+        "bucket": bucket.bucket_name,
+        "s3_endpoint": bucket.s3.meta.endpoint_url,
+    } | ({"cos_controller": ops_test.controller_name, "cos_model": cos} if cos else {})
+
+    bundle_content = bundle.map(lambda path: render_yaml(path, data, ops_test))
+
+    with local_tmp_folder("tmp") as tmp_folder:
+        logger.info(tmp_folder)
+
+        bundle_tmp = bundle_content.map(
+            lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
+        )
+
+        retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
+
+        assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
+        logger.info(stdout)
+
+    charms: Bundle[list[str]] = bundle_content.map(
+        lambda bundle_data: list(bundle_data["applications"].keys())
+    )
+
+    return charms.main + sum(charms.overlays, [])
+
+
+async def deploy_bundle_terraform(
+    bundle: Terraform,
+    service_account: ServiceAccount,
+    bucket: Bucket,
+    cos: str | None,
+    ops_test: OpsTest,
+) -> list[str]:
+    tf_vars = {
+        "s3": {
+            "bucket": bucket.bucket_name,
+            "endpoint": bucket.s3.meta.endpoint_url,
+        },
+        "kyuubi_user": service_account.name,
+        "model": ops_test.model_name,
+    } | ({"cos_model": cos} if cos else {})
+
+    outputs = bundle.apply(tf_vars=tf_vars)
+
+    return list(outputs["charms"]["value"].values())
