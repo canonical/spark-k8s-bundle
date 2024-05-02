@@ -71,7 +71,7 @@ class Bucket:
         return self
 
     def delete(self):
-        """Delete the current pod."""
+        """Delete the current bucket."""
         if not self.exists():
             return
 

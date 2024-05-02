@@ -178,6 +178,12 @@ async def test_run_job(
 ):
     """Run a spark job."""
 
+    # upload data
+    bucket.upload_file("tests/integration/resources/example.txt")
+
+    # upload script
+    bucket.upload_file("tests/integration/resources/spark_test.py")
+
     extra_confs = PropertyFile(
         {
             "spark.kubernetes.driver.request.cores": "100m",
@@ -198,10 +204,8 @@ async def test_run_job(
             "--namespace",
             service_account.namespace,
             "-v",
-            "--class",
-            "org.apache.spark.examples.SparkPi",
-            "local:///opt/spark/examples/jars/spark-examples_2.12-3.4.2.jar",
-            "1000",
+            f"s3a://{bucket.bucket_name}/spark_test.py",
+            f"-b {bucket.bucket_name}",
         ]
     )
 
@@ -210,7 +214,7 @@ async def test_run_job(
     )
     assert len(driver_pods) == 1
 
-    line_check = filter(lambda line: "Pi is roughly" in line, driver_pods[0].logs())
+    line_check = filter(lambda line: "Number of lines" in line, driver_pods[0].logs())
     assert next(line_check)
 
 
