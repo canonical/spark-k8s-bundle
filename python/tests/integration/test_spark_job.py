@@ -27,7 +27,6 @@ from .helpers import (
     deploy_bundle_yaml,
     generate_tmp_file,
     get_secret_data,
-    list_s3_objects,
     local_tmp_folder,
     render_yaml,
     set_s3_credentials,
