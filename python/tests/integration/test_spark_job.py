@@ -164,7 +164,7 @@ async def test_job_logs_are_persisted(
     driver_pod_name = driver_pods[0].pod_name
     logger.info(f"Pod name: {driver_pod_name}")
 
-    logger.info(f"metadata: {driver_pods[0].metadata()}")
+    logger.info(f"metadata: {driver_pods[0].metadata}")
 
     spark_app_selector = driver_pods[0].labels["spark-app-selector"]
 
@@ -271,7 +271,7 @@ async def test_job_in_prometheus(ops_test: OpsTest, registry, service_account, c
         )
         assert len(driver_pods) == 1
 
-        logger.info(f"metadata: {driver_pods[0].metadata()}")
+        logger.info(f"metadata: {driver_pods[0].metadata}")
         spark_app_selector = driver_pods[0].labels["spark-app-selector"]
         logger.info(f"Spark-app-selector: {spark_app_selector}")
         assert spark_id == spark_app_selector
