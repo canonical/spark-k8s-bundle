@@ -142,6 +142,7 @@ class Pod:
             for line in self.client.log(name=self.pod_name, namespace=self.namespace)
         )
 
+    @property
     def metadata(self):
         """Return the metadata of the pod."""
         return self.client.get(
@@ -150,6 +151,7 @@ class Pod:
             namespace=self.namespace,
         ).metadata
 
+    @property
     def labels(self) -> Dict[str, str]:
         """Return the labels of the pod."""
         return self.client.get(

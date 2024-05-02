@@ -131,36 +131,6 @@ def get_secret_data(namespace: str, service_account: str):
         return e.stdout.decode(), e.stderr.decode(), e.returncode
 
 
-def list_s3_objects(path: str, bucket: str, credentials: Credentials) -> Optional[str]:
-    """List folders inside a specified bucket."""
-    session = boto3.session.Session(
-        aws_access_key_id=credentials.access_key,
-        aws_secret_access_key=credentials.secret_key,
-    )
-    s3 = session.client(
-        "s3",
-        endpoint_url=credentials.endpoint or "https://s3.amazonaws.com",
-    )
-
-    try:
-        objs = []
-        objects = s3.list_objects_v2(Bucket=bucket)
-        for ob in objects["Contents"]:
-            logger.info(ob)
-            objs.append(ob["Key"])
-        return objs
-
-    except ClientError:
-        logger.error("Invalid S3 credentials...")
-        return None
-    except SSLError:
-        logger.error("SSL validation failed...")
-        return None
-    except Exception as e:
-        logger.error(f"S3 related error {e}")
-        return None
-
-
 async def deploy_bundle_yaml(
     bundle: Bundle,
     service_account: ServiceAccount,
