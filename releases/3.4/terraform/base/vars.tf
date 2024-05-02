@@ -17,7 +17,7 @@ variable "s3" {
 }
 
 variable "kyuubi_user" {
-  description = "Define the user to be used for running Kyuubi enginers"
+  description = "Define the user to be used for running Kyuubi engines"
   type = string
   default = "kyuubi-spark-engine"
 }
