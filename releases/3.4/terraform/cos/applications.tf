@@ -38,7 +38,7 @@ resource "juju_application" "cos_configuration" {
   }
 
   config = {
-    git_branch = "dpe-3966-spark-bundle-yaml"
+    git_branch = "main"
     git_depth  = "1"
     git_repo   = "https://github.com/canonical/spark-k8s-bundle"
     grafana_dashboards_path = "releases/3.4/resources/grafana/"
