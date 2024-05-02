@@ -1,11 +1,18 @@
+#!/usr/bin/env python3
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
 import os
+import shutil
+import uuid
 from pathlib import Path
 
 import pytest
 
-from tests import BUNDLE_FILE, RELEASE_DIR
+from tests import RELEASE_DIR
 
 from .helpers import Bundle
+from .terraform import Terraform
 
 
 def pytest_addoption(parser):
@@ -13,9 +20,15 @@ def pytest_addoption(parser):
         "--integration", action="store_true", help="flag to enable integration tests"
     )
     parser.addoption(
+        "--release",
+        required=False,
+        help="Path to the release to be used in integration tests",
+    )
+    parser.addoption(
         "--bundle",
         required=False,
-        help="Path to a bundle to be used in integration tests",
+        help="Path to a particular bundle. Using single files for YAML bundles "
+        "and directories for terraforms.",
     )
     parser.addoption(
         "--overlay",
@@ -31,6 +44,14 @@ def pytest_addoption(parser):
         "If the model already exists, we assume COS had already been "
         "deployed.",
     )
+    parser.addoption(
+        "--backend",
+        choices=["yaml", "terraform"],
+        default="yaml",
+        type=str,
+        help="Which backend to use for bundle. Supported values are either "
+        "yaml (default) or terraform.",
+    )
 
 
 @pytest.fixture(scope="module")
@@ -39,26 +60,49 @@ def cos_model(request) -> None | str:
 
 
 @pytest.fixture(scope="module")
-def bundle(request, cos_model) -> Bundle[Path]:
-    bundle = (
-        Path(file) if (file := request.config.getoption("--bundle")) else None
-    ) or BUNDLE_FILE
+def backend(request) -> None | str:
+    return request.config.getoption("--backend")
 
-    overlays = (
-        [Path(file) for file in files]
-        if (files := request.config.getoption("--overlay"))
-        else (
-            [RELEASE_DIR / "resources" / "overlays" / "cos-integration.yaml.j2"]
-            if cos_model
-            else []
+
+@pytest.fixture(scope="module")
+def bundle(request, cos_model, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
+
+    if file := request.config.getoption("--bundle"):
+        bundle = Path(file)
+    else:
+        release_dir: Path = (
+            Path(file) if (file := request.config.getoption("--release")) else None
+        ) or RELEASE_DIR
+
+        bundle = (
+            release_dir / "terraform"
+            if backend == "terraform"
+            else release_dir / "yaml" / "bundle.yaml.j2"
         )
-    )
 
-    for file in overlays + [bundle]:
-        if not file.exists():
-            raise FileNotFoundError(file.absolute())
+    if backend == "terraform":
+        tmp_path = tmp_path_factory.mktemp(uuid.uuid4().hex) / "terraform"
+        shutil.copytree(bundle, tmp_path)
+        client = Terraform(path=tmp_path)
+        yield client
+        client.destroy()
 
-    return Bundle(main=bundle, overlays=overlays)
+    else:
+        overlays = (
+            [Path(file) for file in files]
+            if (files := request.config.getoption("--overlay"))
+            else (
+                [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
+                if cos_model
+                else []
+            )
+        )
+
+        for file in overlays + [bundle]:
+            if not file.exists():
+                raise FileNotFoundError(file.absolute())
+
+        yield Bundle(main=bundle, overlays=overlays)
 
 
 @pytest.fixture

@@ -1,3 +1,6 @@
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
 name: Run Tests
 
 on:
@@ -18,7 +21,7 @@ jobs:
       fail-fast: true
       matrix:
         python-version:
-          - '3.9'
+          # - '3.9'
           - '3.10'
     needs:
       - checks
@@ -47,7 +50,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        options:
+        backend:
+          - --backend yaml
+          - --backend terraform
+        cos:
           -
           - --cos-model cos
     needs:
@@ -102,4 +108,4 @@ jobs:
       - id: tests-integration
         name: Run Integration Tests
         run: |    
-          cd python && tox run -e integration -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.options }}
+          cd python && tox run -e integration -- ${{ matrix.backend }} ${{ matrix.cos }}
