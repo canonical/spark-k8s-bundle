@@ -57,8 +57,11 @@ async def set_s3_credentials(
 async def get_address(ops_test: OpsTest, app_name, unit_num=0) -> str:
     """Get the address for a unit."""
     status = await ops_test.model.get_status()  # noqa: F821
-    address = status["applications"][app_name]["units"][f"{app_name}/{unit_num}"]["address"]
+    address = status["applications"][app_name]["units"][f"{app_name}/{unit_num}"][
+        "address"
+    ]
     return address
+
 
 async def get_kyuubi_credentials(
     ops_test: OpsTest, application_name="kyuubi", num_unit=0
@@ -71,16 +74,9 @@ async def get_kyuubi_credentials(
 
     results = (await action.wait()).results
 
-    address = await get_address(
-        ops_test, app_name=application_name, unit_num=num_unit
-    )
+    address = await get_address(ops_test, app_name=application_name, unit_num=num_unit)
 
-    return {
-        "username": "admin",
-        "password": results["password"],
-        "host": address
-    }
-
+    return {"username": "admin", "password": results["password"], "host": address}
 
 
 def render_yaml(file: Path, data: dict, ops_test: OpsTest) -> dict:
