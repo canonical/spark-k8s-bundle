@@ -121,7 +121,8 @@ class Terraform(WithLogging):
         return self.outputs
 
     def destroy(self):
-        self._exec_command(["terraform", "destroy", "-auto-approve"])
+        pass
+        # self._exec_command(["terraform", "destroy", "-auto-approve"])
 
     @property
     def state(self):
