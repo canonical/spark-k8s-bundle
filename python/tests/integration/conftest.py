@@ -15,7 +15,7 @@ from pytest_operator.plugin import OpsTest
 
 from tests import RELEASE_DIR
 
-from .helpers import Bundle, deploy_bundle, local_tmp_folder, COS_ALIAS
+from .helpers import COS_ALIAS, Bundle, deploy_bundle, local_tmp_folder
 from .terraform import Terraform
 
 logger = logging.getLogger(__name__)
