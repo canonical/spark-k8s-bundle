@@ -20,6 +20,7 @@ from spark_test.fixtures.s3 import bucket, credentials
 from spark_test.fixtures.service_account import registry, service_account
 
 from .helpers import (
+    COS_ALIAS,
     Bundle,
     deploy_bundle,
     deploy_bundle_terraform,
@@ -28,7 +29,6 @@ from .helpers import (
     local_tmp_folder,
     render_yaml,
     set_s3_credentials,
-    COS_ALIAS
 )
 
 logger = logging.getLogger(__name__)
