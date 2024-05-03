@@ -1,8 +1,10 @@
-## Manage Spark Client Accounts
+## Manage Charmed Spark Service Accounts
 
-This is an introduction to the CLI interface for creating, managing and configuring Spark accounts. 
+This is an introduction to the CLI interface for creating, managing and configuring Charmed Spark service accounts. 
 
-> **Note** The following commands assume that you have administrative permission on the namespaces (or on the kubernetes cluster) such that the corresponding resources (such as service accounts, secrets, roles and role-bindings) can be created and deleted. 
+> **Note** Charmed Spark service accounts are designed to work seamlessly integrated with the Spark Integration Hub charm, allowing you to configure Spark configuration using Juju relations. You can find more information about how to use configuration hub [here](/todo).
+
+> :warning: The following commands assume that you have administrative permission on the namespaces (or on the kubernetes cluster) such that the corresponding resources (such as service accounts, secrets, roles and role-bindings) can be created and deleted. 
 
 ### Create Service Account
 
@@ -24,8 +26,6 @@ be used. (If another primary exists, the latter account primary flag will be set
 ```bash
 spark-client.service-account-registry create --username demouser --namespace demonamespace  --primary --properties-file /home/demouser/conf/spark-overrides.conf  --conf spark.app.name=demo-spark-app-overrides
 ```
-
-
 
 ### List all service accounts
 
@@ -85,7 +85,3 @@ secrets, role, role-bindings, etc.
 spark-client.service-account-registry delete --username demouser --namespace demonamespace 
 ```
 
-***
-
-* Next: [Use the Spark Client Python API](/t/spark-client-snap-how-to-python-api/8958)
-* [Charmed Spark Documentation](https://discourse.charmhub.io/t/charmed-spark-documentation/8963)

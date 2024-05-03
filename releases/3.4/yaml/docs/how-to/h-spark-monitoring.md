@@ -1,87 +1,121 @@
-The Charmed Spark solution comes with the [spark-metrics](https://github.com/banzaicloud/spark-metrics) exporter embedded in the [Charmed Spark OCI image](https://github.com/canonical/charmed-spark-rock), used as base for driver and executors pods .
-This exporter is designed to push metrics to the [prometheus pushgateway](https://github.com/prometheus/pushgateway), that is integrated with the [Canonical Observability Stack](https://charmhub.io/topics/canonical-observability-stack). 
+## Enable and configuring Spark monitoring
 
+Charmed Spark supports native integration with the Canonical Observability Stack (COS). If you want to enable monitoring on top of Charmed Spark, make sure that you have a Juju model with COS correctly deployed. 
+To deploy COS on MicroK8s, follow the step-by-step tutorial [here](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s). 
+For more information about COS, please refer to [here](https://charmhub.io/topics/canonical-observability-stack). 
+For more information about Charmed Spark and COS integration, please refer to the explanation section about [monitoring](/todo).
 
-In order to enable the observability on Charmed Spark two steps are necessary:
+Once COS is correctly setup, to enable monitoring it is necessary to:
 
-1. Setup the Observability bundle with juju
+1. Integrate and configure the COS bundle with Charmed Spark
 2. Configure the Spark service account
 
+## Integrating/Configuring with COS
 
-## Setup the Observability bundle with Juju
+The Charmed Spark solution already bundles all the components required for 
+integrating with COS as well as configuring the monitoring artifacts. 
 
-As a prerequisite, you need to have Juju 3 installed with a MicroK8s controller bootstrapped. This can be done following this [tutorial](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s).
+The deployments of these resources can be enabled/disabled using either overlays
+(for Juju bundles) or input variables (for Terraform bundles). 
+Please refer to the [how-to deploy](/TODO) guide for more information.
 
+After the deployment settles on an `active/idle` state, you can make sure that 
+Grafana is correctly setup with dedicated dashboards.
+To do so, retrieve the credentials for logging into the Grafana dashboard, by 
+switching to the COS model (using `juju switch <cos_model>`) and 
+using the following action:
 
-As a first step, start by deploying cos-lite bundle in a Kubernetes environment with Juju.
-
-```shell
-juju add-model cos
-juju switch cos
-juju deploy cos-lite --trust
-```
-Some extra charms are needed to integrate the Charmed Spark with the Observability bundle. This includes the `prometheus-pushgateway-k8s` charm and the `cos-configuration-k8s grafana` that is used to configure the Grafana dashboard. We provide a basic dashboard [here](https://github.com/canonical/charmed-spark-rock/blob/dashboard/dashboards/prod/grafana/spark_dashboard.json).
-
-```shell
-juju deploy prometheus-pushgateway-k8s --channel edge
-# deploy cos configuration charm to import the grafana dashboard
-juju deploy cos-configuration-k8s \
-  --config git_repo=https://github.com/canonical/charmed-spark-rock \
-  --config git_branch=dashboard \
-  --config git_depth=1 \
-  --config grafana_dashboards_path=dashboards/prod/grafana/
-# relate cos-configration charm to import grafana dashboard
-juju relate cos-configuration-k8s grafana
-juju relate prometheus-pushgateway-k8s prometheus
-
-```
-
-The observability bundle can be optionally further customized using additional charms:
-```shell
-
-
-# deploy the prometheus-scrape-config-k8s to configure a more fine grained scraping interval 
-juju deploy prometheus-scrape-config-k8s scrape-interval-config --config scrape_interval=<SCRAPE_INTERVAL>
-juju relate scrape-interval-config prometheus-pushgateway-k8s
-juju relate scrape-interval-config:metrics-endpoint prometheus:metrics-endpoint
-
-```
-
-This allows to configure a custom scraping interval that prometheus will used to retrieve the exposed metrics.
-
-
-Eventually, you will need to retrive the credentials for logging into the Grafana dashboard, by using the following action:
 ``` shell
 juju run grafana/leader get-admin-password
 ```
 
-After the login, Grafana will show a new dashboard: `Spark Dashboard` where the metrics are displayed.
+The action will also show you the grafana endpoint where you will be able to
+log in with the provided credentials for the `admin` user.
+
+After the login, Grafana will show a new dashboard: `Spark Dashboard` where 
+the Spark metrics will be displayed.
+
+### Configuring Charmed Spark dashboards
+
+The `cos-configuration-k8s` charm included in the bundle can be used to configure 
+the Grafana dashboard. We provide a default dashboard [here](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/resources/grafana).
+
+The `cos-configuration-k8s` charm syncs the content of a repository with the resources 
+provided to Grafana, thus enabling to version the resources. 
+You can specify the repository, branch and folder using the config options, i.e.
+
+```shell
+# deploy cos configuration charm to import the grafana dashboard
+juju config cos-configuration \
+  git_repo=<your-repo> \
+  git_branch=<your-branch> \
+  git_depth=1 \
+  grafana_dashboards_path=<path-to-dashboard-folder>
+```
+
+After updating the configuration or whenever the repository is updated, 
+contents is synced either upon a `update-status` event or after running the action:
+
+```shell
+juju run cos-configuration-k8s/leader sync-now
+```
+
+You can find more information about the `cos-configuration-k8s` charm [here](https://discourse.charmhub.io/t/cos-configuration-k8s-docs-index/7284).
+
+### Configuring Scraping intervals
+
+The `prometheus-scrape-config-k8s` charm included in the bundle can be used to configure 
+the prometheus scraping jobs. 
+
+In particular, it can be very crucial to configure the scraping interval to make sure 
+data points have proper sampling frequency, e.g. 
+
+```shell
+juju config scrape-config --config scrape_interval=<SCRAPE_INTERVAL>
+```
+
+For more information about the properties that can be set using `prometheus-scrape-config-k8s`, 
+please refer to [here](https://discourse.charmhub.io/t/prometheus-scrape-config-k8s-docs-index/6856).
+
 
 ## Configure Spark service account
 
+Charmed Spark service account created by `spark-client` snap and `spark8t` Python library
+are automatically configured to use monitoring by the 
+[spark-integration-hub-k8s](https://charmhub.io/spark-integration-hub-k8s) charm, that 
+is deployed as part of the Charmed Spark bundle. 
 
-To enable the push of metrics you only need to add the following lines as configuration to a `spark-client` configuration file (e.g., `spark-defaults.conf`): 
+Just make sure that the `spark-integration-hub-k8s` charm is correctly related to
+the `prometheus-pushgateway` charm on the `pushgateway` interface.
+
+You can also double-check that the configuration done by the `spark-integration-hub-k8s`
+was effective by inspecting the Charmed Spark service account properties using the snap
+
+```shell
+spark-client.service-account-registry get-config --username <username> --namespace <namespace>
+```
+
+and check that the following property
 
 ```shell
 spark.metrics.conf.driver.sink.prometheus.pushgateway-address=<PROMETHEUS_GATEWAY_ADDRESS>:<PROMETHEUS_PORT>
-spark.metrics.conf.driver.sink.prometheus.class=org.apache.spark.banzaicloud.metrics.sink.PrometheusSink
-spark.metrics.conf.driver.sink.prometheus.enable-dropwizard-collector=true
-spark.metrics.conf.driver.sink.prometheus.period=5
-spark.metrics.conf.driver.sink.prometheus.metrics-name-capture-regex=([a-z0-9]*_[a-z0-9]*_[a-z0-9]*_)(.+)
-spark.metrics.conf.driver.sink.prometheus.metrics-name-replacement=\$2
-spark.metrics.conf.executor.sink.prometheus.pushgateway-address=<PROMETHEUS_GATEWAY_ADDRESS>:<PROMETHEUS_PORT>
-spark.metrics.conf.executor.sink.prometheus.class=org.apache.spark.banzaicloud.metrics.sink.PrometheusSink
-spark.metrics.conf.executor.sink.prometheus.enable-dropwizard-collector=true
-spark.metrics.conf.executor.sink.prometheus.period=5
-spark.metrics.conf.executor.sink.prometheus.metrics-name-capture-regex=([a-z0-9]*_[a-z0-9]*_[a-z0-9]*_)(.+)
-spark.metrics.conf.executor.sink.prometheus.metrics-name-replacement=\$2
 ```
 
-or as alternative you can feed these arguments directly to the spark-submit command, as shown [here](https://discourse.charmhub.io/t/spark-client-snap-tutorial-spark-submit/8953).
-
-The Prometheus Pushgateway address and port can be exposed with the following commands: 
+is valued correctly. The Prometheus Pushgateway address and port should be can be consistent with what is exposed by Juju, e.g. 
 
 ```shell
-export PROMETHEUS_GATEWAY=$(juju status --format=yaml | yq ".applications.prometheus-pushgateway-k8s.address") 
-export PROMETHEUS_PORT=9091
+PROMETHEUS_GATEWAY=$(juju status --format=yaml | yq ".applications.prometheus-pushgateway-k8s.address") 
 ```
+
+> **NOTE** Beside the one above, the Charmed Spark service accounts are configured 
+> for exporting metrics by means of other properties, returned by the `get-config`
+> command.
+> Should you want to override some of these with other custom values, this 
+> can be done by either:
+>   1. providing custom configuration to the `spark-integration-hub-k8s` charm 
+>      (as explained [here](/TODO))
+>   2. adding the configurations to the Charmed Spark service account 
+>      directly (as explained [here](/t/spark-client-snap-how-to-manage-spark-accounts/8959))
+>   3. feeding these arguments directly to the spark-submit command (as shown 
+>      [here](/t/spark-client-snap-tutorial-spark-submit/8953)).
+

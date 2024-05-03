@@ -1,0 +1,91 @@
+## Monitoring 
+
+An important requirement of a production-ready system is to provide a way for the admins to 
+monitor and actively observe the operation of the cluster. 
+Charmed Spark comes with an observability stack that provides:
+
+* **business analytical monitoring** via the deployment of Spark History Server, 
+  that provides a UI that allows Spark users (such as Data Scientist and Data Engineers) 
+  to analyze the logs of their jobs at a more business level, allowing to break down a Spark Job into 
+  its different parts and stages 
+* **cluster administration monitoring** via integration with the Canonical 
+  Observability Stack (COS) for aggregating raw application metrics,  
+  and setting up alerts and dashboards based on resource utilization.
+
+In the following we will describe the architecture and how the different components 
+connect among themselves, providing the monitoring capabilities of the solution.
+
+Before diving in, it is worth providing a brief reminder of the structure of 
+a Spark Job. 
+
+### Spark Job structure
+
+A Spark Job is generally composed by two main types of processes:
+
+* Spark Driver, that executes the main program, interacts with the Cluster Manager 
+  to request computational resources (Executors), and control the workflow by providing
+  instructions to the Executors on which operations/tasks to be executed. The Spark 
+  driver generally holds a small fraction of the data, generally resulting on the
+  aggregation/reduction operation done by the Executors. 
+
+* Spark Executors, that hold the raw data in memory and do the actual processing.  
+  The Executors generally communicate among themselves to shuffle data whenever 
+  needed, and they provide the horizontally scalable structure that enabled 
+  analysis to be distributed and scaled out to massive datasets. 
+
+Spark Driver and Spark Executors are allocated by a Cluster Managers that in our
+case is represented by the K8s control plane. Therefore, for Spark on K8s, driver
+and executors are pods that are scheduled and run on a given namespace. Every
+pod needs to be run using a service account that needs to be set up with the 
+correct permissions. Charmed Spark tooling, i.e. the `spark-client` snap
+and the `spark8t` Python libraries, make sure that service account are 
+created correctly and configured appropriately. 
+
+### Metrics
+
+Spark Jobs are ephemeral processes that may be long-lived in some cases but also very 
+short-lived on others. Spark Jobs may be launch occasionally, or multiple Spark Jobs
+may be running at the same times. 
+
+On this, Spark is very different to other services and Data Platform (such as Kafka, 
+MongoDB, PostgreSQL, etc), that are generally unique, with stable endpoints and 
+up and running at all times. 
+
+Such services generally expose a stable endpoint where relevant metrics (such as
+memory consumption, errors, GC time, etc) can be scraped at regular intervals
+by a metric collector component, such as the [Prometheus](https://prometheus.io/)
+bundled in COS. However, because of the intrinsic characteristics of Spark, such 
+an approach is not directly suitable and feasible for Spark. 
+
+Instead of being passively scraped and metrics being pulled directly by Prometheus, 
+Spark Jobs running with Charmed Spark actively pushes the metrics into 
+[Prometheus Pushgateway](https://github.com/prometheus/pushgateway), 
+that is a *sink* component able to temporarily store the metrics, and exposing 
+a stable, reliable and long-lived endpoint to be scraped by Prometheus. 
+Metrics pushed into Prometheus Pushgateway are organized into groups and 
+characterized by a series of labels.
+
+Therefore, Spark Driver and Spark Executors need to be equipped with a plugin 
+that exports metrics and push them to the Prometheus Pushgateway, in appropriate 
+different groups, such that they can be temporarily stored, exposed and then 
+scraped by Prometheus.
+Charmed Spark comes with the [spark-metrics](https://github.com/banzaicloud/spark-metrics) 
+exporter already packaged in the [Charmed Spark OCI image](https://github.com/canonical/charmed-spark-rock), 
+that is used as default base for both Driver and Executors pods.
+This exporter is designed to push metrics to the [prometheus-pushgateway-k8s](https://charmhub.io/prometheus-pushgateway)
+charm, that is integrated with the [Canonical Observability Stack](https://charmhub.io/topics/canonical-observability-stack).
+
+Once the metrics are ingested by Prometheus, they are then exposed to the user 
+using [Grafana](https://grafana.com/) where they can be visualized in custom dashboards, as well as 
+alerting rules can be defined, to be efficiently managed by [AlertManager](https://prometheus.io/docs/alerting/latest/alertmanager/).
+
+### Logs 
+
+Logs of driver and executors are by default stored on the pod local file system, 
+and are therefore generally lost once the jobs finishes and the pod is cleared. 
+
+However, Charmed Spark allows to store these logs into S3, such that they can 
+be re-read and visualized using the Spark History Server, allowing to monitor 
+and visualize the information and metrics about the job execution. 
+
+

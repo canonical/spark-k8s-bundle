@@ -187,8 +187,3 @@ Alternatively, you can also store these properties in files
 with open("my-file", "w") as fid:
     merged_property.log().write(fid)
 ```
-
-***
-
-* Previous: [Manage Service Accounts](/t/spark-client-snap-how-to-manage-spark-accounts/8959) 
-* Next: [Run on Charmed Kubernetes](/t/spark-client-snap-how-to-run-on-charmed-kubernetes/8960)
