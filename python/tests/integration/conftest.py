@@ -6,7 +6,7 @@ import os
 import shutil
 import uuid
 from pathlib import Path
-from time import time
+from time import sleep, time
 
 import pytest
 import pytest_asyncio
@@ -161,7 +161,7 @@ async def cos(ops_test: OpsTest, cos_model):
 
                 await model.create_offer("traefik:ingress")
 
-            time.sleep(15)
+            sleep(15)
 
         yield cos_model
 
