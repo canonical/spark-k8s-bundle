@@ -24,7 +24,7 @@ from .terraform import Terraform
 T = TypeVar("T")
 S = TypeVar("S")
 SECRET_NAME_PREFIX = "integrator-hub-conf-"
-
+COS_ALIAS = "cos"
 
 logger = logging.getLogger(__name__)
 

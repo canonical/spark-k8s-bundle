@@ -28,12 +28,10 @@ from .helpers import (
     local_tmp_folder,
     render_yaml,
     set_s3_credentials,
+    COS_ALIAS
 )
-from .terraform import Terraform
 
 logger = logging.getLogger(__name__)
-
-COS_ALIAS = "cos"
 
 
 @pytest.fixture(scope="module")
