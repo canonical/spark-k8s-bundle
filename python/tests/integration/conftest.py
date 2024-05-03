@@ -62,7 +62,7 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def cos_model(request) -> None | str:
     return request.config.getoption("--cos-model")
 
@@ -73,7 +73,7 @@ def backend(request) -> None | str:
 
 
 @pytest.fixture(scope="module")
-def bundle(request, cos_model, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
+def bundle(request, cos, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
 
     if file := request.config.getoption("--bundle"):
         bundle = Path(file)
@@ -101,7 +101,7 @@ def bundle(request, cos_model, backend, tmp_path_factory) -> Bundle[Path] | Terr
             if (files := request.config.getoption("--overlay"))
             else (
                 [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
-                if cos_model
+                if cos
                 else []
             )
         )
@@ -124,7 +124,7 @@ def integration_test(request):
         )
 
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture(scope="module")
 async def cos(ops_test: OpsTest, cos_model):
     if cos_model and cos_model not in ops_test.models:
 
