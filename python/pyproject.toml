@@ -95,6 +95,7 @@ pytest-mock = ">=3.10"
 parameterized = ">=0.9.0"
 juju = ">=3.4.0"
 pytest-operator = ">0.20"
+pyhive = {extras = ["hive_pure_sasl"], version = "^0.7.0"}
 
 [build-system]
 requires = ["poetry-core"]
