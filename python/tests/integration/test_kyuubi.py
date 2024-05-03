@@ -10,12 +10,13 @@ from pytest_operator.plugin import OpsTest
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
 from spark_test.fixtures.s3 import bucket, credentials
 from spark_test.fixtures.service_account import registry, service_account
+
 from .helpers import (
     Bundle,
     deploy_bundle_terraform,
     deploy_bundle_yaml,
+    get_kyuubi_credentials,
     set_s3_credentials,
-    get_kyuubi_credentials
 )
 
 logger = logging.getLogger(__name__)
@@ -39,16 +40,14 @@ def namespace(namespace_name):
 @pytest.mark.abort_on_fail
 @pytest.mark.asyncio
 async def test_deploy_bundle(
-        ops_test: OpsTest, credentials, bucket, service_account,
-        bundle, cos
+    ops_test: OpsTest, credentials, bucket, service_account, bundle, cos
 ):
     """Deploy the bundle."""
 
     applications = await (
         deploy_bundle_yaml(bundle, service_account, bucket, cos, ops_test)
         if isinstance(bundle, Bundle)
-        else deploy_bundle_terraform(bundle, service_account, bucket, cos,
-                                     ops_test)
+        else deploy_bundle_terraform(bundle, service_account, bucket, cos, ops_test)
     )
 
     if "s3" in applications:
@@ -91,16 +90,13 @@ async def test_jdbc_endpoint(ops_test: OpsTest, service_account):
     assert db_name in client.databases
 
     table = db.create_table(
-        table_name,
-        [("name", str), ("country", str), ("year_birth", int)]
+        table_name, [("name", str), ("country", str), ("year_birth", int)]
     )
 
     assert table_name in db.tables
 
     table.insert(
-        ("messi", "argentina", 1987),
-        ("sinner", "italy", 2002),
-        ("jordan", "usa", 1963)
+        ("messi", "argentina", 1987), ("sinner", "italy", 2002), ("jordan", "usa", 1963)
     )
 
     assert len(list(table.rows())) == 3
