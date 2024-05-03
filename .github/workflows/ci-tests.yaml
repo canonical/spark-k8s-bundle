@@ -60,6 +60,7 @@ jobs:
           - integration-basic
           - integration-sparkjob
           - integration-bundle
+          - integration-kyuubi
     needs:
       - checks
       - unit-tests
