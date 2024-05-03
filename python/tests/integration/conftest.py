@@ -100,9 +100,7 @@ def bundle(request, cos, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
             [Path(file) for file in files]
             if (files := request.config.getoption("--overlay"))
             else (
-                [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
-                if cos
-                else []
+                [bundle.parent / "overlays" / "cos-integration.yaml.j2"] if cos else []
             )
         )
 
