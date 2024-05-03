@@ -148,12 +148,18 @@ async def test_run_job(
         ]
     )
 
+    time.sleep(10)
+
     driver_pods = get_spark_drivers(
         registry.kube_interface.client, service_account.namespace
     )
     assert len(driver_pods) == 1
 
+    logger.info(f"Driver pod: {driver_pods[0].pod_name}")
+    logger.debug('\n'.join(driver_pods[0].logs()))
+
     line_check = filter(lambda line: "Number of lines" in line, driver_pods[0].logs())
+
     assert next(line_check)
 
 
