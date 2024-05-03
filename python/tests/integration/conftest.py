@@ -62,7 +62,7 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def cos_model(request) -> None | str:
     return request.config.getoption("--cos-model")
 
@@ -92,6 +92,7 @@ def bundle(request, cos_model, backend, tmp_path_factory) -> Bundle[Path] | Terr
         tmp_path = tmp_path_factory.mktemp(uuid.uuid4().hex) / "terraform"
         shutil.copytree(bundle, tmp_path)
         client = Terraform(path=tmp_path)
+        client.destroy()
         yield client
 
     else:
@@ -123,7 +124,7 @@ def integration_test(request):
         )
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(scope="session")
 async def cos(ops_test: OpsTest, cos_model):
     if cos_model and cos_model not in ops_test.models:
 
