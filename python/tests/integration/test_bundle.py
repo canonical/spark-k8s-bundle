@@ -130,22 +130,6 @@ async def test_deploy_bundle(
 
     logger.info(f"Applications: {applications}")
 
-    if cos:
-        with ops_test.model_context(COS_ALIAS) as cos_model:
-            await cos_model.wait_for_idle(
-                apps=[
-                    "loki",
-                    "grafana",
-                    "prometheus",
-                    "catalogue",
-                    "traefik",
-                    "alertmanager",
-                ],
-                idle_period=60,
-                timeout=3600,
-                raise_on_error=False,
-            )
-
     await ops_test.model.wait_for_idle(
         apps=applications,
         timeout=2500,

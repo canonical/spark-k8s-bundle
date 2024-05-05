@@ -73,7 +73,7 @@ def backend(request) -> None | str:
 
 
 @pytest.fixture(scope="module")
-def bundle(request, cos_model, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
+def bundle(request, cos, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
 
     if file := request.config.getoption("--bundle"):
         bundle = Path(file)
@@ -92,6 +92,7 @@ def bundle(request, cos_model, backend, tmp_path_factory) -> Bundle[Path] | Terr
         tmp_path = tmp_path_factory.mktemp(uuid.uuid4().hex) / "terraform"
         shutil.copytree(bundle, tmp_path)
         client = Terraform(path=tmp_path)
+        client.destroy()
         yield client
 
     else:
@@ -99,9 +100,7 @@ def bundle(request, cos_model, backend, tmp_path_factory) -> Bundle[Path] | Terr
             [Path(file) for file in files]
             if (files := request.config.getoption("--overlay"))
             else (
-                [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
-                if cos_model
-                else []
+                [bundle.parent / "overlays" / "cos-integration.yaml.j2"] if cos else []
             )
         )
 
