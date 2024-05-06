@@ -99,4 +99,5 @@ async def test_jdbc_endpoint(ops_test: OpsTest, service_account):
         ("messi", "argentina", 1987), ("sinner", "italy", 2002), ("jordan", "usa", 1963)
     )
 
+    assert True
     assert len(list(table.rows())) == 3
