@@ -116,17 +116,18 @@ async def test_run_job(
     registry.set_configurations(service_account.id, extra_confs)
 
     from .helpers import get_secret_data
+
     data = get_secret_data(ops_test.model_name, service_account.name)
 
     logger.info(data)
 
     logger.info("Dummy")
 
-    logger.info(ops_test.juju(['status']))
+    logger.info(ops_test.juju(["status"]))
 
     logger.info("Dummy 2")
 
-    logger.info(ops_test.juju(['show-unit', 's3/0']))
+    logger.info(ops_test.juju(["show-unit", "s3/0"]))
 
     pod.exec(
         [
