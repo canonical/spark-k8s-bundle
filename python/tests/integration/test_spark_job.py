@@ -123,11 +123,11 @@ async def test_run_job(
 
     logger.info("Dummy")
 
-    logger.info(await ops_test.juju(["status"]))
+    logger.info(await ops_test.juju("status"))
 
     logger.info("Dummy 2")
 
-    logger.info(await ops_test.juju(["show-unit", "s3/0"]))
+    logger.info(await ops_test.juju("show-unit s3/0"))
 
     import asyncio
 
