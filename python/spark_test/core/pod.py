@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
@@ -7,6 +6,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import Dict, Iterator, List
 
+import lightkube
 from lightkube import Client, KubeConfig
 
 from spark_test import BINS, PKG_DIR
@@ -141,6 +141,24 @@ class Pod:
             line
             for line in self.client.log(name=self.pod_name, namespace=self.namespace)
         )
+
+    @property
+    def metadata(self):
+        """Return the metadata of the pod."""
+        return self.client.get(
+            lightkube.resources.core_v1.Pod,
+            name=self.pod_name,
+            namespace=self.namespace,
+        ).metadata
+
+    @property
+    def labels(self) -> Dict[str, str]:
+        """Return the labels of the pod."""
+        return self.client.get(
+            lightkube.resources.core_v1.Pod,
+            name=self.pod_name,
+            namespace=self.namespace,
+        ).metadata.labels
 
     def delete(self):
         """Delete the current pod."""

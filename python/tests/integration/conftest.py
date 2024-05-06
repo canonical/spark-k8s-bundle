@@ -1,18 +1,26 @@
-#!/usr/bin/env python3
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
+import logging
 import os
 import shutil
 import uuid
 from pathlib import Path
+from time import sleep, time
 
 import pytest
+import pytest_asyncio
+import requests
+from pytest_operator.plugin import OpsTest
 
 from tests import RELEASE_DIR
 
-from .helpers import Bundle
+from .helpers import Bundle, deploy_bundle, local_tmp_folder
 from .terraform import Terraform
+
+COS_ALIAS = "cos"
+
+logger = logging.getLogger(__name__)
 
 
 def pytest_addoption(parser):
@@ -65,7 +73,7 @@ def backend(request) -> None | str:
 
 
 @pytest.fixture(scope="module")
-def bundle(request, cos_model, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
+def bundle(request, cos, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
 
     if file := request.config.getoption("--bundle"):
         bundle = Path(file)
@@ -92,9 +100,7 @@ def bundle(request, cos_model, backend, tmp_path_factory) -> Bundle[Path] | Terr
             [Path(file) for file in files]
             if (files := request.config.getoption("--overlay"))
             else (
-                [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
-                if cos_model
-                else []
+                [bundle.parent / "overlays" / "cos-integration.yaml.j2"] if cos else []
             )
         )
 
@@ -114,3 +120,55 @@ def integration_test(request):
         pytest.skip(
             reason="Integration test, to be skipped when running unittests",
         )
+
+
+@pytest_asyncio.fixture(scope="module")
+async def cos(ops_test: OpsTest, cos_model):
+    if cos_model and cos_model not in ops_test.models:
+
+        base_url = (
+            "https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays"
+        )
+
+        overlays = ["offers-overlay.yaml", "testing-overlay.yaml"]
+
+        def create_file(path: Path, response: requests.Response):
+            path.write_text(response.content.decode("utf-8"))
+            return path
+
+        with local_tmp_folder("tmp-cos") as tmp_folder:
+            logger.info(tmp_folder)
+
+            cos_bundle = Bundle[str | Path](
+                main="cos-lite",
+                overlays=[
+                    create_file(tmp_folder / overlay, response)
+                    for overlay in overlays
+                    if (response := requests.get(f"{base_url}/{overlay}"))
+                    if response.status_code == 200
+                ],
+            )
+
+            await ops_test.track_model(COS_ALIAS, model_name=cos_model)
+
+            with ops_test.model_context(COS_ALIAS) as model:
+
+                retcode, stdout, stderr = await deploy_bundle(ops_test, cos_bundle)
+                assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
+                logger.info(stdout)
+
+                await model.create_offer("traefik:ingress")
+
+            sleep(15)
+
+        yield cos_model
+
+        await ops_test.forget_model(cos_model)
+    else:
+        if cos_model:
+            await ops_test.track_model(COS_ALIAS, model_name=cos_model)
+
+        yield cos_model
+
+        if cos_model:
+            await ops_test.forget_model(cos_model)
