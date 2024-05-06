@@ -92,8 +92,8 @@ def bundle(request, cos, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
         tmp_path = tmp_path_factory.mktemp(uuid.uuid4().hex) / "terraform"
         shutil.copytree(bundle, tmp_path)
         client = Terraform(path=tmp_path)
-        client.destroy()
         yield client
+        client.destroy()
 
     else:
         overlays = (
