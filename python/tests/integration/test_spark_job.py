@@ -123,11 +123,15 @@ async def test_run_job(
 
     logger.info("Dummy")
 
-    logger.info(await ops_test.juju("status"))
+    lines = await ops_test.juju("status")
+    for line in lines:
+        logger.info(line)
 
     logger.info("Dummy 2")
 
-    logger.info(await ops_test.juju("show-unit s3/0"))
+    lines = await ops_test.juju("show-unit", "s3/0")
+    for line in lines:
+        logger.info(line)
 
     import asyncio
 
