@@ -57,7 +57,7 @@ packages = []
 
 [tool.poetry.dependencies]
 python = ">3.8,<4.0"
-spark8t = { git = "https://github.com/canonical/spark-k8s-toolkit-py.git" }
+spark8t = { git = "https://github.com/canonical/spark-k8s-toolkit-py.git", tag="v0.0.7" }
 boto3 = ">=1.34.55"
 pytest = ">=6.2"
 
