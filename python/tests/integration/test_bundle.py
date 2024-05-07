@@ -154,5 +154,3 @@ async def test_deploy_bundle(
 
     for app in applications:
         assert ops_test.model.applications[app].status == "active"
-
-    time.sleep(60)

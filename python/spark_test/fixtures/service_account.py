@@ -19,7 +19,7 @@ def registry(interface):
     _clearnup_registry(registry)
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def service_account(registry, namespace):
     service_account_name = "spark-test"
 

@@ -135,6 +135,28 @@ async def test_run_job(
 
     registry.set_configurations(service_account.id, extra_confs)
 
+    from .helpers import get_secret_data
+
+    data = get_secret_data(ops_test.model_name, service_account.name)
+
+    logger.info(data)
+
+    logger.info("Dummy")
+
+    lines = await ops_test.juju("status")
+    for line in lines:
+        logger.info(line)
+
+    logger.info("Dummy 2")
+
+    lines = await ops_test.juju("show-unit", "s3/0")
+    for line in lines:
+        logger.info(line)
+
+    import asyncio
+
+    await asyncio.sleep(20)
+
     pod.exec(
         [
             "spark-client.spark-submit",
