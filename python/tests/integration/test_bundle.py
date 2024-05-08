@@ -20,6 +20,7 @@ from spark_test.fixtures.s3 import bucket, credentials
 from spark_test.fixtures.service_account import registry, service_account
 
 from .helpers import (
+    COS_ALIAS,
     Bundle,
     deploy_bundle,
     deploy_bundle_terraform,
@@ -29,11 +30,8 @@ from .helpers import (
     render_yaml,
     set_s3_credentials,
 )
-from .terraform import Terraform
 
 logger = logging.getLogger(__name__)
-
-COS_ALIAS = "cos"
 
 
 @pytest.fixture(scope="module")
@@ -129,6 +127,22 @@ async def test_deploy_bundle(
         await set_s3_credentials(ops_test, credentials)
 
     logger.info(f"Applications: {applications}")
+
+    if cos:
+        with ops_test.model_context(COS_ALIAS) as cos_model:
+            await cos_model.wait_for_idle(
+                apps=[
+                    "loki",
+                    "grafana",
+                    "prometheus",
+                    "catalogue",
+                    "traefik",
+                    "alertmanager",
+                ],
+                idle_period=60,
+                timeout=3600,
+                raise_on_error=False,
+            )
 
     await ops_test.model.wait_for_idle(
         apps=applications,

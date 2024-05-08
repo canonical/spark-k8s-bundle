@@ -15,10 +15,8 @@ from pytest_operator.plugin import OpsTest
 
 from tests import RELEASE_DIR
 
-from .helpers import Bundle, deploy_bundle, local_tmp_folder
+from .helpers import COS_ALIAS, Bundle, deploy_bundle, local_tmp_folder
 from .terraform import Terraform
-
-COS_ALIAS = "cos"
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +91,6 @@ def bundle(request, cos, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
         shutil.copytree(bundle, tmp_path)
         client = Terraform(path=tmp_path)
         yield client
-        client.destroy()
 
     else:
         overlays = (

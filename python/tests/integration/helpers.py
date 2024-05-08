@@ -24,7 +24,7 @@ from .terraform import Terraform
 T = TypeVar("T")
 S = TypeVar("S")
 SECRET_NAME_PREFIX = "integrator-hub-conf-"
-
+COS_ALIAS = "cos"
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +52,31 @@ async def set_s3_credentials(
     ).run_action("sync-s3-credentials", **params)
 
     return await action.wait()
+
+
+async def get_address(ops_test: OpsTest, app_name, unit_num=0) -> str:
+    """Get the address for a unit."""
+    status = await ops_test.model.get_status()  # noqa: F821
+    address = status["applications"][app_name]["units"][f"{app_name}/{unit_num}"][
+        "address"
+    ]
+    return address
+
+
+async def get_kyuubi_credentials(
+    ops_test: OpsTest, application_name="kyuubi", num_unit=0
+) -> dict[str, str]:
+    """Use the charm action to start a password rotation."""
+
+    action = await ops_test.model.units.get(
+        f"{application_name}/{num_unit}"
+    ).run_action("get-password")
+
+    results = (await action.wait()).results
+
+    address = await get_address(ops_test, app_name=application_name, unit_num=num_unit)
+
+    return {"username": "admin", "password": results["password"], "host": address}
 
 
 def render_yaml(file: Path, data: dict, ops_test: OpsTest) -> dict:

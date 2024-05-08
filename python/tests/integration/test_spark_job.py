@@ -22,9 +22,13 @@ from spark_test.utils import get_spark_drivers
 
 from .helpers import (
     Bundle,
+    deploy_bundle,
     deploy_bundle_terraform,
     deploy_bundle_yaml,
+    generate_tmp_file,
     get_secret_data,
+    local_tmp_folder,
+    render_yaml,
     set_s3_credentials,
 )
 
@@ -77,6 +81,22 @@ async def test_deploy_bundle(
         await set_s3_credentials(ops_test, credentials)
 
     logger.info(f"Applications: {applications}")
+
+    if cos:
+        with ops_test.model_context(COS_ALIAS) as cos_model:
+            await cos_model.wait_for_idle(
+                apps=[
+                    "loki",
+                    "grafana",
+                    "prometheus",
+                    "catalogue",
+                    "traefik",
+                    "alertmanager",
+                ],
+                idle_period=60,
+                timeout=3600,
+                raise_on_error=False,
+            )
 
     await ops_test.model.wait_for_idle(
         apps=applications,
@@ -133,7 +153,11 @@ async def test_run_job(
     )
     assert len(driver_pods) == 1
 
+    logger.info(f"Driver pod: {driver_pods[0].pod_name}")
+    logger.info("\n".join(driver_pods[0].logs()))
+
     line_check = filter(lambda line: "Number of lines" in line, driver_pods[0].logs())
+
     assert next(line_check)
 
 
