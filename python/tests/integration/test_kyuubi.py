@@ -4,6 +4,7 @@
 
 import logging
 
+import psycopg2
 import pytest
 from pytest_operator.plugin import OpsTest
 
@@ -16,10 +17,13 @@ from .helpers import (
     deploy_bundle_terraform,
     deploy_bundle_yaml,
     get_kyuubi_credentials,
+    get_postgresql_credentials,
     set_s3_credentials,
 )
 
 logger = logging.getLogger(__name__)
+
+METASTORE_DATABASE_NAME = "hivemetastore"
 
 
 @pytest.fixture(scope="module")
@@ -71,6 +75,21 @@ async def test_deploy_bundle(
         assert ops_test.model.applications[app].status == "active"
 
 
+@pytest.mark.asyncio
+@pytest.mark.abort_on_fail
+async def test_invalid_authentication(ops_test, service_account):
+    credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
+    credentials["password"] = "something-random"
+
+    from spark_test.core.kyuubi import KyuubiClient
+
+    with pytest.raises(Exception) as e:
+        client = KyuubiClient(**credentials)
+        client.get_database("spark_test")
+
+        assert "Error validating the login" in str(e)
+
+
 @pytest.mark.abort_on_fail
 @pytest.mark.asyncio
 async def test_jdbc_endpoint(ops_test: OpsTest, service_account):
@@ -100,3 +119,32 @@ async def test_jdbc_endpoint(ops_test: OpsTest, service_account):
     )
 
     assert len(list(table.rows())) == 3
+
+
+@pytest.mark.asyncio
+@pytest.mark.abort_on_fail
+async def test_postgresql_metastore_is_used(ops_test: OpsTest):
+    "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
+    metastore_credentials = await get_postgresql_credentials(ops_test, "metastore")
+    connection = psycopg2.connect(
+        host=metastore_credentials["host"],
+        database=METASTORE_DATABASE_NAME,
+        user=metastore_credentials["username"],
+        password=metastore_credentials["password"],
+    )
+
+    db_name, table_name = "spark_test", "my_table"
+
+    # Fetch number of new db and tables that have been added to metastore
+    num_dbs = num_tables = 0
+    with connection.cursor() as cursor:
+        cursor.execute(f""" SELECT * FROM "DBS" WHERE "NAME" = '{db_name}' """)
+        num_dbs = cursor.rowcount
+        cursor.execute(f""" SELECT * FROM "TBLS" WHERE "TBL_NAME" = '{table_name}' """)
+        num_tables = cursor.rowcount
+
+    connection.close()
+
+    # Assert that new database and tables have indeed been added to metastore
+    assert num_dbs != 0
+    assert num_tables != 0

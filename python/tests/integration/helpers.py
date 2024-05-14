@@ -79,6 +79,20 @@ async def get_kyuubi_credentials(
     return {"username": "admin", "password": results["password"], "host": address}
 
 
+async def get_postgresql_credentials(
+    ops_test: OpsTest, application_name, num_unit=0
+) -> dict[str, str]:
+    """Return the credentials that can be used to connect to postgresql database."""
+    action = await ops_test.model.units.get(
+        f"{application_name}/{num_unit}"
+    ).run_action("get-password")
+
+    results = (await action.wait()).results
+    address = await get_address(ops_test, app_name=application_name, unit_num=num_unit)
+
+    return {"username": "operator", "password": results["password"], "host": address}
+
+
 def render_yaml(file: Path, data: dict, ops_test: OpsTest) -> dict:
     if os.path.splitext(file)[1] == ".j2":
         bundle_file = ops_test.render_bundle(
