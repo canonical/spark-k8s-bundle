@@ -8,18 +8,12 @@ import psycopg2
 import pytest
 from pytest_operator.plugin import OpsTest
 
+from spark_test.core.kyuubi import KyuubiClient
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
 from spark_test.fixtures.s3 import bucket, credentials
 from spark_test.fixtures.service_account import registry, service_account
 
-from .helpers import (
-    Bundle,
-    deploy_bundle_terraform,
-    deploy_bundle_yaml,
-    get_kyuubi_credentials,
-    get_postgresql_credentials,
-    set_s3_credentials,
-)
+from .helpers import get_kyuubi_credentials, get_postgresql_credentials
 
 logger = logging.getLogger(__name__)
 
@@ -43,45 +37,22 @@ def namespace(namespace_name):
 
 @pytest.mark.abort_on_fail
 @pytest.mark.asyncio
-async def test_deploy_bundle(
-    ops_test: OpsTest, credentials, bucket, service_account, bundle, cos
-):
-    """Deploy the bundle."""
-
-    applications = await (
-        deploy_bundle_yaml(bundle, service_account, bucket, cos, ops_test)
-        if isinstance(bundle, Bundle)
-        else deploy_bundle_terraform(bundle, service_account, bucket, cos, ops_test)
-    )
-
-    if "s3" in applications:
-        await ops_test.model.wait_for_idle(
-            apps=["s3"], timeout=600, idle_period=30, status="blocked"
-        )
-
-        await set_s3_credentials(ops_test, credentials)
-
-    logger.info(f"Applications: {applications}")
-
-    await ops_test.model.wait_for_idle(
-        apps=applications,
-        timeout=2500,
-        idle_period=30,
-        status="active",
-        raise_on_error=False,
-    )
-
-    for app in applications:
-        assert ops_test.model.applications[app].status == "active"
+async def test_deploy_bundle(ops_test, kyuubi_bundle):
+    """Test whether the bundle has deployed successfully."""
+    async for applications in kyuubi_bundle:
+        for app_name in applications:
+            print(app_name)
+            assert ops_test.model.applications[app_name].status == "active"
 
 
 @pytest.mark.asyncio
 @pytest.mark.abort_on_fail
 async def test_invalid_authentication(ops_test, service_account):
+    """Test that the authentication has been enabled in the bundle by default
+    and thus Kyuubi accept connections with invalid credentials.
+    """
     credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
     credentials["password"] = "something-random"
-
-    from spark_test.core.kyuubi import KyuubiClient
 
     with pytest.raises(Exception) as e:
         client = KyuubiClient(**credentials)
@@ -93,31 +64,25 @@ async def test_invalid_authentication(ops_test, service_account):
 @pytest.mark.abort_on_fail
 @pytest.mark.asyncio
 async def test_jdbc_endpoint(ops_test: OpsTest, service_account):
-    """Use JDBC Kyuubi Endpoint."""
+    """Test that JDBC connection in Kyuubi works out of the box in bundle."""
 
     credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
-
-    from spark_test.core.kyuubi import KyuubiClient
-
     client = KyuubiClient(**credentials)
 
     db_name, table_name = "spark_test", "my_table"
 
     # Create a database
     db = client.get_database(db_name)
-
     assert db_name in client.databases
 
     table = db.create_table(
         table_name, [("name", str), ("country", str), ("year_birth", int)]
     )
-
     assert table_name in db.tables
 
     table.insert(
         ("messi", "argentina", 1987), ("sinner", "italy", 2002), ("jordan", "usa", 1963)
     )
-
     assert len(list(table.rows())) == 3
 
 

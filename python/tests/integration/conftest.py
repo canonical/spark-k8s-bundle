@@ -15,7 +15,17 @@ from pytest_operator.plugin import OpsTest
 
 from tests import RELEASE_DIR
 
-from .helpers import COS_ALIAS, Bundle, deploy_bundle, local_tmp_folder
+from .helpers import (
+    COS_ALIAS,
+    Bundle,
+    deploy_bundle,
+    deploy_bundle_terraform,
+    deploy_bundle_yaml,
+    get_kyuubi_credentials,
+    get_postgresql_credentials,
+    local_tmp_folder,
+    set_s3_credentials,
+)
 from .terraform import Terraform
 
 logger = logging.getLogger(__name__)
@@ -169,3 +179,48 @@ async def cos(ops_test: OpsTest, cos_model):
 
         if cos_model:
             await ops_test.forget_model(cos_model)
+
+
+@pytest.fixture(scope="module")
+async def kyuubi_bundle(
+    ops_test: OpsTest, credentials, bucket, service_account, bundle, cos
+):
+    applications = await (
+        deploy_bundle_yaml(bundle, service_account, bucket, cos, ops_test)
+        if isinstance(bundle, Bundle)
+        else deploy_bundle_terraform(bundle, service_account, bucket, cos, ops_test)
+    )
+
+    if "s3" in applications:
+        await ops_test.model.wait_for_idle(
+            apps=["s3"], timeout=600, idle_period=30, status="blocked"
+        )
+
+        await set_s3_credentials(ops_test, credentials)
+
+    logger.info(f"Applications: {applications}")
+    if cos:
+        with ops_test.model_context(COS_ALIAS) as cos_model:
+            await cos_model.wait_for_idle(
+                apps=[
+                    "loki",
+                    "grafana",
+                    "prometheus",
+                    "catalogue",
+                    "traefik",
+                    "alertmanager",
+                ],
+                idle_period=60,
+                timeout=3600,
+                raise_on_error=False,
+            )
+
+    await ops_test.model.wait_for_idle(
+        apps=applications,
+        timeout=2500,
+        idle_period=30,
+        status="active",
+        raise_on_error=False,
+    )
+
+    yield applications
