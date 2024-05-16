@@ -41,7 +41,6 @@ async def test_deploy_bundle(ops_test, kyuubi_bundle):
     """Test whether the bundle has deployed successfully."""
     async for applications in kyuubi_bundle:
         for app_name in applications:
-            print(app_name)
             assert ops_test.model.applications[app_name].status == "active"
 
 

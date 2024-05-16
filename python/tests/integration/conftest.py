@@ -6,7 +6,7 @@ import os
 import shutil
 import uuid
 from pathlib import Path
-from time import sleep, time
+from time import sleep
 
 import pytest
 import pytest_asyncio
@@ -21,8 +21,6 @@ from .helpers import (
     deploy_bundle,
     deploy_bundle_terraform,
     deploy_bundle_yaml,
-    get_kyuubi_credentials,
-    get_postgresql_credentials,
     local_tmp_folder,
     set_s3_credentials,
 )
@@ -32,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 def pytest_addoption(parser):
+    """Add CLI options to pytest."""
     parser.addoption(
         "--integration", action="store_true", help="flag to enable integration tests"
     )
@@ -72,17 +71,19 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope="module")
 def cos_model(request) -> None | str:
+    """The name of the model in which COS is either already deployed or is to be deployed."""
     return request.config.getoption("--cos-model")
 
 
 @pytest.fixture(scope="module")
 def backend(request) -> None | str:
+    """The backend which is to be used to deploy the bundle."""
     return request.config.getoption("--backend")
 
 
 @pytest.fixture(scope="module")
 def bundle(request, cos, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
-
+    """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
     if file := request.config.getoption("--bundle"):
         bundle = Path(file)
     else:
@@ -120,6 +121,7 @@ def bundle(request, cos, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
 
 @pytest.fixture
 def integration_test(request):
+    """Specifies whether integration test is to be run or not."""
     env_flag = bool(int(os.environ.get("IE_TEST", "0")))
     cli_flag = request.config.getoption("--integration")
 
@@ -131,6 +133,9 @@ def integration_test(request):
 
 @pytest_asyncio.fixture(scope="module")
 async def cos(ops_test: OpsTest, cos_model):
+    """
+    Deploy COS bundle depending upon the value of cos_model fixture, and yield its value.
+    """
     if cos_model and cos_model not in ops_test.models:
 
         base_url = (
@@ -159,7 +164,6 @@ async def cos(ops_test: OpsTest, cos_model):
             await ops_test.track_model(COS_ALIAS, model_name=cos_model)
 
             with ops_test.model_context(COS_ALIAS) as model:
-
                 retcode, stdout, stderr = await deploy_bundle(ops_test, cos_bundle)
                 assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
                 logger.info(stdout)
@@ -185,6 +189,9 @@ async def cos(ops_test: OpsTest, cos_model):
 async def kyuubi_bundle(
     ops_test: OpsTest, credentials, bucket, service_account, bundle, cos
 ):
+    """Deploy all applications in the Kyuubi bundle, wait for all of them to be active,
+    and finally yield a list of the names of the applications that were deployed.
+    """
     applications = await (
         deploy_bundle_yaml(bundle, service_account, bucket, cos, ops_test)
         if isinstance(bundle, Bundle)
@@ -198,7 +205,6 @@ async def kyuubi_bundle(
 
         await set_s3_credentials(ops_test, credentials)
 
-    logger.info(f"Applications: {applications}")
     if cos:
         with ops_test.model_context(COS_ALIAS) as cos_model:
             await cos_model.wait_for_idle(
