@@ -14,9 +14,7 @@ from spark_test.fixtures.s3 import bucket, credentials
 from spark_test.fixtures.service_account import registry, service_account
 from spark_test.utils import get_spark_drivers
 
-from .helpers import (
-    get_secret_data,
-)
+from .helpers import get_secret_data
 
 logger = logging.getLogger(__name__)
 
