@@ -46,7 +46,7 @@ async def test_deploy_bundle(ops_test, kyuubi_bundle):
 
 @pytest.mark.asyncio
 @pytest.mark.abort_on_fail
-async def test_invalid_authentication(ops_test, service_account):
+async def test_authentication_is_enforced(ops_test, service_account):
     """Test that the authentication has been enabled in the bundle by default
     and thus Kyuubi accept connections with invalid credentials.
     """
