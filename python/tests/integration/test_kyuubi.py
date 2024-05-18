@@ -37,9 +37,9 @@ def namespace(namespace_name):
 
 @pytest.mark.abort_on_fail
 @pytest.mark.asyncio
-async def test_deploy_bundle(ops_test, kyuubi_bundle):
+async def test_deploy_bundle(ops_test, spark_bundle):
     """Test whether the bundle has deployed successfully."""
-    async for applications in kyuubi_bundle:
+    async for applications in spark_bundle:
         for app_name in applications:
             assert ops_test.model.applications[app_name].status == "active"
 
