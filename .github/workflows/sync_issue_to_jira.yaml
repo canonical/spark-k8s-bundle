@@ -10,11 +10,11 @@ on:
 jobs:
   sync:
     name: Sync GitHub issue to Jira
-    uses: canonical/data-platform-workflows/.github/workflows/sync_issue_to_jira.yaml@v12
+    uses: canonical/data-platform-workflows/.github/workflows/sync_issue_to_jira.yaml@v13.1.0
     with:
       jira-base-url: https://warthogs.atlassian.net
       jira-project-key: DPE
-      jira-component-names: spark-vm,spark-k8s,snap
+      jira-component-names: spark-k8s
     secrets:
       jira-api-token: ${{ secrets.JIRA_API_TOKEN }}
       jira-user-email: ${{ secrets.JIRA_USER_EMAIL }}
