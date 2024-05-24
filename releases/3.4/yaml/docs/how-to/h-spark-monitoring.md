@@ -1,9 +1,8 @@
 ## Enable and configuring Spark monitoring
 
 Charmed Spark supports native integration with the Canonical Observability Stack (COS). If you want to enable monitoring on top of Charmed Spark, make sure that you have a Juju model with COS correctly deployed. 
-To deploy COS on MicroK8s, follow the step-by-step tutorial [here](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s). 
-For more information about COS, please refer to [here](https://charmhub.io/topics/canonical-observability-stack). 
-For more information about Charmed Spark and COS integration, please refer to the explanation section about [monitoring](/todo).
+To deploy COS on MicroK8s, follow the [step-by-step tutorial](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s). 
+For more information about Charmed Spark and COS integration, refer to the [COS documentation](https://charmhub.io/topics/canonical-observability-stack) and the [monitoring explanation section](/todo).
 
 Once COS is correctly setup, to enable monitoring it is necessary to:
 
@@ -12,8 +11,8 @@ Once COS is correctly setup, to enable monitoring it is necessary to:
 
 ## Integrating/Configuring with COS
 
-The Charmed Spark solution already bundles all the components required for 
-integrating with COS as well as configuring the monitoring artifacts. 
+The Charmed Spark solution already bundles all the components required to integrate 
+COS as well as to configure the monitoring artifacts. 
 
 The deployments of these resources can be enabled/disabled using either overlays
 (for Juju bundles) or input variables (for Terraform bundles). 
@@ -35,13 +34,14 @@ log in with the provided credentials for the `admin` user.
 After the login, Grafana will show a new dashboard: `Spark Dashboard` where 
 the Spark metrics will be displayed.
 
-### Configuring Charmed Spark dashboards
+### Customize Charmed Spark dashboards
 
-The `cos-configuration-k8s` charm included in the bundle can be used to configure 
-the Grafana dashboard. We provide a default dashboard [here](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/resources/grafana).
+The `cos-configuration-k8s` charm included in the bundle can be used to customise 
+the Grafana dashboard. If needed, we provide a [default dashboard](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/resources/grafana) as part 
+of the bundle.
 
 The `cos-configuration-k8s` charm syncs the content of a repository with the resources 
-provided to Grafana, thus enabling to version the resources. 
+provided to Grafana, thus enabling versioning of the resource. 
 You can specify the repository, branch and folder using the config options, i.e.
 
 ```shell
@@ -60,14 +60,14 @@ contents is synced either upon a `update-status` event or after running the acti
 juju run cos-configuration-k8s/leader sync-now
 ```
 
-You can find more information about the `cos-configuration-k8s` charm [here](https://discourse.charmhub.io/t/cos-configuration-k8s-docs-index/7284).
+For more information, refer to the `cos-configuration-k8s` charm [docs](https://discourse.charmhub.io/t/cos-configuration-k8s-docs-index/7284).
 
 ### Configuring Scraping intervals
 
 The `prometheus-scrape-config-k8s` charm included in the bundle can be used to configure 
 the prometheus scraping jobs. 
 
-In particular, it can be very crucial to configure the scraping interval to make sure 
+In particular, it is crucial to configure the scraping interval to make sure 
 data points have proper sampling frequency, e.g. 
 
 ```shell
@@ -101,7 +101,7 @@ and check that the following property
 spark.metrics.conf.driver.sink.prometheus.pushgateway-address=<PROMETHEUS_GATEWAY_ADDRESS>:<PROMETHEUS_PORT>
 ```
 
-is valued correctly. The Prometheus Pushgateway address and port should be can be consistent with what is exposed by Juju, e.g. 
+is configured with the correct values. The Prometheus Pushgateway address and port should be can be consistent with what is exposed by Juju, e.g. 
 
 ```shell
 PROMETHEUS_GATEWAY=$(juju status --format=yaml | yq ".applications.prometheus-pushgateway-k8s.address") 

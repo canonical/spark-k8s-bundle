@@ -1,17 +1,17 @@
 ## Configure Service Account using the Spark Integration Hub Charm
 
 The Integration Hub charm allows seamless configuration of Charmed Spark service accounts
-via Juju relations, therefore providing a charming user-experience. 
+via Juju relations, therefore providing a charming, integrated user-experience. 
 
 The Integration Hub charm is part of the Charmed Spark bundle, that can be deployed following 
 [this](/TODO) how-to guide. Alternatively, you can also deploy the 
-Spark Integration Hub charm standalone by 
+Spark Integration Hub charm standalone by running the following command
 
 ```shell
 juju deploy spark-integration-hub-k8s --channel edge -n1
 ```
 
-Once deployed, the Spark Integration Hub will start managing the properties for all the service 
+Once deployed, the Spark Integration Hub will automatically manage the properties for all the service 
 accounts created either with the `spark-client` snap or using the `spark8t` python library. 
 More information on the snap and on the python library can be found 
 [here](/t/spark-client-snap-how-to-manage-spark-accounts/8959) and 
@@ -20,25 +20,27 @@ More information on the snap and on the python library can be found
 ### Enable S3 object storage bindings
 
 Spark Integration Hub can consume the `s3-credentials` relation provided by the 
-[S3 integrator charm](https://charmhub.io/s3-integrator) to enable integration with an S3 object storage. 
+[S3 integrator charm](https://charmhub.io/s3-integrator) to enable integration with an S3-compatible 
+object storage system. 
 
 You can find more information on how to deploy and configure a `s3-integrator` 
 charm [here](https://github.com/canonical/s3-integrator).
 
-Once a `s3-integrator` charm is set up, the Spark Integration Hub charm can be related with
+Once a `s3-integrator` charm is set up, the Spark Integration Hub charm can be 
+integrated with
 
 ```shell
 juju integrate s3-integrator spark-integration-hub-k8s
 ```
 
-This will add relevant configuration properties to your Charmed Spark service accounts, 
-that can be verified using the snap, e.g. 
+This will automatically add relevant configuration properties to your spark jobs, 
+that can be verified using the tools provided in the spark-client snap, e.g. 
 
 ```shell
 spark-client.service-account-registry get-config --username <service_account> --namespace <namespace>
 ```
 
-where you should see additional configuration automatically added to your service-account
+You should see additional configuration automatically added to your service-account, i.e.
 
 ```shell
 spark.hadoop.fs.s3a.aws.credentials.provider=org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider
@@ -117,5 +119,5 @@ juju run integration-hub/leader list-config
 ```
 
 > **NOTE** Since the configurations provided using actions take the precedence,
-> adding configuration already specified via relation will effectively override
-> them, thus allowing some customization on top of what provided by the relations. 
+> the configuration items already provided by the integration may be overridden, 
+> thus allowing some customisation of what is automatically configured by default.

@@ -2,38 +2,60 @@
 
 Charmed Spark comes with a bundled set of components that allow you to easily 
 manage Spark workloads on K8s, providing integration with object storage,
-monitoring and logs aggregation. For an overview on the different components
+monitoring and log aggregation. For an overview on the different components
 that form Charmed Spark, please refer to [this section](./path/to/explanation.md).
 
-### Requirements
+### Prerequisites
 
 Since Charmed Spark will be managed by Juju, make sure that:
 * you have a Juju client (e.g. via a [SNAP](https://snapcraft.io/juju)) installed in your local machine  
-* you are able to connect to a juju controller running on K8s.
+* you are able to connect to a juju controller
 * you have read-write permissions (therefore you have an access key, access secret and the s3 endpoint) to a S3-compatible object storage
 
-To see how to setup a Juju controller on K8s and the juju client, you can refer to existing tutorials and documentation, e.g. [here](https://juju.is/docs/olm/get-started-with-juju) for MicroK8s and [here](https://juju.is/docs/juju/amazon-elastic-kubernetes-service-(amazon-eks)) for AWS EKS. Also refer to the [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) userguide to install S3-compatible object storage on MicroK8s (MinIO) or EKS (AWS S3). For other backends or K8s distributions other than MinIO on MicroK8s and S3 on EKS (e.g. Ceph, Charmed Kubernetes, GKE, etc), please refer to the documentation or your admin.
+To set up a Juju controller on K8s and the juju client, you can refer to existing tutorials and documentation, e.g. [here](https://juju.is/docs/olm/get-started-with-juju) for MicroK8s and [here](https://juju.is/docs/juju/amazon-elastic-kubernetes-service-(amazon-eks)) for AWS EKS. Also refer to the [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) userguide to install S3-compatible object storage on MicroK8s (MinIO) or EKS (AWS S3). For other backends or K8s distributions other than MinIO on MicroK8s and S3 on EKS (e.g. Ceph, Charmed Kubernetes, GKE, etc), please refer to the documentation or your admin.
 
-Charmed Spark supports native integration with the Canonical Observability Stack (COS). If you want to enable monitoring on top of Charmed Spark, make sure that you have a Juju model with COS correctly deployed. To deploy COS on MicroK8s, follow the step-by-step tutorial [here](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s). 
-For more information about COS, please refer to [here](https://charmhub.io/topics/canonical-observability-stack).
+Charmed Spark supports native integration with the Canonical Observability Stack (COS). To enable monitoring on top of Charmed Spark, make sure that you have a Juju model with COS correctly deployed. To deploy COS on MicroK8s follow the step-by-step [tutorial](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s) or refer to its [documentation](https://charmhub.io/topics/canonical-observability-stack) for more informations.
 
 ### Preparation
 
 #### Juju Model 
 
-Make sure that you have a Juju model where to deploy the Spark History server. In general, we advise to segregate juju applications belonging to different solutions, and therefore
+Make sure that you have a Juju model where you can deploy the Spark History server. In general, we advise to segregate juju applications belonging to different solutions, and therefore
 to have a dedicated model for `Spark` components, e.g.
 
 ```bash 
 juju add-model <juju_model>
 ```
 
-> Note that this will create a K8s namespace where the different juju applications will be deployed to.
+> Note that this will create a K8s namespace in which the different Charmed Spark components will be deployed to.
 
 #### Setup S3 Bucket
 
-Create a bucket named `history-server` and an path object `spark-events` for storing Spark logs in s3. This can be done in multiple ways depending on the S3 backend interface.
-For instance, via Python API, you can install and use the `boto` library, as in the following:
+Create a bucket and a path object `spark-events` for storing Spark logs in s3. This can be done in multiple ways depending on the S3 backend interface.
+
+##### Using AWS-CLI Snap
+
+*Install the `aws-cli` snap*
+
+```shell
+sudo snap install aws-cli --classic
+```
+
+*Configure `aws-cli` client*
+
+```shell
+aws configure set aws_access_key_id <ACCESS_KEY>
+aws configure set aws_secret_access_key <SECRET_KEY>
+aws configure set endpoint_url <S3_ENDPOINT>
+```
+
+Test that the `aws-cli` client is properly working with `aws s3 ls`
+
+*Create the S3 bucket*
+
+aws s3 mb "s3://<BUCKET_NAME>"
+
+##### Using Python  
 
 *Install boto*
 
@@ -51,15 +73,16 @@ session = boto3.session.Session(
 )
 s3 = session.client("s3", endpoint_url=<S3_ENDPOINT>, config=config)
 
-s3.create_bucket(Bucket="history-server")
-s3.put_object(Bucket="history-server", Key=("spark-events/"))
+s3.create_bucket(Bucket=<BUCKET_NAME>)
+s3.put_object(Bucket=<BUCKET_NAME>, Key=("spark-events/"))
 ```
 
 #### Setup Spark service account to run Kyuubi engines
 
-Charmed Spark bundles the Apache Kyuubi project for enabling HiveServer capabilities 
-using Spark SQL engines for executing queries and distribute the processing. Kyuubi needs a
-dedicated service account to be used for running the driver and executors engine pods. 
+Charmed Spark includes support for Apache Kyuubi project which enables users to 
+remotely connect to a Spark cluster using ODBC/JDBC and query their data with 
+standard SQL. Kyuubi requires a dedicated service account to be used for running
+the driver and executor engine pods. 
 
 The service account can be created using the `spark-client` snap:
 
@@ -68,18 +91,14 @@ The service account can be created using the `spark-client` snap:
     --username <kyuubi_server_account> --namespace <juju_model>
 ```
 
-For more information on how to customize further the Spark service accounts and 
+For more information on how to further customise Spark service accounts and 
 manage them, please refer to [here](/t/spark-client-snap-how-to-manage-spark-accounts/8959).
-
-> NOTE: From version XX and on, this should not be necessary as the Spark service account is created automatically by the charms.
 
 ### Deploy Charmed Spark
 
-Charmed Spark can be deployed using 
-* Native Juju YAML bundles
+Charmed Spark can be deployed via 
+* Native Juju YAML bundle and overlays
 * Terraform modules
-
-If you wish to use terraform modules make sure you have a working Terraform 1.8+ installed in your machine. You can install terraform via a [SNAP](https://snapcraft.io/terraform).
 
 #### Using Juju bundles
 
@@ -141,6 +160,8 @@ juju deploy -m <juju_model> ./bundle.yaml --overlay cos-integration.yaml
 ```
 
 #### Using Terraform
+
+Make sure you have a working Terraform 1.8+ installed in your machine. You can install [Terraform](https://snapcraft.io/terraform) or [OpenTofu](https://snapcraft.io/terraform) via a snap.
 
 Terraform modules make use of the Terraform Juju provider. More information about the Juju provider can be found [here](https://registry.terraform.io/providers/juju/juju/latest/docs).
 

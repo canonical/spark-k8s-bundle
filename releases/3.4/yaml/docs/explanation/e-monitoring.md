@@ -2,7 +2,7 @@
 
 An important requirement of a production-ready system is to provide a way for the admins to 
 monitor and actively observe the operation of the cluster. 
-Charmed Spark comes with an observability stack that provides:
+Charmed Spark delivers a comprehensive observability stack which includes:
 
 * **business analytical monitoring** via the deployment of Spark History Server, 
   that provides a UI that allows Spark users (such as Data Scientist and Data Engineers) 
@@ -30,16 +30,22 @@ A Spark Job is generally composed by two main types of processes:
 
 * Spark Executors, that hold the raw data in memory and do the actual processing.  
   The Executors generally communicate among themselves to shuffle data whenever 
-  needed, and they provide the horizontally scalable structure that enabled 
+  needed, and they provide the horizontally scalable structure that enables 
   analysis to be distributed and scaled out to massive datasets. 
 
-Spark Driver and Spark Executors are allocated by a Cluster Managers that in our
-case is represented by the K8s control plane. Therefore, for Spark on K8s, driver
-and executors are pods that are scheduled and run on a given namespace. Every
-pod needs to be run using a service account that needs to be set up with the 
+Spark Driver and Spark Executors are allocated by a Cluster Manager that in the
+Charmed Spark solution is represented by the K8s control plane. Therefore, 
+in Charmed Spark, driver and executors run as Kubernetes pods, 
+belonging to a given namespace.
+Every pod needs to be run using a service account that needs to be set up with the 
 correct permissions. Charmed Spark tooling, i.e. the `spark-client` snap
 and the `spark8t` Python libraries, make sure that service account are 
-created correctly and configured appropriately. 
+created correctly and configured appropriately. The driver pod must be running
+with a service account that is able to create pods, services and configmaps in 
+order to correctly spawn executors. Moreover, Charmed Spark service accounts
+also store Spark configuration centrally in Kubernetes as secrets, that must 
+be readable/writable depending on their scope. Please refer to the explanations 
+about the [Charmed Spark hierachical configuration](/todo) for more information. 
 
 ### Metrics
 
@@ -47,8 +53,8 @@ Spark Jobs are ephemeral processes that may be long-lived in some cases but also
 short-lived on others. Spark Jobs may be launch occasionally, or multiple Spark Jobs
 may be running at the same times. 
 
-On this, Spark is very different to other services and Data Platform (such as Kafka, 
-MongoDB, PostgreSQL, etc), that are generally unique, with stable endpoints and 
+In this sense, Spark is very different from traditional database management systems
+(such as Kafka, MongoDB, PostgreSQL, etc), that are generally unique, with stable endpoints and 
 up and running at all times. 
 
 Such services generally expose a stable endpoint where relevant metrics (such as
@@ -58,34 +64,33 @@ bundled in COS. However, because of the intrinsic characteristics of Spark, such
 an approach is not directly suitable and feasible for Spark. 
 
 Instead of being passively scraped and metrics being pulled directly by Prometheus, 
-Spark Jobs running with Charmed Spark actively pushes the metrics into 
-[Prometheus Pushgateway](https://github.com/prometheus/pushgateway), 
-that is a *sink* component able to temporarily store the metrics, and exposing 
-a stable, reliable and long-lived endpoint to be scraped by Prometheus. 
-Metrics pushed into Prometheus Pushgateway are organized into groups and 
-characterized by a series of labels.
+Spark Jobs running with Charmed Spark actively push the metrics into 
+[Prometheus Pushgateway](https://github.com/prometheus/pushgateway), that is a *sink* component able to temporarily 
+store the metrics, and exposing a stable, reliable and long-lived endpoint to be 
+scraped by Prometheus. Metrics pushed into Prometheus Pushgateway are organized 
+into groups and characterized by a series of labels.
 
-Therefore, Spark Driver and Spark Executors need to be equipped with a plugin 
-that exports metrics and push them to the Prometheus Pushgateway, in appropriate 
-different groups, such that they can be temporarily stored, exposed and then 
+Therefore, Spark Driver and Spark Executors need to be able to export metrics 
+and push them to the Prometheus Pushgateway, in appropriate 
+groups, so that they can be temporarily stored, exposed and then 
 scraped by Prometheus.
 Charmed Spark comes with the [spark-metrics](https://github.com/banzaicloud/spark-metrics) 
 exporter already packaged in the [Charmed Spark OCI image](https://github.com/canonical/charmed-spark-rock), 
 that is used as default base for both Driver and Executors pods.
 This exporter is designed to push metrics to the [prometheus-pushgateway-k8s](https://charmhub.io/prometheus-pushgateway)
-charm, that is integrated with the [Canonical Observability Stack](https://charmhub.io/topics/canonical-observability-stack).
+charm, which is integrated with the [Canonical Observability Stack](https://charmhub.io/topics/canonical-observability-stack).
 
 Once the metrics are ingested by Prometheus, they are then exposed to the user 
-using [Grafana](https://grafana.com/) where they can be visualized in custom dashboards, as well as 
-alerting rules can be defined, to be efficiently managed by [AlertManager](https://prometheus.io/docs/alerting/latest/alertmanager/).
+through [Grafana](https://grafana.com/) where they can be visualized in custom dashboards. 
+Custom alerting rules can also be defined and efficiently managed by [AlertManager](https://prometheus.io/docs/alerting/latest/alertmanager/).
 
 ### Logs 
 
-Logs of driver and executors are by default stored on the pod local file system, 
-and are therefore generally lost once the jobs finishes and the pod is cleared. 
+Logs of driver and executors are stored on the pod local filesystem by default, 
+and they are therefore generally lost once the job finishes and the pod is cleared. 
 
-However, Charmed Spark allows to store these logs into S3, such that they can 
-be re-read and visualized using the Spark History Server, allowing to monitor 
+However, Charmed Spark allows you to store these logs into S3, so that they can 
+be re-read and visualized using the Spark History Server, allowing users to monitor 
 and visualize the information and metrics about the job execution. 
 
 
