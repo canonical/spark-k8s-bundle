@@ -1,4 +1,4 @@
-## Use the Spark Client from Python 
+## Manage Service Accounts using the Python API
 
 The `spark-client` snap relies on the [`spark8t` toolkit](https://github.com/canonical/spark-k8s-toolkit-py). `spark8t` provides both a CLI and a programmatic interface to enhanced Spark client functionalities. 
 
@@ -187,8 +187,3 @@ Alternatively, you can also store these properties in files
 with open("my-file", "w") as fid:
     merged_property.log().write(fid)
 ```
-
-***
-
-* Previous: [Manage Service Accounts](/t/spark-client-snap-how-to-manage-spark-accounts/8959) 
-* Next: [Run on Charmed Kubernetes](/t/spark-client-snap-how-to-run-on-charmed-kubernetes/8960)
