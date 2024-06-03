@@ -1,6 +1,6 @@
 # Charmed Spark Documentation
 
-Charmed Spark is a set of Canonical supported artifacts (including charms, ROCK OCI images and SNAPs) that makes operating Spark workloads on Kubernetes seamless, secure and production-ready. 
+Charmed Spark is a set of Canonical supported artifacts (including charms, rocks and snaps) that makes operating Spark workloads on Kubernetes seamless, secure and production-ready. 
 
 The solution helps to simplify user interaction with Spark applications and the underlying Kubernetes cluster whilst retaining the traditional semantics and command line tooling that users already know. Operators benefit from straightforward, automated deployment of Spark components (e.g. Spark History Server) to the Kubernetes cluster, using [Juju](https://juju.is/). 
 
