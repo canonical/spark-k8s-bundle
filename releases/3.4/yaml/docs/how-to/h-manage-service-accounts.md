@@ -2,7 +2,7 @@
 
 This is an introduction to the CLI interface for creating, managing and configuring Charmed Spark service accounts. 
 
-> **Note** Charmed Spark service accounts are designed to work seamlessly with the Spark Integration Hub charm, allowing you to manage Spark configuration using Juju relations. You can find more information about how to use configuration hub [here](/todo).
+> **Note** Charmed Spark service accounts are designed to work seamlessly with the Spark Integration Hub charm, allowing you to manage Spark configuration using Juju relations. You can find more information about how to use configuration hub [here](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296).
 
 > :warning: The following commands assume that you have administrative permission on the namespaces (or on the kubernetes cluster) so that the corresponding resources (such as service accounts, secrets, roles and role-bindings) can be created and deleted. 
 

@@ -4,7 +4,7 @@ The Integration Hub charm allows seamless configuration of Charmed Spark service
 via Juju relations, therefore providing a charming, integrated user-experience. 
 
 The Integration Hub charm is part of the Charmed Spark bundle, that can be deployed following 
-[this](/TODO) how-to guide. Alternatively, you can also deploy the 
+[this](/t/charmed-spark-k8s-documentation-how-to-deploy-spark-history-server/10979) how-to guide. Alternatively, you can also deploy the 
 Spark Integration Hub charm standalone by running the following command
 
 ```shell

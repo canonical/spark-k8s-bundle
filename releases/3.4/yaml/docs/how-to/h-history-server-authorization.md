@@ -5,7 +5,7 @@ The Charmed Spark solution includes the Spark History charm that enables users t
 ### Deploy the Identity Bundle and integrate it with the Spark History Server 
 
 In order to enable authentication and authorization on the Spark History Server charm some steps are needed. Here, we assume that you have already deployed Charmed Spark using 
-the bundles, as described [here](TODO), that includes a Spark History Server charm, already configured with an object storage backend. 
+the bundles, as described [here](/t/charmed-spark-k8s-documentation-how-to-deploy-charmed-spark/10979), that includes a Spark History Server charm, already configured with an object storage backend. 
 
 In order to enable authentication, we first need to deploy the [identity bundle](https://discourse.charmhub.io/t/iam-bundle-deployment-tutorial/11916).
 

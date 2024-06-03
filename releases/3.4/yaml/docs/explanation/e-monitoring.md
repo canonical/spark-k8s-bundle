@@ -45,7 +45,7 @@ with a service account that is able to create pods, services and configmaps in
 order to correctly spawn executors. Moreover, Charmed Spark service accounts
 also store Spark configuration centrally in Kubernetes as secrets, that must 
 be readable/writable depending on their scope. Please refer to the explanations 
-about the [Charmed Spark hierachical configuration](/todo) for more information. 
+about the [Charmed Spark hierachical configuration](/t/spark-client-snap-explanation-hierarchical-configuration-handling/8956) for more information. 
 
 ### Metrics
 

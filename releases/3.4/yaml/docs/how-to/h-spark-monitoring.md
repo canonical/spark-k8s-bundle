@@ -2,7 +2,7 @@
 
 Charmed Spark supports native integration with the Canonical Observability Stack (COS). If you want to enable monitoring on top of Charmed Spark, make sure that you have a Juju model with COS correctly deployed. 
 To deploy COS on MicroK8s, follow the [step-by-step tutorial](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s). 
-For more information about Charmed Spark and COS integration, refer to the [COS documentation](https://charmhub.io/topics/canonical-observability-stack) and the [monitoring explanation section](/todo).
+For more information about Charmed Spark and COS integration, refer to the [COS documentation](https://charmhub.io/topics/canonical-observability-stack) and the [monitoring explanation section](//t/charmed-spark-documentation-explanation-monitoring/14299).
 
 Once COS is correctly setup, to enable monitoring it is necessary to:
 
@@ -16,7 +16,7 @@ COS as well as to configure the monitoring artifacts.
 
 The deployments of these resources can be enabled/disabled using either overlays
 (for Juju bundles) or input variables (for Terraform bundles). 
-Please refer to the [how-to deploy](/TODO) guide for more information.
+Please refer to the [how-to deploy](/t/charmed-spark-k8s-documentation-how-to-deploy-charmed-spark/10979) guide for more information.
 
 After the deployment settles on an `active/idle` state, you can make sure that 
 Grafana is correctly setup with dedicated dashboards.
@@ -113,7 +113,7 @@ PROMETHEUS_GATEWAY=$(juju status --format=yaml | yq ".applications.prometheus-pu
 > Should you want to override some of these with other custom values, this 
 > can be done by either:
 >   1. providing custom configuration to the `spark-integration-hub-k8s` charm 
->      (as explained [here](/TODO))
+>      (as explained [here](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296))
 >   2. adding the configurations to the Charmed Spark service account 
 >      directly (as explained [here](/t/spark-client-snap-how-to-manage-spark-accounts/8959))
 >   3. feeding these arguments directly to the spark-submit command (as shown 
