@@ -117,9 +117,3 @@ count = lines.withColumn("origin", get_origin(col("value"))).select("origin")\
 
 count.awaitTermination()
 ```
-
-***
-
- * Previous: [Run on K8s pods](/t/spark-client-snap-how-to-run-on-k8s-in-a-pod/8961)    
- * Next: [Requirements](/t/spark-client-snap-reference-requirements/8962)  
- * [Charmed Spark Documentation](https://discourse.charmhub.io/t/charmed-spark-documentation/8963)

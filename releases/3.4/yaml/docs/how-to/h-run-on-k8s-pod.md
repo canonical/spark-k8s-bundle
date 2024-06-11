@@ -84,9 +84,3 @@ Or
 ```shell
 $ spark-client.pyspark --username spark
 ```
-
-***
-
- * Previous: [Run on Charmed Kubernetes](/t/spark-client-snap-how-to-run-on-charmed-kubernetes/8960)
- * Next: [Run Spark Streaming Jobs](/t/charmed-spark-how-to-run-a-spark-streaming-job/10880) 
- * [Charmed Spark Documentation](https://discourse.charmhub.io/t/charmed-spark-documentation/8963)
