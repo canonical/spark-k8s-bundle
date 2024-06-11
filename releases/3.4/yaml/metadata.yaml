@@ -18,4 +18,4 @@ website:
   - https://github.com/canonical/spark-k8s-bundle
   - https://matrix.to/#/%23charmhub-data-platform%3Aubuntu.com
 maintainers:
-  - Canonical Data Platform <data-platform@lists.launchpad.net>
+  - mailto:Canonical Data Platform <data-platform@lists.launchpad.net>
