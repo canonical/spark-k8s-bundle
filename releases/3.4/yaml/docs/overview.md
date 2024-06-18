@@ -19,34 +19,34 @@ Charmed Spark is a distribution of Apache Spark. It’s an open-source project t
 # Navigation
 
 | Level | Path                           | Navlink                                                                                                                                        |
-|-------|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1     | overview                       | [Overview](/t/spark-client-snap-documentation/8963)                                                                                            | 
-| 1     | tutorial                       | [Tutorial]()                                                                                                                                   |
-| 2     | t-overview                     | [1. Introduction](/t/charmed-spark-documentation-tutorial-introduction/13234)                                                                  |
-| 2     | t-setup-environment            | [2. Set up the environment for the tutorial](/t/charmed-spark-documentation-tutorial-setup-environment/13233)                                  |
-| 2     | t-spark-shell                  | [2. Interacting with Spark using Interactive Shell](/t/charmed-spark-documentation-tutorial-spark-shell/13232)                                 |
-| 2     | t-spark-submit                 | [3. Submitting Jobs using Spark Submit](/t/charmed-spark-documentation-tutorial-spark-submit/13231)                                            |
-| 2     | t-spark-streaming              | [4. Streaming workloads with Charmed Spark](/t/charmed-spark-documentation-tutorial-streaming/13230)                                           |
-| 2     | t-spark-monitoring             | [5. Monitoring the Spark cluster](/t/charmed-spark-documentation-tutorial-monitoring/13225)                                                    |
-| 2     | t-wrapping-up                  | [6. Wrapping Up](/t/charmed-spark-documentation-tutorial-wrapping-up/13224)                                                                    |
-| 1     | how-to                         | [How To]()                                                                                                                                     |
-| 2     | h-setup-k8s                    | [Setup the Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618)                                                 |
-| 2     | h-deploy                       | [Deploy Charmed Spark](/t/charmed-spark-k8s-documentation-how-to-deploy-charmed-spark/10979)                                                   |
-| 2     | h-manage-service-accounts      | [Manage Service Accounts using the snap](/t/spark-client-snap-how-to-manage-spark-accounts/8959)                                               |
-| 2     | h-use-spark-client-from-python | [Manage Service Accounts using Python](/t/spark-client-snap-how-to-python-api/8958)                                                            |
-| 2     | h-use-integration-hub          | [Manage Service Accounts using Integration Hub](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296)                     |
-| 2     | h-spark-monitoring             | [Enable and Configure Monitoring](/t/charmed-spark-k8s-documentation-enable-monitoring/13063)                                                  |
-| 2     | h-expose-history-server        | [Expose History Server using Ingress](/t/charmed-spark-k8s-documentation-how-to-expose-history-server/14297)                                   |
-| 2     | h-history-server-authorization | [Enable Authorization History Server](/t/charmed-spark-k8s-documentation-how-to-enable-authentication-on-the-spark-history-server-charm/13563) |
-| 2     | h-run-on-k8s-pod               | [Use K8s pods to run Charmed Spark](/t/spark-client-snap-how-to-run-on-k8s-in-a-pod/8961)                                                      |
-| 2     | h-spark-streaming              | [Run Spark Streaming Jobs](/t/charmed-spark-how-to-run-a-spark-streaming-job/10880)                                                            |
-| 1     | reference                      | [Reference]()                                                                                                                                  |
-| 2     | r-requirements                 | [Requirements](/t/spark-client-snap-reference-requirements/8962)                                                                               |
-| 2     | r-contacts                     | [Contacts](/t/charmed-spark-k8s-documentation-reference-contacts/14298)                                                                        |
-| 1     | explanation                    | [Explanation]()                                                                                                                                |
-| 2     | e-component-overview           | [Component Overview](/t/charmed-spark-documentation-explanation-components/11685)                                                              |
-| 2     | e-configuration                | [Charmed Spark Hierarchical Configuration](/t/spark-client-snap-explanation-hierarchical-configuration-handling/8956)                          |
-| 2     | e-monitoring                   | [Charmed Spark Monitoring](/t/charmed-spark-documentation-explanation-monitoring/14299)                                                        |
+|----|----|-----|
+| 1 | overview | [Overview](/t/8963) | 
+| 1 | tutorial | [Tutorial]() |
+| 2 | t-overview | [1. Introduction](/t/13234) |
+| 2 | t-setup-environment | [2. Set up the environment for the tutorial](/t/13233) |
+| 2 | t-spark-shell | [2. Interacting with Spark using Interactive Shell](/t/13232) |
+| 2 | t-spark-submit | [3. Submitting Jobs using Spark Submit](/t/13231) |
+| 2 | t-spark-streaming | [4. Streaming workloads with Charmed Spark](/t/13230) |
+| 2 | t-spark-monitoring | [5. Monitoring the Spark cluster](/t/13225) |
+| 2 | t-wrapping-up | [6. Wrapping Up](/t/13224) |
+| 1 | how-to | [How To]() |
+| 2 | h-setup-k8s | [Setup the Environment](/t/11618) |
+| 2 | h-deploy | [Deploy Charmed Spark](/t/10979) |
+| 2 | h-manage-service-accounts| [Manage Service Accounts using the snap](/t/8959) |
+| 2 | h-use-spark-client-from-python | [Manage Service Accounts using Python](/t/8958) |
+| 2 | h-use-integration-hub | [Manage Service Accounts using Integration Hub](/t/14296) |
+| 2 | h-spark-monitoring| [Enable and Configure Monitoring](/t/13063) |
+| 2 | h-expose-history-server| [Expose History Server using Ingress](/t/14297) |
+| 2| h-history-server-authorization | [Enable Authorization History Server](/t/13563) |
+| 2| h-run-on-k8s-pod| [Use K8s pods to run Charmed Spark](/t/8961) |
+| 2| h-spark-streaming | [Run Spark Streaming Jobs](/t/10880) |
+| 1| reference| [Reference]() |
+| 2| r-requirements | [Requirements](/t/8962) |
+| 2| r-contacts| [Contacts](/t/14298) |
+| 1| explanation | [Explanation]()|
+| 2| e-component-overview| [Component Overview](/t/11685) |
+| 2| e-configuration| [Charmed Spark Hierarchical Configuration](/t/8956) |
+| 2| e-monitoring| [Charmed Spark Monitoring](/t/14299) |
 
 # Redirects
 
