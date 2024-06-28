@@ -55,11 +55,11 @@ resource "juju_application" "kyuubi" {
   charm {
     name    = "kyuubi-k8s"
     channel = "latest/edge"
-    revision = 6
+    revision = 13
   }
 
   resources = {
-      kyuubi-image = 1
+      kyuubi-image = 2
   }
 
   config = {
