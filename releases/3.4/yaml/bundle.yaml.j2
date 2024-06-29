@@ -58,7 +58,7 @@ applications:
   integration-hub:
     charm: spark-integration-hub-k8s
     channel: latest/edge
-    revision: 4
+    revision: 6
     resources:
       integration-hub-image: 1
     scale: 1
@@ -75,3 +75,5 @@ relations:
   - metastore:database
 - - kyuubi:auth-db
   - kyuubi-users:database
+- - kyuubi:spark-service-account
+  - integration-hub:spark-service-account

@@ -172,7 +172,7 @@ def get_secret_data(namespace: str, service_account: str):
 
 async def deploy_bundle_yaml(
     bundle: Bundle,
-    service_account: ServiceAccount,
+    # service_account: ServiceAccount,
     bucket: Bucket,
     cos: str | None,
     ops_test: OpsTest,
@@ -190,8 +190,8 @@ async def deploy_bundle_yaml(
     """
 
     data = {
-        "namespace": service_account.namespace,
-        "service_account": service_account.name,
+        "namespace": ops_test.model_name, # service_account.namespace,
+        "service_account": "kyuubi-test-user",
         "bucket": bucket.bucket_name,
         "s3_endpoint": bucket.s3.meta.endpoint_url,
     } | ({"cos_controller": ops_test.controller_name, "cos_model": cos} if cos else {})
@@ -219,7 +219,7 @@ async def deploy_bundle_yaml(
 
 async def deploy_bundle_terraform(
     bundle: Terraform,
-    service_account: ServiceAccount,
+    # service_account: ServiceAccount,
     bucket: Bucket,
     cos: str | None,
     ops_test: OpsTest,
@@ -229,7 +229,7 @@ async def deploy_bundle_terraform(
             "bucket": bucket.bucket_name,
             "endpoint": bucket.s3.meta.endpoint_url,
         },
-        "kyuubi_user": service_account.name,
+        "kyuubi_user": "kyuubi-test-user",
         "model": ops_test.model_name,
     } | ({"cos_model": cos} if cos else {})
 

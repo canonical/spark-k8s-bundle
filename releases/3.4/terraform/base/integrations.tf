@@ -70,3 +70,17 @@ resource "juju_integration" "kyuubi_users" {
     endpoint = "auth-db"
   }
 }
+
+resource "juju_integration" "kyuubi_users" {
+  model      = var.model
+
+  application {
+    name = juju_application.kyuubi.name
+    endpoint = "spark-service-account"
+  }
+
+  application {
+    name = juju_application.hub.name
+    endpoint = "spark-service-account"
+  }
+}
