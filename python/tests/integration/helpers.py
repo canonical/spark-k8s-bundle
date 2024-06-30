@@ -190,7 +190,7 @@ async def deploy_bundle_yaml(
     """
 
     data = {
-        "namespace": ops_test.model_name, # service_account.namespace,
+        "namespace": ops_test.model_name,  # service_account.namespace,
         "service_account": "kyuubi-test-user",
         "bucket": bucket.bucket_name,
         "s3_endpoint": bucket.s3.meta.endpoint_url,

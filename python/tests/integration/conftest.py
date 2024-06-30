@@ -186,9 +186,7 @@ async def cos(ops_test: OpsTest, cos_model):
 
 
 @pytest.fixture(scope="module")
-async def spark_bundle(
-    ops_test: OpsTest, credentials, bucket, bundle, cos
-):
+async def spark_bundle(ops_test: OpsTest, credentials, bucket, bundle, cos):
     """Deploy all applications in the Kyuubi bundle, wait for all of them to be active,
     and finally yield a list of the names of the applications that were deployed.
     """
