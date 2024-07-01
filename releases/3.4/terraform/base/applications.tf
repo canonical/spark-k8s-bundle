@@ -55,7 +55,7 @@ resource "juju_application" "kyuubi" {
   charm {
     name    = "kyuubi-k8s"
     channel = "latest/edge"
-    revision = 13
+    revision = 14
   }
 
   resources = {
