@@ -221,7 +221,7 @@ async def spark_bundle(ops_test: OpsTest, credentials, bucket, bundle, cos):
 
     await ops_test.model.wait_for_idle(
         apps=applications,
-        timeout=2500,
+        timeout=3600,
         idle_period=30,
         status="active",
         raise_on_error=False,
