@@ -46,7 +46,7 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-22.04
-    timeout-minutes: 240
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
@@ -55,12 +55,12 @@ jobs:
           - --backend terraform
         cos:
           -
-          # - --cos-model cos
+          - --cos-model cos
         tox-environments:
-          # - integration-basic
-          # - integration-sparkjob
+          - integration-basic
+          - integration-sparkjob
           - integration-bundle
-          # - integration-kyuubi
+          - integration-kyuubi
     needs:
       - checks
       - unit-tests
@@ -111,8 +111,8 @@ jobs:
             echo Skipping unstable tests
             echo "mark_expression=not unstable" >> $GITHUB_OUTPUT
           fi
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
+      # - name: Setup upterm session
+      #   uses: lhotari/action-upterm@v1
       - id: tests-integration
         name: Run Integration Tests
         run: |    
