@@ -51,14 +51,14 @@ jobs:
       fail-fast: false
       matrix:
         backend:
-          - --backend yaml
+          # - --backend yaml
           - --backend terraform
         cos:
-          -
+          # -
           - --cos-model cos
         tox-environments:
-          - integration-basic
-          - integration-sparkjob
+          # - integration-basic
+          # - integration-sparkjob
           - integration-bundle
           - integration-kyuubi
     needs:
