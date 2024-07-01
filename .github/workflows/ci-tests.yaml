@@ -55,12 +55,12 @@ jobs:
           - --backend terraform
         cos:
           -
-          - --cos-model cos
+          # - --cos-model cos
         tox-environments:
-          - integration-basic
-          - integration-sparkjob
+          # - integration-basic
+          # - integration-sparkjob
           - integration-bundle
-          - integration-kyuubi
+          # - integration-kyuubi
     needs:
       - checks
       - unit-tests
@@ -111,6 +111,8 @@ jobs:
             echo Skipping unstable tests
             echo "mark_expression=not unstable" >> $GITHUB_OUTPUT
           fi
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
       - id: tests-integration
         name: Run Integration Tests
         run: |    

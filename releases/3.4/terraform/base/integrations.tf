@@ -71,7 +71,7 @@ resource "juju_integration" "kyuubi_users" {
   }
 }
 
-resource "juju_integration" "kyuubi_users" {
+resource "juju_integration" "kyuubi_service_account" {
   model      = var.model
 
   application {
