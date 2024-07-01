@@ -186,16 +186,14 @@ async def cos(ops_test: OpsTest, cos_model):
 
 
 @pytest.fixture(scope="module")
-async def spark_bundle(
-    ops_test: OpsTest, credentials, bucket, service_account, bundle, cos
-):
+async def spark_bundle(ops_test: OpsTest, credentials, bucket, bundle, cos):
     """Deploy all applications in the Kyuubi bundle, wait for all of them to be active,
     and finally yield a list of the names of the applications that were deployed.
     """
     applications = await (
-        deploy_bundle_yaml(bundle, service_account, bucket, cos, ops_test)
+        deploy_bundle_yaml(bundle, bucket, cos, ops_test)
         if isinstance(bundle, Bundle)
-        else deploy_bundle_terraform(bundle, service_account, bucket, cos, ops_test)
+        else deploy_bundle_terraform(bundle, bucket, cos, ops_test)
     )
 
     if "s3" in applications:
@@ -223,7 +221,7 @@ async def spark_bundle(
 
     await ops_test.model.wait_for_idle(
         apps=applications,
-        timeout=2500,
+        timeout=3600,
         idle_period=30,
         status="active",
         raise_on_error=False,

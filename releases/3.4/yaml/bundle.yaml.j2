@@ -6,9 +6,9 @@ applications:
   kyuubi:
     charm: kyuubi-k8s
     channel: latest/edge
-    revision: 6
+    revision: 16
     resources:
-      kyuubi-image: 1
+      kyuubi-image: 2
     scale: 1
     options:
       namespace: {{ namespace }}
@@ -58,7 +58,7 @@ applications:
   integration-hub:
     charm: spark-integration-hub-k8s
     channel: latest/edge
-    revision: 4
+    revision: 8
     resources:
       integration-hub-image: 1
     scale: 1
@@ -75,3 +75,5 @@ relations:
   - metastore:database
 - - kyuubi:auth-db
   - kyuubi-users:database
+- - kyuubi:spark-service-account
+  - integration-hub:spark-service-account

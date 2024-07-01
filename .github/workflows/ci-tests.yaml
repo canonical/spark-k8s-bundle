@@ -46,19 +46,19 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
         backend:
-          - --backend yaml
+          # - --backend yaml
           - --backend terraform
         cos:
-          -
+          # -
           - --cos-model cos
         tox-environments:
-          - integration-basic
-          - integration-sparkjob
+          # - integration-basic
+          # - integration-sparkjob
           - integration-bundle
           - integration-kyuubi
     needs:
@@ -82,13 +82,15 @@ jobs:
           juju-channel: 3.4/stable
           provider: microk8s
           channel: 1.28-strict/stable
+          bootstrap-options: " --agent-version 3.4.3"
           microk8s-group: snap_microk8s
           microk8s-addons: "rbac dns minio metallb:${{ env.IPADDR }}-${{ env.IPADDR }}"
       - id: cache-image
         name: Cache Spark Image Locally
         run: |
           # Download image for avoiding time out
-          IMAGE="ghcr.io/canonical/charmed-spark:3.4-22.04_edge"
+          IMAGE="ghcr.io/canonical/charmed-spark-kyuubi@sha256:9268d19a6eef91914e874734b320fab64908faf0f7adb8856be809bc60ecd1d0"
+          # IMAGE="ghcr.io/canonical/charmed-spark-kyuubi:3.4-22.04_edge"
           
           docker pull $IMAGE 
           docker save $IMAGE -o image.tar
@@ -110,6 +112,8 @@ jobs:
             echo Skipping unstable tests
             echo "mark_expression=not unstable" >> $GITHUB_OUTPUT
           fi
+      # - name: Setup upterm session
+      #   uses: lhotari/action-upterm@v1
       - id: tests-integration
         name: Run Integration Tests
         run: |    

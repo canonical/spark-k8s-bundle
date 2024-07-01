@@ -11,7 +11,6 @@ from pytest_operator.plugin import OpsTest
 from spark_test.core.kyuubi import KyuubiClient
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
 from spark_test.fixtures.s3 import bucket, credentials
-from spark_test.fixtures.service_account import registry, service_account
 
 from .helpers import get_kyuubi_credentials, get_postgresql_credentials
 
@@ -46,7 +45,7 @@ async def test_deploy_bundle(ops_test, spark_bundle):
 
 @pytest.mark.asyncio
 @pytest.mark.abort_on_fail
-async def test_authentication_is_enforced(ops_test, service_account):
+async def test_authentication_is_enforced(ops_test):
     """Test that the authentication has been enabled in the bundle by default
     and thus Kyuubi accept connections with invalid credentials.
     """
@@ -62,7 +61,7 @@ async def test_authentication_is_enforced(ops_test, service_account):
 
 @pytest.mark.abort_on_fail
 @pytest.mark.asyncio
-async def test_jdbc_endpoint(ops_test: OpsTest, service_account):
+async def test_jdbc_endpoint(ops_test: OpsTest):
     """Test that JDBC connection in Kyuubi works out of the box in bundle."""
 
     credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
