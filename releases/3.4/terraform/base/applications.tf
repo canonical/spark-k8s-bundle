@@ -55,7 +55,7 @@ resource "juju_application" "kyuubi" {
   charm {
     name    = "kyuubi-k8s"
     channel = "latest/edge"
-    revision = 14
+    revision = 15
   }
 
   resources = {
@@ -125,7 +125,7 @@ resource "juju_application" "hub" {
   charm {
     name    = "spark-integration-hub-k8s"
     channel = "latest/edge"
-    revision = 6
+    revision = 7
   }
 
   resources = {
