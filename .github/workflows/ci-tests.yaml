@@ -116,6 +116,13 @@ jobs:
       # Commented debugging
       # - name: Setup upterm session
       #   uses: lhotari/action-upterm@v1
+      - id: setup-terraform
+        name: Install terraform if needed
+        run: |
+          if ! [ -x "$(command -v terraform)" ]; then
+            echo "Installing terraform from snap"
+            sudo snap install terraform --classic 
+          fi
       - id: tests-integration
         name: Run Integration Tests
         run: |    
