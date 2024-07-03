@@ -52,14 +52,14 @@ jobs:
       fail-fast: false
       matrix:
         backend:
-          # - --backend yaml
+          - --backend yaml
           - --backend terraform
         cos:
-          # -
+          -
           - --cos-model cos
         tox-environments:
-          # - integration-basic
-          # - integration-sparkjob
+          - integration-basic
+          - integration-sparkjob
           - integration-bundle
           - integration-kyuubi
     needs:
@@ -113,9 +113,6 @@ jobs:
             echo Skipping unstable tests
             echo "mark_expression=not unstable" >> $GITHUB_OUTPUT
           fi
-      # Commented debugging
-      # - name: Setup upterm session
-      #   uses: lhotari/action-upterm@v1
       - id: setup-terraform
         name: Install terraform if needed
         run: |
