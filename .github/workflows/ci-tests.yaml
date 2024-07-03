@@ -124,6 +124,6 @@ jobs:
         name: Run Integration Tests
         run: |    
           cd python && tox run -e ${{ matrix.tox-environments }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.backend }} ${{ matrix.cos }}
-      - name: Setup tmate session
-        if: ${{ failure() }}
-        uses: canonical/action-tmate@main
+      # - name: Setup tmate session
+      #   if: ${{ failure() }}
+      #   uses: canonical/action-tmate@main

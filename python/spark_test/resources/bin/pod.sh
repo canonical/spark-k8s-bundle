@@ -9,7 +9,7 @@ wait_for_pod() {
   POD=$1
   NAMESPACE=$2
 
-  SLEEP_TIME=1
+  SLEEP_TIME=10
   for i in {1..5}
   do
     pod_status=$(kubectl -n ${NAMESPACE} get pod ${POD} | awk '{ print $3 }' | tail -n 1)
