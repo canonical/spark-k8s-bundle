@@ -53,15 +53,15 @@ jobs:
       matrix:
         backend:
           - --backend yaml
-          # - --backend terraform
+          - --backend terraform
         cos:
           -
-          # - --cos-model cos
+          - --cos-model cos
         tox-environments:
           - integration-basic
-          # - integration-sparkjob
-          # - integration-bundle
-          # - integration-kyuubi
+          - integration-sparkjob
+          - integration-bundle
+          - integration-kyuubi
     needs:
       - checks
       - unit-tests
@@ -124,6 +124,3 @@ jobs:
         name: Run Integration Tests
         run: |    
           cd python && tox run -e ${{ matrix.tox-environments }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.backend }} ${{ matrix.cos }}
-      # - name: Setup tmate session
-      #   if: ${{ failure() }}
-      #   uses: canonical/action-tmate@main
