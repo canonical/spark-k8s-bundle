@@ -5,31 +5,17 @@
 errcho(){ >&2 echo $@; }
 
 wait_for_pod() {
+    # Wait for the given pod in the given namespace to be ready.
+    #
+    # Arguments:
+    # $1: Name of the pod
+    # $2: Namespace that contains the pod
 
-  POD=$1
-  NAMESPACE=$2
+    pod_name=$1
+    namespace=$2
 
-  SLEEP_TIME=10
-  for i in {1..5}
-  do
-    pod_status=$(kubectl -n ${NAMESPACE} get pod ${POD} | awk '{ print $3 }' | tail -n 1)
-    errcho $pod_status
-    if [[ "${pod_status}" == "Running" ]]
-    then
-        errcho "testpod is Running now!"
-        break
-    elif [[ "${i}" -le "5" ]]
-    then
-        errcho "Waiting for the pod to come online..."
-        sleep $SLEEP_TIME
-    else
-        errcho "testpod did not come up. Test Failed!"
-        exit 3
-    fi
-    SLEEP_TIME=$(expr $SLEEP_TIME \* 2);
-  done
-
-  echo ${POD}
+    echo "Waiting for pod '$pod_name' to become ready..."
+    kubectl wait --for condition=Ready pod/$pod_name -n $namespace --timeout 60s
 }
 
 setup_pod() {
