@@ -151,7 +151,7 @@ def get_secret_data(namespace: str, service_account: str):
     secret_name = f"{SECRET_NAME_PREFIX}{service_account}"
     try:
         output = subprocess.run(command, check=True, capture_output=True)
-        # output.stdout.decode(), output.stderr.decode(), output.returncode
+
         result = output.stdout.decode()
         logger.info(f"Command: {command}")
         logger.info(f"Secrets for namespace: {namespace}")
@@ -172,7 +172,6 @@ def get_secret_data(namespace: str, service_account: str):
 
 async def deploy_bundle_yaml(
     bundle: Bundle,
-    # service_account: ServiceAccount,
     bucket: Bucket,
     cos: str | None,
     ops_test: OpsTest,
@@ -219,7 +218,6 @@ async def deploy_bundle_yaml(
 
 async def deploy_bundle_terraform(
     bundle: Terraform,
-    # service_account: ServiceAccount,
     bucket: Bucket,
     cos: str | None,
     ops_test: OpsTest,
