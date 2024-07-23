@@ -6,9 +6,9 @@ applications:
   kyuubi:
     charm: kyuubi-k8s
     channel: latest/edge
-    revision: 6
+    revision: 17
     resources:
-      kyuubi-image: 1
+      kyuubi-image: 2
     scale: 1
     options:
       namespace: {{ namespace }}
@@ -18,9 +18,9 @@ applications:
   kyuubi-users:
     charm: postgresql-k8s
     channel: 14/stable
-    revision: 193
+    revision: 281
     resources:
-      postgresql-image: 149
+      postgresql-image: 159
     scale: 1
     constraints: arch=amd64
     storage:
@@ -29,9 +29,9 @@ applications:
   metastore:
     charm: postgresql-k8s
     channel: 14/stable
-    revision: 193
+    revision: 281
     resources:
-      postgresql-image: 149
+      postgresql-image: 159
     scale: 1
     constraints: arch=amd64
     storage:
@@ -58,7 +58,7 @@ applications:
   integration-hub:
     charm: spark-integration-hub-k8s
     channel: latest/edge
-    revision: 4
+    revision: 10
     resources:
       integration-hub-image: 1
     scale: 1
@@ -75,3 +75,5 @@ relations:
   - metastore:database
 - - kyuubi:auth-db
   - kyuubi-users:database
+- - kyuubi:spark-service-account
+  - integration-hub:spark-service-account

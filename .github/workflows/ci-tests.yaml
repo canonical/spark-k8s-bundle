@@ -45,8 +45,8 @@ jobs:
 
   integration-tests:
     name: Integration Tests
-    runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    runs-on: [self-hosted, linux, X64, jammy, xlarge]
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
@@ -82,13 +82,14 @@ jobs:
           juju-channel: 3.4/stable
           provider: microk8s
           channel: 1.28-strict/stable
+          bootstrap-options: " --agent-version 3.4.3"
           microk8s-group: snap_microk8s
           microk8s-addons: "rbac dns minio metallb:${{ env.IPADDR }}-${{ env.IPADDR }}"
       - id: cache-image
         name: Cache Spark Image Locally
         run: |
           # Download image for avoiding time out
-          IMAGE="ghcr.io/canonical/charmed-spark:3.4-22.04_edge"
+          IMAGE="ghcr.io/canonical/charmed-spark-kyuubi@sha256:9268d19a6eef91914e874734b320fab64908faf0f7adb8856be809bc60ecd1d0"
           
           docker pull $IMAGE 
           docker save $IMAGE -o image.tar
@@ -109,6 +110,13 @@ jobs:
           else
             echo Skipping unstable tests
             echo "mark_expression=not unstable" >> $GITHUB_OUTPUT
+          fi
+      - id: setup-terraform
+        name: Install terraform if needed
+        run: |
+          if ! [ -x "$(command -v terraform)" ]; then
+            echo "Installing terraform from snap"
+            sudo snap install terraform --classic 
           fi
       - id: tests-integration
         name: Run Integration Tests

@@ -55,11 +55,11 @@ resource "juju_application" "kyuubi" {
   charm {
     name    = "kyuubi-k8s"
     channel = "latest/edge"
-    revision = 6
+    revision = 17
   }
 
   resources = {
-      kyuubi-image = 1
+      kyuubi-image = 2
   }
 
   config = {
@@ -81,11 +81,11 @@ resource "juju_application" "kyuubi_users" {
   charm {
     name    = "postgresql-k8s"
     channel = "14/stable"
-    revision = 193
+    revision = 281
   }
 
   resources = {
-      postgresql-image = 149
+      postgresql-image = 159
   }
 
   units = 1
@@ -103,11 +103,11 @@ resource "juju_application" "metastore" {
   charm {
     name    = "postgresql-k8s"
     channel = "14/stable"
-    revision = 193
+    revision = 281
   }
 
   resources = {
-      postgresql-image = 149
+      postgresql-image = 159
   }
 
   units = 1
@@ -125,7 +125,7 @@ resource "juju_application" "hub" {
   charm {
     name    = "spark-integration-hub-k8s"
     channel = "latest/edge"
-    revision = 4
+    revision = 10
   }
 
   resources = {
