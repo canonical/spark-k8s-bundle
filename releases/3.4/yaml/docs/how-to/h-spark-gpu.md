@@ -22,32 +22,23 @@ spec:
           nvidia.com/gpu: 1
 ```
 
-### Submitting Spark Job
+### Submitting  a Spark job with gpu acceleration
 
 With the usage of the `spark-client` snap we can now submit the desired Spark job. 
 In order to run the job with gpu acceleration, some configuration options need to be used:
 
 ```shell
-spark-client.spark-submit \
---username spark \
---namespace spark \
---conf spark.kubernetes.driver.request.cores=100m \
---conf spark.kubernetes.executor.request.cores=100m \
---conf spark.executor.instances=1 \
 --conf spark.executor.resource.gpu.amount=1 \
---conf spark.executor.memory=4G \
---conf spark.executor.cores=1 \
---conf spark.task.cpus=1 \
 --conf spark.task.resource.gpu.amount=1 \
 --conf spark.rapids.memory.pinnedPool.size=1G \
---conf spark.executor.memoryOverhead=1G \
---conf spark.sql.files.maxPartitionBytes=512m \
---conf spark.sql.shuffle.partitions=10 \
 --conf spark.plugins=com.nvidia.spark.SQLPlugin \
 --conf spark.executor.resource.gpu.discoveryScript=/opt/getGpusResources.sh \
 --conf spark.executor.resource.gpu.vendor=nvidia.com \
---conf spark.kubernetes.container.image=docker pull ghcr.io/canonical/charmed-spark-gpu:3.4-22.04_edge \
---driver-memory 2G \
+--conf spark.kubernetes.container.image=ghcr.io/canonical/charmed-spark-gpu:3.4-22.04_edge \
 --conf spark.kubernetes.executor.podTemplateFile=gpu_executor_template.yaml \
-  s3a://<BUCKET>/script-job.py'
 ```
+
+The Spark configuration options can be set at the spark service account with the spark-client snap to use them on all the jobs. Please have a look at this [guide](https://discourse.charmhub.io/t/spark-client-snap-how-to-manage-spark-accounts/8959) on how to manage options at service account level. To have more information on how the `spark-client` manages configuration options please have a look [here](https://discourse.charmhub.io/t/spark-client-snap-explanation-hierarchical-configuration-handling/8956). 
+
+
+The aforementioned options are the minimal set of configurations that are needed to enable the Spark Rapids plugin. The full list of available options are available [here].(https://nvidia.github.io/spark-rapids/docs/configs.html)
