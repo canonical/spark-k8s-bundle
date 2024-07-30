@@ -41,4 +41,4 @@ In order to run the job with gpu acceleration, some configuration options need t
 The Spark configuration options can be set at the spark service account with the spark-client snap to use them on all the jobs. Please have a look at this [guide](https://discourse.charmhub.io/t/spark-client-snap-how-to-manage-spark-accounts/8959) on how to manage options at service account level. To have more information on how the `spark-client` manages configuration options please have a look [here](https://discourse.charmhub.io/t/spark-client-snap-explanation-hierarchical-configuration-handling/8956). 
 
 
-The aforementioned options are the minimal set of configurations that are needed to enable the Spark Rapids plugin. The full list of available options are available [here].(https://nvidia.github.io/spark-rapids/docs/configs.html)
+The aforementioned options are the minimal set of configurations that are needed to enable the Spark Rapids plugin. The full list of available options are available [here](https://nvidia.github.io/spark-rapids/docs/configs.html).
