@@ -3,22 +3,22 @@
 The Charmed Spark solution requires an environment with:
 
 * A Kubernetes cluster for running the services and workloads
-* A Object storage layer to store persistent data
+* An Object storage layer to store persistent data
 
-In the following, we provide the details of the technologies currently supported and some further information on how these layers can be setup.
+In the following, we provide details on the technologies currently supported and some further information on how these layers can be setup.
 
 ### Kubernetes
 
-The Charmed Spark solution runs on top of several K8s distribution. We recommend you to use 1.29+, but no less than version 1.28. Earlier versions may still be working, although we do not explicitly test them. 
+The Charmed Spark solution runs on top of several K8s distribution. We recommend you to use 1.29+, but no less than version 1.28. 
+Earlier versions may still be working, although we do not explicitly test them. 
 
-There are multiple ways that a K8s cluster can be deployed. 
-We provide full compatibility and support for:
+There are multiple ways that a K8s cluster can be deployed. We provide full compatibility and support for:
 
 * MicroK8s
 * AWS EKS
 * Azure AKS (**Coming Soon**)
 
-The how-to guide belows shows you how to setup up these to be used with Charmed Spark. 
+The how-to guide below shows you how to set up these to be used with Charmed Spark. 
 
 #### MicroK8s
 
@@ -172,14 +172,14 @@ seamless integrates with Charmed Spark.
 In order to connect Charmed Spark with an S3-compatible object storage, 
 the following configurations need to be specified:
 
-* *access_key*
+* *access_key* 
 * *secret_key*
 * *endpoint*
 * *bucket*
 * (optional) *region*
 
 In the following sections, we show how to extract those information in different settings. 
-Leveraging on standard S3 API, you can use the `aws` snap client to perform operations with the
+Leveraging on standard S3 API, you can also use the `aws` snap client to perform operations with the
 S3 service, like creating buckets, upload new content, inspecting the structure and removing data.
 
 To install the AWS CLI client, use 
@@ -191,19 +191,17 @@ sudo snap install aws-cli --classic
 The client can then be configured using the parameters above with 
 
 ```shell
-aws configure set aws_access_key_id <ACCESS_KEY>
-aws configure set aws_secret_access_key <SECRET_KEY>
-aws configure set endpoint_url <AWS_S3_ENDPOINT>
-aws configure set default.region <AWS_REGION>
+aws configure set aws_access_key_id <S3_ACCESS_KEY>
+aws configure set aws_secret_access_key <S3_SECRET_KEY>
+aws configure set endpoint_url <S3_ENDPOINT>
+aws configure set default.region <S3_REGION>
 ```
-
 
 Test that the `aws-cli` client is properly working with 
 
 ```
 aws s3 ls
 ```
-
 
 ##### MicroK8s MinIO
 
@@ -219,29 +217,29 @@ You can then use the following commands to obtain the access key, the access sec
 
 * *access_key*: `microk8s.kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d`
 * *secret_key*: `microk8s.kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d`
-* *MinIO endpoint*: `microk8s.kubectl get services -n minio-operator | grep minio | awk '{ print $3 }'`
+* *endpoint*: `microk8s.kubectl get services -n minio-operator | grep minio | awk '{ print $3 }'`
 
 Configure the AWS CLI snap with these parameters. After that, you can create a bucket using
 
 ```shell
-aws s3 mb s3://<BUCKET_NAME>
+aws s3 mb s3://<S3_BUCKET>
 ```
 
 ##### AWS S3
 
-In order to use AWS S3, you need to have a AWS user that has permission to use S3 resource for reading and writing. 
-You can create a new users or use an existing one, as long as you grant permission to S3, either centrally using the IAM console 
+In order to use AWS S3, you need to have an AWS user that has permission to use S3 resource for reading and writing. 
+You can create a new user or use an existing one, as long as you grant permission to S3, either centrally using the IAM console 
 or from the S3 service itself. 
 
 If the service account has `AmazonS3FullAccess` permission, you can create new buckets using
 
 ```bash 
-aws s3api create-bucket --bucket <BUCKET_NAME> --region <AWS_REGION_NAME>
+aws s3api create-bucket --bucket <S3_BUCKET> --region <S3_REGION>
 ```
 
 Note that buckets will be associated to a given AWS region. Once the bucket is created, you can use 
-the access key and the access secret of your service account, also used for authenticating with the AWS CLI profile. 
-The endpoint of the service is `https://s3.<AWS_REGION_NAME>.amazonaws.com`.
+the `access_key` and the `secret_key` of your service account, also used for authenticating with the AWS CLI profile. 
+The endpoint of the service is `https://s3.<S3_REGION>.amazonaws.com`.
 
 #### Azure Storage
 
@@ -257,7 +255,7 @@ In order to connect Charmed Spark with the Azure storage backends (WASB, WASBS, 
 the following configurations need to be specified:
 
 * *storage_account*
-* *secret_key*
+* *storage_key*
 * *container*
 
 You can use the `azcli` snap client to perform operations with the Azure storage services, 
@@ -290,5 +288,5 @@ Once the credentials are set up, you can create a container in your namespace ei
 or also using the `azcli` with
 
 ```shell
-azcli storage container create --fail-on-exist --name <CONTAINER_NAME>
+azcli storage container create --fail-on-exist --name <AZURE_CONTAINER>
 ```
