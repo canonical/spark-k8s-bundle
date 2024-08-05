@@ -10,9 +10,10 @@ that form Charmed Spark, please refer to [this section](./path/to/explanation.md
 Since Charmed Spark will be managed by Juju, make sure that:
 * you have a Juju client (e.g. via a [SNAP](https://snapcraft.io/juju)) installed in your local machine  
 * you are able to connect to a juju controller
-* you have read-write permissions (therefore you have an access key, access secret and the s3 endpoint) to a S3-compatible object storage
+* you have read-write permissions to either a S3-compatible or an Azure object storage
 
-To set up a Juju controller on K8s and the juju client, you can refer to existing tutorials and documentation, e.g. [here](https://juju.is/docs/olm/get-started-with-juju) for MicroK8s and [here](https://juju.is/docs/juju/amazon-elastic-kubernetes-service-(amazon-eks)) for AWS EKS. Also refer to the [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) userguide to install S3-compatible object storage on MicroK8s (MinIO) or EKS (AWS S3). For other backends or K8s distributions other than MinIO on MicroK8s and S3 on EKS (e.g. Ceph, Charmed Kubernetes, GKE, etc), please refer to the documentation or your admin.
+To set up a Juju controller on K8s and the juju client, you can refer to existing tutorials and documentation, e.g. for [MicroK8s](https://juju.is/docs/olm/get-started-with-juju) and for [AWS EKS](https://juju.is/docs/juju/amazon-eks). Also refer to the [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) userguide to install a S3-compatible object storage on MicroK8s (MinIO), EKS (AWS S3) or Azure object storages. 
+For other backends or K8s distributions other than MinIO on MicroK8s and S3 on EKS (e.g. Ceph, Charmed Kubernetes, GKE, etc), please refer to the documentation or your admin.
 
 Charmed Spark supports native integration with the Canonical Observability Stack (COS). To enable monitoring on top of Charmed Spark, make sure that you have a Juju model with COS correctly deployed. To deploy COS on MicroK8s follow the step-by-step [tutorial](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s) or refer to its [documentation](https://charmhub.io/topics/canonical-observability-stack) for more informations.
 
@@ -29,33 +30,25 @@ juju add-model <juju_model>
 
 > Note that this will create a K8s namespace in which the different Charmed Spark components will be deployed to.
 
-#### Setup S3 Bucket
+#### Configure Object Storage
 
-Create a bucket and a path object `spark-events` for storing Spark logs in s3. This can be done in multiple ways depending on the S3 backend interface.
+To store Spark logs on a dedicated directory, you need to create the appropriate folder in the storage backend, that is named `spark-events`. 
 
-##### Using AWS-CLI Snap
+This can be done both on S3 and on Azure DataLake Gen2 Storage. 
 
-*Install the `aws-cli` snap*
+#### AWS
 
-```shell
-sudo snap install aws-cli --classic
-```
+To create a folder on an existing bucket, just place an empty path object `spark-events`. This can be done in multiple ways depending on the S3 backend interface.
 
-*Configure `aws-cli` client*
+###### Using AWS-CLI Snap
 
 ```shell
-aws configure set aws_access_key_id <ACCESS_KEY>
-aws configure set aws_secret_access_key <SECRET_KEY>
-aws configure set endpoint_url <S3_ENDPOINT>
+TOBE DONE
 ```
 
-Test that the `aws-cli` client is properly working with `aws s3 ls`
+Please refer to [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) for more information on how to set up the AWS CLI client snap.
 
-*Create the S3 bucket*
-
-aws s3 mb "s3://<BUCKET_NAME>"
-
-##### Using Python  
+###### Using Python  
 
 *Install boto*
 
@@ -73,26 +66,19 @@ session = boto3.session.Session(
 )
 s3 = session.client("s3", endpoint_url=<S3_ENDPOINT>, config=config)
 
-s3.create_bucket(Bucket=<BUCKET_NAME>)
 s3.put_object(Bucket=<BUCKET_NAME>, Key=("spark-events/"))
 ```
 
-#### Setup Spark service account to run Kyuubi engines
+#### Azure DataLake Storage
 
-Charmed Spark includes support for Apache Kyuubi project which enables users to 
-remotely connect to a Spark cluster using ODBC/JDBC and query their data with 
-standard SQL. Kyuubi requires a dedicated service account to be used for running
-the driver and executor engine pods. 
-
-The service account can be created using the `spark-client` snap:
+To create a folder on an existing bucket, just place a dummy file in the container under the  `spark-events` path.
+For doing this, you can use the `azcli` client snap.
 
 ```shell
- spark-client.service-account-registry create \
-    --username <kyuubi_server_account> --namespace <juju_model>
+azcli storage blob upload --container-name <container> --name spark-events/a.tmp -f /dev/null
 ```
 
-For more information on how to further customise Spark service accounts and 
-manage them, please refer to [here](/t/spark-client-snap-how-to-manage-spark-accounts/8959).
+Please refer to [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) for more information on how to set up the `azcli` client snap.
 
 ### Deploy Charmed Spark
 
