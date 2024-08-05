@@ -41,7 +41,7 @@ def small_profile_properties():
         {
             "spark.kubernetes.driver.request.cores": "100m",
             "spark.kubernetes.executor.request.cores": "100m",
-            "spark.kubernetes.container.image": "ghcr.io/canonical/charmed-spark:3.4-22.04_edge",
+            # "spark.kubernetes.container.image": "ghcr.io/canonical/charmed-spark:3.4-22.04_edge",
         }
     )
 
