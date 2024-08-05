@@ -12,10 +12,10 @@ import pytest
 import pytest_asyncio
 import requests
 from pytest_operator.plugin import OpsTest
-
-from tests import RELEASE_DIR, IE_TEST_DIR
-
 from spark8t.domain import PropertyFile
+
+from tests import IE_TEST_DIR, RELEASE_DIR
+
 from .helpers import (
     COS_ALIAS,
     Bundle,
@@ -104,7 +104,9 @@ def image_properties(version):
 
 
 @pytest.fixture(scope="module")
-def bundle(request, cos, backend, version, tmp_path_factory) -> Bundle[Path] | Terraform:
+def bundle(
+    request, cos, backend, version, tmp_path_factory
+) -> Bundle[Path] | Terraform:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
     if file := request.config.getoption("--bundle"):
         bundle = Path(file)
@@ -113,7 +115,11 @@ def bundle(request, cos, backend, version, tmp_path_factory) -> Bundle[Path] | T
             Path(file) if (file := request.config.getoption("--release")) else None
         ) or (
             Path(
-                IE_TEST_DIR / ".." / ".." / "releases" / ".".join(version.split(".")[:2])
+                IE_TEST_DIR
+                / ".."
+                / ".."
+                / "releases"
+                / ".".join(version.split(".")[:2])
             )
         )
 

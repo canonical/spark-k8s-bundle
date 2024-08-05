@@ -7,7 +7,9 @@ import pytest
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
 from spark_test.fixtures.pod import admin_pod, pod
 from spark_test.fixtures.service_account import (
-    registry, service_account, small_profile_properties
+    registry,
+    service_account,
+    small_profile_properties,
 )
 from spark_test.utils import get_spark_drivers
 
@@ -37,8 +39,7 @@ def test_pod_admin(admin_pod, service_account):
 
 
 def test_spark_submit(
-        pod, service_account, registry, version, small_profile_properties,
-        image_properties
+    pod, service_account, registry, version, small_profile_properties, image_properties
 ):
 
     extra_confs = small_profile_properties, image_properties
