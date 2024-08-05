@@ -62,11 +62,11 @@ import boto3
 
 config = Config(connect_timeout=60, retries={"max_attempts": 0})
 session = boto3.session.Session(
-    aws_access_key_id=<ACCESS_KEY>, aws_secret_access_key=<SECRET_KEY>
+    aws_access_key_id=<S3_ACCESS_KEY>, aws_secret_access_key=<S3_SECRET_KEY>
 )
 s3 = session.client("s3", endpoint_url=<S3_ENDPOINT>, config=config)
 
-s3.put_object(Bucket=<BUCKET_NAME>, Key=("spark-events/"))
+s3.put_object(Bucket=<S3_BUCKET>, Key=("spark-events/"))
 ```
 
 #### Azure DataLake Storage
@@ -75,7 +75,7 @@ To create a folder on an existing bucket, just place a dummy file in the contain
 For doing this, you can use the `azcli` client snap.
 
 ```shell
-azcli storage blob upload --container-name <container> --name spark-events/a.tmp -f /dev/null
+azcli storage blob upload --container-name <AZURE_CONTAINER> --name spark-events/a.tmp -f /dev/null
 ```
 
 Please refer to [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) for more information on how to set up the `azcli` client snap.

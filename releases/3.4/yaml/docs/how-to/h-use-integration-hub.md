@@ -37,7 +37,7 @@ And configure the appropriate parameters via config options, i.e.
 ```shell
 juju config s3-integration \
   bucket=<S3_BUCKET> \
-  endpoint=<S3_ENDPOINTS> \
+  endpoint=<S3_ENDPOINT> \
   path=spark-events
 ```
 
@@ -45,8 +45,8 @@ In the `s3-integrator`, credentials are fed using an action:
 
 ```shell
 juju run s3-integrator/leader sync-s3-credentials \
-  access-key=$AWS_ACCESS_KEY \
-  secret-key=$AWS_SECRET_KEY
+  access-key=$S3_ACCESS_KEY \
+  secret-key=$S3_SECRET_KEY
 ```
 
 Please refer to the [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) for guidance on how to set up and retrieve the 
@@ -73,9 +73,9 @@ You should see the following configuration automatically added to your service-a
 spark.hadoop.fs.s3a.aws.credentials.provider=org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider
 spark.hadoop.fs.s3a.connection.ssl.enabled=false
 spark.hadoop.fs.s3a.path.style.access=true \
-spark.hadoop.fs.s3a.access.key=<ACCESS_KEY>
+spark.hadoop.fs.s3a.access.key=<S3_ACCESS_KEY>
 spark.hadoop.fs.s3a.endpoint=<S3_ENDPOINT>
-spark.hadoop.fs.s3a.secret.key=<SECRET_KEY>
+spark.hadoop.fs.s3a.secret.key=<S3_SECRET_KEY>
 ```
 
 #### Azure storage
@@ -93,7 +93,7 @@ security over its value.
 Thus, create a Juju secret holding its value:
 
 ```shell
-juju add-secret azure-credentials secret-key=<STORAGE_KEY>
+juju add-secret azure-credentials secret-key=<AZURE_STORAGE_KEY>
 ```
 
 This should return a `secret_id` that can be used to configure the charm, i.e.
@@ -101,8 +101,8 @@ This should return a `secret_id` that can be used to configure the charm, i.e.
 ```shell
 juju config azure-storage-integrator \
   credentials=secret:<secret_id> \
-  storage-account=<STORAGE_ACCOUNT> \
-  container=<CONTAINER> \
+  storage-account=<AZURE_STORAGE_ACCOUNT> \
+  container=<AZURE_CONTAINER> \
   path="spark-events"
 ```
 
@@ -128,7 +128,7 @@ spark-client.service-account-registry get-config --username <service_account> --
 You should see the following configuration automatically added to your service-account:
 
 ```shell
-spark.hadoop.fs.azure.account.key.<STORAGE_ACCOUNT>.dfs.core.windows.net=<STORAGE_KEY>
+spark.hadoop.fs.azure.account.key.<AZURE_STORAGE_ACCOUNT>.dfs.core.windows.net=<AZURE_STORAGE_KEY>
 ```
 
 ### Enable Monitoring with Prometheus pushgateway
