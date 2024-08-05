@@ -13,8 +13,9 @@ import pytest_asyncio
 import requests
 from pytest_operator.plugin import OpsTest
 
-from tests import RELEASE_DIR
+from tests import RELEASE_DIR, IE_TEST_DIR
 
+from spark8t.domain import PropertyFile
 from .helpers import (
     COS_ALIAS,
     Bundle,
@@ -67,6 +68,12 @@ def pytest_addoption(parser):
         help="Which backend to use for bundle. Supported values are either "
         "yaml (default) or terraform.",
     )
+    parser.addoption(
+        "--version",
+        default="3.4.2",
+        type=str,
+        help="Which Spark version to use for bundle testing.",
+    )
 
 
 @pytest.fixture(scope="module")
@@ -82,14 +89,33 @@ def backend(request) -> None | str:
 
 
 @pytest.fixture(scope="module")
-def bundle(request, cos, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
+def version(request) -> None | str:
+    """The backend which is to be used to deploy the bundle."""
+    return request.config.getoption("--version")
+
+
+@pytest.fixture(scope="module")
+def image_properties(version):
+    return PropertyFile(
+        {
+            "spark.kubernetes.container.image": f"ghcr.io/canonical/charmed-spark:{version}-22.04_edge",
+        }
+    )
+
+
+@pytest.fixture(scope="module")
+def bundle(request, cos, backend, version, tmp_path_factory) -> Bundle[Path] | Terraform:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
     if file := request.config.getoption("--bundle"):
         bundle = Path(file)
     else:
         release_dir: Path = (
             Path(file) if (file := request.config.getoption("--release")) else None
-        ) or RELEASE_DIR
+        ) or (
+            Path(
+                IE_TEST_DIR / ".." / ".." / "releases" / ".".join(version.split(".")[:2])
+            )
+        )
 
         bundle = (
             release_dir / "terraform"

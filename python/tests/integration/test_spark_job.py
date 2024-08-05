@@ -11,7 +11,13 @@ from spark8t.domain import PropertyFile
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
 from spark_test.fixtures.pod import pod
 from spark_test.fixtures.s3 import bucket, credentials
-from spark_test.fixtures.service_account import registry, service_account
+from spark_test.fixtures.service_account import (
+    registry,
+    s3_properties,
+    service_account,
+    small_profile_properties,
+)
+
 from spark_test.utils import get_spark_drivers
 
 from .helpers import get_secret_data
@@ -53,10 +59,18 @@ async def test_deploy_bundle(ops_test, spark_bundle):
             assert ops_test.model.applications[app_name].status == "active"
 
 
+@pytest.fixture
+def spark_properties(
+        small_profile_properties, s3_properties, image_properties
+):
+    return small_profile_properties + s3_properties + image_properties
+
+
 @pytest.mark.abort_on_fail
 @pytest.mark.asyncio
 async def test_run_job(
-    ops_test: OpsTest, registry, service_account, pod, credentials, bucket
+    ops_test: OpsTest, registry, service_account, pod, credentials, bucket,
+        spark_properties
 ):
     """Run a spark job."""
 
@@ -66,17 +80,7 @@ async def test_run_job(
     # upload script
     bucket.upload_file("tests/integration/resources/spark_test.py")
 
-    extra_confs = PropertyFile(
-        {
-            "spark.kubernetes.driver.request.cores": "100m",
-            "spark.kubernetes.executor.request.cores": "100m",
-            "spark.kubernetes.container.image": "ghcr.io/canonical/charmed-spark:3.4-22.04_edge",
-            "spark.hadoop.fs.s3a.path.style.access": "true",
-            "spark.eventLog.enabled": "true",
-        }
-    )
-
-    registry.set_configurations(service_account.id, extra_confs)
+    registry.set_configurations(service_account.id, spark_properties)
 
     pod.exec(
         [
