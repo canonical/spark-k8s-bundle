@@ -6,7 +6,7 @@ applications:
   kyuubi:
     charm: kyuubi-k8s
     channel: latest/edge
-    revision: 6
+    revision: 18
     resources:
       kyuubi-image: 1
     scale: 1
@@ -48,11 +48,10 @@ applications:
       storage-account: {{ storage_account }}
       path: spark-events
       connection-protocol: abfss
-      credentials: {{ credentials }}
   history-server:
     charm: spark-history-server-k8s
     channel: 3.4/edge
-    revision: 25
+    revision: 27
     resources:
       spark-history-server-image: 12
     scale: 1
@@ -60,7 +59,7 @@ applications:
   integration-hub:
     charm: spark-integration-hub-k8s
     channel: latest/edge
-    revision: 11
+    revision: 13
     resources:
       integration-hub-image: 1
     scale: 1

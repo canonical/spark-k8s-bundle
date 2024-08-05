@@ -2,6 +2,7 @@ import json
 import logging
 import time
 import urllib.request
+import uuid
 from asyncio import sleep
 
 import pytest
@@ -13,8 +14,9 @@ from spark_test.fixtures.pod import pod
 from spark_test.fixtures.s3 import bucket, credentials
 from spark_test.fixtures.service_account import registry, service_account
 from spark_test.utils import get_spark_drivers
+from spark_test.fixtures.azure_storage import container, azure_credentials
 
-from .helpers import get_secret_data
+from .helpers import get_secret_data, construct_azure_resource_uri
 
 logger = logging.getLogger(__name__)
 
@@ -26,12 +28,12 @@ PROMETHEUS = "prometheus"
 
 @pytest.fixture(scope="module")
 def container_name():
-    return "spark-container"
+    return f"spark-container-{uuid.uuid4()}"
 
 
 @pytest.fixture
 def pod_name():
-    return "my-testpod"
+    return f"my-testpod-{uuid.uuid4()}"
 
 
 @pytest.fixture(scope="module")
@@ -53,55 +55,62 @@ async def test_deploy_bundle(ops_test, spark_bundle_with_azure_storage):
             assert ops_test.model.applications[app_name].status == "active"
 
 
-# @pytest.mark.abort_on_fail
-# @pytest.mark.asyncio
-# async def test_run_job(
-#     ops_test: OpsTest, registry, service_account, pod, credentials, bucket
-# ):
-#     """Run a spark job."""
+@pytest.mark.abort_on_fail
+@pytest.mark.asyncio
+async def test_run_job(
+    ops_test: OpsTest, registry, service_account, pod, container
+):
+    """Run a spark job."""
 
-#     # upload data
-#     bucket.upload_file("tests/integration/resources/example.txt")
+    # upload data
+    container.upload_file("tests/integration/resources/example.txt")
+    text_file_uri = construct_azure_resource_uri(container, "example.txt")
 
-#     # upload script
-#     bucket.upload_file("tests/integration/resources/spark_test.py")
+    # upload script
+    container.upload_file("tests/integration/resources/spark_test.py")
+    script_uri = construct_azure_resource_uri(container, "spark_test.py")
 
-#     extra_confs = PropertyFile(
-#         {
-#             "spark.kubernetes.driver.request.cores": "100m",
-#             "spark.kubernetes.executor.request.cores": "100m",
-#             "spark.kubernetes.container.image": "ghcr.io/canonical/charmed-spark:3.4-22.04_edge",
-#             "spark.hadoop.fs.s3a.path.style.access": "true",
-#             "spark.eventLog.enabled": "true",
-#         }
-#     )
 
-#     registry.set_configurations(service_account.id, extra_confs)
+    extra_confs = PropertyFile(
+        {
+            "spark.kubernetes.driver.request.cores": "100m",
+            "spark.kubernetes.executor.request.cores": "100m",
+            "spark.kubernetes.container.image": "ghcr.io/canonical/charmed-spark:3.4-22.04_edge",
+            "spark.eventLog.enabled": "true",
+        }
+    )
 
-#     pod.exec(
-#         [
-#             "spark-client.spark-submit",
-#             "--username",
-#             service_account.name,
-#             "--namespace",
-#             service_account.namespace,
-#             "-v",
-#             f"s3a://{bucket.bucket_name}/spark_test.py",
-#             f"-b {bucket.bucket_name}",
-#         ]
-#     )
+    registry.set_configurations(service_account.id, extra_confs)
 
-#     driver_pods = get_spark_drivers(
-#         registry.kube_interface.client, service_account.namespace
-#     )
-#     assert len(driver_pods) == 1
+    pod.exec(
+        [
+            "spark-client.spark-submit",
+            "--conf",
+            f"spark.hadoop.fs.azure.account.key.canonicalbikalpadhakal.blob.core.windows.net={os.environ['AZURE_STORAGE_KEY']}"
+            "--username",
+            service_account.name,
+            "--namespace",
+            service_account.namespace,
+            "-v",
+            script_uri,
+            "-f",
+            text_file_uri,
+        ]
+    )
 
-#     logger.info(f"Driver pod: {driver_pods[0].pod_name}")
-#     logger.info("\n".join(driver_pods[0].logs()))
+    driver_pods = get_spark_drivers(
+        registry.kube_interface.client, service_account.namespace
+    )
+    assert len(driver_pods) == 1
 
-#     line_check = filter(lambda line: "Number of lines" in line, driver_pods[0].logs())
+    logger.info(f"Driver pod: {driver_pods[0].pod_name}")
+    logger.info("\n".join(driver_pods[0].logs()))
 
-#     assert next(line_check)
+    line_check = filter(lambda line: "Number of lines" in line, driver_pods[0].logs())
+
+    assert next(line_check)
+    # import time
+    # time.sleep(300)
 
 
 # @pytest.mark.abort_on_fail

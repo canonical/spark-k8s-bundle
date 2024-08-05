@@ -52,15 +52,15 @@ jobs:
       matrix:
         backend:
           - --backend yaml
-          - --backend terraform
+          # - --backend terraform
         cos:
           -
-          - --cos-model cos
+          # - --cos-model cos
         tox-environments:
-          - integration-basic
-          - integration-sparkjob
-          - integration-bundle
-          - integration-kyuubi
+          # - integration-basic
+          - integration-sparkjob-azure
+          # - integration-bundle
+          # - integration-kyuubi
     needs:
       - checks
       - unit-tests

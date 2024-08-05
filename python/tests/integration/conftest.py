@@ -14,6 +14,9 @@ import requests
 from pytest_operator.plugin import OpsTest
 
 from tests import RELEASE_DIR
+from spark_test.fixtures.azure_storage import azure_credentials, container
+from spark_test.fixtures.service_account import service_account
+from spark_test.core.azure_storage import Credentials as AzureStorageCredentials
 
 from .helpers import (
     COS_ALIAS,
@@ -70,14 +73,14 @@ def pytest_addoption(parser):
         help="Which backend to use for bundle. Supported values are either "
         "yaml (default) or terraform.",
     )
-    parser.addoption(
-        "--object-storage-backend",
-        choices=["s3", "azure-storage"],
-        default="s3",
-        type=str,
-        help="Which object storage backend to use in the bundle. Supported values "
-        "are either s3 (default) or azure-storage.",
-    )
+    # parser.addoption(
+    #     "--object-storage-backend",
+    #     choices=["s3", "azure-storage"],
+    #     default="s3",
+    #     type=str,
+    #     help="Which object storage backend to use in the bundle. Supported values "
+    #     "are either s3 (default) or azure-storage.",
+    # )
 
 
 @pytest.fixture(scope="module")
@@ -91,13 +94,13 @@ def backend(request) -> None | str:
     """The backend which is to be used to deploy the bundle."""
     return request.config.getoption("--backend")
 
-@pytest.fixture(scope="module")
-def object_storage_backend(request) -> None | str:
-    """The object storage backend to be used in the bundle."""
-    return request.config.getoption("--object-storage-backend")
+# @pytest.fixture(scope="module")
+# def object_storage_backend(request) -> None | str:
+#     """The object storage backend to be used in the bundle."""
+#     return request.config.getoption("--object-storage-backend")
 
 @pytest.fixture(scope="module")
-def bundle(request, cos, backend, object_storage_backend, tmp_path_factory) -> Bundle[Path] | Terraform:
+def bundle(request, cos, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
     if file := request.config.getoption("--bundle"):
         bundle = Path(file)
@@ -106,12 +109,11 @@ def bundle(request, cos, backend, object_storage_backend, tmp_path_factory) -> B
             Path(file) if (file := request.config.getoption("--release")) else None
         ) or RELEASE_DIR
 
-        if backend == "terraform":
-            bundle = release_dir / "terraform"
-        elif object_storage_backend == "azure-storage":
-            bundle = release_dir / "yaml" / "bundle-azure-storage.yaml.j2"
-        else:
-            bundle = release_dir / "yaml" / "bundle.yaml.j2"
+        bundle = (
+            release_dir / "terraform"
+            if backend == "terraform"
+            else release_dir / "yaml" / "bundle.yaml.j2"
+        )
 
     if backend == "terraform":
         tmp_path = tmp_path_factory.mktemp(uuid.uuid4().hex) / "terraform"
@@ -278,18 +280,18 @@ async def spark_bundle(ops_test: OpsTest, credentials, bucket, bundle, cos):
 
 @pytest.fixture(scope="module")
 async def spark_bundle_with_azure_storage(
-    ops_test: OpsTest, credentials, container, service_account, bundle_with_azure_storage, cos
+    ops_test: OpsTest, azure_credentials: AzureStorageCredentials, container, bundle_with_azure_storage, cos
 ):
     """Deploy all applications in the Spark bundle, wait for all of them to be active,
     and finally yield a list of the names of the applications that were deployed.
     For object storage, use azure-storage-integrator.
     """
     applications = await (
-        deploy_bundle_yaml_azure_storage(bundle_with_azure_storage, service_account, container, cos, ops_test)
+        deploy_bundle_yaml_azure_storage(bundle_with_azure_storage, container, cos, ops_test)
     )
 
     if "azure-storage" in applications:
-        secret_uri = await add_juju_secret(ops_test, "azure-storage", "iamsecret", {"secret-key": credentials})
+        secret_uri = await add_juju_secret(ops_test, "azure-storage", "iamsecret", {"secret-key": azure_credentials.secret_key})
         await set_azure_credentials(ops_test, secret_uri=secret_uri, application_name="azure-storage")
 
     if cos:

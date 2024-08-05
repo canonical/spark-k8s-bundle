@@ -1,6 +1,6 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
-
+import uuid
 import pytest
 from spark8t.domain import PropertyFile, ServiceAccount
 from spark8t.services import K8sServiceAccountRegistry
@@ -21,7 +21,7 @@ def registry(interface):
 
 @pytest.fixture(scope="module")
 def service_account(registry, namespace):
-    service_account_name = "spark-test"
+    service_account_name = f"spark-test-{uuid.uuid4()}"
 
     sa = ServiceAccount(
         service_account_name, namespace, registry.kube_interface.api_server

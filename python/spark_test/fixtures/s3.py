@@ -3,6 +3,7 @@
 # See LICENSE file for licensing details.
 
 import subprocess
+import uuid
 
 import pytest
 
@@ -31,7 +32,7 @@ def credentials():
 
 @pytest.fixture(scope="module")
 def bucket_name():
-    return "s3-bucket"
+    return f"s3-bucket-{uuid.uuid4()}"
 
 
 @pytest.fixture(scope="module")

@@ -18,7 +18,7 @@ from pytest_operator.plugin import OpsTest
 from spark8t.domain import ServiceAccount
 
 from spark_test.core.s3 import Bucket, Credentials
-from spark_test.core.azure_storage import Container, Credentials as AzureStorageCredentials
+from spark_test.core.azure_storage import Container
 
 from .terraform import Terraform
 
@@ -230,7 +230,6 @@ async def deploy_bundle_yaml(
 
 async def deploy_bundle_yaml_azure_storage(
     bundle: Bundle,
-    service_account: ServiceAccount,
     container: Container,
     cos: str | None,
     ops_test: OpsTest,
@@ -248,8 +247,8 @@ async def deploy_bundle_yaml_azure_storage(
     """
 
     data = {
-        "namespace": service_account.namespace,
-        "service_account": service_account.name,
+        "namespace": ops_test.model_name,
+        "service_account": "kyuubi-test-user",
         "container": container.container_name,
         "storage_account": container.credentials.storage_account
     } | ({"cos_controller": ops_test.controller_name, "cos_model": cos} if cos else {})
@@ -307,3 +306,10 @@ async def add_juju_secret(
     command = f"grant-secret {secret_label} {charm_name}"
     _, stdout, _ = await ops_test.juju(*command.split())
     return secret_uri
+
+
+def construct_azure_resource_uri(container: Container, path: str):
+    return os.path.join(
+        f"abfss://{container.container_name}@{container.credentials.storage_account}.dfs.core.windows.net",
+        path
+    )
