@@ -17,7 +17,6 @@ from spark_test.fixtures.service_account import (
     service_account,
     small_profile_properties,
 )
-
 from spark_test.utils import get_spark_drivers
 
 from .helpers import get_secret_data
@@ -60,17 +59,20 @@ async def test_deploy_bundle(ops_test, spark_bundle):
 
 
 @pytest.fixture
-def spark_properties(
-        small_profile_properties, s3_properties, image_properties
-):
+def spark_properties(small_profile_properties, s3_properties, image_properties):
     return small_profile_properties + s3_properties + image_properties
 
 
 @pytest.mark.abort_on_fail
 @pytest.mark.asyncio
 async def test_run_job(
-    ops_test: OpsTest, registry, service_account, pod, credentials, bucket,
-        spark_properties
+    ops_test: OpsTest,
+    registry,
+    service_account,
+    pod,
+    credentials,
+    bucket,
+    spark_properties,
 ):
     """Run a spark job."""
 

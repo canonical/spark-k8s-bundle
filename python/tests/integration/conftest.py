@@ -19,6 +19,7 @@ from spark_test.fixtures.service_account import service_account
 from tests import RELEASE_DIR, IE_TEST_DIR
 
 from spark8t.domain import PropertyFile
+
 from .helpers import (
     COS_ALIAS,
     Bundle,
@@ -116,7 +117,9 @@ def image_properties(version):
 
 
 @pytest.fixture(scope="module")
-def bundle(request, cos, backend, version, tmp_path_factory) -> Bundle[Path] | Terraform:
+def bundle(
+    request, cos, backend, version, tmp_path_factory
+) -> Bundle[Path] | Terraform:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
     if file := request.config.getoption("--bundle"):
         bundle = Path(file)
@@ -125,7 +128,11 @@ def bundle(request, cos, backend, version, tmp_path_factory) -> Bundle[Path] | T
             Path(file) if (file := request.config.getoption("--release")) else None
         ) or (
             Path(
-                IE_TEST_DIR / ".." / ".." / "releases" / ".".join(version.split(".")[:2])
+                IE_TEST_DIR
+                / ".."
+                / ".."
+                / "releases"
+                / ".".join(version.split(".")[:2])
             )
         )
 
