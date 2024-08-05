@@ -76,7 +76,7 @@ def pytest_addoption(parser):
         "yaml (default) or terraform.",
     )
     parser.addoption(
-        "--version",
+        "--spark-version",
         default="3.4.2",
         type=str,
         help="Which Spark version to use for bundle testing.",
@@ -102,23 +102,23 @@ def backend(request) -> None | str:
 
 
 @pytest.fixture(scope="module")
-def version(request) -> None | str:
+def spark_version(request) -> None | str:
     """The backend which is to be used to deploy the bundle."""
-    return request.config.getoption("--version")
+    return request.config.getoption("--spark-version")
 
 
 @pytest.fixture(scope="module")
-def image_properties(version):
+def image_properties(spark_version):
     return PropertyFile(
         {
-            "spark.kubernetes.container.image": f"ghcr.io/canonical/charmed-spark:{version}-22.04_edge",
+            "spark.kubernetes.container.image": f"ghcr.io/canonical/charmed-spark:{spark_version}-22.04_edge",
         }
     )
 
 
 @pytest.fixture(scope="module")
 def bundle(
-    request, cos, backend, version, tmp_path_factory
+    request, cos, backend, spark_version, tmp_path_factory
 ) -> Bundle[Path] | Terraform:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
     if file := request.config.getoption("--bundle"):
@@ -132,7 +132,7 @@ def bundle(
                 / ".."
                 / ".."
                 / "releases"
-                / ".".join(version.split(".")[:2])
+                / ".".join(spark_version.split(".")[:2])
             )
         )
 
