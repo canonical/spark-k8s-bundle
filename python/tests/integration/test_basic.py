@@ -39,7 +39,7 @@ def test_pod_admin(admin_pod, service_account):
 
 
 def test_spark_submit(
-    pod, service_account, registry, version, small_profile_properties, image_properties
+    pod, service_account, registry, spark_version, small_profile_properties, image_properties
 ):
 
     extra_confs = small_profile_properties, image_properties
@@ -55,7 +55,7 @@ def test_spark_submit(
             service_account.namespace,
             "--class",
             "org.apache.spark.examples.SparkPi",
-            f"local:///opt/spark/examples/jars/spark-examples_2.12-{version}.jar",
+            f"local:///opt/spark/examples/jars/spark-examples_2.12-{spark_version}.jar",
             "1000",
         ]
     )
