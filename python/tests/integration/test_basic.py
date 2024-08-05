@@ -39,7 +39,12 @@ def test_pod_admin(admin_pod, service_account):
 
 
 def test_spark_submit(
-    pod, service_account, registry, spark_version, small_profile_properties, image_properties
+    pod,
+    service_account,
+    registry,
+    spark_version,
+    small_profile_properties,
+    image_properties,
 ):
 
     extra_confs = small_profile_properties, image_properties
