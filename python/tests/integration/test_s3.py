@@ -3,6 +3,7 @@
 # See LICENSE file for licensing details.
 
 import pytest
+from spark8t.domain import PropertyFile
 
 from spark_test import RESOURCES
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
@@ -29,8 +30,12 @@ def namespace_name():
 
 
 @pytest.fixture
-def spark_properties(small_profile_properties, s3_properties, iceberg_properties):
-    return small_profile_properties + s3_properties + iceberg_properties
+def spark_properties(
+    small_profile_properties, s3_properties, iceberg_properties, image_properties
+):
+    return (
+        small_profile_properties + s3_properties + iceberg_properties + image_properties
+    )
 
 
 def test_spark_iceberg_integration(

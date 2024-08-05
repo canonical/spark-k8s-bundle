@@ -37,21 +37,23 @@ setup_pod() {
   NAMESPACE=$2
   MODE=$3
 
+  IMAGE_NAME=$4
+
   if [ "${MODE}" == "admin" ]
   then
-    KUBE_CONFIG_FILE=$4
+    KUBE_CONFIG_FILE=$5
 
     errcho "Creating admin test-pod"
 
     # Create a pod with admin service account
-    yq ea ".spec.containers[0].env[0].name = \"KUBECONFIG\" | .spec.containers[0].env[0].value = \"/var/lib/spark/.kube/config\" | .metadata.name = \"${POD}\"" \
+    yq ea ".spec.containers[0].image = \"${IMAGE_NAME}\" | .spec.containers[0].env[0].name = \"KUBECONFIG\" | .spec.containers[0].env[0].value = \"/var/lib/spark/.kube/config\" | .metadata.name = \"${POD}\"" \
       ./resources/templates/testpod.yaml | \
       kubectl -n ${NAMESPACE} apply -f -
   else
-    SERVICE_ACCOUNT=$4
+    SERVICE_ACCOUNT=$5
 
     # Create the pod with the Spark service account
-    yq ea ".spec.serviceAccountName = \"${SERVICE_ACCOUNT}\" | .metadata.name = \"${POD}\"" \
+    yq ea ".spec.containers[0].image = \"${IMAGE_NAME}\" | .spec.serviceAccountName = \"${SERVICE_ACCOUNT}\" | .metadata.name = \"${POD}\"" \
       ./resources/templates/testpod.yaml | \
       kubectl -n ${NAMESPACE} apply -f -
   fi
