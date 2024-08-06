@@ -1,0 +1,21 @@
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+name: spark-k8s-bundle
+display-name: Charmed Kafka
+description: |
+  Spark is an distributed processing engine, designed to scale out your data 
+  analysis and machine learning tasks. This bundles charms to enable a Spark 
+  deployment on K8s, featuring integration with object storage, monitoring,
+  seamless and integrated configuration.
+summary: Charmed Spark K8s Operator
+docs: https://discourse.charmhub.io/t/charmed-spark-documentation/8963
+source: https://github.com/canonical/spark-k8s-bundle
+issues: https://github.com/canonical/spark-k8s-bundle/issues
+website:
+  - https://ubuntu.com/data/spark
+  - https://canonical.com/data/docs/spark/k8s
+  - https://github.com/canonical/spark-k8s-bundle
+  - https://matrix.to/#/%23charmhub-data-platform%3Aubuntu.com
+maintainers:
+  - Canonical Data Platform <data-platform@lists.launchpad.net>
