@@ -47,7 +47,7 @@ def test_spark_submit(
     image_properties,
 ):
 
-    extra_confs = small_profile_properties, image_properties
+    extra_confs = small_profile_properties + image_properties
 
     registry.set_configurations(service_account.id, extra_confs)
 
