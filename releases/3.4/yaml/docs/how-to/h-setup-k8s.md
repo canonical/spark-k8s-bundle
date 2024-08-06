@@ -164,8 +164,13 @@ Charmed Spark provides out-of-box integration with the following object storage 
   * Azure Blob Storage 
   * Azure DataLake v2 Storage
 
-In the following, we provide guidance on how to setup the different object storages to make sure that it
-seamless integrates with Charmed Spark. 
+In the following, we provide guidance on how to set up different object storages and 
+how to configure them to make sure that it seamlessly integrates with Charmed Spark. 
+
+In fact, to store Spark logs on a dedicated directories, you need to create the appropriate folder (that is named `spark-events`) in the storage backend. 
+This can be done both on S3 and on Azure DataLake Gen2 Storage. Although there are multiple ways to do this, 
+in the following we recommend you to use snap clients. 
+Other possibilities could also be to use [Python libraries](https://github.com/canonical/spark-k8s-bundle/blob/94ac51d519cece9dc6810c7aaa0144a28cd7989b/python/spark_test/core/s3.py).
 
 #### S3-compatible object storages
 
@@ -178,8 +183,50 @@ the following configurations need to be specified:
 * *bucket*
 * (optional) *region*
 
-In the following sections, we show how to extract those information in different settings. 
-Leveraging on standard S3 API, you can also use the `aws` snap client to perform operations with the
+In the following sections, we show how to setup and extract those information in 
+MinIO and AWS S3. 
+
+###### MicroK8s MinIO
+
+If you have already a MicroK8s cluster running, you can enable the MinIO storage with the dedicated addon
+
+```
+microk8s.enable minio
+```
+
+Refer [here](https://microk8s.io/docs/addon-minio) for more information how to customize your MinIO MicroK8s deployment.
+
+You can then use the following commands to obtain the access key, the access secret and the MinIO endpoint:
+
+* *access_key*: `microk8s.kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d`
+* *secret_key*: `microk8s.kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d`
+* *endpoint*: `microk8s.kubectl get services -n minio-operator | grep minio | awk '{ print $3 }'`
+
+Configure the AWS CLI snap with these parameters. After that, you can create a bucket using
+
+```shell
+aws s3 mb s3://<S3_BUCKET>
+```
+
+###### AWS S3
+
+In order to use AWS S3, you need to have an AWS user that has permission to use S3 resource for reading and writing. 
+You can create a new user or use an existing one, as long as you grant permission to S3, either centrally using the IAM console 
+or from the S3 service itself. 
+
+If the service account has `AmazonS3FullAccess` permission, you can create new buckets using
+
+```bash 
+aws s3api create-bucket --bucket <S3_BUCKET> --region <S3_REGION>
+```
+
+Note that buckets will be associated to a given AWS region. Once the bucket is created, you can use 
+the `access_key` and the `secret_key` of your service account, also used for authenticating with the AWS CLI profile. 
+The endpoint of the service is `https://s3.<S3_REGION>.amazonaws.com`.
+
+##### Setting Up the object Storage
+
+Leveraging on standard S3 API, you can use the `aws` snap client to perform operations with the
 S3 service, like creating buckets, upload new content, inspecting the structure and removing data.
 
 To install the AWS CLI client, use 
@@ -203,43 +250,13 @@ Test that the `aws-cli` client is properly working with
 aws s3 ls
 ```
 
-##### MicroK8s MinIO
-
-If you have already a MicroK8s cluster running, you can enable the MinIO storage with the dedicated addon
-
-```
-microk8s.enable minio
-```
-
-Refer [here](https://microk8s.io/docs/addon-minio) for more information how to customize your MinIO MicroK8s deployment.
-
-You can then use the following commands to obtain the access key, the access secret and the MinIO endpoint:
-
-* *access_key*: `microk8s.kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d`
-* *secret_key*: `microk8s.kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d`
-* *endpoint*: `microk8s.kubectl get services -n minio-operator | grep minio | awk '{ print $3 }'`
-
-Configure the AWS CLI snap with these parameters. After that, you can create a bucket using
+To create a folder on an existing bucket, just place an empty path object `spark-events`. 
 
 ```shell
-aws s3 mb s3://<S3_BUCKET>
+aws s3api put-object --bucket <S3_BUCKET> --key spark-events
 ```
 
-##### AWS S3
-
-In order to use AWS S3, you need to have an AWS user that has permission to use S3 resource for reading and writing. 
-You can create a new user or use an existing one, as long as you grant permission to S3, either centrally using the IAM console 
-or from the S3 service itself. 
-
-If the service account has `AmazonS3FullAccess` permission, you can create new buckets using
-
-```bash 
-aws s3api create-bucket --bucket <S3_BUCKET> --region <S3_REGION>
-```
-
-Note that buckets will be associated to a given AWS region. Once the bucket is created, you can use 
-the `access_key` and the `secret_key` of your service account, also used for authenticating with the AWS CLI profile. 
-The endpoint of the service is `https://s3.<S3_REGION>.amazonaws.com`.
+The S3-object storage should now be ready to be used by Spark Jobs to store their logs. 
 
 #### Azure Storage
 
@@ -257,6 +274,8 @@ the following configurations need to be specified:
 * *storage_account*
 * *storage_key*
 * *container*
+
+##### Setting Up the object Storage
 
 You can use the `azcli` snap client to perform operations with the Azure storage services, 
 like creating buckets, upload new content, inspecting the structure and removing data.
@@ -289,4 +308,11 @@ or also using the `azcli` with
 
 ```shell
 azcli storage container create --fail-on-exist --name <AZURE_CONTAINER>
+```
+
+To create a folder on an existing container, just place a dummy file in the container under the  `spark-events` path.
+For doing this, you can use the `azcli` client snap.
+
+```shell
+azcli storage blob upload --container-name <AZURE_CONTAINER> --name spark-events/a.tmp -f /dev/null
 ```

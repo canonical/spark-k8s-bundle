@@ -30,56 +30,6 @@ juju add-model <juju_model>
 
 > Note that this will create a K8s namespace in which the different Charmed Spark components will be deployed to.
 
-#### Configure Object Storage
-
-To store Spark logs on a dedicated directory, you need to create the appropriate folder in the storage backend, that is named `spark-events`. 
-
-This can be done both on S3 and on Azure DataLake Gen2 Storage. 
-
-#### AWS
-
-To create a folder on an existing bucket, just place an empty path object `spark-events`. This can be done in multiple ways depending on the S3 backend interface.
-
-###### Using AWS-CLI Snap
-
-```shell
-TOBE DONE
-```
-
-Please refer to [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) for more information on how to set up the AWS CLI client snap.
-
-###### Using Python  
-
-*Install boto*
-
-`pip install boto3`
-
-*Create the S3 bucket*
-
-```python
-from botocore.client import Config
-import boto3
-
-config = Config(connect_timeout=60, retries={"max_attempts": 0})
-session = boto3.session.Session(
-    aws_access_key_id=<S3_ACCESS_KEY>, aws_secret_access_key=<S3_SECRET_KEY>
-)
-s3 = session.client("s3", endpoint_url=<S3_ENDPOINT>, config=config)
-
-s3.put_object(Bucket=<S3_BUCKET>, Key=("spark-events/"))
-```
-
-#### Azure DataLake Storage
-
-To create a folder on an existing bucket, just place a dummy file in the container under the  `spark-events` path.
-For doing this, you can use the `azcli` client snap.
-
-```shell
-azcli storage blob upload --container-name <AZURE_CONTAINER> --name spark-events/a.tmp -f /dev/null
-```
-
-Please refer to [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) for more information on how to set up the `azcli` client snap.
-
 ### Deploy Charmed Spark
 
 Charmed Spark can be deployed via 
