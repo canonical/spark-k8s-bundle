@@ -77,7 +77,7 @@ jobs:
             cos: --cos-model cos
           - tox-environments: integration-kyuubi-azure    # Kyuubi tests do not require COS
             cos: --cos-model cos
-          - tox-environments: integration-sparkjob-azure  # Azure tests only supported in YAML bundle at the moment
+          - tox-environments: integration-kyuubi-azure    # Azure tests only supported in YAML bundle at the moment
             backend: --backend terraform
     needs:
       - checks
