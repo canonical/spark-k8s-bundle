@@ -26,5 +26,6 @@ def container_name():
 @pytest.fixture(scope="module")
 def container(azure_credentials, container_name):
     _container = Container.create(container_name, azure_credentials)
+    _container.init()
     yield _container
     _container.delete()

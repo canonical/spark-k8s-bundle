@@ -22,6 +22,9 @@ class Credentials:
 class Container:
     """Class representing a Azure Storage container."""
 
+    INIT_DIR = "spark-events"
+    PLACEHOLDER = ".tmp"
+
     def __init__(self, client: BlobServiceClient, container_name: str, credentials: Credentials):
         """Create an instance of Bucket class.
 
@@ -54,11 +57,10 @@ class Container:
         return Container(client, container_name, credentials)
     
 
-    # def init(self):
-    #     """Initialize the container to be used with Spark."""
-    #     blob_client = self.client.get_blob_client(container=self.container_name, blob="spark-events/")
-    #     blob_client.upload_blob(b"")
-
+    def init(self):
+        """Initialize the container to be used with Spark."""
+        blob_client = self.client.get_blob_client(container=self.container_name, blob=f"{self.INIT_DIR}/{self.PLACEHOLDER}")
+        blob_client.upload_blob(b"")
 
 
     def delete(self):
@@ -104,3 +106,15 @@ class Container:
         except Exception as e:
             return False
         return True
+
+    def list_blobs(self):
+        hidden_blobs = [
+            self.INIT_DIR,
+            f"{self.INIT_DIR}/{self.PLACEHOLDER}"
+        ]
+        container_client = self.client.get_container_client(container=self.container_name)
+        return [
+            blob["name"]
+            for blob in container_client.list_blobs()
+            if blob["name"] not in hidden_blobs
+        ]

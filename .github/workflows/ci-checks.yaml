@@ -31,7 +31,7 @@ jobs:
         run: |
           pipx install tox
           pipx install poetry
-      # - id: code-checks
-      #   name: Make sure the code follows conventions and tests correctly
-      #   run: |
-      #     cd python && tox -e lint 
+      - id: code-checks
+        name: Make sure the code follows conventions and tests correctly
+        run: |
+          cd python && tox -e lint 

@@ -73,14 +73,7 @@ def pytest_addoption(parser):
         help="Which backend to use for bundle. Supported values are either "
         "yaml (default) or terraform.",
     )
-    # parser.addoption(
-    #     "--object-storage-backend",
-    #     choices=["s3", "azure-storage"],
-    #     default="s3",
-    #     type=str,
-    #     help="Which object storage backend to use in the bundle. Supported values "
-    #     "are either s3 (default) or azure-storage.",
-    # )
+
 
 
 @pytest.fixture(scope="module")

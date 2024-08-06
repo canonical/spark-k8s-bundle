@@ -52,15 +52,15 @@ jobs:
       matrix:
         backend:
           - --backend yaml
-          # - --backend terraform
+          - --backend terraform
         cos:
           -
-          # - --cos-model cos
+          - --cos-model cos
         tox-environments:
-          # - integration-basic
+          - integration-basic
           - integration-sparkjob-azure
-          # - integration-bundle
-          # - integration-kyuubi
+          - integration-bundle
+          - integration-kyuubi
     needs:
       - checks
       - unit-tests
@@ -120,5 +120,8 @@ jobs:
           fi
       - id: tests-integration
         name: Run Integration Tests
+        env:
+          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |    
           cd python && tox run -e ${{ matrix.tox-environments }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.backend }} ${{ matrix.cos }}
