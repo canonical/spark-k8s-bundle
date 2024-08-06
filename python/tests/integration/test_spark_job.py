@@ -87,7 +87,7 @@ async def test_run_job(
             service_account.namespace,
             "-v",
             f"s3a://{bucket.bucket_name}/spark_test.py",
-            f"-b s3a://{bucket.bucket_name}/example.txt",
+            f"-f s3a://{bucket.bucket_name}/example.txt",
         ]
     )
 

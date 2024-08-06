@@ -64,8 +64,9 @@ jobs:
           - integration-kyuubi
           - integration-kyuubi-azure
         exclude:
-          - tox-environments: integration-basic           # Basic tests, test without terraform and COS
+          - tox-environments: integration-basic           # Basic tests, test without COS
             cos: --cos-model cos
+          - tox-environments: integration-basic           # Basic tests, test without terraform
             backend: --backend terraform
           - tox-environments: integration-sparkjob        # COS is mandatory for the sparkjob test
             cos: 
