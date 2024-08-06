@@ -14,8 +14,11 @@ from spark_test.core.kyuubi import KyuubiClient
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
 from spark_test.fixtures.s3 import bucket, credentials
 
-
-from .helpers import get_kyuubi_credentials, get_postgresql_credentials, construct_azure_resource_uri
+from .helpers import (
+    construct_azure_resource_uri,
+    get_kyuubi_credentials,
+    get_postgresql_credentials,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +63,6 @@ async def test_authentication_is_enforced(ops_test):
         client.get_database("spark_test")
 
         assert "Error validating the login" in str(e)
-
 
 
 @pytest.mark.abort_on_fail

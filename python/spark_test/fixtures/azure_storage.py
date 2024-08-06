@@ -13,8 +13,8 @@ from spark_test.core.azure_storage import Container, Credentials
 @pytest.fixture(scope="session")
 def azure_credentials():
     yield Credentials(
-        storage_account=os.environ["AZURE_STORAGE_ACCOUNT"], 
-        secret_key=os.environ["AZURE_STORAGE_KEY"]
+        storage_account=os.environ["AZURE_STORAGE_ACCOUNT"],
+        secret_key=os.environ["AZURE_STORAGE_KEY"],
     )
 
 

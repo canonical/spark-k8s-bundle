@@ -13,22 +13,22 @@ import pytest_asyncio
 import requests
 from pytest_operator.plugin import OpsTest
 
-from tests import RELEASE_DIR
+from spark_test.core.azure_storage import Credentials as AzureStorageCredentials
 from spark_test.fixtures.azure_storage import azure_credentials, container
 from spark_test.fixtures.service_account import service_account
-from spark_test.core.azure_storage import Credentials as AzureStorageCredentials
+from tests import RELEASE_DIR
 
 from .helpers import (
     COS_ALIAS,
     Bundle,
+    add_juju_secret,
     deploy_bundle,
     deploy_bundle_terraform,
     deploy_bundle_yaml,
     deploy_bundle_yaml_azure_storage,
     local_tmp_folder,
-    set_s3_credentials,
     set_azure_credentials,
-    add_juju_secret
+    set_s3_credentials,
 )
 from .terraform import Terraform
 
@@ -75,7 +75,6 @@ def pytest_addoption(parser):
     )
 
 
-
 @pytest.fixture(scope="module")
 def cos_model(request) -> None | str:
     """The name of the model in which COS is either already deployed or is to be deployed."""
@@ -87,10 +86,12 @@ def backend(request) -> None | str:
     """The backend which is to be used to deploy the bundle."""
     return request.config.getoption("--backend")
 
+
 # @pytest.fixture(scope="module")
 # def object_storage_backend(request) -> None | str:
 #     """The object storage backend to be used in the bundle."""
 #     return request.config.getoption("--object-storage-backend")
+
 
 @pytest.fixture(scope="module")
 def bundle(request, cos, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
@@ -130,7 +131,6 @@ def bundle(request, cos, backend, tmp_path_factory) -> Bundle[Path] | Terraform:
         yield Bundle(main=bundle, overlays=overlays)
 
 
-
 @pytest.fixture(scope="module")
 def bundle_with_azure_storage(request, cos) -> Bundle[Path]:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
@@ -146,9 +146,7 @@ def bundle_with_azure_storage(request, cos) -> Bundle[Path]:
     overlays = (
         [Path(file) for file in files]
         if (files := request.config.getoption("--overlay"))
-        else (
-            [bundle.parent / "overlays" / "cos-integration.yaml.j2"] if cos else []
-        )
+        else ([bundle.parent / "overlays" / "cos-integration.yaml.j2"] if cos else [])
     )
 
     for file in overlays + [bundle]:
@@ -156,7 +154,6 @@ def bundle_with_azure_storage(request, cos) -> Bundle[Path]:
             raise FileNotFoundError(file.absolute())
 
     yield Bundle(main=bundle, overlays=overlays)
-
 
 
 @pytest.fixture
@@ -270,22 +267,32 @@ async def spark_bundle(ops_test: OpsTest, credentials, bucket, bundle, cos):
     yield applications
 
 
-
 @pytest.fixture(scope="module")
 async def spark_bundle_with_azure_storage(
-    ops_test: OpsTest, azure_credentials: AzureStorageCredentials, container, bundle_with_azure_storage, cos
+    ops_test: OpsTest,
+    azure_credentials: AzureStorageCredentials,
+    container,
+    bundle_with_azure_storage,
+    cos,
 ):
     """Deploy all applications in the Spark bundle, wait for all of them to be active,
     and finally yield a list of the names of the applications that were deployed.
     For object storage, use azure-storage-integrator.
     """
-    applications = await (
-        deploy_bundle_yaml_azure_storage(bundle_with_azure_storage, container, cos, ops_test)
+    applications = await deploy_bundle_yaml_azure_storage(
+        bundle_with_azure_storage, container, cos, ops_test
     )
 
     if "azure-storage" in applications:
-        secret_uri = await add_juju_secret(ops_test, "azure-storage", "iamsecret", {"secret-key": azure_credentials.secret_key})
-        await set_azure_credentials(ops_test, secret_uri=secret_uri, application_name="azure-storage")
+        secret_uri = await add_juju_secret(
+            ops_test,
+            "azure-storage",
+            "iamsecret",
+            {"secret-key": azure_credentials.secret_key},
+        )
+        await set_azure_credentials(
+            ops_test, secret_uri=secret_uri, application_name="azure-storage"
+        )
 
     if cos:
         with ops_test.model_context(COS_ALIAS) as cos_model:

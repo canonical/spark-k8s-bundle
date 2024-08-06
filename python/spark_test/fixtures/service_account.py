@@ -1,6 +1,7 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 import uuid
+
 import pytest
 from spark8t.domain import PropertyFile, ServiceAccount
 from spark8t.services import K8sServiceAccountRegistry

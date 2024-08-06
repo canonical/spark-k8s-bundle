@@ -9,7 +9,7 @@ import subprocess
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Generic, Dict, TypeVar
+from typing import Any, Callable, Dict, Generic, TypeVar
 
 import boto3
 import yaml
@@ -17,8 +17,8 @@ from botocore.exceptions import ClientError, SSLError
 from pytest_operator.plugin import OpsTest
 from spark8t.domain import ServiceAccount
 
-from spark_test.core.s3 import Bucket, Credentials
 from spark_test.core.azure_storage import Container
+from spark_test.core.s3 import Bucket, Credentials
 
 from .terraform import Terraform
 
@@ -60,9 +60,7 @@ async def set_azure_credentials(
 ) -> Any:
     """Use the charm action to start a password rotation."""
 
-    params = {
-        "credentials": secret_uri
-    }
+    params = {"credentials": secret_uri}
     await ops_test.model.applications[application_name].set_config(params)
 
 
@@ -250,7 +248,7 @@ async def deploy_bundle_yaml_azure_storage(
         "namespace": ops_test.model_name,
         "service_account": "kyuubi-test-user",
         "container": container.container_name,
-        "storage_account": container.credentials.storage_account
+        "storage_account": container.credentials.storage_account,
     } | ({"cos_controller": ops_test.controller_name, "cos_model": cos} if cos else {})
 
     bundle_content = bundle.map(lambda path: render_yaml(path, data, ops_test))
@@ -272,7 +270,6 @@ async def deploy_bundle_yaml_azure_storage(
     )
 
     return charms.main + sum(charms.overlays, [])
-
 
 
 async def deploy_bundle_terraform(
@@ -311,5 +308,5 @@ async def add_juju_secret(
 def construct_azure_resource_uri(container: Container, path: str):
     return os.path.join(
         f"abfss://{container.container_name}@{container.credentials.storage_account}.dfs.core.windows.net",
-        path
+        path,
     )

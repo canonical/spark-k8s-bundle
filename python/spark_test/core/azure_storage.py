@@ -16,8 +16,11 @@ class Credentials:
     storage_account: str
 
     @property
-    def connection_string(self, ) -> str:
+    def connection_string(
+        self,
+    ) -> str:
         return f"DefaultEndpointsProtocol=https;AccountName={self.storage_account};AccountKey={self.secret_key};EndpointSuffix=core.windows.net"
+
 
 class Container:
     """Class representing a Azure Storage container."""
@@ -25,7 +28,9 @@ class Container:
     INIT_DIR = "spark-events"
     PLACEHOLDER = ".tmp"
 
-    def __init__(self, client: BlobServiceClient, container_name: str, credentials: Credentials):
+    def __init__(
+        self, client: BlobServiceClient, container_name: str, credentials: Credentials
+    ):
         """Create an instance of Bucket class.
 
         Args:
@@ -35,7 +40,6 @@ class Container:
         self.client = client
         self.container_name = container_name
         self.credentials = credentials
-
 
     @classmethod
     def create(cls, container_name: str, credentials: Credentials):
@@ -51,28 +55,31 @@ class Container:
         client = BlobServiceClient.from_connection_string(credentials.connection_string)
 
         if cls._exists(container_name, client):
-            raise ValueError(f"Cannot create container {container_name}. Already exists.")
+            raise ValueError(
+                f"Cannot create container {container_name}. Already exists."
+            )
 
         client.create_container(container_name)
         return Container(client, container_name, credentials)
-    
 
     def init(self):
         """Initialize the container to be used with Spark."""
-        blob_client = self.client.get_blob_client(container=self.container_name, blob=f"{self.INIT_DIR}/{self.PLACEHOLDER}")
+        blob_client = self.client.get_blob_client(
+            container=self.container_name, blob=f"{self.INIT_DIR}/{self.PLACEHOLDER}"
+        )
         blob_client.upload_blob(b"")
-
 
     def delete(self):
         """Delete the current container."""
         if not self.exists():
             return
 
-        container_client = self.client.get_container_client(container=self.container_name)
+        container_client = self.client.get_container_client(
+            container=self.container_name
+        )
         container_client.delete_container()
         self.client.close()
         self.client = None
-
 
     @staticmethod
     def _exists(container_name, client: BlobServiceClient) -> bool:
@@ -100,19 +107,20 @@ class Container:
 
         # Upload the file
         try:
-            container_client = self.client.get_container_client(container=self.container_name)
+            container_client = self.client.get_container_client(
+                container=self.container_name
+            )
             with open(file_name, mode="rb") as data:
                 container_client.upload_blob(blob_name, data=data, overwrite=True)
-        except Exception as e:
+        except Exception:
             return False
         return True
 
     def list_blobs(self):
-        hidden_blobs = [
-            self.INIT_DIR,
-            f"{self.INIT_DIR}/{self.PLACEHOLDER}"
-        ]
-        container_client = self.client.get_container_client(container=self.container_name)
+        hidden_blobs = [self.INIT_DIR, f"{self.INIT_DIR}/{self.PLACEHOLDER}"]
+        container_client = self.client.get_container_client(
+            container=self.container_name
+        )
         return [
             blob["name"]
             for blob in container_client.list_blobs()
