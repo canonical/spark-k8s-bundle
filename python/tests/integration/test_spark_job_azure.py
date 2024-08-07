@@ -2,19 +2,21 @@ import json
 import logging
 import time
 import urllib.request
+import uuid
 from asyncio import sleep
 
 import pytest
 from pytest_operator.plugin import OpsTest
 from spark8t.domain import PropertyFile
 
+from spark_test.fixtures.azure_storage import azure_credentials, container
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
 from spark_test.fixtures.pod import pod
 from spark_test.fixtures.s3 import bucket, credentials
 from spark_test.fixtures.service_account import registry, service_account
 from spark_test.utils import get_spark_drivers
 
-from .helpers import get_secret_data
+from .helpers import construct_azure_resource_uri, get_secret_data
 
 logger = logging.getLogger(__name__)
 
@@ -25,13 +27,13 @@ PROMETHEUS = "prometheus"
 
 
 @pytest.fixture(scope="module")
-def bucket_name():
-    return "spark-bucket"
+def container_name():
+    return f"spark-container-{uuid.uuid4()}"
 
 
 @pytest.fixture
 def pod_name():
-    return "my-testpod"
+    return f"my-testpod-{uuid.uuid4()}"
 
 
 @pytest.fixture(scope="module")
@@ -46,32 +48,31 @@ def namespace(namespace_name):
 
 @pytest.mark.abort_on_fail
 @pytest.mark.asyncio
-async def test_deploy_bundle(ops_test, spark_bundle):
+async def test_deploy_bundle(ops_test, spark_bundle_with_azure_storage):
     """Test whether the bundle has deployed successfully."""
-    async for applications in spark_bundle:
+    async for applications in spark_bundle_with_azure_storage:
         for app_name in applications:
             assert ops_test.model.applications[app_name].status == "active"
 
 
 @pytest.mark.abort_on_fail
 @pytest.mark.asyncio
-async def test_run_job(
-    ops_test: OpsTest, registry, service_account, pod, credentials, bucket
-):
+async def test_run_job(ops_test: OpsTest, registry, service_account, pod, container):
     """Run a spark job."""
 
     # upload data
-    bucket.upload_file("tests/integration/resources/example.txt")
+    container.upload_file("tests/integration/resources/example.txt")
+    text_file_uri = construct_azure_resource_uri(container, "example.txt")
 
     # upload script
-    bucket.upload_file("tests/integration/resources/spark_test.py")
+    container.upload_file("tests/integration/resources/spark_test.py")
+    script_uri = construct_azure_resource_uri(container, "spark_test.py")
 
     extra_confs = PropertyFile(
         {
             "spark.kubernetes.driver.request.cores": "100m",
             "spark.kubernetes.executor.request.cores": "100m",
             "spark.kubernetes.container.image": "ghcr.io/canonical/charmed-spark:3.4-22.04_edge",
-            "spark.hadoop.fs.s3a.path.style.access": "true",
             "spark.eventLog.enabled": "true",
         }
     )
@@ -86,8 +87,9 @@ async def test_run_job(
             "--namespace",
             service_account.namespace,
             "-v",
-            f"s3a://{bucket.bucket_name}/spark_test.py",
-            f"-f s3a://{bucket.bucket_name}/example.txt",
+            script_uri,
+            "-f",
+            text_file_uri,
         ]
     )
 
@@ -107,7 +109,7 @@ async def test_run_job(
 @pytest.mark.abort_on_fail
 @pytest.mark.asyncio
 async def test_job_logs_are_persisted(
-    ops_test: OpsTest, registry, service_account, credentials, bucket
+    ops_test: OpsTest, registry, service_account, container
 ):
     integration_hub_conf = get_secret_data(
         service_account.namespace, service_account.name
@@ -121,9 +123,9 @@ async def test_job_logs_are_persisted(
     assert len(driver_pods) == 1
     confs = registry.get(service_account.id).configurations
     logger.info(f"Configurations: {confs.props}")
-    s3_folder = confs.props["spark.eventLog.dir"]
-    logger.info(f"Log folder: {s3_folder}")
-    logger.info(f"S3 objects: {bucket.list_objects()}")
+    azure_storage_folder = confs.props["spark.eventLog.dir"]
+    logger.info(f"Log folder: {azure_storage_folder}")
+    logger.info(f"Azure storage blobs: {container.list_blobs()}")
     driver_pod_name = driver_pods[0].pod_name
     logger.info(f"Pod name: {driver_pod_name}")
 
@@ -132,8 +134,8 @@ async def test_job_logs_are_persisted(
     spark_app_selector = driver_pods[0].labels["spark-app-selector"]
 
     logs_discovered = False
-    for obj in bucket.list_objects():
-        if spark_app_selector in obj["Key"]:
+    for obj in container.list_blobs():
+        if spark_app_selector in obj:
             logs_discovered = True
 
     assert logs_discovered
