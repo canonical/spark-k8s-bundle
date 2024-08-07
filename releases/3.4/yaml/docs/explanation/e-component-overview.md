@@ -8,7 +8,7 @@ The Charmed Spark Solution bundles the following components:
 * [Charmed Bundle](https://charmhub.io/spark-k8s-bundle) to deploy, manage and operate Charmed Spark using [Juju](https://juju.is/). This includes:
   * [Spark History Server](https://charmhub.io/spark-history-server-k8s) to expose a web UI for analysing the logs of previous Spark Jobs
   * [Kyuubi](https://charmhub.io/kyuubi-k8s) to provide a JDBC/ODBC endpoint for running Hive powered by Spark engines
-  * [Spark Integration Hub](https://charmhub.io/spark-integration-hub-k8s) to enable easy configuration of Spark service accounts, providing a native Juju integration with [S3-integrator](https://charmhub.io/s3-integrator) for enabling object-storage persistence and with the [Canonical Observability Stack (COS)](https://charmhub.io/cos-lite) for enabling resource usage monitoring and alerting.   
+  * [Spark Integration Hub](https://charmhub.io/spark-integration-hub-k8s) to enable easy configuration of Spark service accounts, providing a native Juju integration with [S3-integrator](https://charmhub.io/s3-integrator) and [azure-storage-integrator](https://charmhub.io/azure-storage-integrator) for enabling object-storage persistence and with the [Canonical Observability Stack (COS)](https://charmhub.io/cos-lite) for enabling resource usage monitoring and alerting.   
 
 The following image shows how the different artifacts interacts with each other:
 
