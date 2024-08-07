@@ -165,14 +165,22 @@ def bundle(
 
 
 @pytest.fixture(scope="module")
-def bundle_with_azure_storage(request, cos) -> Bundle[Path]:
+def bundle_with_azure_storage(request, spark_version, cos) -> Bundle[Path]:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
     if file := request.config.getoption("--bundle"):
         bundle = Path(file)
     else:
         release_dir: Path = (
             Path(file) if (file := request.config.getoption("--release")) else None
-        ) or RELEASE_DIR
+        ) or (
+            Path(
+                IE_TEST_DIR
+                / ".."
+                / ".."
+                / "releases"
+                / ".".join(spark_version.split(".")[:2])
+            )
+        )
 
         bundle = release_dir / "yaml" / "bundle-azure-storage.yaml.j2"
 
