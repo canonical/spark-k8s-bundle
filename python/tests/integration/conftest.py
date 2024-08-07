@@ -12,14 +12,13 @@ import pytest
 import pytest_asyncio
 import requests
 from pytest_operator.plugin import OpsTest
+from spark8t.domain import PropertyFile
 
 from spark_test.core.azure_storage import Credentials as AzureStorageCredentials
 from spark_test.fixtures.azure_storage import azure_credentials, container
-from spark_test.fixtures.service_account import service_account
-from tests import RELEASE_DIR, IE_TEST_DIR
-
-from spark8t.domain import PropertyFile
 from spark_test.fixtures.pod import spark_image
+from spark_test.fixtures.service_account import service_account
+from tests import IE_TEST_DIR, RELEASE_DIR
 
 from .helpers import (
     COS_ALIAS,

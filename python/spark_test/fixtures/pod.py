@@ -18,6 +18,7 @@ def pod_name():
 def admin_pod_name():
     return "testpod-admin"
 
+
 @pytest.fixture(scope="module")
 def spark_version():
     return "3.4.2"
@@ -31,10 +32,7 @@ def spark_image(spark_version):
 @pytest.fixture(scope="module")
 def admin_pod(kubeconfig, namespace, admin_pod_name, spark_image):
 
-    _pod = Pod.create(
-        admin_pod_name, namespace, "admin",
-        spark_image, kubeconfig.fname
-    )
+    _pod = Pod.create(admin_pod_name, namespace, "admin", spark_image, kubeconfig.fname)
 
     yield _pod
 
@@ -45,8 +43,11 @@ def admin_pod(kubeconfig, namespace, admin_pod_name, spark_image):
 def pod(kubeconfig, namespace, pod_name, spark_image, service_account):
 
     _pod = Pod.create(
-        pod_name, service_account.namespace, service_account.name,
-        spark_image, kubeconfig.fname
+        pod_name,
+        service_account.namespace,
+        service_account.name,
+        spark_image,
+        kubeconfig.fname,
     )
 
     yield _pod
