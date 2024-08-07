@@ -81,6 +81,7 @@ class Pod:
         pod_name: str,
         namespace: str,
         service_account: str,
+        spark_image: str,
         kubeconfig_file: Path | None,
     ):
         """Create a pod.
@@ -90,6 +91,7 @@ class Pod:
             namespace: name of the namespace
             service_account: name of the service account to be used. Use "admin"
                 for using context from a local kubeconfig file
+            spark_image: base image to be used for the container/pod
             kubeconfig_file: path to the local kubeconfig file
 
         Returns:
@@ -110,6 +112,7 @@ class Pod:
                     pod_name,
                     namespace,
                     "admin",
+                    spark_image,
                     kubeconfig_file,
                 ],
                 cwd=PKG_DIR,
@@ -122,6 +125,7 @@ class Pod:
                     pod_name,
                     namespace,
                     "normal",
+                    spark_image,
                     service_account,
                 ],
                 cwd=PKG_DIR,

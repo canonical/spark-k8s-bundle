@@ -18,11 +18,23 @@ def pod_name():
 def admin_pod_name():
     return "testpod-admin"
 
+@pytest.fixture(scope="module")
+def spark_version():
+    return "3.4.2"
+
 
 @pytest.fixture(scope="module")
-def admin_pod(kubeconfig, namespace, admin_pod_name):
+def spark_image(spark_version):
+    return f"ghcr.io/canonical/charmed-spark:{spark_version}-22.04_edge"
 
-    _pod = Pod.create(admin_pod_name, namespace, "admin", kubeconfig.fname)
+
+@pytest.fixture(scope="module")
+def admin_pod(kubeconfig, namespace, admin_pod_name, spark_image):
+
+    _pod = Pod.create(
+        admin_pod_name, namespace, "admin",
+        spark_image, kubeconfig.fname
+    )
 
     yield _pod
 
@@ -30,10 +42,11 @@ def admin_pod(kubeconfig, namespace, admin_pod_name):
 
 
 @pytest.fixture
-def pod(kubeconfig, namespace, pod_name, service_account):
+def pod(kubeconfig, namespace, pod_name, spark_image, service_account):
 
     _pod = Pod.create(
-        pod_name, service_account.namespace, service_account.name, kubeconfig.fname
+        pod_name, service_account.namespace, service_account.name,
+        spark_image, kubeconfig.fname
     )
 
     yield _pod

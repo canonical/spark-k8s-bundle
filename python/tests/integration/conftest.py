@@ -19,6 +19,7 @@ from spark_test.fixtures.service_account import service_account
 from tests import RELEASE_DIR, IE_TEST_DIR
 
 from spark8t.domain import PropertyFile
+from spark_test.fixtures.pod import spark_image
 
 from .helpers import (
     COS_ALIAS,
@@ -102,16 +103,16 @@ def backend(request) -> None | str:
 
 
 @pytest.fixture(scope="module")
-def spark_version(request) -> None | str:
+def spark_version(request) -> str:
     """The backend which is to be used to deploy the bundle."""
-    return request.config.getoption("--spark-version")
+    return request.config.getoption("--spark-version") or "3.4.2"
 
 
 @pytest.fixture(scope="module")
-def image_properties(spark_version):
+def image_properties(spark_image):
     return PropertyFile(
         {
-            "spark.kubernetes.container.image": f"ghcr.io/canonical/charmed-spark:{spark_version}-22.04_edge",
+            "spark.kubernetes.container.image": spark_image,
         }
     )
 
