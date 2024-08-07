@@ -9,7 +9,7 @@ import subprocess
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Generic, Optional, TypeVar
+from typing import Any, Callable, Dict, Generic, TypeVar
 
 import boto3
 import yaml
@@ -17,6 +17,7 @@ from botocore.exceptions import ClientError, SSLError
 from pytest_operator.plugin import OpsTest
 from spark8t.domain import ServiceAccount
 
+from spark_test.core.azure_storage import Container
 from spark_test.core.s3 import Bucket, Credentials
 
 from .terraform import Terraform
@@ -52,6 +53,15 @@ async def set_s3_credentials(
     ).run_action("sync-s3-credentials", **params)
 
     return await action.wait()
+
+
+async def set_azure_credentials(
+    ops_test: OpsTest, secret_uri: str, application_name="azure-storage"
+) -> Any:
+    """Use the charm action to start a password rotation."""
+
+    params = {"credentials": secret_uri}
+    await ops_test.model.applications[application_name].set_config(params)
 
 
 async def get_address(ops_test: OpsTest, app_name, unit_num=0) -> str:
@@ -216,6 +226,52 @@ async def deploy_bundle_yaml(
     return charms.main + sum(charms.overlays, [])
 
 
+async def deploy_bundle_yaml_azure_storage(
+    bundle: Bundle,
+    container: Container,
+    cos: str | None,
+    ops_test: OpsTest,
+) -> list[str]:
+    """Deploy the Bundle in YAML format.
+
+    Args:
+        bundle: Bundle object
+        service_account: Kyuubi service account to be used
+        container: Azure Storage container to be used in the deployment
+        ops_test: OpsTest class
+
+    Returns:
+        list of charms deployed
+    """
+
+    data = {
+        "namespace": ops_test.model_name,
+        "service_account": "kyuubi-test-user",
+        "container": container.container_name,
+        "storage_account": container.credentials.storage_account,
+    } | ({"cos_controller": ops_test.controller_name, "cos_model": cos} if cos else {})
+
+    bundle_content = bundle.map(lambda path: render_yaml(path, data, ops_test))
+
+    with local_tmp_folder("tmp") as tmp_folder:
+        logger.info(tmp_folder)
+
+        bundle_tmp = bundle_content.map(
+            lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
+        )
+
+        retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
+
+        assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
+        logger.info(stdout)
+
+    charms: Bundle[list[str]] = bundle_content.map(
+        lambda bundle_data: list(bundle_data["applications"].keys())
+    )
+
+    return charms.main + sum(charms.overlays, [])
+
+
 async def deploy_bundle_terraform(
     bundle: Terraform,
     bucket: Bucket,
@@ -234,3 +290,23 @@ async def deploy_bundle_terraform(
     outputs = bundle.apply(tf_vars=tf_vars)
 
     return list(outputs["charms"]["value"].values())
+
+
+async def add_juju_secret(
+    ops_test: OpsTest, charm_name: str, secret_label: str, data: Dict[str, str]
+) -> str:
+    """Add a new juju secret."""
+    key_values = " ".join([f"{key}={value}" for key, value in data.items()])
+    command = f"add-secret {secret_label} {key_values}"
+    _, stdout, _ = await ops_test.juju(*command.split())
+    secret_uri = stdout.strip()
+    command = f"grant-secret {secret_label} {charm_name}"
+    _, stdout, _ = await ops_test.juju(*command.split())
+    return secret_uri
+
+
+def construct_azure_resource_uri(container: Container, path: str):
+    return os.path.join(
+        f"abfss://{container.container_name}@{container.credentials.storage_account}.dfs.core.windows.net",
+        path,
+    )

@@ -13,3 +13,4 @@ on:
 jobs:
   tests:
     uses: ./.github/workflows/ci-tests.yaml
+    secrets: inherit
