@@ -40,6 +40,8 @@ Charmed Spark is a distribution of Apache Spark. It’s an open-source project t
 | 2     | h-history-server-authorization | [Enable Authorization History Server](/t/charmed-spark-k8s-documentation-how-to-enable-authentication-on-the-spark-history-server-charm/13563) |
 | 2     | h-run-on-k8s-pod               | [Use K8s pods to run Charmed Spark](/t/spark-client-snap-how-to-run-on-k8s-in-a-pod/8961)                                                      |
 | 2     | h-spark-streaming              | [Run Spark Streaming Jobs](/t/charmed-spark-how-to-run-a-spark-streaming-job/10880)                                                            |
+| 2     | h-spark-gpu             | [Run Spark with GPU enabled](/t/charmed-spark-k8s-documentation-enabling-gpu-acceleration-with-charmed-spark/14896)   |
+| 2     | h-spark-cert             | [Manage self-signed certificates](/t/charmed-spark-k8s-documentation-using-self-signed-certificates/14898)                                                  |
 | 1     | reference                      | [Reference]()                                                                                                                                  |
 | 2     | r-requirements                 | [Requirements](/t/spark-client-snap-reference-requirements/8962)                                                                               |
 | 2     | r-contacts                     | [Contacts](/t/charmed-spark-k8s-documentation-reference-contacts/14298)                                                                        |

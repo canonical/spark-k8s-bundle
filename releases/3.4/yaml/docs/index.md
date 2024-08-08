@@ -37,6 +37,8 @@ Charmed Spark is a distribution of Apache Spark. It’s an open-source project t
   1. [Enable Authorization History Server](how-to/h-history-server-authorization.md)
   1. [Use K8s pods to run Charmed Spark](how-to/h-run-on-k8s-pod.md)
   1. [Run Spark Streaming Jobs](how-to/h-spark-streaming.md)
+  1. [Run Spark with GPU enabled](how-to/h-spark-gpu.md)
+  1. [Manage self-signed certificates](how-to/h-spark-cert.md)
 1. [Reference](reference)
   1. [Requirements](reference/r-requirements.md)
   1. [Contacts](reference/r-contacts.md)
