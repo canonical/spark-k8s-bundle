@@ -13,7 +13,6 @@ from spark_test.fixtures.pod import pod
 from spark_test.fixtures.s3 import bucket, credentials
 from spark_test.fixtures.service_account import (
     registry,
-    s3_properties,
     service_account,
     small_profile_properties,
 )
@@ -59,8 +58,8 @@ async def test_deploy_bundle(ops_test, spark_bundle):
 
 
 @pytest.fixture
-def spark_properties(small_profile_properties, s3_properties, image_properties):
-    return small_profile_properties + s3_properties + image_properties
+def spark_properties(small_profile_properties, image_properties):
+    return small_profile_properties + image_properties
 
 
 @pytest.mark.abort_on_fail
