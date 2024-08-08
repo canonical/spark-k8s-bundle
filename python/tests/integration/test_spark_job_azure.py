@@ -15,7 +15,7 @@ from spark_test.fixtures.pod import pod
 from spark_test.fixtures.service_account import (
     registry,
     service_account,
-    small_profile_properties
+    small_profile_properties,
 )
 from spark_test.utils import get_spark_drivers
 
@@ -57,19 +57,16 @@ async def test_deploy_bundle(ops_test, spark_bundle_with_azure_storage):
         for app_name in applications:
             assert ops_test.model.applications[app_name].status == "active"
 
+
 @pytest.fixture
 def spark_properties(small_profile_properties, image_properties):
     return small_profile_properties + image_properties
 
+
 @pytest.mark.abort_on_fail
 @pytest.mark.asyncio
 async def test_run_job(
-        ops_test: OpsTest,
-        registry,
-        service_account,
-        pod,
-        container,
-        spark_properties
+    ops_test: OpsTest, registry, service_account, pod, container, spark_properties
 ):
     """Run a spark job."""
 
