@@ -28,14 +28,14 @@ With the usage of the `spark-client` snap we can now submit the desired Spark jo
 In order to run the job with gpu acceleration, some configuration options need to be used:
 
 ```shell
---conf spark.executor.resource.gpu.amount=1 \
---conf spark.task.resource.gpu.amount=1 \
---conf spark.rapids.memory.pinnedPool.size=1G \
---conf spark.plugins=com.nvidia.spark.SQLPlugin \
---conf spark.executor.resource.gpu.discoveryScript=/opt/getGpusResources.sh \
---conf spark.executor.resource.gpu.vendor=nvidia.com \
---conf spark.kubernetes.container.image=ghcr.io/canonical/charmed-spark-gpu:3.4-22.04_edge \
---conf spark.kubernetes.executor.podTemplateFile=gpu_executor_template.yaml \
+spark.executor.resource.gpu.amount=1
+spark.task.resource.gpu.amount=1
+spark.rapids.memory.pinnedPool.size=1G
+spark.plugins=com.nvidia.spark.SQLPlugin
+spark.executor.resource.gpu.discoveryScript=/opt/getGpusResources.sh
+spark.executor.resource.gpu.vendor=nvidia.com
+spark.kubernetes.container.image=ghcr.io/canonical/charmed-spark-gpu:3.4-22.04_edge
+spark.kubernetes.executor.podTemplateFile=gpu_executor_template.yaml
 ```
 
 The Spark configuration options can be set at the spark service account with the spark-client snap to use them on all the jobs. Please have a look at this [guide](https://discourse.charmhub.io/t/spark-client-snap-how-to-manage-spark-accounts/8959) on how to manage options at service account level. To have more information on how the `spark-client` manages configuration options please have a look [here](https://discourse.charmhub.io/t/spark-client-snap-explanation-hierarchical-configuration-handling/8956). 
