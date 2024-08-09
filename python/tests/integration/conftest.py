@@ -249,7 +249,7 @@ async def cos(ops_test: OpsTest, cos_model):
 
                 await model.create_offer("traefik:ingress")
 
-            await juju_sleep(ops_test, 15)
+            await juju_sleep(ops_test, 15, "traefik")
 
         yield cos_model
 
