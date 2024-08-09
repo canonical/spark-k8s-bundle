@@ -28,6 +28,7 @@ from .helpers import (
     deploy_bundle_terraform,
     deploy_bundle_yaml,
     deploy_bundle_yaml_azure_storage,
+    juju_sleep,
     local_tmp_folder,
     set_azure_credentials,
     set_s3_credentials,
@@ -248,7 +249,7 @@ async def cos(ops_test: OpsTest, cos_model):
 
                 await model.create_offer("traefik:ingress")
 
-            sleep(15)
+            await juju_sleep(ops_test, 15)
 
         yield cos_model
 

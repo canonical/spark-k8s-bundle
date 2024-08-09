@@ -2,7 +2,6 @@ import json
 import logging
 import time
 import urllib.request
-from asyncio import sleep
 
 import pytest
 from pytest_operator.plugin import OpsTest
@@ -18,7 +17,7 @@ from spark_test.fixtures.service_account import (
 )
 from spark_test.utils import get_spark_drivers
 
-from .helpers import get_secret_data
+from .helpers import get_secret_data, juju_sleep
 
 logger = logging.getLogger(__name__)
 
@@ -176,7 +175,7 @@ async def test_job_in_history_server(
         if len(apps) > 0:
             break
         else:
-            await sleep(30)  # type: ignore
+            await juju_sleep(ops_test, 30)  # type: ignore
     logger.info(f"Number of apps: {len(apps)}")
     assert len(apps) == 1
 
