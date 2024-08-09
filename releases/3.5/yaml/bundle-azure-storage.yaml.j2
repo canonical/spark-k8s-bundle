@@ -1,0 +1,78 @@
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+bundle: kubernetes
+applications:
+  kyuubi:
+    charm: kyuubi-k8s
+    channel: latest/edge
+    revision: 18
+    resources:
+      kyuubi-image: 4
+    scale: 1
+    options:
+      namespace: {{ namespace }}
+      service-account: {{ service_account }}
+    constraints: arch=amd64
+    trust: true
+  kyuubi-users:
+    charm: postgresql-k8s
+    channel: 14/stable
+    revision: 193
+    resources:
+      postgresql-image: 149
+    scale: 1
+    constraints: arch=amd64
+    storage:
+      pgdata: kubernetes,1,1024M
+    trust: true
+  metastore:
+    charm: postgresql-k8s
+    channel: 14/stable
+    revision: 193
+    resources:
+      postgresql-image: 149
+    scale: 1
+    constraints: arch=amd64
+    storage:
+      pgdata: kubernetes,1,1024M
+    trust: true
+  azure-storage:
+    charm: azure-storage-integrator
+    channel: latest/edge
+    revision: 1 
+    scale: 1
+    constraints: arch=amd64
+    options:
+      container: {{ container }}
+      storage-account: {{ storage_account }}
+      path: spark-events
+      connection-protocol: abfss
+  history-server:
+    charm: spark-history-server-k8s
+    channel: 3.4/edge
+    revision: 27
+    resources:
+      spark-history-server-image: 14
+    scale: 1
+    constraints: arch=amd64
+  integration-hub:
+    charm: spark-integration-hub-k8s
+    channel: latest/edge
+    revision: 15
+    resources:
+      integration-hub-image: 3
+    scale: 1
+    constraints: arch=amd64
+    trust: true
+relations:
+- - integration-hub:azure-credentials
+  - azure-storage:azure-credentials
+- - history-server:azure-credentials
+  - azure-storage:azure-credentials
+- - kyuubi:metastore-db
+  - metastore:database
+- - kyuubi:auth-db
+  - kyuubi-users:database
+- - kyuubi:spark-service-account
+  - integration-hub:spark-service-account

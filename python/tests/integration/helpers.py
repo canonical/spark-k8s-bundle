@@ -310,3 +310,13 @@ def construct_azure_resource_uri(container: Container, path: str):
         f"abfss://{container.container_name}@{container.credentials.storage_account}.dfs.core.windows.net",
         path,
     )
+
+
+async def juju_sleep(ops: OpsTest, time: int, app: str | None = None):
+    app_name = app if app else ops.model.applications[0]
+
+    await ops.model.wait_for_idle(
+        apps=[app_name],
+        idle_period=time,
+        timeout=300,
+    )
