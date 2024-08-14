@@ -22,7 +22,7 @@ Spark Integration Hub can consume:
 
 * `s3-credentials` relation provided by the [S3-integrator](https://charmhub.io/s3-integrator) to enable integration with an S3-compatible 
 object storage system
-* `azure-credentials` relation provided by the [azure-storage-integrator](https://charmhub.io/azure-storage-integrator) to enable integration with Azure Storages, such as Azure Blob Storage (WASB) and Azure DataLake Gen2 Storage (ABFS).
+* `azure-credentials` relation provided by the [Azure Storage Integrator](https://charmhub.io/azure-storage-integrator) to enable integration with Azure Storages, such as Azure Blob Storage (WASB) and Azure DataLake Gen2 Storage (ABFS).
 
 #### S3-compatible object storage
 
@@ -80,10 +80,10 @@ spark.hadoop.fs.s3a.secret.key=<S3_SECRET_KEY>
 
 #### Azure storage
 
-In order to enable integration with an Azure storage, deploy the `azure-storage-integrator` charm
+In order to enable integration with an Azure storage, deploy the Azure Storage Integrator charm
 
 ```shell
-juju deploy azure-storage-integrator --channel stable
+juju deploy azure-storage-integrator --channel edge
 ```
 
 `storage_account` and `container` are provided to the charm using normal configuration, while
@@ -96,7 +96,17 @@ Thus, create a Juju secret holding its value:
 juju add-secret azure-credentials secret-key=<AZURE_STORAGE_KEY>
 ```
 
-This should return a `secret_id` that can be used to configure the charm, i.e.
+This should prompt the `secret:<secret_id>` that can be used to configure 
+the Azure Storage Integrator charm. 
+
+Before configuring the charm, make sure the Azure Storage Integrator charm 
+has granted permission to it:
+
+```shell
+juju grant-secret <secret_id> azure-storage
+```
+
+Then, Use the `secret_id` to configure the charm, i.e.
 
 ```shell
 juju config azure-storage-integrator \
@@ -108,10 +118,10 @@ juju config azure-storage-integrator \
 
 Please refer to the [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) for guidance on how to set up and retrieve the 
 different parameters for Azure Storage backends. 
-For more information on how to deploy and configure the `azure-storage-integrator` charm refer 
+For more information on how to deploy and configure the Azure Storage Integrator charm refer 
 to the charm documentation.
 
-Once the `azure-storage-integrator` is set up and on an idle/active state, the Spark Integration Hub charm can be integrated with
+Once the Azure Storage Integrator charm is set up and on an `idle/active` state, the Spark Integration Hub charm can be integrated with
 
 ```shell
 juju integrate azure-storage-integrator spark-integration-hub-k8s

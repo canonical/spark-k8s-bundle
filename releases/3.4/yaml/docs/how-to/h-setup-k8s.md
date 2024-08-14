@@ -147,7 +147,7 @@ users:
 
 The EKS cluster is now ready to be used. 
 
-#### Object storage
+### Object storage
 
 Object storage persistence integration with Charmed Spark is critical for: 
 
@@ -182,6 +182,8 @@ the following configurations need to be specified:
 * *endpoint*
 * *bucket*
 * (optional) *region*
+
+##### Supported S3 backends
 
 In the following sections, we show how to setup and extract those information in 
 MinIO and AWS S3. 
