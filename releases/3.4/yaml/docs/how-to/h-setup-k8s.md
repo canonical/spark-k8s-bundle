@@ -174,7 +174,7 @@ Alternatively, use [Python libraries](https://github.com/canonical/spark-k8s-bun
 
 #### S3-compatible object storages
 
-In order to connect Charmed Spark with an S3-compatible object storage, 
+To connect Charmed Spark with an S3-compatible object storage, 
 the following configurations need to be specified:
 
 * *access_key* 
