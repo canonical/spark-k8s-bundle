@@ -5,7 +5,7 @@ The Charmed Spark solution requires an environment with:
 * A Kubernetes cluster for running the services and workloads
 * An Object storage layer to store persistent data
 
-In the following, we provide details on the technologies currently supported and some further information on how these layers can be setup.
+In the following guide, we provide details on the technologies currently supported and instructions on how these layers can be set up.
 
 ### Kubernetes
 
