@@ -12,7 +12,7 @@ Since Charmed Spark will be managed by Juju, make sure that:
 * you are able to connect to a juju controller
 * you have read-write permissions to either a S3-compatible or an Azure object storage
 
-To set up a Juju controller on K8s and the juju client, you can refer to existing tutorials and documentation, e.g. for [MicroK8s](https://juju.is/docs/olm/get-started-with-juju) and for [AWS EKS](https://juju.is/docs/juju/amazon-eks). Also refer to the [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) userguide to install a S3-compatible object storage on MicroK8s (MinIO), EKS (AWS S3) or Azure object storages. 
+To set up a Juju controller on K8s and the Juju client, you can refer to existing tutorials and documentation for [MicroK8s](https://juju.is/docs/olm/get-started-with-juju) and for [AWS EKS](https://juju.is/docs/juju/amazon-eks). Also refer to the [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) guide to install an S3-compatible object storage on MicroK8s (MinIO), EKS (AWS S3), or Azure object storages. 
 For other backends or K8s distributions other than MinIO on MicroK8s and S3 on EKS (e.g. Ceph, Charmed Kubernetes, GKE, etc), please refer to the documentation or your admin.
 
 Charmed Spark supports native integration with the Canonical Observability Stack (COS). To enable monitoring on top of Charmed Spark, make sure that you have a Juju model with COS correctly deployed. To deploy COS on MicroK8s follow the step-by-step [tutorial](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s) or refer to its [documentation](https://charmhub.io/topics/canonical-observability-stack) for more informations.
