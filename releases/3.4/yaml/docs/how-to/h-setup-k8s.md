@@ -170,7 +170,7 @@ how to configure them to make sure that it seamlessly integrates with Charmed Sp
 In fact, to store Spark logs on a dedicated directories, you need to create the appropriate folder (that is named `spark-events`) in the storage backend. 
 This can be done both on S3 and on Azure DataLake Gen2 Storage. Although there are multiple ways to do this, 
 in the following we recommend you to use snap clients. 
-Other possibilities could also be to use [Python libraries](https://github.com/canonical/spark-k8s-bundle/blob/94ac51d519cece9dc6810c7aaa0144a28cd7989b/python/spark_test/core/s3.py).
+Alternatively, use [Python libraries](https://github.com/canonical/spark-k8s-bundle/blob/94ac51d519cece9dc6810c7aaa0144a28cd7989b/python/spark_test/core/s3.py).
 
 #### S3-compatible object storages
 
