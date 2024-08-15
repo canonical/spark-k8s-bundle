@@ -298,7 +298,7 @@ These credentials can be retrieved from the [Azure portal](https://portal.azure.
 When creating the storage account, make sure that you enable "Hierarchical namespace" if you 
 want to use Azure DataLake Gen2 Storage.
 
-Test that the `aws-cli` client is properly working with 
+Test that the `azcli` client is properly working with 
 
 ```
 azcli storage container list
