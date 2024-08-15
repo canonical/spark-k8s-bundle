@@ -267,8 +267,7 @@ Charmed Spark provides out-of-the-box support also for the following Azure stora
 * Azure Blob Storage (both WASB and WASBS)
 * Azure DataLake Gen2 Storage (ABFS and ABFSS)
 
-> :warning: Note that Azure DataLake Gen1 Storage is currently not supported, and it has been deprecated by 
-Azure.
+> :warning: Note that Azure DataLake Gen1 Storage is currently not supported, and it has been deprecated by Azure.
 
 In order to connect Charmed Spark with the Azure storage backends (WASB, WASBS, ABFS and ABFSS) 
 the following configurations need to be specified:
