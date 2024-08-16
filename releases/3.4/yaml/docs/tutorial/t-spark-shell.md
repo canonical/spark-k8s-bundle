@@ -1,10 +1,10 @@
-# Interacting with Spark using Interactive Shell
+# Interacting with Spark using interactive shell
 
 Spark comes with an interactive shell that provides a simple way to learn the API. It is available in either Scala or Python. In this section, we're going to play around a bit with Spark's shell to interact directly with the Spark cluster.
 
-## PySpark Shell
+## PySpark shell
 
-Spark comes with a built-in Python shell where we can execute commands interactively against the Spark cluster using the Python programming language.
+Spark comes with a built-in Python shell where we can run commands interactively against the Spark cluster using the Python programming language.
 
 PySpark shell can be launched with the `spark-client` snap like this:
 
@@ -13,7 +13,7 @@ spark-client.pyspark \
   --username spark --namespace spark
 ```
 
-Once the shell is open and ready, you should see a prompt simlar to the following:
+Once the shell is open and ready, you should see a prompt similar to the following:
 
 ```
 Welcome to
@@ -44,9 +44,9 @@ pysparkshell-xxxxxxxxxxxxxxxx-exec-2              1/1     Running            0  
 
 As you can see, PySpark spawned two executor pods within the `spark` namespace. This is the namespace that we provided as a value to the `--namespace` argument when launching `pyspark`. It's in these executor pods that data is cached and the computation will be executed, therefore creating a computational architecture that can horizontally scale to large datasets ("big data"). On the other hand, the PySpark shell started by the `spark-client` snap will act as a `driver`, controlling and orchestrating the operations of the executors. More information about the Spark architecture can be found [here](https://spark.apache.org/docs/latest/cluster-overview.html).
 
-One good thing about the shell is that the Spark context and session is already pre-loaded onto the shell and can be easily accessed with variables `sc` and `spark` respectively. You can even see this printed in the logs above, where upon initialization, the PySpark shell says `Spark context available as 'sc'` and `SparkSession available as 'spark'`. This shell is just like a regular Python shell, with Spark context loaded on top of it.
+The Spark context and session are already preloaded into the shell and can be easily accessed with variables `sc` and `spark` respectively. You can even see this printed in the logs above, where upon initialization, the PySpark shell says `Spark context available as 'sc'` and `SparkSession available as 'spark'`. This shell is just like a regular Python shell, with Spark context loaded on top of it.
 
-To start, you can print 'hello, world!' just like you'd do in a Python shell.
+To start, you can print `hello, world!` just like you'd do in a Python shell.
 
 ```python
 >>> print('hello, world!')
@@ -83,7 +83,7 @@ To test this function, the string `lines` can now be passed into it and the numb
 128
 ```
 
-Since Spark is a distributed processing framework, we can split up this task and parallellize it over multiple executor pods. This parallelization can be done as simply as:
+Since Spark is a distributed processing framework, we can split up this task and parallelize it over multiple executor pods. This parallelization can be done as simply as:
 
 ```python
 >>> from operator import add
@@ -95,15 +95,15 @@ Here, we split the data into the two executors (passed as an argument to `parall
 
 To exit from PySpark shell, you can simply run `exit()` or press `Ctrl` + Z key combination.
 
+## Scala shell
 
-## Scala Shell
 Spark comes with a built-in interactive Scala shell as well. Enter the following command to enter an interactive Scala shell:
 
 ```bash
 spark-client.spark-shell --username spark --namespace spark --num-executors 4
 ```
 
-Notice how we can specify the number of executors when initializing the Spark Shell (which by default would be 2). Once the shell is open and ready, you should see a prompt simlar to the following:
+Notice how we can specify the number of executors when initializing the Spark shell (which by default would be `2`). Once the shell is open and ready, you should see a prompt similar to the following:
 
 ```
 Welcome to
@@ -120,7 +120,7 @@ Type :help for more information.
 scala> 
 ```
 
-Just as in the PySpark shell, the spark context and spark session are readily available in the shell as `sc` and `spark` respectively. Moreover, new executor pods are created in `spark` namespace in order to execute the commands, just like with the PySpark shell.
+Just as in the PySpark shell, the Spark context and Spark session are readily available in the shell as `sc` and `spark` respectively. Moreover, new executor pods are created in `spark` namespace to run the commands, just like with the PySpark shell.
 
 The example of counting the vowel characters can be equivalently run in Scala with the following lines:
 
@@ -139,6 +139,6 @@ def countVowels(text: String): Int = {
 sc.parallelize(lines.split("\n"), 2).map(countVowels).reduce(_ + _)
 ```
 
-To exit from the Scala shell, simply press Ctrl + C key combination.
+To exit from the Scala shell, simply press `Ctrl + C` key combination.
 
-Interactive shells are a great way to try out experiments and to learn the basics of the Spark. For a more advanced use case, jobs can be submitted to the Spark cluster as scripts using `spark-submit`. That's what we will do in the [next section](/t/13231).
+Interactive shells are a great way to try out experiments and to learn the basics of the Spark. For a more advanced usage, jobs can be submitted to the Spark cluster as scripts using `spark-submit`. That's what we will do in the next section with [Spark Submit](/t/13231).

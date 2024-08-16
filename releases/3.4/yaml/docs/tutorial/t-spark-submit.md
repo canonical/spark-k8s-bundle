@@ -1,7 +1,6 @@
-# Submitting Jobs using Spark Submit
+# Submitting Spark jobs using Spark Submit
 
 Spark comes with a command called `spark-submit` which can be used to submit Spark jobs to the cluster from scripts written in high level languages like Python and Scala. For a quick example, let's gather the statements that we ran in the Python shell earlier and put them together in a script. The script looks like the following:
-
 
 ```python
 from operator import add
@@ -34,13 +33,16 @@ print(f"The number of vowels in the string is {n}")
 spark.stop()
 ```
 
-We've added a few more lines to what we've executed so far. The Spark session, which would be available by default in a PySpark shell, needs to be explicitly created. Also, we've added `spark.stop` at the end of the file to stop the Spark session after completion of the job.
+We've added a few more lines: 
 
-Let's save the aforementioned script in a file named `count_vowels.py`. Once saved, let's copy it to the S3 bucket because it needs to be accessible to pods in kubernetes. In fact, when submitting the job, the driver won't be running in the local machine but on a K8s pod, hence the script needs to be downloaded and then executed remotely in a dedicated pod. Copying the file to the S3 bucket can be done by the following command.
+- The Spark session, which would be available by default in a PySpark shell, needs to be explicitly created. 
+- `spark.stop` at the end of the file to stop the Spark session after completion of the job.
+
+Let's save the script in a file named `count_vowels.py`. Once saved, let's copy it to the S3 bucket because it needs to be accessible to pods in Kubernetes. In fact, when submitting the job, the driver won't be running in the local machine but on a K8s pod, hence the script needs to be downloaded and then executed remotely in a dedicated pod. Copying the file to the S3 bucket can be done by the following command.
 
 ```bash
 aws s3 cp count_vowels.py s3://spark-tutorial/count_vowels.py
-#
+
 # upload: ./count_vowels.py to s3://spark-tutorial/count_vowels.py 
 ```
 
@@ -48,7 +50,7 @@ You can verify whether the file has been copied to the S3 bucket either using th
 
 ```bash
 aws s3 ls spark-tutorial
-# 
+
 # 2024-02-05 05:09:44        925 count_vowels.py
 ```
 
@@ -68,6 +70,7 @@ watch -n1 "kubectl get pods -n spark"
 ```
 
 You should see output similar to the following:
+
 ```
 NAME                                      READY   STATUS      RESTARTS   AGE
 ...
@@ -93,11 +96,11 @@ kubectl logs $pod_name -n spark
 
 # View only the line containing the output
 kubectl logs $pod_name -n spark | grep "The number of vowels in the string is"
-# 
+
 # 2024-02-05T05:47:09.183Z [entrypoint] The number of vowels in the string is 128
 ```
 
-Often times, the data files to be processed contain a huge amount of data, and it's common to store them in S3 and then have jobs read data from there in order to process it. The example program that we have discussed earlier can be extended so that the text for our vowel character counting job is now fetched directly from a file in S3. For that, let's download a sample file and then copy it to the S3 bucket as follows:
+Often times, the data files to be processed contain a huge amount of data, and it's common to store them in S3 and then have jobs read data from there to process it. The example program that we have discussed earlier can be extended so that the text for our vowel character counting job is now fetched directly from a file in S3. For that, let's download a sample file and then copy it to the S3 bucket as follows:
 
 ```bash
 # Download a sample text file

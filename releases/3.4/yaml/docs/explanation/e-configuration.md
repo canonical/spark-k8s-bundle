@@ -1,4 +1,4 @@
-## Spark Configuration Management
+## Spark configuration management
 
 Apache Spark comes with wide range of [configuration properties](https://spark.apache.org/docs/3.4.2/configuration.html#available-properties) that can be fed into Spark using a single property file, e.g. `spark.properties`, or by passing configuration values on the command line, as argument to `spark-submit`, `pyspark` and `spark-shell`.
 
