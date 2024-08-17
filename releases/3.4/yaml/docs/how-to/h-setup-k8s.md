@@ -1,15 +1,16 @@
-## How to setup a K8s cluster for Spark
+# How to setup a K8s cluster for Spark
 
-The Charmed Spark solution runs on top of a K8s distribution. We recommend you to use version the latest stable version, but at least version 1.26. There are multiple ways that a K8s cluster can be deployed. Here below we summarize how to setup on K8s on the distributions that we currently support: 
+The Charmed Spark solution runs on top of a K8s distribution. We recommend you to use version the latest stable version, but at least version 1.26. There are multiple ways that a K8s cluster can be deployed. Here below we summarize how to set up on K8s on the distributions that we currently support: 
 
 * MicroK8s
 * AWS EKS
 
-The how-to guide belows shows you how to setup all of the services used by Charmed Spark. It may be that given your use-case some of them may not be needed though.
+The how-to guide below shows you how to set up all services used by Charmed Spark. 
+Some services may not be needed in your specific case.
 
-### MicroK8s
+## MicroK8s
 
-[MicroK8s](https://microk8s.io/) is the mightiest tiny Kubernetes distribution around. It can easily installed locally via SNAPs
+[MicroK8s](https://microk8s.io/) is the mightiest tiny Kubernetes distribution around. It can easily installed locally via SNAPs:
 
 ```bash
 sudo snap install microk8s --classic
@@ -24,7 +25,7 @@ mkdir -p ~/.kube
 sudo chown -f -R ${USER} ~/.kube
 ```
 
-To make these changes effective, you can either open a new shell (or log in, log out) or use `newgrp microk8s` 
+To make these changes effective, you can either open a new shell (or log in, log out) or use `newgrp microk8s`.
 
 Make sure that the MicroK8s cluster is now up and running:
 
@@ -32,20 +33,20 @@ Make sure that the MicroK8s cluster is now up and running:
 microk8s status --wait-ready
 ```
 
-Export the Kubernetes config file associated with admin rights and store it in the $KUBECONFIG file, e.g. `~/.kube/config`: 
+Export the Kubernetes config file associated with admin rights and store it in the `$KUBECONFIG` file, e.g., `~/.kube/config`: 
 
 ```bash 
 export KUBECONFIG=path/to/file # Usually ~/.kube/config
 microk8s config | tee ${KUBECONFIG}
 ```
 
-Enable the K8s features required by the Spark Client Snap 
+Enable the K8s features required by the Spark Client snap:
 
 ```
 microk8s.enable dns rbac storage hostpath-storage
 ```
 
-#### S3 Storage
+### S3 storage
 
 Enable the MinIO storage if you want to store Spark Jobs logs in a S3 compatible object storage to be then exposed via Charmed Spark History Server.
 
@@ -53,7 +54,7 @@ Enable the MinIO storage if you want to store Spark Jobs logs in a S3 compatible
 microk8s.enable minio
 ```
 
-Refer [here](https://microk8s.io/docs/addon-minio) for more information how to customize your MinIO MicroK8s deployment.
+Refer to the [MicroK8s documentation](https://microk8s.io/docs/addon-minio) for more information how to customize your MinIO MicroK8s deployment.
 
 Use the following commands to obtain the access key, the access secret and the MinIO endpoint:
 
@@ -61,9 +62,9 @@ Use the following commands to obtain the access key, the access secret and the M
 * *secret key*: `microk8s.kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d`
 * *MinIO endpoint*: `microk8s.kubectl get services -n minio-operator | grep minio | awk '{ print $3 }'`
 
-#### External LoadBalancer
+### External load balancer
 
-Enable external loadbalancer if you want to expose the Spark History Server UI via a Traefik ingress
+Enable external load balancer if you want to expose the Spark History Server UI via a Traefik ingress:
 
 ```
 IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
@@ -72,24 +73,25 @@ microk8s enable metallb:$IPADDR-$IPADDR
 
 The MicroK8s cluster is now ready to be used. 
 
+## AWS EKS
 
-### AWS EKS
+To deploy an EKS cluster, make sure that you have working CLI tools properly installed on your edge machine:
 
-In order to deploy an EKS cluster, make sure that you have working CLI tools properly installed on your edge machine:
+* [AWS CLI](https://aws.amazon.com/cli/) correctly setup to use a properly configured service account (refer to AWS documentation for [configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) and [authentication](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-authentication.html)). Once the AWS CLI is configured, make sure that it works properly by testing the authentication call through the following command:
 
-* [AWS CLI](https://aws.amazon.com/cli/) correctly setup to use a properly configured service account (refer to [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) for configuration and [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-authentication.html) for authentication). Once the AWS CLI is configured, make sure that it works properly by testing the authentication call through the following command:
-```bash 
-aws sts get-identity-caller
-```
+    ```bash 
+    aws sts get-identity-caller
+    ```
 
-* [eksctl](https://eksctl.io/) installed and configure (refer to the [README.md] file for more information on how to install it)
+* [eksctl](https://eksctl.io/) installed and configured. For more information on how to install it, see the `README` file.
 
-Make also sure that your service account (configured in AWS) has the right permission to create and manage EKS clusters. In general, we recommend the use of profiles when having multiple accounts.
+Make sure that your service account (configured in AWS) has the right permission to create and manage EKS clusters. In general, we recommend the use of profiles when having multiple accounts.
 
-#### Creating the cluster
+### Creating the cluster
 
 An EKS cluster can be created using `eksctl`, the AWS Management Console, or the AWS CLI. In the following we will use `eksctl`.
-Create a YAML file with the following content 
+
+Create a YAML file with the following content:
 
 ```yaml
 apiVersion: eksctl.io/v1alpha5
@@ -151,7 +153,7 @@ users:
 
 The EKS cluster is now ready to be used. 
 
-#### S3 Storage
+### S3 storage
 
 Create a new bucket in the AWS S3 storage if you want to store Spark Jobs logs to be then exposed via Charmed Spark History Server.
 

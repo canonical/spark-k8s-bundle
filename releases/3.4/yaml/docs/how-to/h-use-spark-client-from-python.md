@@ -1,4 +1,4 @@
-## Manage Service Accounts using the Python API
+## Manage service accounts using the Python API
 
 The `spark-client` snap relies on the [`spark8t` toolkit](https://github.com/canonical/spark-k8s-toolkit-py). `spark8t` provides both a CLI and a programmatic interface to enhanced Spark client functionalities. 
 
@@ -6,15 +6,15 @@ Here we describe how to use the `spark8t` toolkit (as part of the `spark-client`
 
 ### Preparation
 
-The `spark8t` package is already part of the SNAP. However, if the python package is used outside of the SNAP context, please make sure that environment settings (described on the [tool's README](https://github.com/canonical/spark-k8s-toolkit-py)) are correctly configured.
+The `spark8t` package is already part of the SNAP. However, if the Python package is used outside the SNAP context, please make sure that environment settings (described on the [tool's README](https://github.com/canonical/spark-k8s-toolkit-py)) are correctly configured.
 
-Furthermore you need to make sure that `PYTHONPATH` contains the location where the `spark8t` libraries were installed within the snap (something like `/snap/spark-client/current/lib/python3.10/site-packages`)
+Furthermore, you need to make sure that `PYTHONPATH` contains the location where the `spark8t` libraries were installed within the snap (something like `/snap/spark-client/current/lib/python3.10/site-packages`)
 
 ### Bind to Kubernetes
 
-The following snipped allows you to import relevant environment variables
+The following snippet lets you import relevant environment variables
 into a confined object, among which there should an auto-inference of your 
-kubeconfig file location. 
+`kubeconfig` file location:
 
 ```python
 import os
@@ -30,7 +30,7 @@ kube_interface = KubeInterface(defaults.kube_config)
 
 Note that if you want to override some of these settings, you can extend the `Default` class accordingly. 
 
-Alternatively you can also use auto-inference using the `kubectl` command via
+Alternatively you can also use auto-inference using the `kubectl` command via:
 
 ```python
 from spark8t.services import KubeInterface
@@ -38,14 +38,14 @@ from spark8t.services import KubeInterface
 kube_interface = KubeInterface.autodetect(kubectl_cmd="kubectl")
 ```
 
-Once bound to the k8s cluster, you have some properties of the connection readily available, e.g. 
+Once bound to the K8s cluster, you have some properties of the connection readily available, for example:
 
 ```python
 kube_interface.namespace
 kube_interface.api_server
 ```
 
-You can also issue some `kubectl` commands, using the `exec` method
+You can also issue some `kubectl` commands, using the `exec` method:
 
 ```python
 service_accounts = kube_interface.exec("get sa -A")
@@ -54,12 +54,11 @@ service_accounts_namespace = kube_interface.exec(
 )
 ```
 
-### Manage Spark Service Accounts
+### Manage Spark service accounts
 
 All functionalities for managing Spark service accounts are embedded within
 the `K8sServiceAccountRegistry` that can be instantiated using the `kube_interface`
-object we defined above
-
+object we defined above:
 
 ```python
 from spark8t.services import K8sServiceAccountRegistry
@@ -73,7 +72,7 @@ in the sections below
 #### Create new Spark service accounts
 
 New Spark service accounts can be created by first creating a `ServiceAccount`
-domain object, and optionally specifying extra-properties, e.g. 
+domain object, and optionally specifying extra-properties, for example:
 
 ```python
 from spark8t.domain import PropertyFile, ServiceAccount
@@ -88,15 +87,15 @@ service_account = ServiceAccount(
 )
 ```
 
-The account can then be created using the registry
+The account can then be created using the registry:
 
 ```python
 service_account_id = registry.create(service_account)
 ```
 
-This returns an id, which is effectively the `{namespace}:{username}`, e.g. "default:my-spark".
+This returns an id, which is effectively the `{namespace}:{username}`, e.g., `default:my-spark`.
 
-#### Listing spark service accounts
+#### Listing Spark service accounts
 
 Once Spark service accounts have been created, these can be listed via
 
@@ -124,11 +123,11 @@ or using an already existing `ServiceAccount` object:
 registry.delete(service_account.id)
 ```
 
-#### Manage Primary Accounts
+#### Manage primary accounts
 
-`spark8t` and spark-client snap have the notation of the so called 'primary' service account, the 
+`spark8t` and `spark-client` snaps have the notation of the so called `primary` service account, the 
 one that would be chosen by default, if no specific account is provided. The
-primary Spark service account can be set using 
+primary Spark service account can be set using:
 
 ```python
 registry.set_primary(service_account_id)
@@ -140,7 +139,7 @@ or using an already existing `ServiceAccount` object:
 registry.set_primary(service_account.id)
 ```
 
-The primary Spark service account can be retrieved using 
+The primary Spark service account can be retrieved using:
 
 ```python
 primary_account = registry.get_primary()
@@ -152,7 +151,7 @@ Spark service accounts can have configuration that is provided (unless
 overridden) during each execution of Spark Jobs. These configuration is stored in the `PropertyFile` object, that can be provided on creation of a `ServiceAccount` object (`extra_confs` argument). 
 
 The `PropertyFile` object can either be created from a dictionary, as 
-done above
+done above:
 
 ```python
 from spark8t.domain import PropertyFile
@@ -160,7 +159,7 @@ from spark8t.domain import PropertyFile
 static_property = PropertyFile({"my-key": "my-value"})
 ```
 
-or also read from a file, e.g. 
+or also read from a file: 
 
 ```python
 from spark8t.domain import PropertyFile
@@ -168,20 +167,20 @@ from spark8t.domain import PropertyFile
 static_property = PropertyFile.read(defaults.static_conf_file)
 ```
 
-`PropertyFile` objects can be merged using the `+` operator
+`PropertyFile` objects can be merged using the `+` operator:
 
 ```python
 merged_property = static_property + service_account.extra_confs
 ```
 
 And `ServiceAccount` properties can be updated using new "merged" properties 
-via the API provided by the registry
+via the API provided by the registry:
 
 ```python
 registry.set_configurations(service_account.id, merged_property)
 ```
 
-Alternatively, you can also store these properties in files
+Alternatively, you can also store these properties in files:
 
 ```python
 with open("my-file", "w") as fid:

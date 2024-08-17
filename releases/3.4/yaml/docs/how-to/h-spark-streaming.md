@@ -1,20 +1,19 @@
 ## How to run Spark Streaming against Kafka
 
-A very interesting use case for Spark is structured streaming with Kafka. 
-
+A very interesting case for Spark is structured streaming with Kafka. 
 To set it up and running, follow the instructions below. 
 
-As a pre-requisite, [Juju](https://juju.is/docs/olm/install-juju) has to be installed together with a kubernetes based juju controller.
+As a pre-requisite, [Juju](https://juju.is/docs/olm/install-juju) has to be installed together with a Kubernetes based Juju controller.
 
 ### Setup
 
-First create a fresh Juju model to be used as a workspace for spark-streaming experiments.
+First create a fresh Juju model to be used as a workspace for Spark streaming experiments:
 
 ```shell
 juju add-model spark-streaming
 ```
 
-Deploy the Zookeeper and the Kafka k8s-charms. Single units should be enough. 
+Deploy the ZooKeeper and the Kafka K8s charms (one unit each):
 
 ```shell
 juju deploy zookeeper-k8s --series=jammy --channel=edge
@@ -32,9 +31,9 @@ juju deploy kafka-test-app --series=jammy --channel=edge --config role=producer 
 juju relate kafka-test-app  kafka-k8s
 ```
 
-In order to consume these messages, credentials are required to establish a connection between Spark and Kafka.
+To consume these messages, credentials are required to establish a connection between Spark and Kafka.
 
-We need to setup the Juju data-integrator module, which perform credential retrieval as shown below.
+We need to set up the Juju `data-integrator` module, which perform credential retrieval as shown below:
 
 ```shell
 juju deploy data-integrator --series=jammy --channel=edge --config extra-user-roles=consumer,admin --config topic-name=spark-streaming-store
@@ -48,7 +47,7 @@ juju run-action data-integrator/0 get-credentials --wait
 
 We need to set up the environment in a Kubernetes pod launched in the same namespace as the Juju model (i.e. `spark-streaming` in this example).
 
-The pod specification yaml goes as below:
+The pod specification YAML goes as below:
 
 ```yaml
 apiVersion: v1
@@ -74,9 +73,9 @@ kubectl apply -f ./testpod.yaml --namespace=spark-streaming
 kubectl exec -it testpod -n spark-streaming -- /bin/bash
 ```
 
-Create a Kubernetes cluster configuration within the test pod shell session to be able to work with `spark-client`.
+Create a Kubernetes cluster configuration within the test pod shell session to work with `spark-client`.
 
-Launch a `pyspark` shell to read the structured stream from Kafka.
+Launch a `pyspark` shell to read the structured stream from Kafka:
 
 ```shell
 cd /home/spark

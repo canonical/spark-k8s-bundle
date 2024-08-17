@@ -1,10 +1,10 @@
-## Configure Service Account using the Spark Integration Hub Charm
+## Configure service account using the Spark Integration Hub charm
 
-The Integration Hub charm allows seamless configuration of Charmed Spark service accounts
+The Integration Hub charm enables seamless configuration of Charmed Spark service accounts
 via Juju relations, therefore providing a charming, integrated user-experience. 
 
-The Integration Hub charm is part of the Charmed Spark bundle, that can be deployed following 
-[this](/TODO) how-to guide. Alternatively, you can also deploy the 
+The Integration Hub charm is part of the Charmed Spark bundle, that can be deployed following the
+[Deploy Charmed Spark](/t/10979) how-to guide. Alternatively, you can also deploy the 
 Spark Integration Hub charm standalone by running the following command
 
 ```shell
@@ -12,10 +12,10 @@ juju deploy spark-integration-hub-k8s --channel edge -n1
 ```
 
 Once deployed, the Spark Integration Hub will automatically manage the properties for all the service 
-accounts created either with the `spark-client` snap or using the `spark8t` python library. 
-More information on the snap and on the python library can be found 
-[here](/t/spark-client-snap-how-to-manage-spark-accounts/8959) and 
-[here](/t/spark-client-snap-how-to-python-api/8958).
+accounts created either with the `spark-client` snap or using the `spark8t` Python library. 
+More information on the snap and on the Python library can be found 
+[Manage Service Accounts using the snap](/t/8959) and 
+[Manage Service Accounts using Python](/t/8958).
 
 ### Enable S3 object storage bindings
 
@@ -33,14 +33,14 @@ integrated with
 juju integrate s3-integrator spark-integration-hub-k8s
 ```
 
-This will automatically add relevant configuration properties to your spark jobs, 
-that can be verified using the tools provided in the spark-client snap, e.g. 
+This will automatically add relevant configuration properties to your Spark jobs, 
+that can be verified using the tools provided in the `spark-client` snap, for example:
 
 ```shell
 spark-client.service-account-registry get-config --username <service_account> --namespace <namespace>
 ```
 
-You should see additional configuration automatically added to your service-account, i.e.
+You should see additional configuration automatically added to your service-account, i.e.:
 
 ```shell
 spark.hadoop.fs.s3a.aws.credentials.provider=org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider
@@ -51,7 +51,7 @@ spark.hadoop.fs.s3a.endpoint=<S3_ENDPOINT>
 spark.hadoop.fs.s3a.secret.key=<SECRET_KEY>
 ```
 
-### Enable Monitoring with Prometheus pushgateway
+### Enable monitoring with Prometheus Pushgateway
 
 Spark Integration Hub can consume the `pushgateway` relation provided by the 
 [Prometheus Pushgateway charm](https://charmhub.io/prometheus-pushgateway) to enable integration with an S3 object storage. 
@@ -94,25 +94,25 @@ spark.metrics.conf.executor.sink.prometheus.metrics-name-replacement=\$2
 Beside the configurations enabled by relations, custom configuration can also 
 be added directly using actions. 
 
-In order to add a new custom configuration property
+To add a new custom configuration property:
 
 ```shell
 juju run integration-hub/leader add-config conf="<property>=<value>"
 ```
 
-Configuration properties can be removed using 
+Configuration properties can be removed using:
 
 ```shell
 juju run integration-hub/leader clear-config
 ```
 
-or they can be removed one by one using
+or they can be removed one by one using:
 
 ```shell
 juju run integration-hub/leader remove-config key="<property>"
 ```
 
-Finally, to list all custom configuration properties, use
+Finally, to list all custom configuration properties, use:
 
 ```shell
 juju run integration-hub/leader list-config

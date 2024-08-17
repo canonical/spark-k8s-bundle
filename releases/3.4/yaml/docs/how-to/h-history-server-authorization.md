@@ -4,10 +4,10 @@ The Charmed Spark solution includes the Spark History charm that enables users t
 
 ### Deploy the identity bundle and integrate it with the Spark History Server 
 
-In order to enable authentication and authorisation on the Spark History Server charm some steps are needed. Here, we assume that you have already deployed Charmed Spark using 
+To enable authentication and authorisation on the Spark History Server charm some steps are needed. Here, we assume that you have already deployed Charmed Spark using 
 the bundles, as described in the [How to Deploy Charmed Spark on K8s](/t/10979) guide, that includes a Spark History Server charm, already configured with an object storage backend. 
 
-To enable authentication, we first need to deploy the [identity bundle](https://discourse.charmhub.io/t/iam-bundle-deployment-tutorial/11916).
+To enable authentication, we first need to deploy the [identity bundle](/t/11916).
 
 > **NOTE**: Please take a look at the Identity Platform tutorial to check that your environment is configured correctly.
 
@@ -26,7 +26,7 @@ The following is an example of configuration for the Azure Identity provider:
 juju config kratos-external-idp-integrator microsoft_tenant_id=<YOUR_TENANT_ID> provider=microsoft client_id=<YOUR_CLIENT_ID> client_secret=<YOUR_CLIENT_SECRETS>.
 ```
 
-More information about supported identity providers and other useful information can be found [here](https://discourse.charmhub.io/t/how-to-manage-external-identity-providers/11910)
+More information about supported identity providers and other useful information can be found [here](/t/11910)
 
 The relation between the Spark History Server and the Identity bundle is handled by another charm that is offered by the Canonical Identity Team: the Oathkeeper.
 This charm enables the protection of endpoints that are behind an ingress, more specifically Traefik.

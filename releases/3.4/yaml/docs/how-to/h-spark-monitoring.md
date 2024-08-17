@@ -24,11 +24,11 @@ To do so, retrieve the credentials for logging into the Grafana dashboard, by
 switching to the COS model (using `juju switch <cos_model>`) and 
 using the following action:
 
-``` shell
+```shell
 juju run grafana/leader get-admin-password
 ```
 
-The action will also show you the grafana endpoint where you will be able to
+The action will also show you the Grafana endpoint where you can
 log in with the provided credentials for the `admin` user.
 
 After the login, Grafana will show a new dashboard: `Spark Dashboard` where 
@@ -62,10 +62,10 @@ juju run cos-configuration-k8s/leader sync-now
 
 For more information, refer to the `cos-configuration-k8s` charm [docs](https://discourse.charmhub.io/t/cos-configuration-k8s-docs-index/7284).
 
-### Configuring Scraping intervals
+### Configuring scraping intervals
 
 The `prometheus-scrape-config-k8s` charm included in the bundle can be used to configure 
-the prometheus scraping jobs. 
+the Prometheus scraping jobs. 
 
 In particular, it is crucial to configure the scraping interval to make sure 
 data points have proper sampling frequency, e.g. 
@@ -112,9 +112,9 @@ PROMETHEUS_GATEWAY=$(juju status --format=yaml | yq ".applications.prometheus-pu
 > command.
 > Should you want to override some of these with other custom values, this 
 > can be done by either:
->   1. providing custom configuration to the `spark-integration-hub-k8s` charm 
->      (as explained [here](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296))
->   2. adding the configurations to the Charmed Spark service account 
->      directly (as explained [here](/t/spark-client-snap-how-to-manage-spark-accounts/8959))
->   3. feeding these arguments directly to the spark-submit command (as shown 
->      [here](/t/spark-client-snap-tutorial-spark-submit/8953)).
+>   1. Providing custom configuration to the `spark-integration-hub-k8s` charm 
+>      (as explained in the [Manage Service Accounts using Integration Hub](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296) guide).
+>   2. Adding the configurations to the Charmed Spark service account 
+>      directly (as explained ib the [Manage Service Accounts using the snap](/t/spark-client-snap-how-to-manage-spark-accounts/8959) guide).
+>   3. Feeding these arguments directly to the `spark-submit` command (as shown in the
+>      [Submitting Jobs using Spark Submit](/t/spark-client-snap-tutorial-spark-submit/8953) guide).
