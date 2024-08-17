@@ -22,15 +22,15 @@ a Spark Job.
 A Spark Job is generally composed by two main types of processes:
 
 * Spark Driver, that executes the main program, interacts with the Cluster Manager 
-  to request computational resources (Executors), and control the workflow by providing
+  to request computational resources (Executors), and controls the workflow by providing
   instructions to the Executors on which operations/tasks to be executed. The Spark 
   driver generally holds a small fraction of the data, generally resulting on the
-  aggregation/reduction operation done by the Executors. 
+  aggregation/reduction operation done by the Executors.
 
 * Spark Executors, that hold the raw data in memory and do the actual processing.  
   The Executors generally communicate among themselves to shuffle data whenever 
   needed, and they provide the horizontally scalable structure that enables 
-  analysis to be distributed and scaled out to massive datasets. 
+  analysis to be distributed and scaled out to massive datasets.
 
 Spark Driver and Spark Executors are allocated by a Cluster Manager that in the
 Charmed Spark solution is represented by the K8s control plane. Therefore, 
@@ -73,8 +73,8 @@ Therefore, Spark Driver and Spark Executors need to be capable of exporting metr
 and pushing them to the Prometheus Pushgateway, in appropriate 
 groups, so that they can be temporarily stored, exposed and then 
 scraped by Prometheus.
-Charmed Spark comes with the [spark-metrics](https://github.com/banzaicloud/spark-metrics) 
-exporter already packaged in the [Charmed Spark OCI image](https://github.com/canonical/charmed-spark-rock), 
+Charmed Spark comes with the [Spark metrics exporter](https://github.com/banzaicloud/spark-metrics) 
+already packaged in the [Charmed Spark OCI image](https://github.com/canonical/charmed-spark-rock), 
 that is used as default base for both Driver and Executors pods.
 This exporter is designed to push metrics to the `prometheus-pushgateway-k8s` [charm](https://charmhub.io/prometheus-pushgateway)
 , which is integrated with the [Canonical Observability Stack](https://charmhub.io/topics/canonical-observability-stack).

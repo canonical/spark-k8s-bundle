@@ -33,7 +33,7 @@ integrated with
 juju integrate s3-integrator spark-integration-hub-k8s
 ```
 
-This will automatically add relevant configuration properties to your Spark jobs, 
+This will automatically add relevant configuration properties to your Spark Jobs, 
 that can be verified using the tools provided in the `spark-client` snap, for example:
 
 ```shell

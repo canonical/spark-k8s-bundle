@@ -1,4 +1,4 @@
-## Spark configuration management
+# Spark configuration management
 
 Apache Spark comes with wide range of [configuration properties](https://spark.apache.org/docs/3.4.2/configuration.html#available-properties) that can be fed into Spark using a single property file, e.g. `spark.properties`, or by passing configuration values on the command line, as argument to `spark-submit`, `pyspark` and `spark-shell`.
 
@@ -9,15 +9,15 @@ Each layer may also be linked to a particular component of the Charmed Spark sol
 Using the different layers appropriately allow to organize and centralize configuration definition consistently for groups, single users, single environment and session.
 The sections below summarize the hierarchical levels of configurations. The final configuration is resolved by merging the different layers, starting from top to bottom, overriding the latter sources on top of previous ones in case of multi-level definitions.
 
-### Group configuration 
+## Group configuration 
 
 Group configurations are centrally stored as secrets in K8s,
-and managed by `spark-integration-hub-k8s` charm that takes care of managing
-their lifecycle from creation, modification and deletion. Please refer to [this how-to guide](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296)
+and managed by the `spark-integration-hub-k8s` charm that takes care of managing
+their lifecycle from creation, modification, and deletion. They are used for users, machines, and sessions. Please refer to the [how-to guide](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296)
 for more information on the usage of the `spark-integration-hub-k8s` charm for
-setting up group configurations. Theese are valid across users, machines and sessions.
+setting up group configurations.
 
-### User configuration
+## User configuration
 
 User configurations are centrally stored as secrets in K8s, but they are
 managed by the user using the `spark-client` snap and/or `spark8t` Python library.
@@ -26,7 +26,7 @@ For more information, please refer to
 snap and [here](/t/spark-client-snap-how-to-python-api/8958) for the `spark8t`
 Python library. They are valid across machines and sessions.
 
-### Environment configuration 
+## Environment configuration 
 
 Environment configurations are stored in your local environment, and they can apply 
 to multiple Spark users launched/used from the same machine. They are valid 
@@ -37,7 +37,7 @@ across users and sessions. These configurations may be stored in:
 
 The file specified by the environment variable takes the precedence. 
 
-### Session configuration 
+## Session configuration 
 
 Session configurations are provided as CLI arguments to the `spark-client` command, 
 and they are only valid for the related command/session. CLI configurations may 

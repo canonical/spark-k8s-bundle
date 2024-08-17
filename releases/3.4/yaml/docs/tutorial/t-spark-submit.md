@@ -1,6 +1,6 @@
-# Submitting Spark jobs using Spark Submit
+# Submitting Spark Jobs using Spark Submit
 
-Spark comes with a command called `spark-submit` which can be used to submit Spark jobs to the cluster from scripts written in high level languages like Python and Scala. For a quick example, let's gather the statements that we ran in the Python shell earlier and put them together in a script. The script looks like the following:
+Spark comes with a command called `spark-submit` which can be used to submit Spark Jobs to the cluster from scripts written in high level languages like Python and Scala. For a quick example, let's gather the statements that we ran in the Python shell earlier and put them together in a script. The script looks like the following:
 
 ```python
 from operator import add
@@ -20,9 +20,9 @@ spark = SparkSession\
         .appName("CountVowels")\
         .getOrCreate()
 
-lines = """Canonical's Charmed Data Platform solution for Apache Spark runs Spark jobs on your Kubernetes cluster.
+lines = """Canonical's Charmed Data Platform solution for Apache Spark runs Spark Jobs on your Kubernetes cluster.
 You can get started right away with MicroK8s - the mightiest tiny Kubernetes distro around! 
-The spark-client snap simplifies the setup process to run Spark jobs against your Kubernetes cluster. 
+The spark-client snap simplifies the setup process to run Spark Jobs against your Kubernetes cluster. 
 Spark on Kubernetes is a complex environment with many moving parts.
 Sometimes, small mistakes can take a lot of time to debug and figure out.
 """

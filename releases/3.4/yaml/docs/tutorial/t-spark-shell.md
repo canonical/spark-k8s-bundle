@@ -57,9 +57,9 @@ hello, world!
 Let's try a simple example of counting the number of vowel characters in a string. The following is the string that we are going to use:
 
 ```python
-lines = """Canonical's Charmed Data Platform solution for Apache Spark runs Spark jobs on your Kubernetes cluster.
+lines = """Canonical's Charmed Data Platform solution for Apache Spark runs Spark Jobs on your Kubernetes cluster.
 You can get started right away with MicroK8s - the mightiest tiny Kubernetes distro around! 
-The spark-client snap simplifies the setup process to get you running Spark jobs against your Kubernetes cluster. 
+The spark-client snap simplifies the setup process to get you running Spark Jobs against your Kubernetes cluster. 
 Spark on Kubernetes is a complex environment with many moving parts.
 Sometimes, small mistakes can take a lot of time to debug and figure out.
 """
@@ -125,9 +125,9 @@ Just as in the PySpark shell, the Spark context and Spark session are readily av
 The example of counting the vowel characters can be equivalently run in Scala with the following lines:
 
 ```scala
-val lines = """Canonical's Charmed Data Platform solution for Apache Spark runs Spark jobs on your Kubernetes cluster.
+val lines = """Canonical's Charmed Data Platform solution for Apache Spark runs Spark Jobs on your Kubernetes cluster.
 You can get started right away with MicroK8s - the mightiest tiny Kubernetes distro around! 
-The spark-client snap simplifies the setup to run Spark jobs against your Kubernetes cluster. 
+The spark-client snap simplifies the setup to run Spark Jobs against your Kubernetes cluster. 
 Spark on Kubernetes is a complex environment with many moving parts.
 Sometimes, small mistakes can take a lot of time to debug and figure out.
 """

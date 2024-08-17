@@ -2,7 +2,7 @@
 
 The Charmed Spark Solution bundles the following components:
 
-* [spark8t](https://github.com/canonical/spark-k8s-toolkit-py), which is a Python package to enhance Spark capabilities to manage Spark jobs and service accounts, with hierarchical level of configuration.
+* [spark8t](https://github.com/canonical/spark-k8s-toolkit-py), which is a Python package to enhance Spark capabilities to manage Spark Jobs and service accounts, with hierarchical level of configuration.
 * [Charmed Spark Rock](https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark) OCI-compliant Image, that bundles Spark binaries together with Canonical tooling to be used to start your Spark workload on Kubernetes, to use Charmed Spark CLI tooling or derive your own images from secured and supported bases.
 * [Spark Client Snap](https://snapcraft.io/spark-client), to simplify Apache Spark installation on edge nodes or local machines, by using confined [SNAPs](https://snapcraft.io/) and exposing simple Snap commands to run and manage Spark Jobs.
 * [Charmed Bundle](https://charmhub.io/spark-k8s-bundle) to deploy, manage and operate Charmed Spark using [Juju](https://juju.is/). This includes:
@@ -28,7 +28,7 @@ flowchart TD
 
     spark-k8s-bundle["`**Charmed Spark** 
     (*Charmed Operator*)
-    manages the entire lifecycle of Spark jobs`"]
+    manages the entire lifecycle of Spark Jobs`"]
 
     spark8t --> spark-rock
     spark8t --> spark-client

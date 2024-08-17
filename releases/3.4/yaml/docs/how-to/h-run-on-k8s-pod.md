@@ -1,8 +1,8 @@
-## Working with Charmed Kubernetes from within a pod
+# Working with Charmed Kubernetes from within a pod
 
-### Setup
+## Setup
 
-After installing [Juju](https://juju.is/docs/olm/install-juju) and [Charmed Kubernetes](https://ubuntu.com/kubernetes/docs/install-manual) (together with applying [setup for the latter](https://ubuntu.com/kubernetes/docs/operations) ), now we can look into how to launch Spark jobs from within a pod in Charmed Kubernetes.
+After installing [Juju](https://juju.is/docs/olm/install-juju) and [Charmed Kubernetes](https://ubuntu.com/kubernetes/docs/install-manual) (together with applying [setup for the latter](https://ubuntu.com/kubernetes/docs/operations) ), now we can look into how to launch Spark Jobs from within a pod in Charmed Kubernetes.
 
 First, we create a pod using the Charmed Spark container image.
 
@@ -45,26 +45,27 @@ $ cat > ~/.kube/config << EOF
 EOF
 ```
 
-Then we need to set up a service account for Spark job submission. Let's create a user called `spark` in `default` namespace:
+Then we need to set up a service account for Spark Job submission. Let's create a user called `spark` in `default` namespace:
 
 ```shell
 $ python3 -m spark8t.cli.service_account_registry create --username spark
 ```
 
-### Spark Job submission to Kubernetes cluster
+## Spark Job submission to Kubernetes cluster
 
-There is a script called ```spark-submit``` packaged within the Charmed Spark container image for Spark job submission. We can sue the ```Spark Pi``` job example again, such as:
+There is a script called `spark-submit` packaged within the Charmed Spark container image for Spark Job submission. To run the `SparkPi` job example again:
 
 ```shell
 $ python3 -m spak8t.cli.spark_submit --username spark --class org.apache.spark.examples.SparkPi local:///opt/spark/examples/jars/spark-examples_2.12-3.3.2.jar 100
 ```
-Or using the snap command (referring practically to the same thing):
+
+Alternatively, use the snap command:
 
 ```shell
 $ spark-client.spark-submit --username spark --class org.apache.spark.examples.SparkPi local:///opt/spark/examples/jars/spark-examples_2.12-3.3.2.jar 100
 ```
 
-### Spark shell
+## Spark shell
 
 To invoke the Spark shell, you can run the following command within the pod:
 
@@ -72,13 +73,13 @@ To invoke the Spark shell, you can run the following command within the pod:
 $ python3 -m spark8t.cli.spark_shell --username spark
 ```
 
-Or
+Alternatively, run:
 
 ```shell
 $ spark-client.spark-shell --username spark
 ```
 
-### PySpark shell
+## PySpark shell
 
 To launch a `pyspark` shell, run the following command within the pod:
 
@@ -86,7 +87,7 @@ To launch a `pyspark` shell, run the following command within the pod:
 $ python3 -m spark8t.cli.pyspark --username spark
 ```
 
-Or
+Alternatively, run:
 
 ```shell
 $ spark-client.pyspark --username spark
