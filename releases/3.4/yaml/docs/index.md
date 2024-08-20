@@ -1,10 +1,10 @@
-# Charmed Spark Documentation
+# Charmed Spark documentation
 
 Charmed Spark is a set of Canonical supported artifacts (including charms, rocks and snaps) that makes operating Spark workloads on Kubernetes seamless, secure and production-ready. 
 
 The solution helps to simplify user interaction with Spark applications and the underlying Kubernetes cluster whilst retaining the traditional semantics and command line tooling that users already know. Operators benefit from straightforward, automated deployment of Spark components (e.g. Spark History Server) to the Kubernetes cluster, using [Juju](https://juju.is/). 
 
-Deploying Spark applications to Kubernetes has several benefits over other cluster resource managers such as Apache YARN, as it greatly simplifies deployment, operation, authentication while allowing for flexibility and scaling. However, it requires knowledge on Kubernetes, networking and coordination between the different components of the Spark ecosystem in order to provide a scalable, secure and production-ready environment. As a consequence, this can significantly increase complexity for the end user and administrators, as a number of parameters need to be configured and prerequisites must be met for the application to deploy correctly or for using the Spark CLI interface (e.g. pyspark and spark-shell). 
+Deploying Spark applications to Kubernetes has several benefits over other cluster resource managers such as Apache YARN, as it greatly simplifies deployment, operation, authentication while allowing for flexibility and scaling. However, it requires knowledge on Kubernetes, networking and coordination between the different components of the Spark ecosystem to provide a scalable, secure and production-ready environment. As a consequence, this can significantly increase complexity for users and administrators, as a number of parameters needed to be configured and prerequisites must be met for the application to deploy correctly or for using the Spark CLI interface (for example, `pyspark` and `spark-shell`). 
 
 Charmed Spark helps to address these usability concerns and provides a consistent management interface for operations engineers and cluster administrators who need to manage enablers like Spark History Server.
 
@@ -34,7 +34,7 @@ Charmed Spark is a distribution of Apache Spark. It’s an open-source project t
   1. [Manage Service Accounts using Integration Hub](how-to/h-use-integration-hub.md)
   1. [Enable and Configure Monitoring](how-to/h-spark-monitoring.md)
   1. [Expose History Server using Ingress](how-to/h-expose-history-server.md)
-  1. [Enable Authorization History Server](how-to/h-history-server-authorization.md)
+  1. [Enable authorisation on the Spark History Server](how-to/h-history-server-authorization.md)
   1. [Use K8s pods to run Charmed Spark](how-to/h-run-on-k8s-pod.md)
   1. [Run Spark Streaming Jobs](how-to/h-spark-streaming.md)
 1. [Reference](reference)

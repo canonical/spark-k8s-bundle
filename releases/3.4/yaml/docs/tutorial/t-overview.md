@@ -1,8 +1,8 @@
-# Charmed Spark Solution Tutorial
+# Charmed Spark solution tutorial
 
 The Charmed Spark solution delivers Spark utility client applications, that allow for simple and seamless usage of Apache Spark on Kubernetes.
 
-This tutorial takes you through the journey of setting up necessary environment to run Charmed Spark and teaches you how to run Spark jobs using both interactive shell and batch jobs. You'll also learn how to use Charmed Spark with streaming workloads and how to enable monitoring of the Spark cluster.
+This tutorial takes you through the journey of setting up necessary environment to run Charmed Spark and teaches you how to run Spark Jobs using both interactive shell and batch jobs. You'll also learn how to use Charmed Spark with streaming workloads and how to enable monitoring of the Spark cluster.
 
 This tutorial can be divided into the following sections:
 * [Setting up environment for the tutorial](/t/13233)

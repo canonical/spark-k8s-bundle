@@ -1,10 +1,12 @@
-# Wrapping Up
+# Wrapping up
+
+As the last step of this tutorial, we need to free used resources and see what to do next.
 
 ## Cleanup
 
 Let's clean up the resources we created during the tutorial.
 
-First of all, let's destroy the Juju controller we boostrapped for the tutorial.
+First of all, let's destroy the Juju controller we bootstrapped for the tutorial:
 
 ```bash
 juju destroy-controller --destroy-all-models --destroy-storage --force spark-tutorial
@@ -25,9 +27,10 @@ Finally, the S3 bucket that was created can be removed using the AWS CLI as foll
 aws s3 rb  s3://spark-tutorial --force
 ```
 
+## Going further
 
-## Going Further
+Parts of this tutorial were originally covered in a talk at the Ubuntu Summit 2023, the recording of which is [available on YouTube](https://www.youtube.com/watch?v=nu1ll7VRqbI).
 
-Parts of this tutorial were originally covered in a talk at the Ubuntu Summit 2023, the recording of which is available [here on YouTube](https://www.youtube.com/watch?v=nu1ll7VRqbI).
+This tutorial covers running Charmed Spark locally using MicroK8s. Running Charmed Spark in MicroK8s locally is limited by the amount of resources available locally. For a more robust deployment, it's also possible to run Charmed Spark solution on AWS EKS. 
 
-This tutorial covers running Charmed Spark locally using MicroK8s. Running Charmed Spark in MicroK8s locally is limited by the amount of resources available locally. For a more robust deployment, it's also possible to run Charmed Spark solution on AWS EKS. Please refer to [this how-to guide](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) for guidance on deploying and configuring an AWS EKS cluster to run Charmed Spark. Additionally, here is a video demonstration of running Charmed Spark on top of AWS EKS at the [2023 Operator Day demo](https://github.com/deusebio/operator-day-2023-charmed-spark).
+Dor guidance on deploying and configuring an AWS EKS cluster to run Charmed Spark, see the [How to setup a K8s cluster for Spark](/t/11618) tutorial. Additionally, see the video demonstration of running Charmed Spark on top of AWS EKS at the [2023 Operator Day demo](https://github.com/deusebio/operator-day-2023-charmed-spark).
