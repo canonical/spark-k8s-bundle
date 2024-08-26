@@ -10,9 +10,10 @@ that form Charmed Spark, please refer to [this section](./path/to/explanation.md
 Since Charmed Spark will be managed by Juju, make sure that:
 * you have a Juju client (e.g. via a [SNAP](https://snapcraft.io/juju)) installed in your local machine  
 * you are able to connect to a juju controller
-* you have read-write permissions (therefore you have an access key, access secret and the s3 endpoint) to a S3-compatible object storage
+* you have read-write permissions to either a S3-compatible or an Azure object storage
 
-To set up a Juju controller on K8s and the juju client, you can refer to existing tutorials and documentation, e.g. [here](https://juju.is/docs/olm/get-started-with-juju) for MicroK8s and [here](https://juju.is/docs/juju/amazon-elastic-kubernetes-service-(amazon-eks)) for AWS EKS. Also refer to the [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) userguide to install S3-compatible object storage on MicroK8s (MinIO) or EKS (AWS S3). For other backends or K8s distributions other than MinIO on MicroK8s and S3 on EKS (e.g. Ceph, Charmed Kubernetes, GKE, etc), please refer to the documentation or your admin.
+To set up a Juju controller on K8s and the Juju client, you can refer to existing tutorials and documentation for [MicroK8s](https://juju.is/docs/olm/get-started-with-juju) and for [AWS EKS](https://juju.is/docs/juju/amazon-eks). Also refer to the [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) guide to install and setup kn S3-compatible object storage on MicroK8s (MinIO), EKS (AWS S3), or Azure object storages. 
+For other backends or K8s distributions other than MinIO on MicroK8s and S3 on EKS (e.g. Ceph, Charmed Kubernetes, GKE, etc), please refer to their documentation.
 
 Charmed Spark supports native integration with the Canonical Observability Stack (COS). To enable monitoring on top of Charmed Spark, make sure that you have a Juju model with COS correctly deployed. To deploy COS on MicroK8s follow the step-by-step [tutorial](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s) or refer to its [documentation](https://charmhub.io/topics/canonical-observability-stack) for more informations.
 
@@ -28,71 +29,6 @@ juju add-model <juju_model>
 ```
 
 > Note that this will create a K8s namespace in which the different Charmed Spark components will be deployed to.
-
-#### Setup S3 Bucket
-
-Create a bucket and a path object `spark-events` for storing Spark logs in s3. This can be done in multiple ways depending on the S3 backend interface.
-
-##### Using AWS-CLI Snap
-
-*Install the `aws-cli` snap*
-
-```shell
-sudo snap install aws-cli --classic
-```
-
-*Configure `aws-cli` client*
-
-```shell
-aws configure set aws_access_key_id <ACCESS_KEY>
-aws configure set aws_secret_access_key <SECRET_KEY>
-aws configure set endpoint_url <S3_ENDPOINT>
-```
-
-Test that the `aws-cli` client is properly working with `aws s3 ls`
-
-*Create the S3 bucket*
-
-aws s3 mb "s3://<BUCKET_NAME>"
-
-##### Using Python  
-
-*Install boto*
-
-`pip install boto3`
-
-*Create the S3 bucket*
-
-```python
-from botocore.client import Config
-import boto3
-
-config = Config(connect_timeout=60, retries={"max_attempts": 0})
-session = boto3.session.Session(
-    aws_access_key_id=<ACCESS_KEY>, aws_secret_access_key=<SECRET_KEY>
-)
-s3 = session.client("s3", endpoint_url=<S3_ENDPOINT>, config=config)
-
-s3.create_bucket(Bucket=<BUCKET_NAME>)
-s3.put_object(Bucket=<BUCKET_NAME>, Key=("spark-events/"))
-```
-
-#### Setup Spark service account to run Kyuubi engines
-
-Charmed Spark includes support for Apache Kyuubi project which enables users to 
-remotely connect to a Spark cluster using ODBC/JDBC and query their data with 
-standard SQL. Kyuubi requires a dedicated service account to be used for running
-the driver and executor engine pods. 
-
-The service account can be created using the `spark-client` snap:
-
-```shell
- spark-client.service-account-registry create \
-    --username <kyuubi_server_account> --namespace <juju_model>
-```
-
-For more information on how to further customise Spark service accounts and 
-manage them, please refer to [here](/t/spark-client-snap-how-to-manage-spark-accounts/8959).
 
 ### Deploy Charmed Spark
 
@@ -115,7 +51,22 @@ pip install jinja2-cli
 
 Once the package is installed, you can render the template using
 
+```shell
 jinja2 -D <key>=<value> bundle.yaml.j2 > bundle.yaml
+```
+
+There exist different YAML bundle, with different configuration options, 
+for S3 and Azure object storage backends. Please, refer to the next sections for 
+more information about how-to configure the deployments for the different 
+object storage backends. [How-to]
+
+Once the bundle is rendered, it can be simply deployed using 
+
+```shell
+juju deploy -m <juju_model> ./bundle.yaml
+```
+
+##### S3 backends
 
 The following table summarizes the properties to be specified for the main bundle
 
@@ -127,18 +78,45 @@ The following table summarizes the properties to be specified for the main bundl
 | bucket          | Name of the S3 bucket to be used for storing logs and data                                                    |
 
 
-Once the bundle is rendered, it can be simply deployed using 
-
-```shell
-juju deploy -m <juju_model> ./bundle.yaml
-```
-
-After some time, you will see that most of the charms will be in a blocked status because of missing or invalid S3 credentials.
+Once the bundle is deployed, you will see that most of the charms will be in a blocked status because of missing or invalid S3 credentials.
 In particular, the `s3` charm should be notifying that it needs to be provided with the access and secret key. This can be done using the action
 
 ```shell
 juju run s3/leader sync-s3-credentials \
   access-key=<access-key> secret-key=<secret-key>
+```
+
+After this, the different charms should start to receive the credentials and move into `active/idle` state.
+
+##### Azure storage backends
+
+The following table summarizes the properties to be specified for the main Azure bundle
+
+| key             | Description                                                                                                   |
+|-----------------|---------------------------------------------------------------------------------------------------------------|
+| service_account | Service Account to be used by Kyuubi Engines                                                                  |
+| namespace       | Namespace where the charms will be deployed. This should correspond to the name of the Juju model to be used. |
+| storage_account | Name of the Azure storage account to be used.                                                                 |
+| container       | Name of the Azure storage container to be used for storing logs and data                                      |
+
+
+Create a Juju secret holding the values for the Azure secret key:
+
+```shell
+juju add-secret azure-credentials secret-key=<AZURE_STORAGE_KEY>
+```
+
+This should prompt the `secret:<secret_id>` that can be used to configure the bundle. 
+To do so, first grant access to the secret for the Azure Storage Integrator charm
+
+```shell
+juju grant-secret <secret_id> azure-storage
+```
+
+Then, you can configure the charm to use the secret 
+
+```shell
+juju config azure-storage credentials=secret:<secret_id> 
 ```
 
 After this, the different charms should start to receive the credentials and move into `active/idle` state.
@@ -168,6 +146,10 @@ Terraform modules make use of the Terraform Juju provider. More information abou
 The [Charmed Spark Terraform module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform) is composed of the following submodules:
 * [base module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/base) that bundles all the base resources of the Charmed Spark solution 
 * [cos-integration module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/cos) that bundles all the resources that enable integration with COS
+
+> :warning: Currently, only S3 storage backends are supported for Terraform-based bundles.
+
+
 
 The Charmed Spark Terraform modules can be configured using a `.tfvars.json` file with the following schema:
 
