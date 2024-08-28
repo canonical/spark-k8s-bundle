@@ -3,8 +3,8 @@
 The Integration Hub charm allows seamless configuration of Charmed Spark service accounts
 via Juju relations, therefore providing a charming, integrated user-experience. 
 
-The Integration Hub charm is part of the Charmed Spark bundle, that can be deployed following 
-[this](/t/charmed-spark-k8s-documentation-how-to-deploy-charmed-spark/10979) how-to guide. Alternatively, you can also deploy the 
+The Integration Hub charm is part of the Charmed Spark bundle, that can be deployed by following 
+the [How-to deploy guide](/t/charmed-spark-k8s-documentation-how-to-deploy-charmed-spark/10979). Alternatively, you can also deploy the 
 Spark Integration Hub charm standalone by running the following command
 
 ```shell
@@ -26,7 +26,7 @@ object storage system
 
 #### S3-compatible object storage
 
-In order to enable integration with a s3-compatible storage, deploy the S3-integrator charm
+To enable integration with an S3-compatible storage, deploy the S3-integrator charm:
 
 ```shell
 juju deploy s3-integration --channel stable
@@ -80,14 +80,14 @@ spark.hadoop.fs.s3a.secret.key=<S3_SECRET_KEY>
 
 #### Azure storage
 
-In order to enable integration with an Azure storage, deploy the Azure Storage Integrator charm
+To enable integration with an Azure storage, deploy the Azure Storage Integrator charm
 
 ```shell
 juju deploy azure-storage-integrator --channel edge
 ```
 
 `storage_account` and `container` are provided to the charm using normal configuration, while
-`storage_key` is provided using Juju secrets, in order to provide confidentiality and 
+`storage_key` is provided using Juju secrets, to ensure confidentiality and 
 security over its value. 
 
 Thus, create a Juju secret holding its value:
@@ -106,7 +106,7 @@ has granted permission to it:
 juju grant-secret <secret_id> azure-storage
 ```
 
-Then, Use the `secret_id` to configure the charm, i.e.
+Then, use the `secret_id` to configure the charm, i.e.
 
 ```shell
 juju config azure-storage-integrator \
@@ -144,7 +144,7 @@ spark.hadoop.fs.azure.account.key.<AZURE_STORAGE_ACCOUNT>.dfs.core.windows.net=<
 ### Enable Monitoring with Prometheus pushgateway
 
 Spark Integration Hub can consume the `pushgateway` relation provided by the 
-[Prometheus Pushgateway charm](https://charmhub.io/prometheus-pushgateway) to enable integration with an object storage. 
+[Prometheus Pushgateway charm](https://charmhub.io/prometheus-pushgateway) to provide integration with an object storage. 
 
 You can find more information on how to deploy and configure a `prometheus-pushgateway` 
 charm [here](https://discourse.charmhub.io/t/prometheus-pushgateway-operator-k8s-docs-using-prometheus-pushgateway/11979/2).
@@ -184,7 +184,7 @@ spark.metrics.conf.executor.sink.prometheus.metrics-name-replacement=\$2
 Beside the configurations enabled by relations, custom configuration can also 
 be added directly using actions. 
 
-In order to add a new custom configuration property
+To add a new custom configuration property
 
 ```shell
 juju run integration-hub/leader add-config conf="<property>=<value>"

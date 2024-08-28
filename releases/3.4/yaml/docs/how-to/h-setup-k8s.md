@@ -9,7 +9,7 @@ In the following guide, we provide details on the technologies currently support
 
 ### Kubernetes
 
-The Charmed Spark solution runs on top of several K8s distribution. We recommend you to use 1.29+, but no less than version 1.28. 
+The Charmed Spark solution runs on top of several K8s distributions. We recommend using versions above or equal to `1.29`. 
 Earlier versions may still be working, although we do not explicitly test them. 
 
 There are multiple ways that a K8s cluster can be deployed. We provide full compatibility and support for:
@@ -82,7 +82,7 @@ aws sts get-identity-caller
 
 Make also sure that your service account (configured in AWS) has the right permission to create and manage EKS clusters. In general, we recommend the use of profiles when having multiple accounts.
 
-##### Creating the cluster
+##### Creating a cluster
 
 An EKS cluster can be created using `eksctl`, the AWS Management Console, or the AWS CLI. In the following we will use `eksctl`.
 Create a YAML file with the following content 
@@ -177,59 +177,14 @@ Alternatively, use [Python libraries](https://github.com/canonical/spark-k8s-bun
 To connect Charmed Spark with an S3-compatible object storage, 
 the following configurations need to be specified:
 
-* *access_key* 
-* *secret_key*
-* *endpoint*
-* *bucket*
-* (optional) *region*
+* `access_key` 
+* `secret_key`
+* `endpoint`
+* `bucket`
+* (optional) `region`
 
-##### Supported S3 backends
-
-In the following sections, we show how to setup and extract those information in 
-MinIO and AWS S3. 
-
-###### MicroK8s MinIO
-
-If you have already a MicroK8s cluster running, you can enable the MinIO storage with the dedicated addon
-
-```
-microk8s.enable minio
-```
-
-Refer [here](https://microk8s.io/docs/addon-minio) for more information how to customize your MinIO MicroK8s deployment.
-
-You can then use the following commands to obtain the access key, the access secret and the MinIO endpoint:
-
-* *access_key*: `microk8s.kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d`
-* *secret_key*: `microk8s.kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d`
-* *endpoint*: `microk8s.kubectl get services -n minio-operator | grep minio | awk '{ print $3 }'`
-
-Configure the AWS CLI snap with these parameters. After that, you can create a bucket using
-
-```shell
-aws s3 mb s3://<S3_BUCKET>
-```
-
-###### AWS S3
-
-In order to use AWS S3, you need to have an AWS user that has permission to use S3 resource for reading and writing. 
-You can create a new user or use an existing one, as long as you grant permission to S3, either centrally using the IAM console 
-or from the S3 service itself. 
-
-If the service account has `AmazonS3FullAccess` permission, you can create new buckets using
-
-```bash 
-aws s3api create-bucket --bucket <S3_BUCKET> --region <S3_REGION>
-```
-
-Note that buckets will be associated to a given AWS region. Once the bucket is created, you can use 
-the `access_key` and the `secret_key` of your service account, also used for authenticating with the AWS CLI profile. 
-The endpoint of the service is `https://s3.<S3_REGION>.amazonaws.com`.
-
-##### Setting Up the object Storage
-
-Leveraging on standard S3 API, you can use the `aws` snap client to perform operations with the
-S3 service, like creating buckets, upload new content, inspecting the structure and removing data.
+Leveraging on standard S3 API, you can use the `aws-cli` snap client to perform operations with the
+S3 service, like creating buckets, uploading new content, inspecting the structure, and removing data.
 
 To install the AWS CLI client, use 
 
@@ -243,16 +198,62 @@ The client can then be configured using the parameters above with
 aws configure set aws_access_key_id <S3_ACCESS_KEY>
 aws configure set aws_secret_access_key <S3_SECRET_KEY>
 aws configure set endpoint_url <S3_ENDPOINT>
-aws configure set default.region <S3_REGION>
+aws configure set default.region <S3_REGION> # Optional for AWS only
 ```
 
-Test that the `aws-cli` client is properly working with 
+Test that the AWS CLI client is properly working with 
 
 ```
 aws s3 ls
 ```
 
-To create a folder on an existing bucket, just place an empty path object `spark-events`. 
+##### Supported S3 backends
+
+In the following sections, we show how to setup and extract information for:
+* MicroK8s MinIO 
+* AWS S3
+
+###### MicroK8s MinIO
+
+If you have already a MicroK8s cluster running, you can enable the MinIO storage with the dedicated addon
+
+```
+microk8s.enable minio
+```
+
+Refer to the [add-on documentation](https://microk8s.io/docs/addon-minio) for more information how to customize your MinIO MicroK8s deployment.
+
+You can then use the following commands to obtain the `access_key`, the `secret_key` and the MinIO `endpoint`:
+
+* `access_key`: `microk8s.kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d`
+* `secret_key`: `microk8s.kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d`
+* `endpoint`: `microk8s.kubectl get services -n minio-operator | grep minio | awk '{ print $3 }'`
+
+Configure the AWS CLI snap with these parameters, as shown above. After that, you can create a bucket using
+
+```shell
+aws s3 mb s3://<S3_BUCKET>
+```
+
+###### AWS S3
+
+In order to use AWS S3, you need to have an AWS user that has permission to use S3 resource for reading and writing. 
+You can create a new user or use an existing one, as long as you grant permission to S3, either centrally using the IAM console 
+or from the S3 service itself. 
+
+If the service account has the `AmazonS3FullAccess` permission, you can create new buckets by using
+
+```bash 
+aws s3api create-bucket --bucket <S3_BUCKET> --region <S3_REGION>
+```
+
+Note that buckets will be associated to a given AWS region. Once the bucket is created, you can use 
+the `access_key` and the `secret_key` of your service account, also used for authenticating with the AWS CLI profile. 
+The endpoint of the service is `https://s3.<S3_REGION>.amazonaws.com`.
+
+##### Setting Up the object Storage
+
+To create a folder on an existing bucket, just place an empty path object `spark-events`:
 
 ```shell
 aws s3api put-object --bucket <S3_BUCKET> --key spark-events
@@ -272,9 +273,9 @@ Charmed Spark provides out-of-the-box support also for the following Azure stora
 In order to connect Charmed Spark with the Azure storage backends (WASB, WASBS, ABFS and ABFSS) 
 the following configurations need to be specified:
 
-* *storage_account*
-* *storage_key*
-* *container*
+* `storage_account`
+* `storage_key`
+* `container`
 
 ##### Setting Up the object Storage
 
@@ -287,18 +288,18 @@ To install the `azcli` client, use
 sudo snap install azcli
 ```
 
-The client can then be configured using the following environment variables
-
-```shell
-export AZURE_STORAGE_ACCOUNT=...
-export AZURE_STORAGE_KEY=...
-```
-
-These credentials can be retrieved from the [Azure portal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Storage%2FStorageAccounts), after creating a storage account. 
+The client needs to be configured using the Azure storage account and the associated storage key. These credentials can be retrieved from the [Azure portal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Storage%2FStorageAccounts), after creating a storage account. 
 When creating the storage account, make sure that you enable "Hierarchical namespace" if you 
 want to use Azure DataLake Gen2 Storage.
 
-Test that the `azcli` client is properly working with 
+Once you have those information, the client can be configured by using the following environment variables:
+
+```shell
+export AZURE_STORAGE_ACCOUNT=<storage_account> 
+export AZURE_STORAGE_KEY=<storage_key>
+```
+
+Now test that the `azcli` client is properly working with 
 
 ```
 azcli storage container list
