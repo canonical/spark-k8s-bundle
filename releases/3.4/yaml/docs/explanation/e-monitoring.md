@@ -89,6 +89,6 @@ Custom alerting rules can also be defined and efficiently managed by [AlertManag
 Logs of driver and executors are stored on the pod local filesystem by default, 
 and they are therefore generally lost once the job finishes and the pod is cleared. 
 
-However, Charmed Spark allows you to store these logs into S3, so that they can 
+However, Charmed Spark allows you to store these logs into S3 or Azure storage, so that they can 
 be re-read and visualized using the Spark History Server, allowing users to monitor 
 and visualize the information and metrics about the job execution.
