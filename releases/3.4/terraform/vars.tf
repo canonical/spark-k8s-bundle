@@ -8,7 +8,7 @@ variable "model" {
 }
 
 variable "storage_backend" {
-  type = "string"
+  type = string
   description = "Storage backend to be used"
 
   validation {
