@@ -4,7 +4,7 @@
 output "charms" {
   value = {
     history_server = juju_application.history_server.name
-    s3 = juju_application.azure_storage.name
+    azure = juju_application.azure_storage.name
     kyuubi = juju_application.kyuubi.name
     kyuubi_users = juju_application.kyuubi_users.name
     metastore = juju_application.metastore.name
