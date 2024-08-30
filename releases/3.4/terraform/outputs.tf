@@ -3,7 +3,7 @@
 
 output "charms" {
   value = merge(
-      module.s3[*].charms, module.azure[*].charms, module.cos[*].charms...
+      module.s3[*].charms..., module.azure[*].charms..., module.cos[*].charms...
   )
 }
 
