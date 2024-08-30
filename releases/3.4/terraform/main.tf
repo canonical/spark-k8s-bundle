@@ -49,6 +49,6 @@ module "cos" {
   source = "./cos"
 
   model = data.juju_model.spark.name
-  integration_hub = var.storage_backend == "azure" ? module.azure.charms.hub : module.s3.charms.hub
+  integration_hub = var.storage_backend == "azure" ? module.azure[0].charms.hub : module.s3[0].charms.hub
   cos_model = var.cos_model
 }

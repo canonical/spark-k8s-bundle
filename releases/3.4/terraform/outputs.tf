@@ -2,8 +2,8 @@
 # See LICENSE file for licensing details.
 
 output "charms" {
-  value = merge(
-      module.s3[*].charms..., module.azure[*].charms..., module.cos[*].charms...
-  )
+  value = merge(concat(
+      module.s3[*].charms, module.azure[*].charms, module.cos[*].charms
+  )...)
 }
 
