@@ -9,11 +9,11 @@ resource "juju_application" "agent" {
   charm {
     name    = "grafana-agent-k8s"
     channel = "latest/stable"
-    revision = 64
+    revision = 45
   }
 
   resources = {
-      agent-image = 38
+      agent-image = 42
   }
 
   units = 1
@@ -29,12 +29,12 @@ resource "juju_application" "cos_configuration" {
 
   charm {
     name    = "cos-configuration-k8s"
-    channel = "latest/stable"
-    revision = 46
+    channel = "latest/edge"
+    revision = 61
   }
 
   resources = {
-    git-sync-image = 32
+    git-sync-image = 34
   }
 
   config = {
@@ -57,7 +57,7 @@ resource "juju_application" "pushgateway" {
   charm {
     name    = "prometheus-pushgateway-k8s"
     channel = "latest/stable"
-    revision = 12
+    revision = 16
   }
 
   resources = {
@@ -77,7 +77,7 @@ resource "juju_application" "scrape_config" {
   charm {
     name    = "prometheus-scrape-config-k8s"
     channel = "latest/stable"
-    revision = 47
+    revision = 51
   }
 
   config = {
