@@ -318,5 +318,5 @@ async def juju_sleep(ops: OpsTest, time: int, app: str | None = None):
     await ops.model.wait_for_idle(
         apps=[app_name],
         idle_period=time,
-        timeout=300,
+        timeout=600,
     )
