@@ -12,6 +12,12 @@ jobs:
   checks:
     uses: ./.github/workflows/ci-checks.yaml
 
+  model-config:
+    name: test step
+    steps:
+      - name: run command
+        run: juju model-config storage-default-block-source
+
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
