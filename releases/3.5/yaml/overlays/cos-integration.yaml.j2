@@ -13,9 +13,9 @@ applications:
   agent:
     charm: grafana-agent-k8s
     channel: latest/stable
-    revision: 64
+    revision: 75
     resources:
-      agent-image: 38
+      agent-image: 45
     scale: 1
     constraints: arch=amd64
     storage:
@@ -24,10 +24,10 @@ applications:
   cos-configuration:
     charm: cos-configuration-k8s
     channel: latest/stable
-    revision: 46
+    revision: 54
     base: ubuntu@20.04/stable
     resources:
-      git-sync-image: 32
+      git-sync-image: 34
     scale: 1
     options:
       git_branch: main
@@ -40,7 +40,7 @@ applications:
   pushgateway:
     charm: prometheus-pushgateway-k8s
     channel: latest/edge
-    revision: 12
+    revision: 16
     resources:
       pushgateway-image: 8
     scale: 1
@@ -50,7 +50,7 @@ applications:
   scrape-config:
     charm: prometheus-scrape-config-k8s
     channel: latest/stable
-    revision: 47
+    revision: 51
     base: ubuntu@20.04/stable
     scale: 1
     options:
