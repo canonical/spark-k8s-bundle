@@ -12,13 +12,6 @@ jobs:
   checks:
     uses: ./.github/workflows/ci-checks.yaml
 
-  model-config:
-    name: test step
-    runs-on: ubuntu-latest
-    steps:
-      - name: run command
-        run: juju model-config storage-default-block-source
-
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
@@ -113,6 +106,11 @@ jobs:
           bootstrap-options: " --agent-version 3.4.3"
           microk8s-group: snap_microk8s
           microk8s-addons: "rbac dns minio metallb:${{ env.IPADDR }}-${{ env.IPADDR }}"
+
+      - name: run juju model-config storage-default-block-source command
+        run: |
+          juju model-config storage-default-block-source
+  
       - name: Install tox & poetry
         run: |
           pip install tox
