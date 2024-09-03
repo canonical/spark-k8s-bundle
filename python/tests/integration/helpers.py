@@ -313,7 +313,7 @@ def construct_azure_resource_uri(container: Container, path: str):
 
 
 async def juju_sleep(ops: OpsTest, time: int, app: str | None = None):
-    app_name = app if app else ops.model.applications[0]
+    app_name = app if app else list(ops.model.applications.keys())[0]
 
     await ops.model.wait_for_idle(
         apps=[app_name],

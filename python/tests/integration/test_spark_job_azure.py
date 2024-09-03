@@ -173,7 +173,7 @@ async def test_job_in_history_server(
         if len(apps) > 0:
             break
         else:
-            await juju_sleep(ops_test, 30)  # type: ignore
+            await juju_sleep(ops_test, 30, HISTORY_SERVER)  # type: ignore
     logger.info(f"Number of apps: {len(apps)}")
     assert len(apps) == 1
 
