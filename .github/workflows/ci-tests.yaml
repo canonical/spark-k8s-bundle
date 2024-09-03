@@ -129,9 +129,6 @@ jobs:
             sudo snap install terraform --classic 
           fi
 
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-
       - id: tests-integration
         name: Run Integration Tests
         env:
