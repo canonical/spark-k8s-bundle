@@ -4,9 +4,9 @@
 import logging
 import os
 import shutil
+import subprocess
 import uuid
 from pathlib import Path
-import subprocess
 from time import sleep
 
 import pytest
@@ -88,7 +88,13 @@ def pytest_addoption(parser):
 @pytest.fixture(scope="module")
 def ops_test(ops_test: OpsTest) -> OpsTest:
     subprocess.run(
-        ["juju", "set-model-constraints", "--model", ops_test.model.info.name, "mem=500M"],
+        [
+            "juju",
+            "set-model-constraints",
+            "--model",
+            ops_test.model.info.name,
+            "mem=500M",
+        ],
         check=True,
     )
     return ops_test
