@@ -6,6 +6,7 @@ import os
 import shutil
 import uuid
 from pathlib import Path
+import subprocess
 from time import sleep
 
 import pytest
@@ -82,6 +83,15 @@ def pytest_addoption(parser):
         type=str,
         help="Which Spark version to use for bundle testing.",
     )
+
+
+@pytest.fixture(scope="module")
+def ops_test(ops_test: OpsTest) -> OpsTest:
+    subprocess.run(
+        ["juju", "set-model-constraints", "--model", ops_test.model.info.name, "mem=500M"],
+        check=True,
+    )
+    return ops_test
 
 
 @pytest.fixture(scope="module")
