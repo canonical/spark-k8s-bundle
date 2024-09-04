@@ -31,8 +31,9 @@ variable "s3" {
 variable "azure" {
   description = "Azure Object storage information"
   type = object({
-    container            = optional(string, "spark-test")
-    storage_account      = optional(string, "https://s3.amazonaws.com")
+    container            = optional(string, "azurecontainer")
+    storage_account      = optional(string, "azurestorageaccount")
+    protocol             = optional(string, "abfss")
   })
   default = {}
 }

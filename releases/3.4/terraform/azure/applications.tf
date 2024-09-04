@@ -37,7 +37,7 @@ resource "juju_application" "azure_storage" {
     container = var.azure.container
     storage-account = var.azure.storage_account
     path = "spark-events"
-    connection-protocol = "abfss"
+    connection-protocol = var.azure.protocol
   }
 
   units = 1

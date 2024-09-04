@@ -10,8 +10,9 @@ variable "model" {
 variable "azure" {
   description = "Azure Object storage information"
   type = object({
-    container            = optional(string, "azure-container")
-    storage_account      = optional(string, "azure-storage-account")
+    container            = optional(string, "azurecontainer")
+    storage_account      = optional(string, "azurestorageaccount")
+    protocol             = optional(string, "abfss")
   })
   default = {}
 }
