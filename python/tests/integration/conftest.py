@@ -85,7 +85,7 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def ops_test(ops_test: OpsTest) -> OpsTest:
     subprocess.run(
         [
