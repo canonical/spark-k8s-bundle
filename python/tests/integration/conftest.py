@@ -85,7 +85,7 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def ops_test(ops_test: OpsTest) -> OpsTest:
     logger.info("Patching ops_test with model constraint mem=500M...")
     subprocess.run(
