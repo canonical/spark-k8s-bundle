@@ -57,9 +57,9 @@ jobs:
   build-cos-configuration-k8s:
     name: Build COS Configuration K8s
     uses: canonical/data-platform-workflows/.github/workflows/build_charm.yaml@v13.1.2
-      with:
-        path-to-charm-directory: temp
-        cache: true
+    with:
+      path-to-charm-directory: temp
+      cache: true
 
   integration-tests:
     name: Integration Tests
