@@ -68,7 +68,7 @@ jobs:
       - name: Build cos-configuration-k8s
         run: |
           cd cos
-          charmcraft pack
+           sg lxd -c "charmcraft pack"
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
