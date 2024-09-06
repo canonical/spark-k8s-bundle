@@ -63,7 +63,7 @@ jobs:
     #   cache: true
     steps:
       - name: LS
-        run: ls -lah temp
+        run: ls -lah /home/runner/work/spark-k8s-bundle/spark-k8s-bundle/
 
   integration-tests:
     name: Integration Tests
