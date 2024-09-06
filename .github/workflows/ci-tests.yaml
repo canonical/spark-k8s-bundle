@@ -50,7 +50,7 @@ jobs:
       - name: Checkout repo (cos-configuration-k8s)
         uses: actions/checkout@v4
         with:
-          repository: theoctober19th/cos-configuration-k8s
+          repository: theoctober19th/cos-configuration-k8s-operator
           ref: fix-race-condition-storage
           path: temp
 
