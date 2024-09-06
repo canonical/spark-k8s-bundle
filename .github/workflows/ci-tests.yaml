@@ -43,28 +43,6 @@ jobs:
         run: |
           cd python && tox -e unit
 
-  checkout-cos-coniguration-k8s:
-    name: Checkout Cos Configuration K8s
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo (cos-configuration-k8s)
-        uses: actions/checkout@v4
-        with:
-          repository: theoctober19th/cos-configuration-k8s-operator
-          ref: fix-race-condition-storage
-          path: ~/cos
-
-  build-cos-configuration-k8s:
-    name: Build COS Configuration K8s
-    runs-on: ubuntu-latest
-    # uses: canonical/data-platform-workflows/.github/workflows/build_charm.yaml@v13.1.2
-    # with:
-    #   path-to-charm-directory: temp
-    #   cache: true
-    steps:
-      - name: LS
-        run: ls -lah ~/cos
-
   integration-tests:
     name: Integration Tests
     runs-on: [self-hosted, linux, X64, jammy, xlarge]
@@ -156,7 +134,15 @@ jobs:
             echo "Installing terraform from snap"
             sudo snap install terraform --classic 
           fi
-
+      - id: build-cos-configuration-k8s
+        name: Clone cos-configuration-k8s
+        run: |
+          git clone https://github.com/theoctober19th/cos-configuration-k8s-operator.git cos
+          cd cos
+          git checkout fix-race-condition-storage
+          sudo snap install charmcraft --classic
+          charmcraft pack
+          cd ..
       - id: tests-integration
         name: Run Integration Tests
         env:
