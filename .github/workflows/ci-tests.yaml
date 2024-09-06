@@ -73,7 +73,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: cos-configuration-k8s-charm
-          path: cos-configuration-k8s_ubuntu-20.04-amd64.charm
+          path: cos/cos-configuration-k8s_ubuntu-20.04-amd64.charm
 
   integration-tests:
     name: Integration Tests
@@ -118,6 +118,7 @@ jobs:
     needs:
       - checks
       - unit-tests
+      - patch-cos-configuration-k8s
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
