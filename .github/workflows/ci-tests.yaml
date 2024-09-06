@@ -52,7 +52,7 @@ jobs:
         with:
           repository: theoctober19th/cos-configuration-k8s-operator
           ref: fix-race-condition-storage
-          path: ${{ runner.home }}/cos
+          path: ~/cos
 
   build-cos-configuration-k8s:
     name: Build COS Configuration K8s
@@ -63,7 +63,7 @@ jobs:
     #   cache: true
     steps:
       - name: LS
-        run: ls -lah ${{ runner.home }}/cos
+        run: ls -lah ~/cos
 
   integration-tests:
     name: Integration Tests
