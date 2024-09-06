@@ -22,12 +22,10 @@ applications:
       data: kubernetes,1,1024M
     trust: true
   cos-configuration:
-    charm: cos-configuration-k8s
-    channel: latest/stable
-    revision: 54
-    base: ubuntu@20.04/stable
+    charm: temp/cos-configuration-k8s_ubuntu-20.04-amd64.charm
     resources:
-      git-sync-image: 34
+      git-sync-image: k8s.gcr.io/git-sync/git-sync:v3.5.0
+    base: ubuntu@20.04/stable
     scale: 1
     options:
       git_branch: main

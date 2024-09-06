@@ -88,6 +88,17 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+      - name: Checkout repo (cos-configuration-k8s)
+        uses: actions/checkout@v4
+        with:
+          repository: theoctober19th/cos-configuration-k8s
+          ref: fix-race-condition-storage
+          path: temp
+      - name: Build cos-configuration-k8s
+        uses: canonical/data-platform-workflows/.github/workflows/build_charm.yaml@v13.1.2
+        with:
+          path-to-charm-directory: temp
+          cache: true
       - id: setup-python
         name: Setup Python
         uses: actions/setup-python@v5.0.0
