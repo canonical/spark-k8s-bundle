@@ -171,7 +171,7 @@ jobs:
         name: Download patched cos-configuration-k8s charm
         uses: actions/download-artifact@v3
         with:
-          name: cos-configuration-k8s-charm
+          name: cos-configuration-k8s_ubuntu-20.04-amd64.charm
       - id: tests-integration
         name: Run Integration Tests
         env:
