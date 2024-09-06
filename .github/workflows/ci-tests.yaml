@@ -61,8 +61,8 @@ jobs:
       path-to-charm-directory: temp
       cache: true
     steps:
-      name: LS
-      run: ls -lah temp
+      - name: LS
+        run: ls -lah temp
 
   integration-tests:
     name: Integration Tests
