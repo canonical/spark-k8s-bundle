@@ -120,6 +120,9 @@ juju config azure-storage credentials=secret:<secret_id>
 
 After this, the different charms should start to receive the credentials and move into `active/idle` state.
 
+
+> :warning: **NOTE**: The Azure Storage Integrator charm assumes heirarchical namespaces to have been enabled by default. When you create a new storage account, please make sure you check "Hierarchical Namespaces" checkbox. If you want to use legacy storage account that doesn't have hierarchical namespaces enabled, please configure Azure Storage integrator charm to use WASB / WASBS protocol instead with: `juju config azure-storage connection-protocol=wasbs`
+
 ##### Enabling COS
 
 COS can be enabled using an [overlay](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/yaml/overlays/cos-integration.yaml.j2). 
