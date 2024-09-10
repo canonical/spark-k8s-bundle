@@ -94,7 +94,7 @@ def ops_test(ops_test: OpsTest) -> OpsTest:
             "set-model-constraints",
             "--model",
             ops_test.model.info.name,
-            "mem=250M",
+            "mem=500M",
         ],
         check=True,
     )
