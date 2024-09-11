@@ -4,11 +4,9 @@
 bundle: kubernetes
 applications:
   kyuubi:
-    charm: kyuubi-k8s
-    channel: latest/edge
-    revision: 17
+    charm: ../../kyuubi-k8s_ubuntu-22.04-amd64.charm
     resources:
-      kyuubi-image: 4
+      kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:931efb21837866102a3b89239212107eb517fd8ba573aa62623048f29d5c337c
     scale: 1
     options:
       namespace: {{ namespace }}
