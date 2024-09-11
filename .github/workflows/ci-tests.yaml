@@ -53,12 +53,12 @@ jobs:
           cd cos
           git checkout fix-race-condition-storage
           cd ..
-      - name: Clone patched Kyuubi
-        run: |
-          git clone https://github.com/canonical/kyuubi-k8s-operator.git kyuubi
-          cd kyuubi
-          git checkout invalid-s3-credentials-fix
-          cd ..
+      # - name: Clone patched Kyuubi
+      #   run: |
+      #     git clone https://github.com/canonical/kyuubi-k8s-operator.git kyuubi
+      #     cd kyuubi
+      #     git checkout invalid-s3-credentials-fix
+      #     cd ..
       - name: Install charmcraft
         run: |
           sudo snap install charmcraft --classic
@@ -77,21 +77,21 @@ jobs:
           cd cos
           sg lxd -c "charmcraft pack"
           cd ..
-      - name: Build kyuubi-k8s
-        run: |
-          cd kyuubi
-          sg lxd -c "charmcraft pack"
-          cd ..
+      # - name: Build kyuubi-k8s
+      #   run: |
+      #     cd kyuubi
+      #     sg lxd -c "charmcraft pack"
+      #     cd ..
       - name: Upload artifact (Cos Configuration)
         uses: actions/upload-artifact@v3
         with:
           name: cos-configuration-k8s_ubuntu-20.04-amd64.charm
           path: cos/cos-configuration-k8s_ubuntu-20.04-amd64.charm
-      - name: Upload artifact (Kyuubi)
-        uses: actions/upload-artifact@v3
-        with:
-          name: kyuubi-k8s_ubuntu-22.04-amd64.charm
-          path: kyuubi/kyuubi-k8s_ubuntu-22.04-amd64.charm
+      # - name: Upload artifact (Kyuubi)
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: kyuubi-k8s_ubuntu-22.04-amd64.charm
+      #     path: kyuubi/kyuubi-k8s_ubuntu-22.04-amd64.charm
 
 
   integration-tests:
@@ -192,11 +192,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: cos-configuration-k8s_ubuntu-20.04-amd64.charm
-      - id: download-patched-kyuubi-k8s
-        name: Download patched kyuubi-k8s charm
-        uses: actions/download-artifact@v3
-        with:
-          name: kyuubi-k8s_ubuntu-22.04-amd64.charm
+      # - id: download-patched-kyuubi-k8s
+      #   name: Download patched kyuubi-k8s charm
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: kyuubi-k8s_ubuntu-22.04-amd64.charm
       - id: tests-integration
         name: Run Integration Tests
         env:
