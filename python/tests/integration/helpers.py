@@ -123,8 +123,18 @@ def _local(pointer) -> str:
 
 
 async def deploy_bundle(ops_test: OpsTest, bundle: Bundle) -> tuple[int, str, str]:
+    model_name = ops_test.model.info.name
+    logger.info(f"Setting model constraint mem=500M on model {model_name}...")
+    model_constraints_command = [
+        "set-model-constraints",
+        "--model",
+        model_name,
+        "mem=500M",
+    ]
+    retcode, stdout, stderr = await ops_test.juju(*model_constraints_command)
+    assert retcode == 0
 
-    cmds = [
+    deploy_command = [
         "deploy",
         "--trust",
         "-m",
@@ -132,7 +142,7 @@ async def deploy_bundle(ops_test: OpsTest, bundle: Bundle) -> tuple[int, str, st
         _local(bundle.main),
     ] + sum([["--overlay", _local(overlay)] for overlay in bundle.overlays], [])
 
-    retcode, stdout, stderr = await ops_test.juju(*cmds)
+    retcode, stdout, stderr = await ops_test.juju(*deploy_command)
 
     return retcode, stdout, stderr
 

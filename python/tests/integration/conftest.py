@@ -86,22 +86,6 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture(scope="module")
-def ops_test(ops_test: OpsTest) -> OpsTest:
-    logger.info("Patching ops_test with model constraint mem=500M...")
-    subprocess.run(
-        [
-            "juju",
-            "set-model-constraints",
-            "--model",
-            ops_test.model.info.name,
-            "mem=500M",
-        ],
-        check=True,
-    )
-    return ops_test
-
-
-@pytest.fixture(scope="module")
 def cos_model(request) -> None | str:
     """The name of the model in which COS is either already deployed or is to be deployed."""
     return request.config.getoption("--cos-model")
