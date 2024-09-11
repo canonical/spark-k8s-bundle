@@ -123,6 +123,8 @@ After this, the different charms should start to receive the credentials and mov
 
 > :warning: **NOTE**: The Azure Storage Integrator charm assumes heirarchical namespaces to have been enabled by default. When you create a new storage account, please make sure you check "Hierarchical Namespaces" checkbox. If you want to use legacy storage account that doesn't have hierarchical namespaces enabled, please configure Azure Storage integrator charm to use WASB / WASBS protocol instead with: `juju config azure-storage connection-protocol=wasbs`
 
+> :warning: **NOTE**: The directory `spark-events` needs to be created beforehand in the Azure container for the Spark History server to work. Please refer to the [How-To Setup Environment](https://discourse.charmhub.io/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618#setting-up-the-object-storage-14) guide for more detailed instructions.
+
 ##### Enabling COS
 
 COS can be enabled using an [overlay](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/yaml/overlays/cos-integration.yaml.j2). 
