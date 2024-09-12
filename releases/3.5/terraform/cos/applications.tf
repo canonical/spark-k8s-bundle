@@ -29,12 +29,12 @@ resource "juju_application" "cos_configuration" {
 
   charm {
     name    = "cos-configuration-k8s"
-    channel = "latest/stable"
-    revision = 46
+    channel = "latest/edge"
+    revision = 61
   }
 
   resources = {
-    git-sync-image = 32
+    git-sync-image = 34
   }
 
   config = {
