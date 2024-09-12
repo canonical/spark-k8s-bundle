@@ -77,11 +77,11 @@ jobs:
       #     cd cos
       #     sg lxd -c "charmcraft pack"
       #     cd ..
-      # - name: Build kyuubi-k8s
-      #   run: |
-      #     cd kyuubi
-      #     sg lxd -c "charmcraft pack"
-      #     cd ..
+      - name: Build kyuubi-k8s
+        run: |
+          cd kyuubi
+          sg lxd -c "charmcraft pack"
+          cd ..
       # - name: Upload artifact (Cos Configuration)
       #   uses: actions/upload-artifact@v3
       #   with:
