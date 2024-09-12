@@ -47,17 +47,18 @@ jobs:
     name: Patch some charms (Kyuubi and Cos Configuration) 
     runs-on: ubuntu-latest
     steps:
-      - name: Clone patched cos-configuration-k8s
-        run: |
-          git clone https://github.com/theoctober19th/cos-configuration-k8s-operator.git cos
-          cd cos
-          git checkout fix-race-condition-storage
-          cd ..
+      # - name: Clone patched cos-configuration-k8s
+      #   run: |
+      #     git clone https://github.com/theoctober19th/cos-configuration-k8s-operator.git cos
+      #     cd cos
+      #     git checkout fix-race-condition-storage
+      #     cd ..
       - name: Clone patched Kyuubi
         run: |
           git clone https://github.com/canonical/kyuubi-k8s-operator.git kyuubi
           cd kyuubi
           git checkout fix-bundle-tests
+          git pull origin fix-bundle-tests
           cd ..
       - name: Install charmcraft
         run: |
