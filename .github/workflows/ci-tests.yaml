@@ -43,56 +43,56 @@ jobs:
         run: |
           cd python && tox -e unit
   
-  patch-some-charms:
-    name: Patch some charms (Kyuubi and Cos Configuration) 
-    runs-on: ubuntu-latest
-    steps:
-      # - name: Clone patched cos-configuration-k8s
-      #   run: |
-      #     git clone https://github.com/theoctober19th/cos-configuration-k8s-operator.git cos
-      #     cd cos
-      #     git checkout fix-race-condition-storage
-      #     cd ..
-      - name: Clone patched Kyuubi
-        run: |
-          git clone https://github.com/canonical/kyuubi-k8s-operator.git kyuubi
-          cd kyuubi
-          git checkout fix-bundle-tests
-          git pull origin fix-bundle-tests
-          cd ..
-      - name: Install charmcraft
-        run: |
-          sudo snap install charmcraft --classic
-      - name: LXD fixesP
-        run: |
-          sudo adduser "$USER" lxd
-          # `newgrp` does not work in GitHub Actions; use `sg` instead
-          sg lxd -c "lxd waitready"
-          sg lxd -c "lxd init --auto"
-          # Workaround for Docker & LXD on same machine
-          sudo iptables -F FORWARD
-          sudo iptables -P FORWARD ACCEPT
+  # patch-some-charms:
+  #   name: Patch some charms (Kyuubi and Cos Configuration) 
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     # - name: Clone patched cos-configuration-k8s
+  #     #   run: |
+  #     #     git clone https://github.com/theoctober19th/cos-configuration-k8s-operator.git cos
+  #     #     cd cos
+  #     #     git checkout fix-race-condition-storage
+  #     #     cd ..
+  #     - name: Clone patched Kyuubi
+  #       run: |
+  #         git clone https://github.com/canonical/kyuubi-k8s-operator.git kyuubi
+  #         cd kyuubi
+  #         git checkout fix-bundle-tests
+  #         git pull origin fix-bundle-tests
+  #         cd ..
+  #     - name: Install charmcraft
+  #       run: |
+  #         sudo snap install charmcraft --classic
+  #     - name: LXD fixesP
+  #       run: |
+  #         sudo adduser "$USER" lxd
+  #         # `newgrp` does not work in GitHub Actions; use `sg` instead
+  #         sg lxd -c "lxd waitready"
+  #         sg lxd -c "lxd init --auto"
+  #         # Workaround for Docker & LXD on same machine
+  #         sudo iptables -F FORWARD
+  #         sudo iptables -P FORWARD ACCEPT
     
-      # - name: Build cos-configuration-k8s
-      #   run: |
-      #     cd cos
-      #     sg lxd -c "charmcraft pack"
-      #     cd ..
-      - name: Build kyuubi-k8s
-        run: |
-          cd kyuubi
-          sg lxd -c "charmcraft pack"
-          cd ..
-      # - name: Upload artifact (Cos Configuration)
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: cos-configuration-k8s_ubuntu-20.04-amd64.charm
-      #     path: cos/cos-configuration-k8s_ubuntu-20.04-amd64.charm
-      - name: Upload artifact (Kyuubi)
-        uses: actions/upload-artifact@v3
-        with:
-          name: kyuubi-k8s_ubuntu-22.04-amd64.charm
-          path: kyuubi/kyuubi-k8s_ubuntu-22.04-amd64.charm
+  #     # - name: Build cos-configuration-k8s
+  #     #   run: |
+  #     #     cd cos
+  #     #     sg lxd -c "charmcraft pack"
+  #     #     cd ..
+  #     - name: Build kyuubi-k8s
+  #       run: |
+  #         cd kyuubi
+  #         sg lxd -c "charmcraft pack"
+  #         cd ..
+  #     # - name: Upload artifact (Cos Configuration)
+  #     #   uses: actions/upload-artifact@v3
+  #     #   with:
+  #     #     name: cos-configuration-k8s_ubuntu-20.04-amd64.charm
+  #     #     path: cos/cos-configuration-k8s_ubuntu-20.04-amd64.charm
+  #     - name: Upload artifact (Kyuubi)
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: kyuubi-k8s_ubuntu-22.04-amd64.charm
+  #         path: kyuubi/kyuubi-k8s_ubuntu-22.04-amd64.charm
 
 
   integration-tests:
@@ -119,7 +119,7 @@ jobs:
           - integration-kyuubi
           - integration-kyuubi-azure
         exclude:
-          - backend: --backend terraform                  # Temporarily disable terraform backend. TODO: renable it later.
+          # - backend: --backend terraform                  # Temporarily disable terraform backend. TODO: renable it later.
           - tox-environments: integration-basic           # Basic tests, test without COS
             cos: --cos-model cos
           - tox-environments: integration-basic           # Basic tests, test without terraform
@@ -139,7 +139,7 @@ jobs:
     needs:
       - checks
       - unit-tests
-      - patch-some-charms
+      # - patch-some-charms
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -193,11 +193,11 @@ jobs:
       #   uses: actions/download-artifact@v3
       #   with:
       #     name: cos-configuration-k8s_ubuntu-20.04-amd64.charm
-      - id: download-patched-kyuubi-k8s
-        name: Download patched kyuubi-k8s charm
-        uses: actions/download-artifact@v3
-        with:
-          name: kyuubi-k8s_ubuntu-22.04-amd64.charm
+      # - id: download-patched-kyuubi-k8s
+      #   name: Download patched kyuubi-k8s charm
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: kyuubi-k8s_ubuntu-22.04-amd64.charm
       - id: tests-integration
         name: Run Integration Tests
         env:
