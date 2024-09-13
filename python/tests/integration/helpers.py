@@ -122,8 +122,7 @@ def _local(pointer) -> str:
     )
 
 
-async def deploy_bundle(ops_test: OpsTest, bundle: Bundle) -> tuple[int, str, str]:
-    model_name = ops_test.model.info.name
+async def set_memory_constraints(ops_test, model_name):
     logger.info(f"Setting model constraint mem=500M on model {model_name}...")
     model_constraints_command = [
         "set-model-constraints",
@@ -134,6 +133,8 @@ async def deploy_bundle(ops_test: OpsTest, bundle: Bundle) -> tuple[int, str, st
     retcode, stdout, stderr = await ops_test.juju(*model_constraints_command)
     assert retcode == 0
 
+
+async def deploy_bundle(ops_test: OpsTest, bundle: Bundle) -> tuple[int, str, str]:
     deploy_command = [
         "deploy",
         "--trust",
@@ -224,6 +225,7 @@ async def deploy_bundle_yaml(
             lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
         )
 
+        await set_memory_constraints(ops_test, ops_test.model_name)
         retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
 
         assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
@@ -270,6 +272,7 @@ async def deploy_bundle_yaml_azure_storage(
             lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
         )
 
+        await set_memory_constraints(ops_test, ops_test.model_name)
         retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
 
         assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
@@ -297,6 +300,7 @@ async def deploy_bundle_terraform(
         "model": ops_test.model_name,
     } | ({"cos_model": cos} if cos else {})
 
+    await set_memory_constraints(ops_test, ops_test.model_name)
     outputs = bundle.apply(tf_vars=tf_vars)
 
     return list(outputs["charms"]["value"].values())
