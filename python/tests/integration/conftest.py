@@ -4,7 +4,6 @@
 import logging
 import os
 import shutil
-import subprocess
 import uuid
 from pathlib import Path
 from time import sleep
