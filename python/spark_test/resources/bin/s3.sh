@@ -8,8 +8,15 @@ setup_bucket() {
   # errcho $(microk8s.enable minio)
 
   # Get Access key and secret key from MinIO
-  ACCESS_KEY=minio
-  SECRET_KEY=minio123
+  kubectl get secret -n minio-operator microk8s-user-1
+  if [ $? -eq 0 ]; then
+    ACCESS_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d)
+    SECRET_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d)
+  else
+    echo "Using default MinIO access key and secret key..."
+    ACCESS_KEY=minio
+    SECRET_KEY=minio123
+  fi
 
   # Get S3 endpoint from MinIO
   S3_ENDPOINT=$(kubectl get service minio -n minio-operator -o jsonpath='{.spec.clusterIP}')
