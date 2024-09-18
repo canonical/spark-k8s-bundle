@@ -96,12 +96,6 @@ def backend(request) -> None | str:
     return request.config.getoption("--backend")
 
 
-# @pytest.fixture(scope="module")
-# def object_storage_backend(request) -> None | str:
-#     """The object storage backend to be used in the bundle."""
-#     return request.config.getoption("--object-storage-backend")
-
-
 @pytest.fixture(scope="module")
 def spark_version(request) -> str:
     """The backend which is to be used to deploy the bundle."""

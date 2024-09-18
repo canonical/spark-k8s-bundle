@@ -122,9 +122,21 @@ def _local(pointer) -> str:
     )
 
 
-async def deploy_bundle(ops_test: OpsTest, bundle: Bundle) -> tuple[int, str, str]:
+async def set_memory_constraints(ops_test, model_name):
+    """ "Set memory resource constraints on given model."""
+    logger.info(f"Setting model constraint mem=500M on model {model_name}...")
+    model_constraints_command = [
+        "set-model-constraints",
+        "--model",
+        model_name,
+        "mem=500M",
+    ]
+    retcode, stdout, stderr = await ops_test.juju(*model_constraints_command)
+    assert retcode == 0
 
-    cmds = [
+
+async def deploy_bundle(ops_test: OpsTest, bundle: Bundle) -> tuple[int, str, str]:
+    deploy_command = [
         "deploy",
         "--trust",
         "-m",
@@ -132,7 +144,7 @@ async def deploy_bundle(ops_test: OpsTest, bundle: Bundle) -> tuple[int, str, st
         _local(bundle.main),
     ] + sum([["--overlay", _local(overlay)] for overlay in bundle.overlays], [])
 
-    retcode, stdout, stderr = await ops_test.juju(*cmds)
+    retcode, stdout, stderr = await ops_test.juju(*deploy_command)
 
     return retcode, stdout, stderr
 
@@ -214,6 +226,7 @@ async def deploy_bundle_yaml(
             lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
         )
 
+        await set_memory_constraints(ops_test, ops_test.model_name)
         retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
 
         assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
@@ -260,6 +273,7 @@ async def deploy_bundle_yaml_azure_storage(
             lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
         )
 
+        await set_memory_constraints(ops_test, ops_test.model_name)
         retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
 
         assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
@@ -287,6 +301,7 @@ async def deploy_bundle_terraform(
         "model": ops_test.model_name,
     } | ({"cos_model": cos} if cos else {})
 
+    await set_memory_constraints(ops_test, ops_test.model_name)
     outputs = bundle.apply(tf_vars=tf_vars)
 
     return list(outputs["charms"]["value"].values())
@@ -313,10 +328,10 @@ def construct_azure_resource_uri(container: Container, path: str):
 
 
 async def juju_sleep(ops: OpsTest, time: int, app: str | None = None):
-    app_name = app if app else ops.model.applications[0]
+    app_name = app if app else list(ops.model.applications.keys())[0]
 
     await ops.model.wait_for_idle(
         apps=[app_name],
         idle_period=time,
-        timeout=300,
+        timeout=600,
     )
