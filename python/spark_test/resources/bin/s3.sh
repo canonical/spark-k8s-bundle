@@ -13,7 +13,6 @@ setup_bucket() {
     ACCESS_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d)
     SECRET_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d)
   else
-    echo "Using default MinIO access key and secret key..."
     ACCESS_KEY=minio
     SECRET_KEY=minio123
   fi
