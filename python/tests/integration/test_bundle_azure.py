@@ -4,10 +4,10 @@
 # See LICENSE file for licensing details.
 
 import logging
+import uuid
 
 import pytest
 from pytest_operator.plugin import OpsTest
-
 from spark8t.domain import PropertyFile
 
 from spark_test.core.kyuubi import KyuubiClient
@@ -19,9 +19,8 @@ from .helpers import (
     get_postgresql_credentials,
 )
 
-import uuid
-
 logger = logging.getLogger(__name__)
+
 
 @pytest.fixture(scope="module")
 def container_name():

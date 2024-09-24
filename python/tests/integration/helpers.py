@@ -293,10 +293,7 @@ async def deploy_bundle_terraform(
     ops_test: OpsTest,
 ) -> list[str]:
 
-    if (
-            isinstance(bucket_or_container, Bucket) and
-            (bucket := bucket_or_container)
-    ):
+    if isinstance(bucket_or_container, Bucket) and (bucket := bucket_or_container):
         tf_vars = {
             "s3": {
                 "bucket": bucket.bucket_name,
@@ -306,9 +303,8 @@ async def deploy_bundle_terraform(
             "kyuubi_user": "kyuubi-test-user",
             "model": ops_test.model_name,
         } | ({"cos_model": cos} if cos else {})
-    elif (
-            isinstance(bucket_or_container, Container) and
-            (container := bucket_or_container)
+    elif isinstance(bucket_or_container, Container) and (
+        container := bucket_or_container
     ):
         tf_vars = {
             "azure": {
@@ -320,9 +316,7 @@ async def deploy_bundle_terraform(
             "model": ops_test.model_name,
         } | ({"cos_model": cos} if cos else {})
     else:
-        raise ValueError(
-            f"input for backend {bucket_or_container} is not recognized"
-        )
+        raise ValueError(f"input for backend {bucket_or_container} is not recognized")
 
     await set_memory_constraints(ops_test, ops_test.model_name)
     outputs = bundle.apply(tf_vars=tf_vars)
