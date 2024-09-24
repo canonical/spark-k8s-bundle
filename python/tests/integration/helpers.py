@@ -288,18 +288,41 @@ async def deploy_bundle_yaml_azure_storage(
 
 async def deploy_bundle_terraform(
     bundle: Terraform,
-    bucket: Bucket,
+    bucket_or_container: Bucket | Container,
     cos: str | None,
     ops_test: OpsTest,
 ) -> list[str]:
-    tf_vars = {
-        "s3": {
-            "bucket": bucket.bucket_name,
-            "endpoint": bucket.s3.meta.endpoint_url,
-        },
-        "kyuubi_user": "kyuubi-test-user",
-        "model": ops_test.model_name,
-    } | ({"cos_model": cos} if cos else {})
+
+    if (
+            isinstance(bucket_or_container, Bucket) and
+            (bucket := bucket_or_container)
+    ):
+        tf_vars = {
+            "s3": {
+                "bucket": bucket.bucket_name,
+                "endpoint": bucket.s3.meta.endpoint_url,
+            },
+            "storage_backend": "s3",
+            "kyuubi_user": "kyuubi-test-user",
+            "model": ops_test.model_name,
+        } | ({"cos_model": cos} if cos else {})
+    elif (
+            isinstance(bucket_or_container, Container) and
+            (container := bucket_or_container)
+    ):
+        tf_vars = {
+            "azure": {
+                "container": container.container_name,
+                "storage_account": container.credentials.storage_account,
+            },
+            "storage_backend": "azure",
+            "kyuubi_user": "kyuubi-test-user",
+            "model": ops_test.model_name,
+        } | ({"cos_model": cos} if cos else {})
+    else:
+        raise ValueError(
+            f"input for backend {bucket_or_container} is not recognized"
+        )
 
     await set_memory_constraints(ops_test, ops_test.model_name)
     outputs = bundle.apply(tf_vars=tf_vars)

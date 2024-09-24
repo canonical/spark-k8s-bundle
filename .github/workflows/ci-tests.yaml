@@ -83,6 +83,8 @@ jobs:
             cos: --cos-model cos
           - tox-environments: integration-kyuubi-azure    # Azure tests only supported in YAML bundle at the moment
             backend: --backend terraform
+          - tox-environments: integration-bundle-azure    # Azure tests only supported in YAML bundle at the moment
+            backend: --backend terraform
     needs:
       - checks
       - unit-tests

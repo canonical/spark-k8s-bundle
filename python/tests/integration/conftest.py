@@ -15,7 +15,7 @@ from pytest_operator.plugin import OpsTest
 from spark8t.domain import PropertyFile
 
 from spark_test.core.azure_storage import Credentials as AzureStorageCredentials
-from spark_test.fixtures.azure_storage import azure_credentials, container
+from spark_test.fixtures.azure_storage import azure_credentials, container, Container
 from spark_test.fixtures.pod import spark_image
 from spark_test.fixtures.service_account import service_account
 from tests import IE_TEST_DIR, RELEASE_DIR
@@ -307,7 +307,7 @@ async def spark_bundle(ops_test: OpsTest, credentials, bucket, bundle, cos):
 async def spark_bundle_with_azure_storage(
     ops_test: OpsTest,
     azure_credentials: AzureStorageCredentials,
-    container,
+    container: Container,
     bundle_with_azure_storage,
     cos,
 ):
@@ -315,8 +315,14 @@ async def spark_bundle_with_azure_storage(
     and finally yield a list of the names of the applications that were deployed.
     For object storage, use azure-storage-integrator.
     """
-    applications = await deploy_bundle_yaml_azure_storage(
-        bundle_with_azure_storage, container, cos, ops_test
+
+    applications = await (
+        deploy_bundle_yaml_azure_storage(
+            bundle_with_azure_storage, container, cos, ops_test
+        ) if isinstance(bundle, Bundle)
+        else deploy_bundle_terraform(
+            bundle, container, cos, ops_test
+        )
     )
 
     if "azure-storage" in applications:
