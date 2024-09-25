@@ -10,7 +10,7 @@ such as:
 * `spark8t` managed service accounts / secrets
 
 Moreover, `spark-test` provides simple API to run spark-jobs within a Python testing 
-environment
+environment.
 
 ## Quick start
 
