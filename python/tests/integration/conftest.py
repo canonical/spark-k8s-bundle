@@ -179,7 +179,11 @@ def bundle_with_azure_storage(
             )
         )
 
-        bundle = release_dir / "yaml" / "bundle-azure-storage.yaml.j2"
+        bundle = (
+            release_dir / "terraform"
+            if backend == "terraform"
+            else release_dir / "yaml" / "bundle-azure-storage.yaml.j2"
+        )
 
     if backend == "terraform":
         tmp_path = tmp_path_factory.mktemp(uuid.uuid4().hex) / "terraform"
