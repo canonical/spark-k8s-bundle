@@ -9,7 +9,7 @@ resource "juju_application" "history_server" {
   charm {
     name    = "spark-history-server-k8s"
     channel = "3.4/edge"
-    revision = 24
+    revision = 27
   }
 
   resources = {
@@ -22,21 +22,22 @@ resource "juju_application" "history_server" {
 
 }
 
-resource "juju_application" "s3" {
-  name = "s3"
+resource "juju_application" "azure_storage" {
+  name = "azure-storage"
 
   model      = var.model
 
   charm {
-    name    = "s3-integrator"
+    name    = "azure-storage-integrator"
     channel = "latest/edge"
-    revision = 17
+    revision = 1
   }
 
   config = {
-      path = "spark-events"
-      bucket = var.s3.bucket
-      endpoint = var.s3.endpoint
+    container = var.azure.container
+    storage-account = var.azure.storage_account
+    path = "spark-events"
+    connection-protocol = var.azure.protocol
   }
 
   units = 1
@@ -55,11 +56,11 @@ resource "juju_application" "kyuubi" {
   charm {
     name    = "kyuubi-k8s"
     channel = "latest/edge"
-    revision = 24
+    revision = 18
   }
 
   resources = {
-      kyuubi-image = 4
+      kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:931efb21837866102a3b89239212107eb517fd8ba573aa62623048f29d5c337c"
   }
 
   config = {
@@ -125,11 +126,11 @@ resource "juju_application" "hub" {
   charm {
     name    = "spark-integration-hub-k8s"
     channel = "latest/edge"
-    revision = 10
+    revision = 15
   }
 
   resources = {
-      integration-hub-image = 1
+      integration-hub-image = 3
   }
 
   units = 1
