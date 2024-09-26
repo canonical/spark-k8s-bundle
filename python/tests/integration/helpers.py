@@ -294,6 +294,7 @@ async def deploy_bundle_terraform(
 ) -> list[str]:
 
     if isinstance(bucket_or_container, Bucket) and (bucket := bucket_or_container):
+        print("Using S3")
         tf_vars = {
             "s3": {
                 "bucket": bucket.bucket_name,
@@ -306,6 +307,7 @@ async def deploy_bundle_terraform(
     elif isinstance(bucket_or_container, Container) and (
         container := bucket_or_container
     ):
+        print("Using Azure")
         tf_vars = {
             "azure": {
                 "container": container.container_name,

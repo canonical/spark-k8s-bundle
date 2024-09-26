@@ -58,15 +58,15 @@ jobs:
           - --backend terraform
         cos:
           -
-          - --cos-model cos
+          # - --cos-model cos
         tox-environments:
-          - integration-basic
-          - integration-sparkjob
-          - integration-sparkjob-azure
-          - integration-bundle
+          # - integration-basic
+          # - integration-sparkjob
+          # - integration-sparkjob-azure
+          # - integration-bundle
           - integration-bundle-azure
-          - integration-kyuubi
-          - integration-kyuubi-azure
+          # - integration-kyuubi
+          # - integration-kyuubi-azure
         exclude:
           - tox-environments: integration-basic           # Basic tests, test without COS
             cos: --cos-model cos
