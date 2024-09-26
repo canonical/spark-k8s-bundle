@@ -321,6 +321,7 @@ async def deploy_bundle_terraform(
         raise ValueError(f"input for backend {bucket_or_container} is not recognized")
 
     await set_memory_constraints(ops_test, ops_test.model_name)
+    print(tf_vars)
     outputs = bundle.apply(tf_vars=tf_vars)
 
     return list(outputs["charms"]["value"].values())
