@@ -129,7 +129,7 @@ resource "juju_application" "hub" {
   }
 
   resources = {
-      integration-hub-image = 1
+      integration-hub-image = 3
   }
 
   units = 1

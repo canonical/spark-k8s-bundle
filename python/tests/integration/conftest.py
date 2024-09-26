@@ -15,7 +15,7 @@ from pytest_operator.plugin import OpsTest
 from spark8t.domain import PropertyFile
 
 from spark_test.core.azure_storage import Credentials as AzureStorageCredentials
-from spark_test.fixtures.azure_storage import azure_credentials, container
+from spark_test.fixtures.azure_storage import Container, azure_credentials, container
 from spark_test.fixtures.pod import spark_image
 from spark_test.fixtures.service_account import service_account
 from tests import IE_TEST_DIR, RELEASE_DIR
@@ -160,7 +160,9 @@ def bundle(
 
 
 @pytest.fixture(scope="module")
-def bundle_with_azure_storage(request, spark_version, cos) -> Bundle[Path]:
+def bundle_with_azure_storage(
+    request, cos, backend, spark_version, tmp_path_factory
+) -> Bundle[Path] | Terraform:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
     if file := request.config.getoption("--bundle"):
         bundle = Path(file)
@@ -177,19 +179,31 @@ def bundle_with_azure_storage(request, spark_version, cos) -> Bundle[Path]:
             )
         )
 
-        bundle = release_dir / "yaml" / "bundle-azure-storage.yaml.j2"
+        bundle = (
+            release_dir / "terraform"
+            if backend == "terraform"
+            else release_dir / "yaml" / "bundle-azure-storage.yaml.j2"
+        )
 
-    overlays = (
-        [Path(file) for file in files]
-        if (files := request.config.getoption("--overlay"))
-        else ([bundle.parent / "overlays" / "cos-integration.yaml.j2"] if cos else [])
-    )
+    if backend == "terraform":
+        tmp_path = tmp_path_factory.mktemp(uuid.uuid4().hex) / "terraform"
+        shutil.copytree(bundle, tmp_path)
+        client = Terraform(path=tmp_path)
+        yield client
+    else:
+        overlays = (
+            [Path(file) for file in files]
+            if (files := request.config.getoption("--overlay"))
+            else (
+                [bundle.parent / "overlays" / "cos-integration.yaml.j2"] if cos else []
+            )
+        )
 
-    for file in overlays + [bundle]:
-        if not file.exists():
-            raise FileNotFoundError(file.absolute())
+        for file in overlays + [bundle]:
+            if not file.exists():
+                raise FileNotFoundError(file.absolute())
 
-    yield Bundle(main=bundle, overlays=overlays)
+        yield Bundle(main=bundle, overlays=overlays)
 
 
 @pytest.fixture
@@ -307,7 +321,7 @@ async def spark_bundle(ops_test: OpsTest, credentials, bucket, bundle, cos):
 async def spark_bundle_with_azure_storage(
     ops_test: OpsTest,
     azure_credentials: AzureStorageCredentials,
-    container,
+    container: Container,
     bundle_with_azure_storage,
     cos,
 ):
@@ -315,8 +329,15 @@ async def spark_bundle_with_azure_storage(
     and finally yield a list of the names of the applications that were deployed.
     For object storage, use azure-storage-integrator.
     """
-    applications = await deploy_bundle_yaml_azure_storage(
-        bundle_with_azure_storage, container, cos, ops_test
+
+    applications = await (
+        deploy_bundle_yaml_azure_storage(
+            bundle_with_azure_storage, container, cos, ops_test
+        )
+        if isinstance(bundle_with_azure_storage, Bundle)
+        else deploy_bundle_terraform(
+            bundle_with_azure_storage, container, cos, ops_test
+        )
     )
 
     if "azure-storage" in applications:

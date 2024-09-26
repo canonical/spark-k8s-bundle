@@ -43,7 +43,9 @@ class Terraform(WithLogging):
             return lines
         except subprocess.CalledProcessError as e:
             self.logger.error(
-                f"command '{e.cmd}' return with error (code {e.returncode}): {e.output}"
+                f"command '{e.cmd}' return with error (code {e.returncode})\n"
+                f"***STDOUT***\n{e.output}\n"
+                f"***STDERR***\n{e.stderr}\n"
             )
             raise e
 

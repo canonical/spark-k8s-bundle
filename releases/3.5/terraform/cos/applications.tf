@@ -41,7 +41,7 @@ resource "juju_application" "cos_configuration" {
     git_branch = "main"
     git_depth  = "1"
     git_repo   = "https://github.com/canonical/spark-k8s-bundle"
-    grafana_dashboards_path = "releases/3.5/resources/grafana/"
+    grafana_dashboards_path = "releases/3.4/resources/grafana/"
   }
 
   units = 1
@@ -56,7 +56,7 @@ resource "juju_application" "pushgateway" {
 
   charm {
     name    = "prometheus-pushgateway-k8s"
-    channel = "latest/edge"
+    channel = "latest/stable"
     revision = 16
   }
 
