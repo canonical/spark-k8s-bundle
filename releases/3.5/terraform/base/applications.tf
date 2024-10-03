@@ -14,7 +14,8 @@ resource "juju_application" "history_server" {
 
   resources = {
       # We use 3.4.2 here because we don't have metrics added in version 3.5.1 of the rock image
-      spark-history-server-image = ghcr.io/canonical/charmed-spark@sha256:75a01dfca493b5a457fc7d3258daba3e9891f0408f0097f1fd189100d5de4891 # 3.4.2 
+      # and also we don't have the 3.5 version of image published to CharmHub
+      spark-history-server-image = 17 # 3.4.2 
   }
 
   units = 1
@@ -60,7 +61,8 @@ resource "juju_application" "kyuubi" {
   }
 
   resources = {
-      kyuubi-image = ghcr.io/canonical/charmed-spark-kyuubi@sha256:931efb21837866102a3b89239212107eb517fd8ba573aa62623048f29d5c337c # 3.5.1
+      # We use 3.4.2 here since we don't have the 3.5 version of image published to CharmHub
+      kyuubi-image = 3 # 3.5.1
   }
 
   config = {
