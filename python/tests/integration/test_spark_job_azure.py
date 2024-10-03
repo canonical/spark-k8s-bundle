@@ -9,7 +9,6 @@ from pytest_operator.plugin import OpsTest
 from spark8t.domain import PropertyFile
 from tenacity import Retrying, stop_after_attempt, wait_fixed
 
-
 from spark_test.fixtures.azure_storage import azure_credentials, container
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
 from spark_test.fixtures.pod import pod
@@ -20,7 +19,17 @@ from spark_test.fixtures.service_account import (
 )
 from spark_test.utils import get_spark_drivers
 
-from .helpers import all_prometheus_exporters_data, construct_azure_resource_uri, get_cos_address, get_secret_data, juju_sleep, published_grafana_dashboards, published_loki_logs, published_prometheus_alerts, published_prometheus_data
+from .helpers import (
+    all_prometheus_exporters_data,
+    construct_azure_resource_uri,
+    get_cos_address,
+    get_secret_data,
+    juju_sleep,
+    published_grafana_dashboards,
+    published_loki_logs,
+    published_prometheus_alerts,
+    published_prometheus_data,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -242,7 +251,6 @@ async def test_job_in_prometheus(ops_test: OpsTest, registry, service_account, c
         spark_app_selector = driver_pods[0].labels["spark-app-selector"]
         logger.info(f"Spark-app-selector: {spark_app_selector}")
         assert spark_id == spark_app_selector
-
 
 
 @pytest.mark.abort_on_fail

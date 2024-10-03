@@ -7,9 +7,9 @@ import uuid
 
 import psycopg2
 import pytest
-from tenacity import Retrying, stop_after_attempt, wait_fixed
 from pytest_operator.plugin import OpsTest
 from spark8t.domain import PropertyFile
+from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.core.kyuubi import KyuubiClient
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
@@ -124,7 +124,6 @@ async def test_postgresql_metastore_is_used(ops_test: OpsTest):
     # Assert that new database and tables have indeed been added to metastore
     assert num_dbs != 0
     assert num_tables != 0
-
 
 
 @pytest.mark.abort_on_fail
