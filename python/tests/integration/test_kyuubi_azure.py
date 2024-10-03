@@ -7,6 +7,7 @@ import uuid
 
 import psycopg2
 import pytest
+from tenacity import Retrying, stop_after_attempt, wait_fixed
 from pytest_operator.plugin import OpsTest
 from spark8t.domain import PropertyFile
 
@@ -16,13 +17,19 @@ from spark_test.fixtures.s3 import bucket, credentials
 
 from .helpers import (
     construct_azure_resource_uri,
+    get_cos_address,
     get_kyuubi_credentials,
     get_postgresql_credentials,
+    published_grafana_dashboards,
+    published_loki_logs,
+    published_prometheus_alerts,
+    published_prometheus_data,
 )
 
 logger = logging.getLogger(__name__)
 
 METASTORE_DATABASE_NAME = "hivemetastore"
+KYUUBI_APP_NAME = "kyuubi"
 
 
 @pytest.fixture(scope="module")
@@ -117,3 +124,77 @@ async def test_postgresql_metastore_is_used(ops_test: OpsTest):
     # Assert that new database and tables have indeed been added to metastore
     assert num_dbs != 0
     assert num_tables != 0
+
+
+
+@pytest.mark.abort_on_fail
+@pytest.mark.asyncio
+async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
+    if not cos:
+        pytest.skip("Not possible to test without cos")
+
+    cos_model_name = cos
+
+    # We should leave time for Prometheus data to be published
+    for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
+        with attempt:
+
+            cos_address = await get_cos_address(ops_test, cos_model_name=cos_model_name)
+            assert published_prometheus_data(
+                ops_test, cos_model_name, cos_address, "kyuubi_jvm_uptime"
+            )
+
+            # Alerts got published to Prometheus
+            alerts_data = published_prometheus_alerts(
+                ops_test, cos_model_name, cos_address
+            )
+            logger.info(f"Alerts data: {alerts_data}")
+
+            logger.info("Rules: ")
+            for group in alerts_data["data"]["groups"]:
+                for rule in group["rules"]:
+                    logger.info(f"Rule: {rule['name']}")
+            logger.info("End of rules.")
+
+            for alert in [
+                "KyuubiBufferPoolCapacityLow",
+                "KyuubiJVMUptime",
+            ]:
+                assert any(
+                    rule["name"] == alert
+                    for group in alerts_data["data"]["groups"]
+                    for rule in group["rules"]
+                )
+
+            # Grafana dashboard got published
+            dashboards_info = await published_grafana_dashboards(
+                ops_test, cos_model_name
+            )
+            logger.info(f"Dashboard info {dashboards_info}")
+            assert any(board["title"] == "Kyuubi" for board in dashboards_info)
+
+            # Loki logs are ingested
+            logs = await published_loki_logs(
+                ops_test,
+                cos_model_name,
+                cos_address,
+                "juju_application",
+                KYUUBI_APP_NAME,
+                5000,
+            )
+            logger.info(f"Retrieved logs: {logs}")
+
+            # check for non empty logs
+            assert len(logs) > 0
+
+            # check if startup message is there...
+            assert any(
+                "Starting org.apache.kyuubi.server.KyuubiServer" in message
+                for timestamp, message in logs.items()
+            )
+
+            # check if Kyuubi related logs are there...
+            assert any(
+                "INFO main org.apache.kyuubi.server.KyuubiServer:" in message
+                for timestamp, message in logs.items()
+            )
