@@ -2,6 +2,8 @@
 
 Charmed Spark is a set of Canonical supported artifacts (including charms, rocks and snaps) that makes operating Spark workloads on Kubernetes seamless, secure and production-ready. 
 
+Apache Spark is a free, open source software project by the Apache Software Foundation. Users can find out more at the [Spark project page](https://spark.apache.org).
+
 The solution helps to simplify user interaction with Spark applications and the underlying Kubernetes cluster whilst retaining the traditional semantics and command line tooling that users already know. Operators benefit from straightforward, automated deployment of Spark components (e.g. Spark History Server) to the Kubernetes cluster, using [Juju](https://juju.is/). 
 
 Deploying Spark applications to Kubernetes has several benefits over other cluster resource managers such as Apache YARN, as it greatly simplifies deployment, operation, authentication while allowing for flexibility and scaling. However, it requires knowledge on Kubernetes, networking and coordination between the different components of the Spark ecosystem in order to provide a scalable, secure and production-ready environment. As a consequence, this can significantly increase complexity for the end user and administrators, as a number of parameters need to be configured and prerequisites must be met for the application to deploy correctly or for using the Spark CLI interface (e.g. pyspark and spark-shell). 
