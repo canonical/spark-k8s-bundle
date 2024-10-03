@@ -66,6 +66,11 @@ jobs:
           - integration-bundle
           - integration-kyuubi
           - integration-kyuubi-azure
+        juju:
+          - snap_channel: "3.4/stable"
+            agent: "3.4.2"
+          - snap_channel: "3.6/beta"
+            agent: "3.6-beta2"
         exclude:
           - tox-environments: integration-basic           # Basic tests, test without COS
             cos: --cos-model cos
@@ -101,10 +106,10 @@ jobs:
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@main
         with:
-          juju-channel: 3.4/stable
+          juju-channel: ${{ matrix.juju.snap_channel }}
           provider: microk8s
           channel: 1.28-strict/stable
-          bootstrap-options: " --agent-version 3.4.3"
+          bootstrap-options: "--agent-version ${{ matrix.juju.agent }}"
           microk8s-group: snap_microk8s
           microk8s-addons: "rbac dns minio metallb:${{ env.IPADDR }}-${{ env.IPADDR }}"
       - name: Install tox & poetry
