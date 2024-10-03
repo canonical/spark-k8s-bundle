@@ -13,6 +13,18 @@ variable "integration_hub" {
   default     = "integration-hub"
 }
 
+variable "history_server" {
+  description = "Name of the history server charm deployment"
+  type        = string
+  default     = "history-server"
+}
+
+variable "kyuubi" {
+  description = "Name of the kyuubi charm deployment"
+  type        = string
+  default     = "kyuubi"
+}
+
 variable "cos_model" {
   description = "The name of the Juju Model of the COS deployment"
   type        = string
