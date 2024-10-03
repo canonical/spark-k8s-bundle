@@ -4,13 +4,13 @@
 bundle: kubernetes
 saas:
   grafana-dashboards:
-    url: {{ cos_controller|default('micro', true) }}:admin/{{ cos_model|default('cos', true) }}.grafana-dashboards
+    url: k8s:admin/cos.grafana-dashboards
   prometheus-receive-remote-write:
-    url: {{ cos_controller|default('micro', true) }}:admin/{{ cos_model|default('cos', true) }}.prometheus-receive-remote-write
+    url: k8s:admin/cos.prometheus-receive-remote-write
   traefik:
-    url: {{ cos_controller|default('micro', true) }}:admin/{{ cos_model|default('cos', true) }}.traefik
+    url: k8s:admin/cos.traefik
   loki-logging:
-    url: {{ cos_controller|default('micro', true) }}:admin/{{ cos_model|default('cos', true) }}.loki-logging
+    url: k8s:admin/cos.loki-logging
 applications:
   agent:
     charm: grafana-agent-k8s
