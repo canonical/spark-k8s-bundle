@@ -54,7 +54,7 @@ applications:
     resources:
       spark-history-server-image: ghcr.io/canonical/charmed-spark@sha256:75a01dfca493b5a457fc7d3258daba3e9891f0408f0097f1fd189100d5de4891 # 3.4.2
     scale: 1
-    constraints: arch=amd64 mem=1G
+    constraints: arch=amd64
   integration-hub:
     charm: spark-integration-hub-k8s
     channel: latest/edge
