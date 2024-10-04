@@ -72,6 +72,7 @@ jobs:
           - snap_channel: "3.6/beta"
             agent: "3.6-beta2"
         exclude:
+          - backend: --backend terraform
           - tox-environments: integration-basic           # Basic tests, test without COS
             cos: --cos-model cos
           - tox-environments: integration-basic           # Basic tests, test without terraform
