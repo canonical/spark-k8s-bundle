@@ -290,7 +290,7 @@ sudo snap install azcli
 
 The client needs to be configured using the Azure storage account and the associated storage key. These credentials can be retrieved from the [Azure portal](https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Storage%2FStorageAccounts), after creating a storage account. 
 When creating the storage account, make sure that you enable "Hierarchical namespace" if you 
-want to use Azure DataLake Gen2 Storage.
+want to use Azure DataLake Gen2 Storage (which is assumed by default unless configured otherwise).
 
 Once you have those information, the client can be configured by using the following environment variables:
 
