@@ -137,7 +137,7 @@ async def set_memory_constraints(ops_test, model_name):
         "set-model-constraints",
         "--model",
         model_name,
-        "mem=500M",
+        "mem=300M",
     ]
     retcode, stdout, stderr = await ops_test.juju(*model_constraints_command)
     assert retcode == 0
@@ -282,6 +282,8 @@ async def deploy_bundle_yaml_azure_storage(
         )
 
         await set_memory_constraints(ops_test, ops_test.model_name)
+        if cos:
+            await set_memory_constraints(ops_test, cos)
         retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
 
         assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
@@ -310,6 +312,8 @@ async def deploy_bundle_terraform(
     } | ({"cos_model": cos} if cos else {})
 
     await set_memory_constraints(ops_test, ops_test.model_name)
+    if cos:
+        await set_memory_constraints(ops_test, cos)
     outputs = bundle.apply(tf_vars=tf_vars)
 
     return list(outputs["charms"]["value"].values())
