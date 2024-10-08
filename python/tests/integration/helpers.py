@@ -137,7 +137,7 @@ async def set_memory_constraints(ops_test, model_name):
         "set-model-constraints",
         "--model",
         model_name,
-        "mem=500M",
+        "mem=750M",
     ]
     retcode, stdout, stderr = await ops_test.juju(*model_constraints_command)
     assert retcode == 0
