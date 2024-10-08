@@ -13,7 +13,7 @@ applications:
     options:
       namespace: {{ namespace }}
       service-account: {{ service_account }}
-    constraints: arch=amd64
+    constraints: arch=amd64 mem=700M
     trust: true
   kyuubi-users:
     charm: postgresql-k8s
@@ -22,7 +22,7 @@ applications:
     resources:
       postgresql-image: 159
     scale: 1
-    constraints: arch=amd64
+    constraints: arch=amd64 mem=700M
     storage:
       pgdata: kubernetes,1,1024M
     trust: true
@@ -33,7 +33,7 @@ applications:
     resources:
       postgresql-image: 159
     scale: 1
-    constraints: arch=amd64
+    constraints: arch=amd64 mem=700M
     storage:
       pgdata: kubernetes,1,1024M
     trust: true
