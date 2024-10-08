@@ -45,7 +45,7 @@ jobs:
 
   integration-tests:
     name: Integration Tests
-    runs-on: [self-hosted, linux, X64, jammy, xlarge]
+    runs-on: ubuntu-22.04
     timeout-minutes: 120
     strategy:
       fail-fast: false
@@ -130,8 +130,8 @@ jobs:
             echo "Installing terraform from snap"
             sudo snap install terraform --classic 
           fi
-      - name: Setup tmate session
-        uses: canonical/action-tmate@main
+      # - name: Setup tmate session
+      #   uses: canonical/action-tmate@main
       - id: tests-integration
         name: Run Integration Tests
         env:
