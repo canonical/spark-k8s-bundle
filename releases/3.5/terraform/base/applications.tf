@@ -9,11 +9,13 @@ resource "juju_application" "history_server" {
   charm {
     name    = "spark-history-server-k8s"
     channel = "3.4/edge"
-    revision = 24
+    revision = 30
   }
 
   resources = {
-      spark-history-server-image = 14
+      # We use 3.4.2 here because we don't have metrics added in version 3.5.1 of the rock image
+      # and also we don't have the 3.5 version of image published to CharmHub
+      spark-history-server-image = 17 # 3.4.2 
   }
 
   units = 1
@@ -55,11 +57,12 @@ resource "juju_application" "kyuubi" {
   charm {
     name    = "kyuubi-k8s"
     channel = "latest/edge"
-    revision = 24
+    revision = 27
   }
 
   resources = {
-      kyuubi-image = 4
+      # We use 3.4.2 here since we don't have the 3.5 version of image published to CharmHub
+      kyuubi-image = 3 # 3.5.1
   }
 
   config = {
@@ -125,11 +128,11 @@ resource "juju_application" "hub" {
   charm {
     name    = "spark-integration-hub-k8s"
     channel = "latest/edge"
-    revision = 10
+    revision = 20
   }
 
   resources = {
-      integration-hub-image = 1
+      integration-hub-image = 3
   }
 
   units = 1

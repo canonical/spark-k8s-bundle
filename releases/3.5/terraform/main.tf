@@ -39,5 +39,7 @@ module "cos" {
 
   model = data.juju_model.spark.name
   integration_hub = module.base.charms.hub
+  kyuubi = module.base.charms.kyuubi
+  history_server = module.base.charms.history_server
   cos_model = var.cos_model
 }

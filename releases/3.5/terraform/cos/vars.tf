@@ -29,6 +29,7 @@ locals {
     endpoints = {
         dashboards = "${var.cos_user}/${var.cos_model}.grafana-dashboards"
         prometheus = "${var.cos_user}/${var.cos_model}.prometheus-receive-remote-write"
+        loki = "${var.cos_user}/${var.cos_model}.loki-logging"
     }
 }
 
