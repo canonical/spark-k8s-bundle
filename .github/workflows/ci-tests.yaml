@@ -104,9 +104,9 @@ jobs:
           android: true
           dotnet: true
           haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
       - name: Checkout repo
         uses: actions/checkout@v4
       - id: setup-python
@@ -151,8 +151,8 @@ jobs:
           fi
       # - name: Setup tmate session
       #   uses: canonical/action-tmate@main
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
+      # - name: Setup upterm session
+      #   uses: lhotari/action-upterm@v1
       - id: tests-integration
         name: Run Integration Tests
         env:
