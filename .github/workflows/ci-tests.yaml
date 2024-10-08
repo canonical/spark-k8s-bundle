@@ -57,7 +57,7 @@ jobs:
           - --backend yaml
         cos:
           -
-          # - --cos-model cos
+          - --cos-model cos
         tox-environments:
           # - integration-basic
           - integration-sparkjob
