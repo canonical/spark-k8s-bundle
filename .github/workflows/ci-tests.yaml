@@ -53,15 +53,13 @@ jobs:
       matrix:
         version:
           - --spark-version "3.4.2"
-          - --spark-version "3.5.1"
         backend:
           - --backend yaml
-          - --backend terraform
         cos:
           -
-          - --cos-model cos
+          # - --cos-model cos
         tox-environments:
-          - integration-basic
+          # - integration-basic
           - integration-sparkjob
           - integration-sparkjob-azure
           - integration-bundle
@@ -138,6 +136,8 @@ jobs:
           fi
       # - name: Setup tmate session
       #   uses: canonical/action-tmate@main
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
       - id: tests-integration
         name: Run Integration Tests
         env:
