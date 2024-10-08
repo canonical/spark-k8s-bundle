@@ -207,11 +207,21 @@ async def test_job_in_prometheus_pushgateway(ops_test: OpsTest, cos):
         f"{PUSHGATEWAY}/0"
     ]["address"]
 
-    metrics = json.loads(
-        urllib.request.urlopen(
-            f"http://{pushgateway_address}:9091/api/v1/metrics"
-        ).read()
-    )
+    for i in range(0, 5):
+        try:
+            logger.info(f"try n#{i} time: {time.time()}")
+
+            metrics = json.loads(
+                urllib.request.urlopen(
+                    f"http://{pushgateway_address}:9091/api/v1/metrics"
+                ).read()
+            )
+        except Exception:
+            break
+        if "data" in metrics and len(metrics["data"]) > 0:
+            break
+        else:
+            await juju_sleep(ops_test, 30, HISTORY_SERVER)  # type: ignore
 
     assert len(metrics["data"]) > 0
 
