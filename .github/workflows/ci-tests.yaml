@@ -131,7 +131,6 @@ jobs:
             sudo snap install terraform --classic 
           fi
       - name: Setup tmate session
-        if: ${{ failure() }}
         uses: canonical/action-tmate@main
       - id: tests-integration
         name: Run Integration Tests
