@@ -7,12 +7,6 @@ variable "model" {
   default     = "spark"
 }
 
-variable "integration_hub" {
-  description = "Name of the integration hub charm deployment"
-  type        = string
-  default     = "integration-hub"
-}
-
 variable "cos_model" {
   description = "The name of the Juju Model of the COS deployment"
   type        = string

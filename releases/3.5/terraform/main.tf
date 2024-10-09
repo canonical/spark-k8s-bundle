@@ -25,21 +25,19 @@ data "juju_model" "spark" {
   name = var.model
 }
 
+module "cos" {
+  count  = var.cos_model == null ? 0 : 1
+  source = "./cos"
+
+  model = data.juju_model.spark.name
+  cos_model = var.cos_model
+}
+
 module "base" {
   source = "./base"
 
   model = data.juju_model.spark.name
   s3 = var.s3
   kyuubi_user = var.kyuubi_user
-}
-
-module "cos" {
-  count  = var.cos_model == null ? 0 : 1
-  source = "./cos"
-
-  model = data.juju_model.spark.name
-  integration_hub = module.base.charms.hub
-  kyuubi = module.base.charms.kyuubi
-  history_server = module.base.charms.history_server
-  cos_model = var.cos_model
+  cos_charms = module.cos.charms
 }

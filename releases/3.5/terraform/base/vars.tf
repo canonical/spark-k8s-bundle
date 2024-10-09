@@ -22,3 +22,14 @@ variable "kyuubi_user" {
   default = "kyuubi-spark-engine"
 }
 
+
+variable "cos_charms" {
+  description = "Define the cos charms."
+  type = object({
+    agent = optional(string, "agent") # juju_application.agent.name
+    cos_configuration = optional(string, "cos-configuration") #juju_application.cos_configuration.name
+    pushgateway = optional(string, "pushgateway") #juju_application.pushgateway.name
+    scrape_config = optional(string, "scrape-config") # juju_application.scrape_config.name
+  })
+  default = {}
+}
