@@ -306,7 +306,7 @@ async def deploy_bundle_terraform(
         "kyuubi_user": "kyuubi-test-user",
         "model": ops_test.model_name,
     } | ({"cos_model": cos} if cos else {})
-    
+
     logger.info(f"tf_vars: {tf_vars}")
     print(f"tf_vars: {tf_vars}")
     outputs = bundle.apply(tf_vars=tf_vars)
