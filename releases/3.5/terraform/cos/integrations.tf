@@ -124,6 +124,20 @@ resource "juju_integration" "history_server_agent_logging" {
   }
 }
 
+resource "juju_integration" "history_server_agent_metrics" {
+  model      = var.model
+
+  application {
+    name = var.history_server
+    endpoint = "metrics-endpoint"
+  }
+
+  application {
+    name = juju_application.agent.name
+    endpoint = "metrics-endpoint"
+  }
+}
+
 resource "juju_integration" "agent_loki" {
   model      = var.model
 
