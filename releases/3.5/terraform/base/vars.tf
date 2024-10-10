@@ -21,4 +21,3 @@ variable "kyuubi_user" {
   type = string
   default = "kyuubi-spark-engine"
 }
-

@@ -9,6 +9,8 @@ saas:
     url: {{ cos_controller|default('micro', true) }}:admin/{{ cos_model|default('cos', true) }}.prometheus-receive-remote-write
   traefik:
     url: {{ cos_controller|default('micro', true) }}:admin/{{ cos_model|default('cos', true) }}.traefik
+  loki-logging:
+    url: {{ cos_controller|default('micro', true) }}:admin/{{ cos_model|default('cos', true) }}.loki-logging
 applications:
   agent:
     charm: grafana-agent-k8s
@@ -69,5 +71,19 @@ relations:
   - grafana-dashboards:grafana-dashboard
 - - agent:send-remote-write
   - prometheus-receive-remote-write:receive-remote-write
+- - agent:logging-consumer
+  - loki-logging:logging
 - - history-server:ingress
   - traefik:ingress
+- - history-server:metrics-endpoint
+  - agent:metrics-endpoint
+- - history-server:grafana-dashboard
+  - agent:grafana-dashboards-consumer
+- - history-server:logging
+  - agent:logging-provider
+- - kyuubi:metrics-endpoint
+  - agent:metrics-endpoint
+- - kyuubi:grafana-dashboard
+  - agent:grafana-dashboards-consumer
+- - kyuubi:logging
+  - agent:logging-provider

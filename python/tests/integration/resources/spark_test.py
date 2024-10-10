@@ -16,7 +16,7 @@ spark = SparkSession.builder.appName("SimpleExample").getOrCreate()
 print(f"spark: {spark}")
 
 text_file = spark.read.text(file_uri)
-
+print(f"Number of lines {text_file.count()}")
 # give some buffer to send metrixs
-sleep(10)
+sleep(30)
 print(f"Number of lines {text_file.count()}")

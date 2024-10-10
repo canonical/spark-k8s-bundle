@@ -8,7 +8,7 @@ setup_bucket() {
   # errcho $(microk8s.enable minio)
 
   # Get Access key and secret key from MinIO
-  kubectl get secret -n minio-operator microk8s-user-1
+  kubectl get secret -n minio-operator microk8s-user-1  &> /dev/null
   if [ $? -eq 0 ]; then
     ACCESS_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d)
     SECRET_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d)
