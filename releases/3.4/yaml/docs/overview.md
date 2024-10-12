@@ -49,6 +49,7 @@ Charmed Spark is a distribution of Apache Spark. It’s an open-source project t
 | 2     | r-contacts                     | [Contacts](/t/charmed-spark-k8s-documentation-reference-contacts/14298)                                                                        |
 | 1     | explanation                    | [Explanation]()                                                                                                                                |
 | 2     | e-component-overview           | [Component Overview](/t/charmed-spark-documentation-explanation-components/11685)                                                              |
+| 2     | e-security                       | [Security](/t/charmed-spark-k8s-documentation-explanation-security/15795)                                                                                                             
 | 2     | e-configuration                | [Charmed Spark Hierarchical Configuration](/t/spark-client-snap-explanation-hierarchical-configuration-handling/8956)                          |
 | 2     | e-monitoring                   | [Charmed Spark Monitoring](/t/charmed-spark-documentation-explanation-monitoring/14299)                                                        |
 
