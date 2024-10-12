@@ -12,18 +12,19 @@ All artifacts, that are bundled into Charmed Spark Rock image, Spark Client snap
 
 Source code for various Charmed Spark components is stored as follows:
 
-| SN | Component                                   | Source Code |
-|----|---------------------------------------------|-------------|
-| 1  | Charmed Spark Rock                          | GitHub      |
-| 2  | Spark Client Snap                           | GitHub      |
-| 3  | Spark8t Python Library                      | GitHub      |
-| 4  | Spark History Server Charm                  | GitHub      |
-| 5  | Kyuubi Charm                                | GitHub      |
-| 6  | Spark Integration Hub Rock                  | GitHub      |
-| 7  | Spark Integration Hub Charm                 | GitHub      |
-| 8  | Apache Spark source code                    | LaunchPad   |
-| 9  | Apache Hadoop source code                   | LaunchPad   |
-| 10 | Spark History Server Authentication Servlet | LaunchPad   |
+| SN | Component                                                                                               | Source Code |
+|----|---------------------------------------------------------------------------------------------------------|-------------|
+| 1  | [Charmed Spark Rock](https://github.com/canonical/charmed-spark-rock)                                   | GitHub      |
+| 2  | [Spark Client Snap](https://github.com/canonical/spark-client-snap)                                     | GitHub      |
+| 3  | [Spark8t Python Library](https://github.com/canonical/spark-k8s-toolkit-py)                             | GitHub      |
+| 4  | [Spark History Server Charm](https://github.com/canonical/spark-history-server-k8s-operator)            | GitHub      |
+| 5  | [Kyuubi Charm](https://github.com/canonical/kyuubi-k8s-operator)                                        | GitHub      |
+| 6  | [Spark Integration Hub Rock](https://github.com/canonical/spark-integration-hub-rock)                   | GitHub      |
+| 7  | [Spark Integration Hub Charm](https://github.com/canonical/spark-integration-hub-k8s-operator)          | GitHub      |
+| 8  | [Apache Spark source code](https://code.launchpad.net/soss/charmed-spark)                               | LaunchPad   |
+| 9  | [Apache Hadoop source code](https://code.launchpad.net/soss/hadoop)                                     | LaunchPad   |
+| 10 | [Spark History Server Authentication Servlet](https://launchpad.net/soss/charmed-spark-servlet-filters) | LaunchPad   |
+| 11 | [Spark Metrics Plugin](https://launchpad.net/soss/spark-metrics)                                        | LaunchPad   |
 
 ### LaunchPad
 
