@@ -10,7 +10,7 @@ The document is divided into the following sections:
 
 ## Environment
 
-The environment where applications operate can be divided in three components:
+The environment where applications operate can be divided in two components:
 
 1. Kubernetes
 2. Juju 
@@ -74,7 +74,7 @@ Charmed Spark K8s runs on top of a set of Rockcraft-based images, all based on t
 available in the [Spark release page](https://launchpad.net/spark-releases), on top of Ubuntu 22.04. 
 The images that can be found in the [Spark image GitHub repo](https://github.com/canonical/charmed-spark-rock) are used as the base 
 image for pods both for Spark Jobs and charms. 
-The following table summarise the relation between the components and its underlying base image. 
+The following table summarise the relation between the component and its underlying base image. 
 
 | Component                          | Image                                                                                                       |
 |------------------------------------|-------------------------------------------------------------------------------------------------------------|
@@ -91,7 +91,7 @@ New versions of the Charmed Spark images may be released to provide patching of 
 ### Charm Operator Security Upgrades
 
 Charmed Spark K8s operators, including Spark History server, Kyuubi, and Integration Hub, install a pinned revision of the 
-Charmed Kafka images outlined in the previous table in order to provide reproducible and secure environments. 
+Charmed Spark images outlined in the previous table in order to provide reproducible and secure environments. 
 New versions of Charmed Spark K8s operators may therefore be released to provide patching of vulnerabilities (CVEs). 
 It is important to refresh the charm regularly to make sure the workload is as secure as possible. 
 For more information on how to refresh the charm, see the [how-to upgrade](TODO) guide.
@@ -148,7 +148,7 @@ Encryption is currently not supported and it is planned for 25.04.
 
 To secure the RPC channel used for communication between driver and executor, use the [dedicated Spark properties](https://spark.apache.org/docs/latest/security.html#ssl-configuration). 
 Refer to the [how-to manage spark accounts](/t/spark-client-snap-how-to-manage-spark-accounts/8959) for more information on how to customize the 
-Spark service account with additional properties, or the [Spark Configuration Management] explanation page for more information on how Spark workload can be further configured.
+Spark service account with additional properties, or the [Spark Configuration Management](/t/charmed-spark-documentation-explanation-components/11685) explanation page for more information on how Spark workload can be further configured.
 
 ### Authentication
 
@@ -165,7 +165,7 @@ Please make sure that the distribution being used supports the authentication us
 
 Generally, client applications store credentials information locally in a `KUBECONFIG` file. 
 On the other hand, pods created by the charms and the Spark Job workloads receive credentials via shared secrets, mounted to the default locations `/var/run/secrets/kubernetes.io/serviceaccount/`. 
-See the [upstream documentation](https://kubernetes.io/docs/tasks/run-application/access-api-from-pod/#directly-accessing-the-rest-api), for more information.
+See the [upstream documentation](https://kubernetes.io/docs/tasks/run-application/access-api-from-pod/#directly-accessing-the-rest-api) for more information.
 
 #### Spark History Server
 
@@ -173,8 +173,8 @@ Authentication can be enabled in the Spark History Server when exposed using Tra
 a cloud native Identity & Access Proxy (IAP) and Access Control Decision API able to authenticates, authorizes, 
 and mutates incoming HTTP(s) requests, fully-integrated with the Canonical Identity Platform.
 
-Refer to the [how-to enable authorization in the Spark history server](/t/charmed-spark-k8s-documentation-how-to-enable-authentication-on-the-spark-history-server-charm/13563) user guide, 
-for more information on how to integrate the Spark History Server with the Identity bundle and prevent unauthenticated access. Permission-wise, white lists of authorised users 
+Refer to the [how-to enable authorization in the Spark history server](/t/charmed-spark-k8s-documentation-how-to-enable-authentication-on-the-spark-history-server-charm/13563) user guide 
+for more information. From a permission-wise point of view, white lists of authorised users 
 can be provided using the Spark History Server [charm configuration option](https://charmhub.io/spark-history-server-k8s/configurations?channel=3.4/edge). 
 
 #### Kyuubi JDBC endpoint
@@ -194,4 +194,4 @@ the Charmed Spark deployment with COS.
 
 ## Additional Resources
 
-For further information and details on the security and cryptographic specifications used by Charmed Kafka, please refer to the [Security Explanation page](TODO).
+For further information and details on the security and cryptographic specifications used by Charmed Spark, please refer to the [Security Explanation page](TODO).
