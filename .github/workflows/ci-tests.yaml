@@ -152,5 +152,6 @@ jobs:
         run: |    
           cd python && tox run -e ${{ matrix.tox-environments }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.backend }} ${{ matrix.cos }} ${{ matrix.version }} --keep-models
       - name: Setup tmate session
+        timeout-minutes: 20
         if: ${{ failure() }}
         uses: mxschmitt/action-tmate@v3
