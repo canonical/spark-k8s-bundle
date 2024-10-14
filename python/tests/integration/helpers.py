@@ -72,9 +72,6 @@ async def set_azure_credentials(
 async def get_address(ops_test: OpsTest, app_name, unit_num=0) -> str:
     """Get the address for a unit."""
     status = await ops_test.model.get_status()  # noqa: F821
-    logger.warning(status["applications"][app_name]["units"])
-    logger.warning(status)
-
     address = status["applications"][app_name]["units"][f"{app_name}/{unit_num}"][
         "address"
     ]
