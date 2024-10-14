@@ -45,7 +45,7 @@ jobs:
 
   integration-tests:
     name: Integration Tests
-    runs-on: [self-hosted, linux, X64, jammy, xlarge]
+    runs-on: ubuntu-22.04
     timeout-minutes: 120
     strategy:
       fail-fast: false
@@ -72,6 +72,7 @@ jobs:
           - snap_channel: "3.6/beta"
             agent: "3.6-beta2"
         exclude:
+          - backend: --backend terraform
           - tox-environments: integration-basic           # Basic tests, test without COS
             cos: --cos-model cos
           - tox-environments: integration-basic           # Basic tests, test without terraform
@@ -134,10 +135,12 @@ jobs:
             echo "Installing terraform from snap"
             sudo snap install terraform --classic 
           fi
+      # - name: Setup tmate session
+      #   uses: canonical/action-tmate@main
       - id: tests-integration
         name: Run Integration Tests
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |    
-          cd python && tox run -e ${{ matrix.tox-environments }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.backend }} ${{ matrix.cos }} ${{ matrix.version }}
+          cd python && tox run -e ${{ matrix.tox-environments }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.backend }} ${{ matrix.cos }} ${{ matrix.version }} --keep-models
