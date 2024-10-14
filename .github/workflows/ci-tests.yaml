@@ -150,7 +150,7 @@ jobs:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |    
-          cd python && tox run -e ${{ matrix.tox-environments }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.backend }} ${{ matrix.cos }} ${{ matrix.version }}
+          cd python && tox run -e ${{ matrix.tox-environments }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.backend }} ${{ matrix.cos }} ${{ matrix.version }} --keep-models
       - name: Setup tmate session
         if: ${{ failure() }}
         uses: mxschmitt/action-tmate@v3
