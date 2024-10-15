@@ -98,6 +98,8 @@ juju = ">=3.4.0"
 pytest-operator = ">0.20"
 pyhive = {extras = ["hive_pure_sasl"], version = "^0.7.0"}
 psycopg2-binary = "^2.9.9"
+tenacity = "^9.0.0"
+requests = "^2.32.3"
 
 [build-system]
 requires = ["poetry-core"]

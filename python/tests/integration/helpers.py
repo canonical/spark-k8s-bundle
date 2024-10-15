@@ -6,12 +6,15 @@ import logging
 import os
 import shutil
 import subprocess
+import urllib.request
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, Generic, TypeVar
+from urllib.parse import urlencode
 
 import boto3
+import requests
 import yaml
 from botocore.exceptions import ClientError, SSLError
 from pytest_operator.plugin import OpsTest
@@ -26,6 +29,8 @@ T = TypeVar("T")
 S = TypeVar("S")
 SECRET_NAME_PREFIX = "integrator-hub-conf-"
 COS_ALIAS = "cos"
+JMX_EXPORTER_PORT = 9101
+JMX_CC_PORT = 9102
 
 logger = logging.getLogger(__name__)
 
@@ -226,7 +231,6 @@ async def deploy_bundle_yaml(
             lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
         )
 
-        await set_memory_constraints(ops_test, ops_test.model_name)
         retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
 
         assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
@@ -273,7 +277,6 @@ async def deploy_bundle_yaml_azure_storage(
             lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
         )
 
-        await set_memory_constraints(ops_test, ops_test.model_name)
         retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
 
         assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
@@ -301,7 +304,8 @@ async def deploy_bundle_terraform(
         "model": ops_test.model_name,
     } | ({"cos_model": cos} if cos else {})
 
-    await set_memory_constraints(ops_test, ops_test.model_name)
+    logger.info(f"tf_vars: {tf_vars}")
+    print(f"tf_vars: {tf_vars}")
     outputs = bundle.apply(tf_vars=tf_vars)
 
     return list(outputs["charms"]["value"].values())
@@ -335,3 +339,148 @@ async def juju_sleep(ops: OpsTest, time: int, app: str | None = None):
         idle_period=time,
         timeout=600,
     )
+
+
+async def get_cos_address(ops_test: OpsTest, cos_model_name: str) -> str:
+    """Retrieve the URL where COS services are available."""
+    cos_addr_res = subprocess.check_output(
+        f"JUJU_MODEL={cos_model_name} juju run traefik/0 show-proxied-endpoints --format json",
+        stderr=subprocess.PIPE,
+        shell=True,
+        universal_newlines=True,
+    )
+
+    try:
+        cos_addr = json.loads(cos_addr_res)
+    except json.JSONDecodeError:
+        raise ValueError
+
+    endpoints = cos_addr["traefik/0"]["results"]["proxied-endpoints"]
+    return json.loads(endpoints)["traefik"]["url"]
+
+
+def prometheus_exporter_data(host: str, port: int) -> str | None:
+    """Check if a given host has metric service available and it is publishing."""
+    url = f"http://{host}:{port}/metrics"
+    try:
+        response = requests.get(url)
+        logger.info(f"Response: {response.text}")
+        print(response)
+    except requests.exceptions.RequestException:
+        return
+    if response.status_code == 200:
+        return response.text
+
+
+async def all_prometheus_exporters_data(
+    ops_test: OpsTest, check_field, app_name
+) -> bool:
+    """Check if a all units has metric service available and publishing."""
+    result = True
+    for unit in ops_test.model.applications[app_name].units:
+        unit_name, unit_number = unit.name.split("/")
+        unit_ip = await get_address(ops_test, unit_name, int(unit_number))
+        result = result and check_field in prometheus_exporter_data(
+            unit_ip, JMX_EXPORTER_PORT
+        )
+    return result
+
+
+def published_prometheus_data(
+    ops_test: OpsTest, cos_model_name: str, host: str, field: str
+) -> dict | None:
+    """Check the existence of field among Prometheus published data."""
+    if "http://" in host:
+        host = host.split("//")[1]
+    url = f"http://{host}/{cos_model_name}-prometheus-0/api/v1/query?query={field}"
+    try:
+        response = requests.get(url)
+    except requests.exceptions.RequestException:
+        return
+
+    if response.status_code == 200:
+        return response.json()
+
+
+async def published_grafana_dashboards(
+    ops_test: OpsTest, cos_model_name: str
+) -> str | None:
+    """Get the list of dashboards published to Grafana."""
+    base_url, pw = await get_grafana_access(ops_test, cos_model_name)
+    url = f"{base_url}/api/search?query=&starred=false"
+
+    try:
+        session = requests.Session()
+        session.auth = ("admin", pw)
+        response = session.get(url)
+    except requests.exceptions.RequestException:
+        return
+    if response.status_code == 200:
+        return response.json()
+
+
+async def get_grafana_access(ops_test: OpsTest, cos_model_name: str) -> tuple[str, str]:
+    """Get Grafana URL and password."""
+    grafana_res = subprocess.check_output(
+        f"JUJU_MODEL={cos_model_name} juju run grafana/0 get-admin-password --format json",
+        stderr=subprocess.PIPE,
+        shell=True,
+        universal_newlines=True,
+    )
+
+    try:
+        grafana_data = json.loads(grafana_res)
+    except json.JSONDecodeError:
+        raise ValueError
+
+    url = grafana_data["grafana/0"]["results"]["url"]
+    password = grafana_data["grafana/0"]["results"]["admin-password"]
+    return url, password
+
+
+def published_prometheus_alerts(
+    ops_test: OpsTest, cos_model_name: str, host: str
+) -> dict | None:
+    """Retrieve all Prometheus Alert rules that have been published."""
+    if "http://" in host:
+        host = host.split("//")[1]
+    url = f"http://{host}/{cos_model_name}-prometheus-0/api/v1/rules"
+    try:
+        response = requests.get(url)
+    except requests.exceptions.RequestException:
+        return
+
+    if response.status_code == 200:
+        return response.json()
+
+
+async def published_loki_logs(
+    ops_test: OpsTest,
+    cos_model_name: str,
+    host: str,
+    field: str,
+    value: str,
+    limit: int = 300,
+) -> str | None:
+    """Get the list of dashboards published to Grafana."""
+    if "http://" in host:
+        host = host.split("//")[1]
+    url = f"http://{host}/{cos_model_name}-loki-0/loki/api/v1/query_range"
+
+    try:
+        response = requests.get(
+            url, params={"query": f'{{{field}=~"{value}"}}', "limit": limit}
+        )
+    except requests.exceptions.RequestException:
+        return {}
+    if response.status_code != 200:
+        return {}
+
+    json_response = response.json()
+    assert json_response["status"] == "success"
+    assert len(json_response["data"]["result"]) > 0
+    logs = {}
+    for chunk in json_response["data"]["result"]:
+        log_lines = chunk["values"]
+        logs.update({line[0]: line[1] for line in log_lines})
+    return logs

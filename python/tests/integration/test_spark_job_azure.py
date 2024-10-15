@@ -7,6 +7,7 @@ import uuid
 import pytest
 from pytest_operator.plugin import OpsTest
 from spark8t.domain import PropertyFile
+from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.fixtures.azure_storage import azure_credentials, container
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
@@ -18,7 +19,17 @@ from spark_test.fixtures.service_account import (
 )
 from spark_test.utils import get_spark_drivers
 
-from .helpers import construct_azure_resource_uri, get_secret_data, juju_sleep
+from .helpers import (
+    all_prometheus_exporters_data,
+    construct_azure_resource_uri,
+    get_cos_address,
+    get_secret_data,
+    juju_sleep,
+    published_grafana_dashboards,
+    published_loki_logs,
+    published_prometheus_alerts,
+    published_prometheus_data,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -196,11 +207,21 @@ async def test_job_in_prometheus_pushgateway(ops_test: OpsTest, cos):
         f"{PUSHGATEWAY}/0"
     ]["address"]
 
-    metrics = json.loads(
-        urllib.request.urlopen(
-            f"http://{pushgateway_address}:9091/api/v1/metrics"
-        ).read()
-    )
+    for i in range(0, 5):
+        try:
+            logger.info(f"try n#{i} time: {time.time()}")
+
+            metrics = json.loads(
+                urllib.request.urlopen(
+                    f"http://{pushgateway_address}:9091/api/v1/metrics"
+                ).read()
+            )
+        except Exception:
+            break
+        if "data" in metrics and len(metrics["data"]) > 0:
+            break
+        else:
+            await juju_sleep(ops_test, 30, HISTORY_SERVER)  # type: ignore
 
     assert len(metrics["data"]) > 0
 
@@ -240,3 +261,77 @@ async def test_job_in_prometheus(ops_test: OpsTest, registry, service_account, c
         spark_app_selector = driver_pods[0].labels["spark-app-selector"]
         logger.info(f"Spark-app-selector: {spark_app_selector}")
         assert spark_id == spark_app_selector
+
+
+@pytest.mark.abort_on_fail
+@pytest.mark.asyncio
+async def test_history_server_metrics_in_cos(ops_test: OpsTest, cos):
+    if not cos:
+        pytest.skip("Not possible to test without cos")
+
+    cos_model_name = cos
+    # Prometheus data is being published by the app
+    assert await all_prometheus_exporters_data(
+        ops_test, check_field="jmx_scrape_duration_seconds", app_name=HISTORY_SERVER
+    )
+
+    # We should leave time for Prometheus data to be published
+    for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
+        with attempt:
+
+            cos_address = await get_cos_address(ops_test, cos_model_name=cos_model_name)
+            assert published_prometheus_data(
+                ops_test, cos_model_name, cos_address, "jmx_scrape_duration_seconds"
+            )
+
+            # Alerts got published to Prometheus
+            alerts_data = published_prometheus_alerts(
+                ops_test, cos_model_name, cos_address
+            )
+            logger.info(f"Alerts data: {alerts_data}")
+
+            logger.info("Rules: ")
+            for group in alerts_data["data"]["groups"]:
+                for rule in group["rules"]:
+                    logger.info(f"Rule: {rule['name']}")
+            logger.info("End of rules.")
+
+            for alert in [
+                "Spark History Server Missing",
+                "Spark History Server Threads Dead Locked",
+            ]:
+                assert any(
+                    rule["name"] == alert
+                    for group in alerts_data["data"]["groups"]
+                    for rule in group["rules"]
+                )
+
+            # Grafana dashboard got published
+            dashboards_info = await published_grafana_dashboards(
+                ops_test, cos_model_name
+            )
+            logger.info(f"Dashboard info {dashboards_info}")
+            assert any(
+                board["title"] == "Spark History Server JMX Dashboard"
+                for board in dashboards_info
+            )
+
+            # Loki logs are ingested
+            logs = await published_loki_logs(
+                ops_test,
+                cos_model_name,
+                cos_address,
+                "juju_application",
+                HISTORY_SERVER,
+            )
+            logger.info(f"Retrieved logs: {logs}")
+
+            # check for non empty logs
+            assert len(logs) > 0
+            # check if startup messages are there
+            c = 0
+            for timestamp, message in logs.items():
+                if "INFO HistoryServer" in message:
+                    c = c + 1
+            logger.info(f"Number of line found: {c}")
+            assert c > 0
