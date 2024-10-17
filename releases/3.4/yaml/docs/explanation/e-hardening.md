@@ -190,6 +190,6 @@ for more information.
 
 For more information on how to enable and customise monitoring with COS, see the [Guide](/t/charmed-spark-k8s-documentation-enable-monitoring/13063).
 
-## Additional Resources
+## Additional resources
 
 For further information and details on the security and cryptographic specifications used by Charmed Spark, please refer to the [Security Explanation page](TODO).
