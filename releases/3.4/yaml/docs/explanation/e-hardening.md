@@ -189,7 +189,6 @@ separate environments, isolated from one another. Refer to the [COS production d
 for more information. 
 
 For more information on how to enable and customise monitoring with COS, see the [Guide](/t/charmed-spark-k8s-documentation-enable-monitoring/13063).
-the Charmed Spark deployment with COS. 
 
 ## Additional Resources
 
