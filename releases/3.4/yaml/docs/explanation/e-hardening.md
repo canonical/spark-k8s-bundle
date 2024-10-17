@@ -1,4 +1,4 @@
-# Security Hardening Guide
+# Security hardening guide
 
 This document provides guidance and instructions to achieve 
 a secure deployment of [Charmed Spark K8s](https://github.com/canonical/spark-k8s-bundle), including setting up and managing a secure environment.
