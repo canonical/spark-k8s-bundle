@@ -87,7 +87,7 @@ The following table summarise the relation between the component and its underly
 
 New versions of the Charmed Spark images may be released to provide patching of vulnerabilities (CVEs). 
 
-### Charm Operator Security Upgrades
+### Charmed operator security upgrades
 
 Charmed Spark K8s operators, including Spark History server, Kyuubi, and Integration Hub, install a pinned revision of the 
 Charmed Spark images outlined in the previous table in order to provide reproducible and secure environments. 
