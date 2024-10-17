@@ -188,7 +188,7 @@ To reduce the blast radius of infrastructure disruptions, the general recommenda
 separate environments, isolated from one another. Refer to the [COS production deployments best practices](https://charmhub.io/topics/canonical-observability-stack/reference/best-practices) page
 for more information. 
 
-Refer to How-To user guide for more information on [how to integrate and customize](/t/charmed-spark-k8s-documentation-enable-monitoring/13063) 
+For more information on how to enable and customise monitoring with COS, see the [Guide](/t/charmed-spark-k8s-documentation-enable-monitoring/13063).
 the Charmed Spark deployment with COS. 
 
 ## Additional Resources
