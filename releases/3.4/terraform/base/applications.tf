@@ -67,9 +67,29 @@ resource "juju_application" "kyuubi" {
     service-account = var.kyuubi_user
   }
 
-  units = 1
+  units = 3
   trust = true
 
+  constraints = "arch=amd64"
+}
+
+resource "juju_application" "zookeeper" {
+
+  name = "zookeeper"
+
+  model      = var.model
+
+  charm {
+    name    = "zookeeper-k8s"
+    channel = "3/edge"
+    revision = 59
+  }
+
+  resources = {
+    zookeeper-image = 31
+  }
+
+  units = 3
   constraints = "arch=amd64"
 }
 
