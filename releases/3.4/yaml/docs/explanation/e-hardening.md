@@ -185,7 +185,7 @@ using the [`get-jdbc-endpoint` action](https://charmhub.io/kyuubi-k8s/actions#ge
 
 Charmed Spark provides native integration with the [Canonical Observability Stack (COS)](https://charmhub.io/topics/canonical-observability-stack).
 To reduce the blast radius of infrastructure disruptions, the general recommendation is to deploy COS and the observed application into 
-separate environments, isolated one another. Refer to the [COS production deployments best practices](https://charmhub.io/topics/canonical-observability-stack/reference/best-practices)
+separate environments, isolated from one another. Refer to the [COS production deployments best practices](https://charmhub.io/topics/canonical-observability-stack/reference/best-practices) page
 for more information. 
 
 Refer to How-To user guide for more information on [how to integrate and customize](/t/charmed-spark-k8s-documentation-enable-monitoring/13063) 
