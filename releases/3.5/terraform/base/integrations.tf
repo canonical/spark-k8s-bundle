@@ -84,3 +84,17 @@ resource "juju_integration" "kyuubi_service_account" {
     endpoint = "spark-service-account"
   }
 }
+
+resource "juju_integration" "kyuubi_zookeeper" {
+  model      = var.model
+
+  application {
+    name = juju_application.zookeeper.name
+    endpoint = "zookeeper"
+  }
+
+  application {
+    name = juju_application.kyuubi.name
+    endpoint = "zookeeper"
+  }
+}s

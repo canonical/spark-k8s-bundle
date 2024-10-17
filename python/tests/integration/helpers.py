@@ -4,6 +4,7 @@
 import json
 import logging
 import os
+import re
 import shutil
 import subprocess
 import urllib.request
@@ -78,20 +79,97 @@ async def get_address(ops_test: OpsTest, app_name, unit_num=0) -> str:
     return address
 
 
+async def get_leader_unit_number(ops_test: OpsTest, application_name: str) -> int:
+    leader_unit = None
+    for unit in ops_test.model.applications[application_name].units:
+        logger.info(unit)
+        if await unit.is_leader_from_status():
+            unit_name = unit.name
+            logger.info(f"Unit name: {unit_name}")
+            leader_unit = int(unit_name.split("/")[1])
+            logger.info(leader_unit)
+
+    assert leader_unit is not None
+    return leader_unit
+
+
 async def get_kyuubi_credentials(
     ops_test: OpsTest, application_name="kyuubi", num_unit=0
 ) -> dict[str, str]:
     """Use the charm action to start a password rotation."""
 
+    leader_unit_id = await get_leader_unit_number(ops_test, application_name)
+    logger.info(f"Leader unit: {application_name}/{leader_unit_id}")
     action = await ops_test.model.units.get(
-        f"{application_name}/{num_unit}"
+        f"{application_name}/{leader_unit_id}"
     ).run_action("get-password")
 
     results = (await action.wait()).results
 
-    address = await get_address(ops_test, app_name=application_name, unit_num=num_unit)
+    address = await get_address(
+        ops_test, app_name=application_name, unit_num=leader_unit_id  # type: ignore
+    )
 
     return {"username": "admin", "password": results["password"], "host": address}
+
+
+async def fetch_jdbc_endpoint(ops_test):
+    """Return the JDBC endpoint for clients to connect to Kyuubi server."""
+    logger.info("Running action 'get-jdbc-endpoint' on kyuubi-k8s unit...")
+    kyuubi_unit = ops_test.model.applications["kyuubi"].units[0]
+    action = await kyuubi_unit.run_action(
+        action_name="get-jdbc-endpoint",
+    )
+    result = await action.wait()
+
+    jdbc_endpoint = result.results.get("endpoint")
+    logger.info(f"JDBC endpoint: {jdbc_endpoint}")
+
+    return jdbc_endpoint
+
+
+async def get_active_kyuubi_servers_list(ops_test: OpsTest) -> list[str]:
+    """Return the list of Kyuubi servers that are live in the cluster."""
+    jdbc_endpoint = await fetch_jdbc_endpoint(ops_test)
+    zookeper_quorum = jdbc_endpoint.split(";")[0].split("//")[-1]
+
+    pod_command = [
+        "/opt/kyuubi/bin/kyuubi-ctl",
+        "list",
+        "server",
+        "--zk-quorum",
+        zookeper_quorum,
+        "--namespace",
+        "/kyuubi",
+        "--version",
+        "1.9.0",
+    ]
+    kubectl_command = [
+        "kubectl",
+        "exec",
+        "kyuubi-0",
+        "-c",
+        "kyuubi",
+        "-n",
+        ops_test.model_name,
+        "--",
+        *pod_command,
+    ]
+
+    process = subprocess.run(kubectl_command, capture_output=True, check=True)
+    assert process.returncode == 0
+
+    output_lines = process.stdout.decode().splitlines()
+    pattern = r"\?\s+/kyuubi\s+\?\s+(?P<node>[\w\-.]+)\s+\?\s+(?P<port>\d+)\s+\?\s+(?P<version>[\d.]+)\s+\?"
+    servers = []
+
+    for line in output_lines:
+        match = re.match(pattern, line)
+        if not match:
+            continue
+        servers.append(match.group("node"))
+
+    return servers
 
 
 async def get_postgresql_credentials(
@@ -230,6 +308,9 @@ async def deploy_bundle_yaml(
         bundle_tmp = bundle_content.map(
             lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
         )
+
+        logger.info(f"bundle_tmp: {bundle_tmp}")
+        print(f"bundle_tmp: {bundle_tmp}")
 
         retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
 

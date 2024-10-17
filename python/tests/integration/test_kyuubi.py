@@ -14,6 +14,7 @@ from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
 from spark_test.fixtures.s3 import bucket, credentials
 
 from .helpers import (
+    get_active_kyuubi_servers_list,
     get_cos_address,
     get_kyuubi_credentials,
     get_postgresql_credentials,
@@ -121,6 +122,20 @@ async def test_postgresql_metastore_is_used(ops_test: OpsTest):
     # Assert that new database and tables have indeed been added to metastore
     assert num_dbs != 0
     assert num_tables != 0
+
+
+@pytest.mark.asyncio
+@pytest.mark.abort_on_fail
+async def test_ha_deployment(ops_test: OpsTest):
+    active_servers = await get_active_kyuubi_servers_list(ops_test)
+    assert len(active_servers) == 3
+
+    expected_servers = [
+        f"kyuubi-0.kyuubi-endpoints.{ops_test.model_name}.svc.cluster.local",
+        f"kyuubi-1.kyuubi-endpoints.{ops_test.model_name}.svc.cluster.local",
+        f"kyuubi-2.kyuubi-endpoints.{ops_test.model_name}.svc.cluster.local",
+    ]
+    assert set(active_servers) == set(expected_servers)
 
 
 @pytest.mark.abort_on_fail
