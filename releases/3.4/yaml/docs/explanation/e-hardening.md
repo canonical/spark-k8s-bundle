@@ -30,7 +30,7 @@ main supported cloud platforms.
 ### Juju 
 
 Juju is the component responsible for orchestrating the entire lifecycle, from deployment to Day 2 operations, of 
-all applications. Therefore, it is imperative that it is set up securely. Please refer to the Juju documentation for more information on:
+all applications. Therefore, Juju must be set up securely. For more information, see the
 
 * [Juju security](https://discourse.charmhub.io/t/juju-security/15684)
 * [How to harden your deployment](https://juju.is/docs/juju/harden-your-deployment)
