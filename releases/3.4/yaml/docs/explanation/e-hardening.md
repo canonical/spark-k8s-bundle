@@ -181,7 +181,7 @@ can be provided using the Spark History Server [charm configuration option](http
 Authentication can be enabled for Kyuubi via its integration with PostgreSQL charm on the `auth-db` interface. Currently only one admin user is enabled, whose credentials can be retrieved 
 using the [`get-jdbc-endpoint` action](https://charmhub.io/kyuubi-k8s/actions#get-jdbc-endpoint).
 
-### Monitoring and Auditing
+### Monitoring and auditing
 
 Charmed Spark provides native integration with the [Canonical Observability Stack (COS)](https://charmhub.io/topics/canonical-observability-stack).
 To reduce the blast radius of infrastructure disruptions, the general recommendation is to deploy COS and the observed application into 
