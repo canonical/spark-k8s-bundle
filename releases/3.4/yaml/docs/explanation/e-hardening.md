@@ -31,9 +31,7 @@ main supported cloud platforms.
 
 Juju is the component responsible for orchestrating the entire lifecycle, from deployment to Day 2 operations, of 
 all applications. Therefore, Juju must be set up securely. For more information, see the
-
-* [Juju security](https://discourse.charmhub.io/t/juju-security/15684)
-* [How to harden your deployment](https://juju.is/docs/juju/harden-your-deployment)
+[Juju security page](/t/juju-security/15684) and the [How to harden your deployment guide](https://juju.is/docs/juju/harden-your-deployment).
 
 #### Cloud credentials
 
