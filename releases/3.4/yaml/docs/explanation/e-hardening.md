@@ -55,7 +55,7 @@ It is very important that juju users are set up with minimal permissions dependi
 Please refer to the [User access levels](https://juju.is/docs/juju/user-permissions) documentation for more information on the access level and corresponding abilities 
 that the different users can be granted. 
 
-Juju user credentials must be stored securely and rotated regularly to prevent leakage and unauthorized access. 
+Juju user credentials must be stored securely and rotated regularly to limit the chances of unauthorized access due to credentials leakage.
 
 ## Applications
 
@@ -93,11 +93,11 @@ Charmed Spark K8s operators, including Spark History server, Kyuubi, and Integra
 Charmed Spark images outlined in the previous table in order to provide reproducible and secure environments. 
 New versions of Charmed Spark K8s operators may therefore be released to provide patching of vulnerabilities (CVEs). 
 It is important to refresh the charm regularly to make sure the workload is as secure as possible. 
-For more information on how to refresh the charm, see the [how-to upgrade](TODO) guide.
+<!-- For more information on how to refresh the charm, see the [how-to refresh](https://juju.is/docs/juju/juju-refresh) guide and other data-platform guide -->
 
 ### Encryption
 
-We recommend to deploy Charmed Spark K8s with encryption enabled for the communication between components whenever available and supported.
+We recommend to deploy Charmed Spark K8s with encryption enabled for securing the communication between components, whenever available and supported by the server and client applications.
 In the following, we provide further information on how to encrypt the various data flow between the different components of the solution:
 
 * Client <> Kubernetes API connections
@@ -192,4 +192,4 @@ For more information on how to enable and customise monitoring with COS, see the
 
 ## Additional resources
 
-For further information and details on the security and cryptographic specifications used by Charmed Spark, please refer to the [Security Explanation page](TODO).
+For further information and details on the security and cryptographic specifications used by Charmed Spark, please refer to the [Security Explanation page](/t/charmed-spark-k8s-documentation-explanation-security/15795).
