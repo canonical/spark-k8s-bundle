@@ -114,7 +114,7 @@ Make sure that the API service of Kubernetes is correctly encrypted, and it expo
 for the main substrates and/or the documentation of your distribution. Please ensure that the various components of the solution, 
 e.g. `spark-client`, `pods`, etc, are correctly configured with the trusted CA certificate of the K8s cluster. 
 
-#### Object Storage connections
+#### Object storage connections
 
 Make sure that the object storage service is correctly encrypted, and it exposes HTTPS protocol. Please refer to the documentation of your 
 object storage backend to make sure this option is supported and enabled. Please ensure that the various components of the solution, 
