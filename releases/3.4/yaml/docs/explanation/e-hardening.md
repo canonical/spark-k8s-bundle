@@ -121,7 +121,7 @@ object storage backend to make sure this option is supported and enabled. Please
 e.g. `spark-client`, `pods`, etc, are correctly configured with the trusted CA certificate of the K8s cluster. 
 See the [how-to manage certificates](/t/charmed-spark-k8s-documentation-using-self-signed-certificates/14898) guide for more information.
 
-#### Kyuubi <> PostgreSQL Connection 
+#### Kyuubi <> PostgreSQL connection 
 
 Kyuubi integration with PostgreSQL can be secured by enabling encryption for the PostgreSQL K8s charm. 
 See the [PostgreSQL K8s how-to enable TLS](/t/charmed-postgresql-k8s-how-to-enable-tls-encryption/9593) user guide for more information on 
