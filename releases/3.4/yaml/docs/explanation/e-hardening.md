@@ -39,12 +39,13 @@ When configuring the cloud credentials to be used with Juju, ensure that the use
 Juju superusers responsible for bootstrapping and managing controllers require elevated permissions to manage several kind of resources. For this reason, the 
 K8s user used for bootstrapping and managing the deployments should have full permissions, such as: 
 
-* create, delete, patch and list namespaces
-* create, delete, patch and list services
-* create, delete, patch and list deployments
-* create, delete, patch and list stateful sets
-* create, delete, patch and list pods
-* create, delete, patch and list PVCs
+* create, delete, patch, and list:
+    * namespaces
+    * services
+    * deployments
+    * stateful sets
+    * pods
+    * PVCs
 
 In general, it is common practice to run Juju using the admin role of K8s, to have full permissions on the Kubernetes cluster. 
 
