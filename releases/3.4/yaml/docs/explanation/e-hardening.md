@@ -101,7 +101,7 @@ We recommend to deploy Charmed Spark K8s with encryption enabled for the communi
 In the following, we provide further information on how to encrypt the various data flow between the different components of the solution:
 
 * Client <> Kubernetes API connections
-* Object Storage connections
+* Object storage connections
 * Kyuubi <> PostgreSQL connection
 * Kyuubi <> ZooKeeper connection
 * Spark History Server client connection 
