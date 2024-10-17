@@ -97,4 +97,4 @@ resource "juju_integration" "kyuubi_zookeeper" {
     name = juju_application.kyuubi.name
     endpoint = "zookeeper"
   }
-}s
+}
