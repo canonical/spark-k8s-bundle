@@ -67,7 +67,7 @@ In the following we provide guidance on how to harden your deployment using:
 4. Authentication
 5. Monitoring and Auditing
 
-### Base Image
+### Base images
 
 Charmed Spark K8s runs on top of a set of Rockcraft-based images, all based on the same Spark distribution binaries, 
 available in the [Spark release page](https://launchpad.net/spark-releases), on top of Ubuntu 22.04. 
