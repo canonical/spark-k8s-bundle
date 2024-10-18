@@ -5,7 +5,7 @@ a secure deployment of [Charmed Spark K8s](https://github.com/canonical/spark-k8
 The document is divided into the following sections:
 
 1. Environment, outlining the recommendation for deploying a secure environment
-2. Applications, outlining the product features that enable a secure deployment of a Kafka cluster
+2. Applications, outlining the product features that enable a secure deployment of a Spark cluster
 3. Additional resources, providing any further information about security and compliance
 
 ## Environment
@@ -62,7 +62,7 @@ Juju user credentials must be stored securely and rotated regularly to limit the
 In the following we provide guidance on how to harden your deployment using:
 
 1. Base Images
-2. Kafka and ZooKeeper Security Upgrades
+2. Spark Security Upgrades
 3. Encryption 
 4. Authentication
 5. Monitoring and Auditing
