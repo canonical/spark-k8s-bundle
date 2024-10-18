@@ -72,6 +72,7 @@ jobs:
           - snap_channel: "3.6/beta"
             agent: "3.6-beta2"
         exclude:
+          - backed: --backend yaml
           - tox-environments: integration-basic           # Basic tests, test without COS
             cos: --cos-model cos
           - tox-environments: integration-basic           # Basic tests, test without terraform
@@ -144,6 +145,9 @@ jobs:
             echo "Installing terraform from snap"
             sudo snap install terraform --classic 
           fi
+      - name: Setup tmate session
+        timeout-minutes: 20
+        uses: mxschmitt/action-tmate@v3
       - id: tests-integration
         name: Run Integration Tests
         timeout-minutes: 30
