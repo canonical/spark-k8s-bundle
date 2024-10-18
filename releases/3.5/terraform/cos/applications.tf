@@ -88,4 +88,3 @@ resource "juju_application" "scrape_config" {
 
   constraints = "arch=amd64"
 }
-
