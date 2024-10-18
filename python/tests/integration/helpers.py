@@ -311,7 +311,7 @@ async def deploy_bundle_yaml(
 
         logger.info(f"bundle_tmp: {bundle_tmp}")
         print(f"bundle_tmp: {bundle_tmp}")
-
+        await set_memory_constraints(ops_test, ops_test.model_name)
         retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
 
         assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
@@ -357,7 +357,7 @@ async def deploy_bundle_yaml_azure_storage(
         bundle_tmp = bundle_content.map(
             lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
         )
-
+        await set_memory_constraints(ops_test, ops_test.model_name)
         retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
 
         assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
@@ -387,6 +387,7 @@ async def deploy_bundle_terraform(
 
     logger.info(f"tf_vars: {tf_vars}")
     print(f"tf_vars: {tf_vars}")
+    await set_memory_constraints(ops_test, ops_test.model_name)
     outputs = bundle.apply(tf_vars=tf_vars)
 
     return list(outputs["charms"]["value"].values())
