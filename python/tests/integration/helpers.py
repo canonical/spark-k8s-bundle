@@ -80,6 +80,7 @@ async def get_address(ops_test: OpsTest, app_name, unit_num=0) -> str:
 
 
 async def get_leader_unit_number(ops_test: OpsTest, application_name: str) -> int:
+    """Return the id of the leader unit."""
     leader_unit = None
     for unit in ops_test.model.applications[application_name].units:
         logger.info(unit)
@@ -310,8 +311,6 @@ async def deploy_bundle_yaml(
         )
 
         logger.info(f"bundle_tmp: {bundle_tmp}")
-        print(f"bundle_tmp: {bundle_tmp}")
-        # await set_memory_constraints(ops_test, ops_test.model_name)
         retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
 
         assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
@@ -357,7 +356,6 @@ async def deploy_bundle_yaml_azure_storage(
         bundle_tmp = bundle_content.map(
             lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
         )
-        # await set_memory_constraints(ops_test, ops_test.model_name)
         retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
 
         assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
@@ -386,8 +384,6 @@ async def deploy_bundle_terraform(
     } | ({"cos_model": cos} if cos else {})
 
     logger.info(f"tf_vars: {tf_vars}")
-    print(f"tf_vars: {tf_vars}")
-    # await set_memory_constraints(ops_test, ops_test.model_name)
     outputs = bundle.apply(tf_vars=tf_vars)
 
     return list(outputs["charms"]["value"].values())
@@ -447,7 +443,6 @@ def prometheus_exporter_data(host: str, port: int) -> str | None:
     try:
         response = requests.get(url)
         logger.info(f"Response: {response.text}")
-        print(response)
     except requests.exceptions.RequestException:
         return
     if response.status_code == 200:
