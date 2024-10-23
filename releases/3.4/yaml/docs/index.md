@@ -1,4 +1,4 @@
-# Charmed Spark Documentation
+# Charmed Spark K8s Documentation
 
 Charmed Spark solution is a set of Canonical supported artefacts (including charms, rocks and snaps) that make operating Spark workloads on Kubernetes seamless, secure and production-ready. This solution includes the Charmed Spark bundle as well as [Spark Client Snap](https://snapcraft.io/spark-client) and [spark8t](https://github.com/canonical/spark-k8s-toolkit-py). For more information on the contents of the Charmed Spark bundle and Charmed Spark solution, see the [Components explanation](/t/charmed-spark-documentation-explanation-components/11685) page.
 
@@ -46,5 +46,7 @@ Charmed Spark is a distribution of Apache Spark. It’s an open-source project t
   1. [Contacts](reference/r-contacts.md)
 1. [Explanation](explanation)
   1. [Component Overview](explanation/e-component-overview.md)
+  1. [Security](explanation/e-security.md)
+  1. [Hardening Guide](explanation/e-hardening.md)
   1. [Charmed Spark Hierarchical Configuration](explanation/e-configuration.md)
   1. [Charmed Spark Monitoring](explanation/e-monitoring.md)
