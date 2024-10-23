@@ -144,8 +144,20 @@ jobs:
             echo "Installing terraform from snap"
             sudo snap install terraform --classic 
           fi
+      - id: cache-image
+        name: Cache Image Locally
+        run: |
+          # Download image for avoiding time out
+          IMAGE="ghcr.io/canonical/charmed-spark-kyuubi@sha256:9268d19a6eef91914e874734b320fab64908faf0f7adb8856be809bc60ecd1d0"
+          
+          docker pull $IMAGE 
+          docker save $IMAGE -o image.tar
+          sudo microk8s ctr images import --base-name $IMAGE image.tar
+          docker rmi $IMAGE
+          rm image.tar
       - id: tests-integration
         name: Run Integration Tests
+        timeout-minutes: 30
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}

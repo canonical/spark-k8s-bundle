@@ -59,7 +59,7 @@ resource "juju_application" "kyuubi" {
   }
 
   resources = {
-      kyuubi-image = 3 # 3.4.2
+      kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:9268d19a6eef91914e874734b320fab64908faf0f7adb8856be809bc60ecd1d0"
   }
 
   config = {
@@ -67,11 +67,32 @@ resource "juju_application" "kyuubi" {
     service-account = var.kyuubi_user
   }
 
-  units = 1
+  units = 3
   trust = true
 
   constraints = "arch=amd64"
 }
+
+resource "juju_application" "zookeeper" {
+
+  name = "zookeeper"
+
+  model      = var.model
+
+  charm {
+    name    = "zookeeper-k8s"
+    channel = "3/edge"
+    revision = 59
+  }
+
+  resources = {
+    zookeeper-image = 31
+  }
+
+  units = 3
+  constraints = "arch=amd64"
+}
+
 
 resource "juju_application" "kyuubi_users" {
   name = "kyuubi-users"

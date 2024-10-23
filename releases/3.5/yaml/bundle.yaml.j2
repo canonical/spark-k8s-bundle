@@ -9,7 +9,7 @@ applications:
     revision: 27
     resources:
       kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:931efb21837866102a3b89239212107eb517fd8ba573aa62623048f29d5c337c # 3.5.1
-    scale: 1
+    scale: 3
     options:
       namespace: {{ namespace }}
       service-account: {{ service_account }}
@@ -25,7 +25,15 @@ applications:
     constraints: arch=amd64
     storage:
       pgdata: kubernetes,1,1024M
-    trust: true
+    trust: true 
+  zookeeper:  
+    charm: zookeeper-k8s
+    channel: 3/edge
+    revision: 59
+    scale: 3
+    constraints: arch=amd64
+    resources:
+      zookeeper-image: 31
   metastore:
     charm: postgresql-k8s
     channel: 14/stable
@@ -78,3 +86,5 @@ relations:
   - kyuubi-users:database
 - - kyuubi:spark-service-account
   - integration-hub:spark-service-account
+- - kyuubi:zookeeper
+  - zookeeper:zookeeper
