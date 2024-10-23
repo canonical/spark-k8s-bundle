@@ -22,28 +22,28 @@ resource "juju_application" "history_server" {
 
 }
 
-resource "juju_application" "s3" {
-  name = "s3"
+# resource "juju_application" "s3" {
+#   name = "s3"
 
-  model      = var.model
+#   model      = var.model
 
-  charm {
-    name    = "s3-integrator"
-    channel = "latest/edge"
-    revision = 17
-  }
+#   charm {
+#     name    = "s3-integrator"
+#     channel = "latest/edge"
+#     revision = 17
+#   }
 
-  config = {
-      path = "spark-events"
-      bucket = var.s3.bucket
-      endpoint = var.s3.endpoint
-  }
+#   config = {
+#       path = "spark-events"
+#       bucket = var.s3.bucket
+#       endpoint = var.s3.endpoint
+#   }
 
-  units = 1
+#   units = 1
 
-  constraints = "arch=amd64"
+#   constraints = "arch=amd64"
 
-}
+# }
 
 
 resource "juju_application" "kyuubi" {

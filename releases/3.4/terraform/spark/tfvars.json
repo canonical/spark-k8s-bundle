@@ -1,0 +1,1 @@
+{"azure": {"storage_account": "charmedsparkstorage","container": "dev","secret_key": "gfdahaheahaehr"},"kyuubi_user": "kyuubi-engine","model": "spark","cos_model": "cos"}

@@ -7,14 +7,14 @@ variable "model" {
   default     = "spark"
 }
 
-variable "s3" {
-  description = "S3 Bucket information"
-  type = object({
-    bucket               = optional(string, "spark-test")
-    endpoint             = optional(string, "https://s3.amazonaws.com")
-  })
-  default = {}
-}
+# variable "s3" {
+#   description = "S3 Bucket information"
+#   type = object({
+#     bucket               = optional(string, "spark-test")
+#     endpoint             = optional(string, "https://s3.amazonaws.com")
+#   })
+#   default = {}
+# }
 
 variable "kyuubi_user" {
   description = "Define the user to be used for running Kyuubi engines"

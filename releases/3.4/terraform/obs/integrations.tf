@@ -150,3 +150,5 @@ resource "juju_integration" "agent_loki" {
     offer_url = data.juju_offer.loki.url
   }
 }
+
+# TODO update with all possible relations of the COS exosystem.

@@ -1,9 +1,9 @@
-# Copyright 2024 Canonical Ltd.
-# See LICENSE file for licensing details.
+# # Copyright 2024 Canonical Ltd.
+# # See LICENSE file for licensing details.
 
-output "charms" {
-  value = merge(
-      module.base.charms, module.cos[*].charms...
-  )
-}
+# output "charms" {
+#   value = merge(
+#       module.base.charms, module.cos[*].charms...
+#   )
+# }
 
