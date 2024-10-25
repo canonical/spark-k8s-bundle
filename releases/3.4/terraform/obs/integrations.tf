@@ -9,9 +9,9 @@ data "juju_offer" "prometheus" {
   url = local.endpoints.prometheus
 }
 
-data "juju_offer" "loki" {
-  url = local.endpoints.loki
-}
+# data "juju_offer" "loki" {
+#   url = local.endpoints.loki
+# }
 
 
 resource "juju_integration" "cos_configuration_agent" {
@@ -138,17 +138,17 @@ resource "juju_integration" "history_server_agent_metrics" {
   }
 }
 
-resource "juju_integration" "agent_loki" {
-  model      = var.model
+# resource "juju_integration" "agent_loki" {
+#   model      = var.model
 
-  application {
-    name = juju_application.agent.name
-    endpoint = "logging-consumer"
-  }
+#   application {
+#     name = juju_application.agent.name
+#     endpoint = "logging-consumer"
+#   }
 
-  application {
-    offer_url = data.juju_offer.loki.url
-  }
-}
+#   application {
+#     offer_url = data.juju_offer.loki.url
+#   }
+# }
 
 # TODO update with all possible relations of the COS exosystem.

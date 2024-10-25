@@ -31,10 +31,19 @@ variable "cos_user" {
   default     = "admin"
 }
 
+# locals {
+#     endpoints = {
+#         dashboards = "${var.cos_user}/${var.cos_model}.grafana-dashboards"
+#         prometheus = "${var.cos_user}/${var.cos_model}.prometheus-receive-remote-write"
+#         loki = "${var.cos_user}/${var.cos_model}.loki-logging"
+#     }
+# }
+
+
 locals {
     endpoints = {
-        dashboards = "${var.cos_user}/${var.cos_model}.grafana-dashboards"
-        prometheus = "${var.cos_user}/${var.cos_model}.prometheus-receive-remote-write"
-        loki = "${var.cos_user}/${var.cos_model}.loki-logging"
+        dashboards = "${var.cos_user}/${var.cos_model}.grafana"
+        prometheus = "${var.cos_user}/${var.cos_model}.prometheus"
+        loki = "${var.cos_user}/${var.cos_model}.loki"
     }
 }
