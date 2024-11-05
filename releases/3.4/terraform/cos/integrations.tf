@@ -15,66 +15,66 @@ data "juju_offer" "loki" {
 
 
 resource "juju_integration" "cos_configuration_agent" {
-  model      = var.model
+  model = var.model
 
   application {
-    name = juju_application.cos_configuration.name
+    name     = juju_application.cos_configuration.name
     endpoint = "grafana-dashboards"
   }
 
   application {
-    name = juju_application.agent.name
+    name     = juju_application.agent.name
     endpoint = "grafana-dashboards-consumer"
   }
 }
 
 resource "juju_integration" "pushgateway_scrape_config" {
-  model      = var.model
+  model = var.model
 
   application {
-    name = juju_application.pushgateway.name
+    name     = juju_application.pushgateway.name
     endpoint = "metrics-endpoint"
   }
 
   application {
-    name = juju_application.scrape_config.name
+    name     = juju_application.scrape_config.name
     endpoint = "configurable-scrape-jobs"
   }
 }
 
 resource "juju_integration" "scrape_config_agent" {
-  model      = var.model
+  model = var.model
 
   application {
-    name = juju_application.scrape_config.name
+    name     = juju_application.scrape_config.name
     endpoint = "metrics-endpoint"
   }
 
   application {
-    name = juju_application.agent.name
+    name     = juju_application.agent.name
     endpoint = "metrics-endpoint"
   }
 }
 
 resource "juju_integration" "pushgateway_integration_hub" {
-  model      = var.model
+  model = var.model
 
   application {
-    name = juju_application.pushgateway.name
+    name     = juju_application.pushgateway.name
     endpoint = "push-endpoint"
   }
 
   application {
-    name = var.integration_hub
+    name     = var.integration_hub
     endpoint = "cos"
   }
 }
 
 resource "juju_integration" "agent_grafana_dashboards" {
-  model      = var.model
+  model = var.model
 
   application {
-    name = juju_application.agent.name
+    name     = juju_application.agent.name
     endpoint = "grafana-dashboards-provider"
   }
 
@@ -84,10 +84,10 @@ resource "juju_integration" "agent_grafana_dashboards" {
 }
 
 resource "juju_integration" "agent_prometheus" {
-  model      = var.model
+  model = var.model
 
   application {
-    name = juju_application.agent.name
+    name     = juju_application.agent.name
     endpoint = "send-remote-write"
   }
 
@@ -97,56 +97,70 @@ resource "juju_integration" "agent_prometheus" {
 }
 
 resource "juju_integration" "history_server_agent_dashboard" {
-  model      = var.model
+  model = var.model
 
   application {
-    name = var.history_server
+    name     = var.history_server
     endpoint = "grafana-dashboard"
   }
 
   application {
-    name = juju_application.agent.name
+    name     = juju_application.agent.name
     endpoint = "grafana-dashboards-consumer"
   }
 }
 
 resource "juju_integration" "history_server_agent_logging" {
-  model      = var.model
+  model = var.model
 
   application {
-    name = var.history_server
+    name     = var.history_server
     endpoint = "logging"
   }
 
   application {
-    name = juju_application.agent.name
+    name     = juju_application.agent.name
     endpoint = "logging-provider"
   }
 }
 
 resource "juju_integration" "history_server_agent_metrics" {
-  model      = var.model
+  model = var.model
 
   application {
-    name = var.history_server
+    name     = var.history_server
     endpoint = "metrics-endpoint"
   }
 
   application {
-    name = juju_application.agent.name
+    name     = juju_application.agent.name
     endpoint = "metrics-endpoint"
   }
 }
 
 resource "juju_integration" "agent_loki" {
-  model      = var.model
+  model = var.model
 
   application {
-    name = juju_application.agent.name
+    name     = juju_application.agent.name
     endpoint = "logging-consumer"
   }
 
   application {
     offer_url = data.juju_offer.loki.url
+  }
+}
+
+resource "juju_integration" "integration_hub_logging" {
+  model = var.model
+
+  application {
+    name     = juju_application.agent.name
+    endpoint = "logging-provider"
+  }
+
+  application {
+    name     = var.integration_hub
+    endpoint = "logging"
   }
 }

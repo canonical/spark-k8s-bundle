@@ -35,6 +35,7 @@ COS_ALIAS = "cos"
 HISTORY_SERVER = "history-server"
 PUSHGATEWAY = "pushgateway"
 PROMETHEUS = "prometheus"
+LOKI = "loki"
 
 
 @pytest.fixture(scope="module")
@@ -264,6 +265,34 @@ async def test_spark_metrics_in_prometheus(
         spark_app_selector = driver_pods[0].labels["spark-app-selector"]
         logger.info(f"Spark-app-selector: {spark_app_selector}")
         assert spark_id == spark_app_selector
+
+
+@pytest.mark.abort_on_fail
+@pytest.mark.asyncio
+async def test_spark_logforwaring_to_loki(
+    ops_test: OpsTest, registry, service_account, cos
+):
+    if not cos:
+        pytest.skip("Not possible to test without cos")
+
+    _, stdout, _ = await ops_test.juju("status")
+
+    logger.info(f"Show status: {stdout}")
+    with ops_test.model_context(COS_ALIAS) as cos_model:
+        status = await cos_model.get_status()
+        loki_address = status["applications"][LOKI]["units"][f"{LOKI}/0"]["address"]
+
+        log_gl = urllib.parse.quote('{app="spark", pebble_service="sparkd"}')
+        query = json.loads(
+            urllib.request.urlopen(
+                f"http://{loki_address}:3100/loki/api/v1/query_range?query={log_gl}"
+            ).read()
+        )
+
+        # NOTE(rgildein): This check depends on previous tests, because without the previous ones
+        #                 there will be no logs.
+        logger.info(f"query: {query}")
+        assert len(query["data"]["result"]) != 0, "no logs was found"
 
 
 @pytest.mark.abort_on_fail
