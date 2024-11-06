@@ -78,6 +78,26 @@ For more information about the properties that can be set using `prometheus-scra
 please refer to [here](https://discourse.charmhub.io/t/prometheus-scrape-config-k8s-docs-index/6856).
 
 
+### Enable Log Forwarding from Spark executors and drivers to Loki
+
+Logs from each driver or executor can be enabled using two Spark configuration option.
+The `spark.executorEnv.LOKI_URL` and `spark.kubernetes.driverEnv.LOKI_URL` options use the same
+value to represent Loki's logging URL.
+
+There are two ways to provide a LOKI_URL:
+
+1. Manually provided variable via [Spark configuration](https://canonical.com/data/docs/spark/k8s/e-configuration)
+  - `spark.executorEnv.LOKI_URL` - for executors
+  - `spark.kubernetes.driverEnv.LOKI_URL` - for drivers
+2. Using logging relation in [spark-integration-hub-k8s](https://charmhub.io/spark-integration-hub-k8s)
+   charm either directly with the [Loki charm](https://charmhub.io/loki-k8s) or (recommended)
+   with the [Grafana-agent charm](https://charmhub.io/grafana-agent-k8s).
+
+```shell
+juju integrate spark-integration-hub-k8s:logging grafana-agent-k8s:logging-provider
+```
+
+
 ## Configure Spark service account
 
 Charmed Spark service account created by `spark-client` snap and `spark8t` Python library
