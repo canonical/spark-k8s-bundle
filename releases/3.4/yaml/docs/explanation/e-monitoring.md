@@ -87,13 +87,14 @@ Custom alerting rules can also be defined and efficiently managed by [AlertManag
 ### Logs 
 
 Logs of driver and executors are stored on the pod local filesystem by default, 
-however they can be forwarded to the [Loki](https://grafana.com/oss/loki/) via LOKI_URL environment
-variable. This variable is used by [Pebble](https://canonical-pebble.readthedocs-hosted.com/en/latest/),
+however they can also be forwarded to the [Loki](https://grafana.com/oss/loki/) via LOKI_URL
+environment variable. This variable is used by [Pebble](https://canonical-pebble.readthedocs-hosted.com/en/latest/),
 to configure [log-forwarding](https://canonical-pebble.readthedocs-hosted.com/en/latest/reference/log-forwarding/)
 to remote Loki server.
 
-This feature is available from version 3.4.2 and require having working Loki,
-where we recommend using it with [COS](https://charmhub.io/topics/canonical-observability-stack).
+This feature is available from version [3.4.2@sha256:321b6deb13f10c045028c9b25264b8113c6fdcbe4f487ff472a06fd7bdcb2758](ghcr.io/canonical/charmed-spark:3.4.2-22.04_edge@sha256:321b6deb13f10c045028c9b25264b8113c6fdcbe4f487ff472a06fd7bdcb2758)
+and require having working Loki, where we recommend using it with
+[COS](https://charmhub.io/topics/canonical-observability-stack).
 
 Charmed Spark also allows you to store these logs into S3 or Azure storage, so that they can
 be re-read and visualized using the Spark History Server, allowing users to monitor 

@@ -81,8 +81,8 @@ please refer to [here](https://discourse.charmhub.io/t/prometheus-scrape-config-
 ### Enable Log Forwarding from Spark executors and drivers to Loki
 
 Logs from each driver or executor can be enabled using two Spark configuration option.
-The `spark.executorEnv.LOKI_URL` and `spark.kubernetes.driverEnv.LOKI_URL` options use the same
-value to represent Loki's logging URL.
+The `spark.executorEnv.LOKI_URL` and `spark.kubernetes.driverEnv.LOKI_URL` are used to
+configure executor and driver, respectively, to forward their logs to a Loki server.
 
 There are two ways to provide a LOKI_URL:
 
