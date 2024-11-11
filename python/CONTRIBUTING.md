@@ -56,6 +56,19 @@ tox run -e all-tests     # unit+integration tests
 tox                      # runs 'lint' and 'unit' environments
 ```
 
+## Documentation
+
+Product documentation is currently stored in [Discourse](https://discourse.charmhub.io/t/charmed-spark-k8s-documentation/8963), which represents the current source of truth, as the content there is rendered in Charmhub and the Ubuntu website. 
+The documentation is stored in this repository under the release folder (e.g. `releases/3.4/docs`) and it is continuously mirrored by [Discourse Gatekeeper](https://github.com/canonical/discourse-gatekeeper), that takes care of automatically raise a PR whenever changes to Discourse are made.
+Although Discourse content can be edited directly, unless the modifications are trivial and obvious (typos, spellings, formatting) we generally recommend to follow a review process:
+
+1. Create a branch (either in the main repo or from a fork) from the current `main` and add/delete/modify documentation files under the `docs` folder.
+2. Raise a PR against the `main` to start the review process, and address the code review within the PR
+3. Once the PR is approved and all comments are addressed, the PR should NOT be merged directly, but the modification should be applied to Discourse. If needed, new Discourse topics can be created, and added to the index file `docs/index.md`.
+4. Discourse Gatekeeper will take care of raising a new PR or adding new commits to Discourse PRs already opened, tracking the `discourse-gatekeeper/migrate` branch. Note that Gatekeeper can run (a) in a scheduled fashion every day; (b) as part of every CI and (c) can be triggered manually. 
+5. Once Gatekeeper has raised or updated an existing PR, feel free to close the initial PR created in step 2, with a comment referring the PR controlled by Gatekeeper. If the initial PR was referring a ticket, add the ticket to either the title or the description of the GateKeeper PR.
+
+
 ## Canonical Contributor Agreement
 
 Canonical welcomes contributions to the Charmed Kafka Operator. Please check out our [contributor agreement](https://ubuntu.com/legal/contributors) if you're interested in contributing to the solution.
