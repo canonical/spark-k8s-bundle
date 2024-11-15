@@ -93,6 +93,8 @@ There are two ways to provide a LOKI_URL:
    charm either with the [Grafana-agent charm](https://charmhub.io/grafana-agent-k8s) (recommended)
    with the [Grafana-agent charm](https://charmhub.io/grafana-agent-k8s).
 
+For example:
+
 ```shell
 juju integrate spark-integration-hub-k8s:logging grafana-agent-k8s:logging-provider
 ```
