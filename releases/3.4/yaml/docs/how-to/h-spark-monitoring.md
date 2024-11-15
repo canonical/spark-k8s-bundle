@@ -89,7 +89,7 @@ There are two ways to provide a LOKI_URL:
 1. Manually provided variable via [Spark configuration](https://canonical.com/data/docs/spark/k8s/e-configuration)
   - `spark.executorEnv.LOKI_URL` - for executors
   - `spark.kubernetes.driverEnv.LOKI_URL` - for drivers
-2. Using logging relation in [spark-integration-hub-k8s](https://charmhub.io/spark-integration-hub-k8s)
+2. Using the [`logging` relation](https://charmhub.io/spark-integration-hub-k8s/integrations#logging) in a Spark integration hub
    charm either with the [Grafana-agent charm](https://charmhub.io/grafana-agent-k8s) (recommended)
    directly with the [Loki charm](https://charmhub.io/loki-k8s).
 
