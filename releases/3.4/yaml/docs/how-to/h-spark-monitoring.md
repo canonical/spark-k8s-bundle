@@ -84,7 +84,7 @@ Logs from each driver or executor can be enabled using two Spark configuration o
 The `spark.executorEnv.LOKI_URL` and `spark.kubernetes.driverEnv.LOKI_URL` are used to
 They are used to forward executor and driver logs respectively to a Loki server.
 
-There are two ways to provide a LOKI_URL:
+There are two ways to provide the `LOKI_URL` variable:
 
 1. Manually provided variable via [Spark configuration](https://canonical.com/data/docs/spark/k8s/e-configuration)
   - `spark.executorEnv.LOKI_URL` - for executors
