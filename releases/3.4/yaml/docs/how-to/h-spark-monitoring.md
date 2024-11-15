@@ -99,7 +99,6 @@ For example:
 juju integrate spark-integration-hub-k8s:logging grafana-agent-k8s:logging-provider
 ```
 
-
 ## Configure Spark service account
 
 Charmed Spark service account created by `spark-client` snap and `spark8t` Python library
