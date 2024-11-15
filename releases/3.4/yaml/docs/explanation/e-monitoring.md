@@ -93,7 +93,7 @@ to configure [log-forwarding](https://canonical-pebble.readthedocs-hosted.com/en
 to remote Loki server.
 
 This feature is available from Charmed Spark version [3.4.2/edge](ghcr.io/canonical/charmed-spark:3.4.2-22.04_edge@sha256:321b6deb13f10c045028c9b25264b8113c6fdcbe4f487ff472a06fd7bdcb2758)
-and require having working Loki, where we recommend using it with
+and requires a working Loki. Hence, we recommend using it with
 [COS](https://charmhub.io/topics/canonical-observability-stack).
 
 Charmed Spark also allows you to store these logs into S3 or Azure storage, so that they can
