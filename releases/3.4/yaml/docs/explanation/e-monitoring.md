@@ -87,7 +87,7 @@ Custom alerting rules can also be defined and efficiently managed by [AlertManag
 ### Logs 
 
 Logs of driver and executors are stored on the pod local filesystem by default, 
-however they can also be forwarded to the [Loki](https://grafana.com/oss/loki/) via LOKI_URL
+however they can also be forwarded to the [Loki](https://grafana.com/oss/loki/) via the `LOKI_URL`
 environment variable. This variable is used by [Pebble](https://canonical-pebble.readthedocs-hosted.com/en/latest/),
 to configure [log-forwarding](https://canonical-pebble.readthedocs-hosted.com/en/latest/reference/log-forwarding/)
 to remote Loki server.
