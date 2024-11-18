@@ -58,7 +58,7 @@ tox                      # runs 'lint' and 'unit' environments
 
 ## Documentation
 
-Product documentation is currently stored in [Discourse](https://discourse.charmhub.io/t/charmed-spark-k8s-documentation/8963), which represents the current source of truth, as the content there is rendered in Charmhub and the Ubuntu website. 
+Product documentation is stored in [Discourse](https://discourse.charmhub.io/t/charmed-spark-k8s-documentation/8963) and published on Charmhub and the Canonical website via Discourse API. 
 The documentation is stored in this repository under the release folder (e.g. `releases/3.4/docs`) and it is continuously mirrored by [Discourse Gatekeeper](https://github.com/canonical/discourse-gatekeeper), that takes care of automatically raise a PR whenever changes to Discourse are made.
 Although Discourse content can be edited directly, unless the modifications are trivial and obvious (typos, spellings, formatting) we generally recommend to follow a review process:
 
