@@ -64,8 +64,8 @@ Although Discourse content can be edited directly, unless the modifications are 
 
 1. Create a branch (either in the main repo or from a fork) from the current `main` and add/delete/modify documentation files under the `docs` folder.
 2. Raise a PR against the `main` to start the review process, and address the code review within the PR
-3. Once the PR is approved and all comments are addressed, the PR should NOT be merged directly, but the modification should be applied to Discourse. If needed, new Discourse topics can be created, and added to the index file `docs/index.md`.
-4. Discourse Gatekeeper will take care of raising a new PR or adding new commits to Discourse PRs already opened, tracking the `discourse-gatekeeper/migrate` branch. Note that Gatekeeper can run (a) in a scheduled fashion every day; (b) as part of every CI and (c) can be triggered manually. 
+3. Once the PR is approved and all comments are addressed, the PR should NOT be merged directly, but the modification should be applied to Discourse. If needed, new Discourse topics can be created, and referenced in the navigation table of the main index file on Discourse.
+4. Discourse Gatekeeper will take care of raising a new PR or adding new commits to Discourse PRs already opened, tracking the `discourse-gatekeeper/migrate` branch. The [sync_docs.yaml](https://github.com/canonical/spark-k8s-bundle/blob/main/.github/workflows/sync_docs.yaml) GitHub Actions provides further details on the Gatekeeper integration that can be run (a) in a scheduled fashion every day; (b) as part of pull request CI and (c) can be triggered manually. If new topics are referenced in main index file on Discourse, these will be added to `docs/index.md` and the new topics pulled from Discourse.
 5. Once Gatekeeper has raised or updated an existing PR, feel free to close the initial PR created in step 2, with a comment referring the PR controlled by Gatekeeper. If the initial PR was referring a ticket, add the ticket to either the title or the description of the GateKeeper PR.
 
 
