@@ -84,22 +84,21 @@ Logs from each driver or executor can be enabled using two Spark configuration o
 
 * `spark.executorEnv.LOKI_URL`
 * `spark.kubernetes.driverEnv.LOKI_URL`
+
 They are used to forward executor and driver logs respectively to a Loki server.
 
-There are two ways to provide the `LOKI_URL` variable:
+There are two ways to provide the `LOKI_URL` variables:
 
-1. Manually, via [Spark configuration](https://canonical.com/data/docs/spark/k8s/e-configuration)
-  - `spark.executorEnv.LOKI_URL` - for executors
-  - `spark.kubernetes.driverEnv.LOKI_URL` - for drivers
+1. Manually, via [Spark configuration](https://canonical.com/data/docs/spark/k8s/e-configuration):
+   - `spark.executorEnv.LOKI_URL` - for executors
+   - `spark.kubernetes.driverEnv.LOKI_URL` - for drivers
 2. Using the [`logging` relation](https://charmhub.io/spark-integration-hub-k8s/integrations#logging) in a Spark integration hub
-   charm either with the [Grafana-agent charm](https://charmhub.io/grafana-agent-k8s) (recommended)
-   directly with the [Loki charm](https://charmhub.io/loki-k8s).
+   charm either with the [Grafana-agent charm](https://charmhub.io/grafana-agent-k8s) (recommended) or
+   directly with the [Loki charm](https://charmhub.io/loki-k8s), for example:
 
-For example:
-
-```shell
-juju integrate spark-integration-hub-k8s:logging grafana-agent-k8s:logging-provider
-```
+   ```shell
+   juju integrate spark-integration-hub-k8s:logging grafana-agent-k8s:logging-provider
+   ```
 
 ## Configure Spark service account
 
