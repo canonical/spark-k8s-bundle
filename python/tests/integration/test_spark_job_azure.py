@@ -21,6 +21,7 @@ from spark_test.utils import get_spark_drivers
 
 from .helpers import (
     all_prometheus_exporters_data,
+    assert_logs,
     construct_azure_resource_uri,
     get_cos_address,
     get_secret_data,
@@ -278,18 +279,7 @@ async def test_spark_logforwaring_to_loki(
     with ops_test.model_context(COS_ALIAS) as cos_model:
         status = await cos_model.get_status()
         loki_address = status["applications"][LOKI]["units"][f"{LOKI}/0"]["address"]
-
-        log_gl = urllib.parse.quote('{app="spark", pebble_service="sparkd"}')
-        query = json.loads(
-            urllib.request.urlopen(
-                f"http://{loki_address}:3100/loki/api/v1/query_range?query={log_gl}"
-            ).read()
-        )
-
-        # NOTE(rgildein): This check depends on previous tests, because without the previous ones
-        #                 there will be no logs.
-        logger.info(f"query: {query}")
-        assert len(query["data"]["result"]) != 0, "no logs was found"
+        assert_logs(loki_address)
 
 
 @pytest.mark.abort_on_fail
