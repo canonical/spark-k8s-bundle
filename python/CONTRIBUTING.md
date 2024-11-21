@@ -56,6 +56,19 @@ tox run -e all-tests     # unit+integration tests
 tox                      # runs 'lint' and 'unit' environments
 ```
 
+## Documentation
+
+Product documentation is stored in [Discourse](https://discourse.charmhub.io/t/charmed-spark-k8s-documentation/8963) and published on Charmhub and the Canonical website via Discourse API. 
+The documentation in this repository under the release folder (e.g. `releases/3.4/docs`) is a mirror synched by [Discourse Gatekeeper](https://github.com/canonical/discourse-gatekeeper), that takes care of automatically raising and updating a PR whenever changes to the content on Discourse are made.
+Although Discourse content can be edited directly, unless the modifications are trivial and obvious (typos, spellings, formatting) we generally recommend to follow a review process:
+
+1. Create a branch (either in the main repo or in a fork) from the current `main` and modify documentation files as necessary.
+2. Raise a PR against the `main` to start the review process, and conduct the code review within the PR.
+3. Once the PR is approved and all comments are addressed, the PR should NOT be merged directly! All the modifications should be applied to Discourse manually. If needed, new Discourse topics can be created, and referenced in the navigation table of the main index file on Discourse.
+4. Discourse Gatekeeper will raise a new PR or add new commits to an open Discourse PR, tracking the `discourse-gatekeeper/migrate` branch. The [sync_docs.yaml](https://github.com/canonical/spark-k8s-bundle/blob/main/.github/workflows/sync_docs.yaml) GitHub Actions provides further details on the Gatekeeper integration that can be run (a) in a scheduled fashion every night; (b) as a part of pull request CI, and (c) can be triggered manually. If new topics are referenced in the main index file on Discourse, these will be added to `docs/index.md` and the new topics pulled from Discourse.
+5. Once Gatekeeper has raised a new or updated an existing PR, feel free to close the initial PR manually created in step 2, with a comment referring to the PR created by Gatekeeper. If the initial PR was referring to a ticket, add the ticket to either the title or the description of the GateKeeper PR.
+
+
 ## Canonical Contributor Agreement
 
 Canonical welcomes contributions to the Charmed Kafka Operator. Please check out our [contributor agreement](https://ubuntu.com/legal/contributors) if you're interested in contributing to the solution.
