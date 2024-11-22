@@ -21,6 +21,7 @@ from spark_test.utils import get_spark_drivers
 
 from .helpers import (
     all_prometheus_exporters_data,
+    assert_logs,
     construct_azure_resource_uri,
     get_cos_address,
     get_secret_data,
@@ -37,6 +38,7 @@ COS_ALIAS = "cos"
 HISTORY_SERVER = "history-server"
 PUSHGATEWAY = "pushgateway"
 PROMETHEUS = "prometheus"
+LOKI = "loki"
 
 
 @pytest.fixture(scope="module")
@@ -261,6 +263,23 @@ async def test_job_in_prometheus(ops_test: OpsTest, registry, service_account, c
         spark_app_selector = driver_pods[0].labels["spark-app-selector"]
         logger.info(f"Spark-app-selector: {spark_app_selector}")
         assert spark_id == spark_app_selector
+
+
+@pytest.mark.abort_on_fail
+@pytest.mark.asyncio
+async def test_spark_logforwaring_to_loki(
+    ops_test: OpsTest, registry, service_account, cos
+):
+    if not cos:
+        pytest.skip("Not possible to test without cos")
+
+    _, stdout, _ = await ops_test.juju("status")
+
+    logger.info(f"Show status: {stdout}")
+    with ops_test.model_context(COS_ALIAS) as cos_model:
+        status = await cos_model.get_status()
+        loki_address = status["applications"][LOKI]["units"][f"{LOKI}/0"]["address"]
+        assert_logs(loki_address)
 
 
 @pytest.mark.abort_on_fail

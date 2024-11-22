@@ -58,16 +58,16 @@ applications:
   history-server:
     charm: spark-history-server-k8s
     channel: 3.4/edge
-    revision: 30
+    revision: 33
     resources:
       # We use 3.4.2 here because we don't have metrics added in version 3.5.1 of the rock image
-      spark-history-server-image: ghcr.io/canonical/charmed-spark@sha256:75a01dfca493b5a457fc7d3258daba3e9891f0408f0097f1fd189100d5de4891 # 3.4.2
+      spark-history-server-image: ghcr.io/canonical/charmed-spark@sha256:1d9949dc7266d814e6483f8d9ffafeff32f66bb9939e0ab29ccfd9d5003a583a # 3.4.2
     scale: 1
     constraints: arch=amd64
   integration-hub:
     charm: spark-integration-hub-k8s
     channel: latest/edge
-    revision: 20
+    revision: 22
     resources:
       integration-hub-image: 3
     scale: 1

@@ -561,3 +561,18 @@ async def published_loki_logs(
         log_lines = chunk["values"]
         logs.update({line[0]: line[1] for line in log_lines})
     return logs
+
+
+def assert_logs(loki_address: str) -> None:
+    """Check the existence of the logs."""
+    log_gl = urllib.parse.quote('{app="spark", pebble_service="sparkd"}')
+    query = json.loads(
+        urllib.request.urlopen(
+            f"http://{loki_address}:3100/loki/api/v1/query_range?query={log_gl}"
+        ).read()
+    )
+
+    # NOTE: This check depends on previous tests, because without the previous ones
+    #       there will be no logs.
+    logger.info(f"query: {query}")
+    assert len(query["data"]["result"]) != 0, "no logs was found"
