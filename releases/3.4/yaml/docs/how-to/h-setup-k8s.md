@@ -1,6 +1,6 @@
 ## How to setup a K8s cluster for Spark
 
-The Charmed Spark solution requires an environment with:
+The Charmed Apache Spark solution requires an environment with:
 
 * A Kubernetes cluster for running the services and workloads
 * An Object storage layer to store persistent data
@@ -9,7 +9,7 @@ In the following guide, we provide details on the technologies currently support
 
 ### Kubernetes
 
-The Charmed Spark solution runs on top of several K8s distributions. We recommend using versions above or equal to `1.29`. 
+The Charmed Apache Spark solution runs on top of several K8s distributions. We recommend using versions above or equal to `1.29`. 
 Earlier versions may still be working, although we do not explicitly test them. 
 
 There are multiple ways that a K8s cluster can be deployed. We provide full compatibility and support for:
@@ -18,7 +18,7 @@ There are multiple ways that a K8s cluster can be deployed. We provide full comp
 * AWS EKS
 * Azure AKS (**Coming Soon**)
 
-The how-to guide below shows you how to set up these to be used with Charmed Spark. 
+The how-to guide below shows you how to set up these to be used with Charmed Apache Spark. 
 
 #### MicroK8s
 
@@ -52,7 +52,7 @@ export KUBECONFIG=path/to/file # Usually ~/.kube/config
 microk8s config | tee ${KUBECONFIG}
 ```
 
-Enable the K8s features required by the Spark Client Snap 
+Enable the K8s features required by the Apache Spark Client Snap 
 
 ```
 microk8s.enable dns rbac storage hostpath-storage
@@ -149,13 +149,13 @@ The EKS cluster is now ready to be used.
 
 ### Object storage
 
-Object storage persistence integration with Charmed Spark is critical for: 
+Object storage persistence integration with Charmed Apache Spark is critical for: 
 
 * reading and writing application data to be used in Spark Jobs
-* storing Spark Jobs logs to be then exposed via Charmed Spark History Server
+* storing Spark Jobs logs to be then exposed via Charmed Apache Spark History Server
 * enable Hive-compatible JDBC/ODBC endpoints provided by Apache Kyuubi to provide datalake capabilities on top of HDFS/Hadoop/object storages
 
-Charmed Spark provides out-of-box integration with the following object storage backends:
+Charmed Apache Spark provides out-of-box integration with the following object storage backends:
 
 * S3-compatible object storages, such as:
   * MinIO
@@ -165,16 +165,16 @@ Charmed Spark provides out-of-box integration with the following object storage 
   * Azure DataLake v2 Storage
 
 In the following, we provide guidance on how to set up different object storages and 
-how to configure them to make sure that it seamlessly integrates with Charmed Spark. 
+how to configure them to make sure that it seamlessly integrates with Charmed Apache Spark. 
 
-In fact, to store Spark logs on a dedicated directories, you need to create the appropriate folder (that is named `spark-events`) in the storage backend. 
+In fact, to store Apache Spark logs on a dedicated directories, you need to create the appropriate folder (that is named `spark-events`) in the storage backend. 
 This can be done both on S3 and on Azure DataLake Gen2 Storage. Although there are multiple ways to do this, 
 in the following we recommend you to use snap clients. 
 Alternatively, use [Python libraries](https://github.com/canonical/spark-k8s-bundle/blob/94ac51d519cece9dc6810c7aaa0144a28cd7989b/python/spark_test/core/s3.py).
 
 #### S3-compatible object storages
 
-To connect Charmed Spark with an S3-compatible object storage, 
+To connect Charmed Apache Spark with an S3-compatible object storage, 
 the following configurations need to be specified:
 
 * `access_key` 
@@ -263,14 +263,14 @@ The S3-object storage should now be ready to be used by Spark Jobs to store thei
 
 #### Azure Storage
 
-Charmed Spark provides out-of-the-box support also for the following Azure storage backends: 
+Charmed Apache Spark provides out-of-the-box support also for the following Azure storage backends: 
 
 * Azure Blob Storage (both WASB and WASBS)
 * Azure DataLake Gen2 Storage (ABFS and ABFSS)
 
 > :warning: Note that Azure DataLake Gen1 Storage is currently not supported, and it has been deprecated by Azure.
 
-In order to connect Charmed Spark with the Azure storage backends (WASB, WASBS, ABFS and ABFSS) 
+In order to connect Charmed Apache Spark with the Azure storage backends (WASB, WASBS, ABFS and ABFSS) 
 the following configurations need to be specified:
 
 * `storage_account`

@@ -11,7 +11,7 @@ Security issues should be reported through [LaunchPad](https://wiki.ubuntu.com/D
 # Useful links
 * [Canonical Data Fabric](https://ubuntu.com/data/spark)
 * [Charmed Kafka](https://charmhub.io/spark-k8s-bundle)
-* [Git sources for Charmed Spark](https://github.com/canonical/spark-k8s-bundle)
+* [Git sources for Charmed Apache Spark](https://github.com/canonical/spark-k8s-bundle)
 * [Canonical Data on Launchpad](https://launchpad.net/~data-platform)
 * [Canonical Data on Matrix](https://matrix.to/#/#charmhub-data-platform:ubuntu.com) 
 * [Mailing list on Launchpad](https://lists.launchpad.net/data-platform/)

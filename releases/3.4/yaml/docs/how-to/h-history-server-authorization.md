@@ -1,10 +1,10 @@
 ## Enable authorization and authentication with the Spark History Server charm
 
-The Charmed Spark solution includes the Spark History charm that enables users to monitor their applications workflows and logs. Natively, this product does not support authentication and authorization that is an essential feature in a production environment. To overcome this limitation, the Spark History Server charm is integrated with the Canonical Identity bundle that offers several authentication and authorization functionalities with Juju.
+The Charmed Apache Spark solution includes the Spark History charm that enables users to monitor their applications workflows and logs. Natively, this product does not support authentication and authorization that is an essential feature in a production environment. To overcome this limitation, the Spark History Server charm is integrated with the Canonical Identity bundle that offers several authentication and authorization functionalities with Juju.
 
 ### Deploy the Identity Bundle and integrate it with the Spark History Server 
 
-In order to enable authentication and authorization on the Spark History Server charm some steps are needed. Here, we assume that you have already deployed Charmed Spark using 
+In order to enable authentication and authorization on the Spark History Server charm some steps are needed. Here, we assume that you have already deployed Charmed Apache Spark using 
 the bundles, as described [here](/t/charmed-spark-k8s-documentation-how-to-deploy-charmed-spark/10979), that includes a Spark History Server charm, already configured with an object storage backend. 
 
 In order to enable authentication, we first need to deploy the [identity bundle](https://discourse.charmhub.io/t/iam-bundle-deployment-tutorial/11916).

@@ -1,6 +1,6 @@
 ## How to run Spark Streaming against Kafka
 
-A very interesting use case for Spark is structured streaming with Kafka. 
+A very interesting use case for Apache Spark is structured streaming with Apache Kafka. 
 
 To set it up and running, follow the instructions below. 
 
@@ -32,7 +32,7 @@ juju deploy kafka-test-app --series=jammy --channel=edge --config role=producer 
 juju relate kafka-test-app  kafka-k8s
 ```
 
-In order to consume these messages, credentials are required to establish a connection between Spark and Kafka.
+In order to consume these messages, credentials are required to establish a connection between Apache Spark and Apache Kafka.
 
 We need to setup the Juju data-integrator module, which perform credential retrieval as shown below.
 

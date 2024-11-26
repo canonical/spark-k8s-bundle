@@ -1,10 +1,10 @@
 ## Spark Configuration Management
 
-Apache Spark comes with wide range of [configuration properties](https://spark.apache.org/docs/3.4.2/configuration.html#available-properties) that can be fed into Spark using a single property file, e.g. `spark.properties`, or by passing configuration values on the command line, as argument to `spark-submit`, `pyspark` and `spark-shell`.
+Apache Spark comes with wide range of [configuration properties](https://spark.apache.org/docs/3.4.2/configuration.html#available-properties) that can be fed into Apache Spark using a single property file, e.g. `spark.properties`, or by passing configuration values on the command line, as argument to `spark-submit`, `pyspark` and `spark-shell`.
 
-Charmed Spark improves on this capability by enabling a set of hierarchical layers of configurations, that are merged and overridden based on a precedence rule. 
+Charmed Apache Spark improves on this capability by enabling a set of hierarchical layers of configurations, that are merged and overridden based on a precedence rule. 
 
-Each layer may also be linked to a particular component of the Charmed Spark solution. For more information about the different components, please refer to the component overview [here](/t/charmed-spark-documentation-explanation-components/11685).
+Each layer may also be linked to a particular component of the Charmed Apache Spark solution. For more information about the different components, please refer to the component overview [here](/t/charmed-spark-documentation-explanation-components/11685).
 
 Using the different layers appropriately allow to organize and centralize configuration definition consistently for groups, single users, single environment and session.
 The sections below summarize the hierarchical levels of configurations. The final configuration is resolved by merging the different layers, starting from top to bottom, overriding the latter sources on top of previous ones in case of multi-level definitions.
@@ -29,7 +29,7 @@ Python library. They are valid across machines and sessions.
 ### Environment configuration 
 
 Environment configurations are stored in your local environment, and they can apply 
-to multiple Spark users launched/used from the same machine. They are valid 
+to multiple Apache Spark users launched/used from the same machine. They are valid 
 across users and sessions. These configurations may be stored in:
 
 * *static properties files* specified via environment variable `SPARK_CLIENT_ENV_CONF`

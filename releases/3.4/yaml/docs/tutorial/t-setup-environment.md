@@ -11,7 +11,7 @@ Before we start, make sure your machine meets the following requirements:
 
 ## Prepare MicroK8s
 
-Charmed Spark is developed to be run on top of a Kubernetes cluster. For the purpose of this tutorial, we are going to use [MicroK8s](https://microk8s.io/), a very simple production-grade conformant K8s that can run locally. 
+Charmed Apache Spark is developed to be run on top of a Kubernetes cluster. For the purpose of this tutorial, we are going to use [MicroK8s](https://microk8s.io/), a very simple production-grade conformant K8s that can run locally. 
 
 Installing MicroK8s is as simple as running the following command:
 
@@ -99,7 +99,7 @@ addons:
 
 ## Setup MinIO
 
-Spark can be configured to use S3 for object storage. However for simplicity, instead of using AWS S3, we're going to use an S3 compliant object storage library [`minio`](https://min.io/), an [add-on](https://microk8s.io/docs/addon-minio) for which is shipped by default in `microk8s` installation. Using MinIO, we can have an S3 compliant bucket created locally which is more convinient than AWS S3 for experimentation purposes. 
+Apache Spark can be configured to use S3 for object storage. However for simplicity, instead of using AWS S3, we're going to use an S3 compliant object storage library [`minio`](https://min.io/), an [add-on](https://microk8s.io/docs/addon-minio) for which is shipped by default in `microk8s` installation. Using MinIO, we can have an S3 compliant bucket created locally which is more convinient than AWS S3 for experimentation purposes. 
 
 Let's enable the `minio` addon for MicroK8s.
 ```bash
@@ -180,7 +180,7 @@ With the access key, secret key and the endpoint properly configured, you should
 
 ## Set up Juju
 
-Juju is an Operator Lifecycle Manager (OLM) for clouds, bare metal, LXD or Kubernetes. We'll use `juju` to deploy and manage the Spark History Server and a number of other applications later to be integrated with Spark. Let's therefore let's install and configure a `juju` client using a snap.
+Juju is an Operator Lifecycle Manager (OLM) for clouds, bare metal, LXD or Kubernetes. We'll use `juju` to deploy and manage the Apache Spark History Server and a number of other applications later to be integrated with Apache Spark. Let's therefore let's install and configure a `juju` client using a snap.
 
 ```bash
 sudo snap install juju --channel 3.1/stable
@@ -218,7 +218,7 @@ spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   - 
 
 ### Set up spark-client snap and service accounts
 
-When Spark jobs are run on top of Kubernetes, a set of resources like service account, associated roles, role bindings etc. need to be created and configured. To simplify this task, the Charmed Spark solution offers the `spark-client`. 
+When Spark jobs are run on top of Kubernetes, a set of resources like service account, associated roles, role bindings etc. need to be created and configured. To simplify this task, the Charmed Apache Spark solution offers the `spark-client`. 
 
 Let's install the `spark-client` snap at first:
 
@@ -258,7 +258,7 @@ kubectl get rolebindings -n spark
 # spark-role-binding   Role/spark-role   69s
 ```
 
-For Spark to be able to access and use our local S3 bucket, we need to provide a few Spark configurations including the bucket endpoint, access key and secret key. In Charmed Spark solution, we bind these configurations to a Kubernetes service account such that when Spark jobs are executed with that service account, all the configurations binded to that service account are supplied to Spark automatically.
+For Apache Spark to be able to access and use our local S3 bucket, we need to provide a few configurations including the bucket endpoint, access key and secret key. In Charmed Apache Spark solution, we bind these configurations to a Kubernetes service account such that when Spark jobs are executed with that service account, all the configurations binded to that service account are supplied to Apache Spark automatically.
 
 The S3 configurations can be added to the `spark` service account we just created with the following command:
 
@@ -292,6 +292,6 @@ spark.kubernetes.authenticate.driver.serviceAccountName=spark
 spark.kubernetes.namespace=spark
 ```
 
-That's it. We're now ready to dive head first into Spark!
+That's it. We're now ready to dive head first into Apache Spark!
 
-In the [next section](/t/13232), we'll start submitting commands to Spark using the built-in interactive shell.
+In the [next section](/t/13232), we'll start submitting commands to Apache Spark using the built-in interactive shell.

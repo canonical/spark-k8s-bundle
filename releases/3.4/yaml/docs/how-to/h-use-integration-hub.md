@@ -1,9 +1,9 @@
 ## Configure Service Account using the Spark Integration Hub Charm
 
-The Integration Hub charm allows seamless configuration of Charmed Spark service accounts
+The Integration Hub charm allows seamless configuration of Charmed Apache Spark service accounts
 via Juju relations, therefore providing a charming, integrated user-experience. 
 
-The Integration Hub charm is part of the Charmed Spark bundle, that can be deployed by following 
+The Integration Hub charm is part of the Charmed Apache Spark bundle, that can be deployed by following 
 the [How-to deploy guide](/t/charmed-spark-k8s-documentation-how-to-deploy-charmed-spark/10979). Alternatively, you can also deploy the 
 Spark Integration Hub charm standalone by running the following command
 
@@ -59,7 +59,7 @@ Once the `s3-integrator` is set up and on an idle/active state, the Spark Integr
 juju integrate s3-integrator spark-integration-hub-k8s
 ```
 
-This will automatically add relevant configuration properties to your spark jobs,
+This will automatically add relevant configuration properties to your Spark jobs,
 depending on the storage backend. 
 This can be verified using the tools provided in the spark-client snap, e.g. 
 
@@ -127,7 +127,7 @@ Once the Azure Storage Integrator charm is set up and on an `idle/active` state,
 juju integrate azure-storage-integrator spark-integration-hub-k8s
 ```
 
-This will automatically add relevant configuration properties to your spark jobs,
+This will automatically add relevant configuration properties to your Spark jobs,
 depending on the storage backend. 
 This can be verified using the tools provided in the spark-client snap, e.g. 
 
@@ -155,7 +155,7 @@ Once a `prometheus-pushgateway` charm is set up, the Spark Integration Hub charm
 juju integrate prometheus-pushgateway spark-integration-hub-k8s
 ```
 
-This will add relevant configuration properties to your Charmed Spark service accounts, 
+This will add relevant configuration properties to your Charmed Apache Spark service accounts, 
 that can be verified using the snap, e.g. 
 
 ```shell

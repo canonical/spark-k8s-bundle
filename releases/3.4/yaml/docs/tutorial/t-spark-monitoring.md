@@ -1,16 +1,17 @@
 # Monitoring the Spark cluster
 
-By default, Spark stores the logs of drivers and executors as pod logs in the local file system, which are lost once the pods are deleted. Spark provides us with the ability to store these logs in a persistent object storage system, like S3, so that they can later be retrieved and visualised by a component called the Spark History Server.
+By default, Apache Spark stores the logs of drivers and executors as pod logs in the local file system, which are lost once the pods are deleted. Apache Spark provides us with the ability to store these logs in a persistent object storage system, like S3, so that they can later be retrieved and visualised by a component called the History Server.
 
-Charmed Spark provides native support and integration for these monitoring systems:
-1. Using the Spark History Server, which is a UI that most Spark users are accustomed to, to analyze their jobs, at the application level (e.g. jobs separated by the different steps and so on).
+Charmed Apache Spark provides native support and integration for these monitoring systems:
+
+1. Using the History Server, which is a UI that most Apache Spark users are accustomed to, to analyze their jobs, at the application level (e.g. jobs separated by the different steps and so on).
 2. Using Canonical Observability Stack (COS), which is more oriented to cluster administrators, allowing to set up alerts and dashboarding based on resource utilisation.
 
 Let's explore each one of these options.
 
 ## Monitoring with the Spark History Server
 
-The Spark History Server is a user interface to monitor the metrics and performance of completed and running Spark applications. The Spark History Server is offered as a charm in the Charmed Spark solution, which can be deployed via Juju.
+The Apache Spark History Server is a user interface to monitor the metrics and performance of completed and running Apache Spark applications. The Spark History Server is offered as a charm in the Charmed Apache Spark solution, which can be deployed via Juju.
 
 Let's create a fresh Juju model for some experiments with the Spark History server.
 
@@ -20,7 +21,7 @@ juju add-model history-server
 
 To enable monitoring via the Spark History server, we must first create a service account with the necessary configuration for Spark jobs to be able to store logs in an S3 bucket. We then need to deploy the Spark History Server with Juju and configure it to read from the same S3 bucket that our Spark jobs write logs to.
 
-Since Juju has already created the namespace `history-server`, let's create a new service account in this namespace. We'll reuse the configuration options from the existing `spark` service account and add a few more configuration parameters in order to tell Spark where to store and retrieve the logs.
+Since Juju has already created the namespace `history-server`, let's create a new service account in this namespace. We'll reuse the configuration options from the existing `spark` service account and add a few more configuration parameters in order to tell Apache Spark where to store and retrieve the logs.
 
 ```bash
 # Get config from old service account and store in a file
@@ -38,7 +39,7 @@ spark-client.service-account-registry create \
   --properties-file properties.conf
 ```
 
-We've configured Spark to write logs to the `spark-events` path in the `spark-tutorial` bucket. However, that path doesn't exist yet. Let's create that path in S3. (Note that the / at the end is required.)
+We've configured Apache Spark to write logs to the `spark-events` path in the `spark-tutorial` bucket. However, that path doesn't exist yet. Let's create that path in S3. (Note that the / at the end is required.)
 
 ```bash
 aws s3api put-object --bucket spark-tutorial --key spark-events/
@@ -50,7 +51,7 @@ Now, let's deploy the [`spark-history-server-k8s`](https://github.com/canonical/
 juju deploy spark-history-server-k8s -n1 --channel 3.4/stable
 ```
 
-The Spark History Server needs to connect to the S3 bucket for it to be able to read the logs. This integration is provided to the Spark History server charm by the [`s3-integrator`](https://github.com/canonical/s3-integrator) charm. Let's deploy the `s3-integrator` charm, configure it and integrate it with our `spark-history-server-k8s` deployment.
+The Spark History Server needs to connect to the S3 bucket for it to be able to read the logs. This integration is provided to the Spark History Server charm by the [`s3-integrator`](https://github.com/canonical/s3-integrator) charm. Let's deploy the `s3-integrator` charm, configure it and integrate it with our `spark-history-server-k8s` deployment.
 
 ```bash
 # Deploy s3-integrator
@@ -87,7 +88,7 @@ s3-integrator:s3-credentials       spark-history-server-k8s:s3-credentials  s3  
 s3-integrator:s3-integrator-peers  s3-integrator:s3-integrator-peers        s3-integrator-peers  peer   
 ```
 
-The Spark History Server is now successfully configured to read logs from the S3 bucket. Let's run a simple job so that Spark can generate some logs. We're going to use the same `count_vowels.py` example we used earlier, which already exists in the `spark-tutorial` bucket.
+The Spark History Server is now successfully configured to read logs from the S3 bucket. Let's run a simple job so that Apache Spark can generate some logs. We're going to use the same `count_vowels.py` example we used earlier, which already exists in the `spark-tutorial` bucket.
 
 
 ```bash
@@ -129,13 +130,13 @@ In a similar way, you can view information about various stages in the job by na
 
 ## Monitoring with Canonical Observability Stack 
 
-The Charmed Spark solution comes with the [spark-metrics](https://github.com/banzaicloud/spark-metrics) exporter embedded in the [Charmed Spark OCI image](https://github.com/canonical/charmed-spark-rock) which is used as a base image for driver and executor pods.
+The Charmed Apache Spark solution comes with the [spark-metrics](https://github.com/banzaicloud/spark-metrics) exporter embedded in the [Charmed Apache Spark OCI image](https://github.com/canonical/charmed-spark-rock) which is used as a base image for driver and executor pods.
 The exporter is designed to push metrics to the [Prometheus Pushgateway](https://github.com/prometheus/pushgateway), which in turn is integrated with the [Canonical Observability Stack](https://charmhub.io/topics/canonical-observability-stack). 
 
-In order to enable observability on Charmed Spark, two steps are necessary:
+In order to enable observability on Charmed Apache Spark, two steps are necessary:
 
 1. Deploy the COS (Canonical Observability Stack) bundle with Juju
-2. Configure the Spark service account to use the Prometheus sink
+2. Configure the Apache Spark service account to use the Prometheus sink
 
 Let's begin by setting up the COS bundle. Let's start by creating a fresh Juju model with name `cos`.
 
@@ -201,7 +202,7 @@ traefik:peers                       traefik:peers                traefik_peers  
 traefik:traefik-route               grafana:ingress              traefik_route          regular  
 ```
 
-At this point, the observability stack has been deployed, but Charmed Spark is not yet wired up to it. Generally, Prometheus collects metrics of services by regularly scraping dedicated endpoints. However, Spark jobs can be ephemeral processes that may not last so long, and are not really appropriate to be scraped. Moreover, the IPs/hostnames of pods are likely to change between runs, therefore requiring a more complex self-discoverable automation. For these reasons, we opted to have jobs run with Charmed Spark push metrics (rather than having Prometheus pulling them) to a dedicated service, called Prometheus Pushgateway, that caches the metrics and exposes them to Prometheus for regular scraping, even when the Spark job has finished. Therefore, to wire Spark jobs up with the observability stack, we need to deploy a Prometheus Pushgateway and then add Spark configuration parameters to be able to connect to it. The Prometheus Pushgateway in turn will then be integrated with Prometheus. Let's deploy the `prometheus-pushgateway-k8s` charm and integrate it with the `prometheus` charm.
+At this point, the observability stack has been deployed, but Charmed Apache Spark is not yet wired up to it. Generally, Prometheus collects metrics of services by regularly scraping dedicated endpoints. However, Spark jobs can be ephemeral processes that may not last so long, and are not really appropriate to be scraped. Moreover, the IPs/hostnames of pods are likely to change between runs, therefore requiring a more complex self-discoverable automation. For these reasons, we opted to have jobs run with Charmed Apache Spark push metrics (rather than having Prometheus pulling them) to a dedicated service, called Prometheus Pushgateway, that caches the metrics and exposes them to Prometheus for regular scraping, even when the Spark job has finished. Therefore, to wire Spark jobs up with the observability stack, we need to deploy a Prometheus Pushgateway and then add Apache Spark configuration parameters to be able to connect to it. The Prometheus Pushgateway in turn will then be integrated with Prometheus. Let's deploy the `prometheus-pushgateway-k8s` charm and integrate it with the `prometheus` charm.
 
 ```bash
 juju deploy prometheus-pushgateway-k8s --channel edge
@@ -209,7 +210,7 @@ juju deploy prometheus-pushgateway-k8s --channel edge
 juju integrate prometheus-pushgateway-k8s prometheus
 ```
 
-Now, for Spark to be able to access the Prometheus gateway, we need the gateway address and port. Let's export them as environment variables so that they can be used later.
+Now, for Apache Spark to be able to access the Prometheus gateway, we need the gateway address and port. Let's export them as environment variables so that they can be used later.
 
 ```shell
 # Get prometheus gateway IP

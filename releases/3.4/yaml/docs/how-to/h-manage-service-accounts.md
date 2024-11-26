@@ -1,8 +1,8 @@
-## Manage Charmed Spark Service Accounts
+## Manage Charmed Apache Spark Service Accounts
 
-This is an introduction to the CLI interface for creating, managing and configuring Charmed Spark service accounts. 
+This is an introduction to the CLI interface for creating, managing and configuring Charmed Apache Spark service accounts. 
 
-> **Note** Charmed Spark service accounts are designed to work seamlessly with the Spark Integration Hub charm, allowing you to manage Spark configuration using Juju relations. You can find more information about how to use configuration hub [here](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296).
+> **Note** Charmed Apache Spark service accounts are designed to work seamlessly with the Spark Integration Hub charm, allowing you to manage Apache Spark configuration using Juju relations. You can find more information about how to use configuration hub [here](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296).
 
 > :warning: The following commands assume that you have administrative permission on the namespaces (or on the kubernetes cluster) so that the corresponding resources (such as service accounts, secrets, roles and role-bindings) can be created and deleted. 
 
@@ -14,7 +14,7 @@ $ kubectl create namespace demonamespace
 namespace/demonamespace created
 ```
 
-Now we can define a service account within the scope of this namespace. In case we may have a configuration file with default settings for the account, we could also include those when defining the account. The syntax of the config file is identical to [Spark Configuration Properties](https://spark.apache.org/docs/latest/configuration.html#available-properties). For example
+Now we can define a service account within the scope of this namespace. In case we may have a configuration file with default settings for the account, we could also include those when defining the account. The syntax of the config file is identical to [Apache Spark Configuration Properties](https://spark.apache.org/docs/latest/configuration.html#available-properties). For example
 ```bash
 $ echo "spark.kubernetes.deploy-mode=cluster" > /home/demouser/conf/spark-overrides.conf
 ```

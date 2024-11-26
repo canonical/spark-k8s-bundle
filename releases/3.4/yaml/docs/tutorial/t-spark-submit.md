@@ -1,6 +1,6 @@
 # Submitting Jobs using Spark Submit
 
-Spark comes with a command called `spark-submit` which can be used to submit Spark jobs to the cluster from scripts written in high level languages like Python and Scala. For a quick example, let's gather the statements that we ran in the Python shell earlier and put them together in a script. The script looks like the following:
+Apache Spark comes with a command called `spark-submit` which can be used to submit Spark jobs to the cluster from scripts written in high level languages like Python and Scala. For a quick example, let's gather the statements that we ran in the Python shell earlier and put them together in a script. The script looks like the following:
 
 
 ```python
@@ -34,7 +34,7 @@ print(f"The number of vowels in the string is {n}")
 spark.stop()
 ```
 
-We've added a few more lines to what we've executed so far. The Spark session, which would be available by default in a PySpark shell, needs to be explicitly created. Also, we've added `spark.stop` at the end of the file to stop the Spark session after completion of the job.
+We've added a few more lines to what we've executed so far. The Apache Spark session, which would be available by default in a PySpark shell, needs to be explicitly created. Also, we've added `spark.stop` at the end of the file to stop the Apache Spark session after completion of the job.
 
 Let's save the aforementioned script in a file named `count_vowels.py`. Once saved, let's copy it to the S3 bucket because it needs to be accessible to pods in kubernetes. In fact, when submitting the job, the driver won't be running in the local machine but on a K8s pod, hence the script needs to be downloaded and then executed remotely in a dedicated pod. Copying the file to the S3 bucket can be done by the following command.
 
@@ -154,4 +154,4 @@ pod_name=$(kubectl get pods -n spark | grep "count-vowels-.*-driver" | tail -n 1
 kubectl logs $pod_name -n spark | grep "The number of vowels in the string is"
 ```
 
-In this section, we learned how to submit jobs using `spark-submit`. In the [next section](/t/13230), we'll learn how to process streaming data in Spark.
+In this section, we learned how to submit jobs using `spark-submit`. In the [next section](/t/13230), we'll learn how to process streaming data in Apache Spark.

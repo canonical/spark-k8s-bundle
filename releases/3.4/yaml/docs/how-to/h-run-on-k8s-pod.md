@@ -4,7 +4,7 @@
 
 After installing [Juju](https://juju.is/docs/olm/install-juju) and [Charmed Kubernetes](https://ubuntu.com/kubernetes/docs/install-manual) (together with applying [setup for the latter](https://ubuntu.com/kubernetes/docs/operations) ), now we can look into how to launch Spark jobs from within a pod in Charmed Kubernetes.
 
-First  we create a pod using Canonical's Charmed Spark container image.
+First  we create a pod using Canonical's Charmed Apache Spark container image.
 
 Edit the pod manifest file (we'll refer to it as ```shell-demo.yaml```) by adding the following conent:
 
@@ -52,7 +52,7 @@ $ python3 -m spark8t.cli.service_account_registry create --username spark
 
 ### Spark Job Submission To Kubernetes Cluster
 
-There is a script called ```spark-submit``` packaged within the Charmed Spark container image for Spark job submission. We can sue the ```Spark Pi``` job example again, such as
+There is a script called ```spark-submit``` packaged within the Charmed Apache Spark container image for Spark job submission. We can sue the ```Spark Pi``` job example again, such as
 ```shell
 $ python3 -m spak8t.cli.spark_submit --username spark --class org.apache.spark.examples.SparkPi local:///opt/spark/examples/jars/spark-examples_2.12-3.3.2.jar 100
 ```
@@ -63,7 +63,7 @@ $ spark-client.spark-submit --username spark --class org.apache.spark.examples.S
 
 ### Spark Shell
 
-To invoke the Spark shell, you can run the following command within the pod.
+To invoke the Apache Spark shell, you can run the following command within the pod.
 
 ```shell
 $ python3 -m spark8t.cli.spark_shell --username spark
