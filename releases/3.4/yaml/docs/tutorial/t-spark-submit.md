@@ -1,7 +1,6 @@
 # Submitting Jobs using Spark Submit
 
-Spark comes with a command called `spark-submit` which can be used to submit Spark jobs to the cluster from scripts written in high level languages like Python and Scala. For a quick example, let's gather the statements that we ran in the Python shell earlier and put them together in a script. The script looks like the following:
-
+Apache Spark comes with a command called `spark-submit` which can be used to submit Spark jobs to the cluster from scripts written in high-level languages like Python and Scala. For a quick example, let's gather the statements that we ran in the Python shell earlier and put them together in a script:
 
 ```python
 from operator import add
@@ -34,9 +33,11 @@ print(f"The number of vowels in the string is {n}")
 spark.stop()
 ```
 
-We've added a few more lines to what we've executed so far. The Spark session, which would be available by default in a PySpark shell, needs to be explicitly created. Also, we've added `spark.stop` at the end of the file to stop the Spark session after completion of the job.
+We've added a few more lines to what we've executed so far. The Apache Spark session, which would be available by default in a PySpark shell, needs to be explicitly created. Also, we've added `spark.stop` at the end of the file to stop the Apache Spark session after completion of the job.
 
-Let's save the aforementioned script in a file named `count_vowels.py`. Once saved, let's copy it to the S3 bucket because it needs to be accessible to pods in kubernetes. In fact, when submitting the job, the driver won't be running in the local machine but on a K8s pod, hence the script needs to be downloaded and then executed remotely in a dedicated pod. Copying the file to the S3 bucket can be done by the following command.
+Let's save the aforementioned script in a file named `count_vowels.py`. Once saved, let's copy it to the S3 bucket because it needs to be accessible to pods in kubernetes. 
+
+In fact, when submitting the job, the driver won't be running in the local machine but on a K8s pod, hence the script needs to be downloaded and then executed remotely in a dedicated pod. Copying the file to the S3 bucket can be done by the following command:
 
 ```bash
 aws s3 cp count_vowels.py s3://spark-tutorial/count_vowels.py
@@ -76,7 +77,7 @@ countvowels-2975f78d77ce2e6f-exec-2       1/1     Running     0          6s
 countvowels-2975f78d77ce2e6f-exec-1       1/1     Running     0          6s
 ```
 
-Among these pods, as explained before, we have a "driver" pod, that will be executing the script and orchestrating/coordinating the other two executor pods. If you observe closely the status of the pods while the job is being submitted, it's the driver pod that gets created first. The driver pod spawns executor pods to execute the jobs. Once the job completes, the driver and the executor pods are transitioned to `Completed` state. We can see the job execution logs by viewing pod logs of the driver pod.
+Among these pods, as explained before, we have a "driver" pod, that will be executing the script and orchestrating/coordinating the other two executor pods. If you observe closely the status of the pods while the job is being submitted, it's the driver pod that gets created first. The driver pod spawns executor pods to execute the jobs. Once the job is completed, the driver and the executor pods are transitioned to the `Completed` state. We can see the job execution logs by viewing the pod logs of the driver pod.
 
 To view the pod logs, we first need to identify the name of the driver pod. You can do that with `kubectl` and some text filtering as:
 
@@ -107,7 +108,6 @@ aws s3 cp README.md s3://spark-tutorial/README.md
 ```
 
 Now, let's modify the Python script `count_words.py` to process the lines read from the file in S3 instead.
-
 
 ```python
 from operator import add
@@ -154,4 +154,4 @@ pod_name=$(kubectl get pods -n spark | grep "count-vowels-.*-driver" | tail -n 1
 kubectl logs $pod_name -n spark | grep "The number of vowels in the string is"
 ```
 
-In this section, we learned how to submit jobs using `spark-submit`. In the [next section](/t/13230), we'll learn how to process streaming data in Spark.
+In this section, we learned how to submit jobs using `spark-submit`. In the [next section](/t/13230), we'll learn how to process streaming data in Charmed Apache Spark.

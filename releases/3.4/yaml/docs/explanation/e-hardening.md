@@ -1,11 +1,11 @@
 # Security hardening guide
 
 This document provides guidance and instructions to achieve 
-a secure deployment of [Charmed Spark K8s](https://github.com/canonical/spark-k8s-bundle), including setting up and managing a secure environment.
+a secure deployment of [Charmed Apache Spark K8s](https://github.com/canonical/spark-k8s-bundle), including setting up and managing a secure environment.
 The document is divided into the following sections:
 
 1. Environment, outlining the recommendation for deploying a secure environment
-2. Applications, outlining the product features that enable a secure deployment of a Spark cluster
+2. Applications, outlining the product features that enable a secure deployment of an Apache Spark cluster
 3. Additional resources, providing any further information about security and compliance
 
 ## Environment
@@ -17,7 +17,7 @@ The environment where applications operate can be divided in two components:
 
 ### Kubernetes
 
-Charmed Spark can be deployed on top of several Kubernetes distributions. 
+Charmed Apache Spark can be deployed on top of several Kubernetes distributions. 
 The following table provides references for the security documentation for the 
 main supported cloud platforms.
 
@@ -59,21 +59,21 @@ Juju user credentials must be stored securely and rotated regularly to limit the
 
 ## Applications
 
-In the following we provide guidance on how to harden your deployment using:
+In the following, we provide guidance on how to harden your deployment using:
 
 1. Base Images
-2. Spark Security Upgrades
+2. Apache Spark Security Upgrades
 3. Encryption 
 4. Authentication
 5. Monitoring and Auditing
 
 ### Base images
 
-Charmed Spark K8s runs on top of a set of Rockcraft-based images, all based on the same Spark distribution binaries, 
-available in the [Spark release page](https://launchpad.net/spark-releases), on top of Ubuntu 22.04. 
-The images that can be found in the [Charmed Spark rock images GitHub repo](https://github.com/canonical/charmed-spark-rock) are used as the base 
+Charmed Apache Spark K8s runs on top of a set of Rockcraft-based images, all based on the same Apache Spark distribution binaries, 
+available in the [Apache Spark release page](https://launchpad.net/spark-releases), on top of Ubuntu 22.04. 
+The images that can be found in the [Charmed Apache Spark rock images GitHub repo](https://github.com/canonical/charmed-spark-rock) are used as the base 
 images for pods both for Spark Jobs and charms. 
-The following table summarise the relation between the component and its underlying base image. 
+The following table summarises the relation between the component and its underlying base image. 
 
 | Component                          | Image                                                                                                       |
 |------------------------------------|-------------------------------------------------------------------------------------------------------------|
@@ -85,19 +85,19 @@ The following table summarise the relation between the component and its underly
 | Spark Job (Executor) - GPU Support | [`charmed-spark-gpu`](https://github.com/orgs/canonical/packages/container/package/charmed-spark-gpu)       |
 | Integration Hub                    | [`spark-integration-hub`](https://github.com/orgs/canonical/packages/container/package/spark-integration-hub)                    |
 
-New versions of the Charmed Spark images may be released to provide patching of vulnerabilities (CVEs). 
+New versions of the Charmed Apache Spark images may be released to provide patching of vulnerabilities (CVEs). 
 
 ### Charmed operator security upgrades
 
-Charmed Spark K8s operators, including Spark History server, Kyuubi, and Integration Hub, install a pinned revision of the 
-Charmed Spark images outlined in the previous table in order to provide reproducible and secure environments. 
-New versions of Charmed Spark K8s operators may therefore be released to provide patching of vulnerabilities (CVEs). 
+Charmed Apache Spark K8s operators, including Spark History server, Kyuubi, and Integration Hub, install a pinned revision of the 
+Charmed Apache Spark images outlined in the previous table in order to provide reproducible and secure environments. 
+New versions of Charmed Apache Spark K8s operators may therefore be released to provide patching of vulnerabilities (CVEs). 
 It is important to refresh the charm regularly to make sure the workload is as secure as possible. 
 <!-- For more information on how to refresh the charm, see the [how-to refresh](https://juju.is/docs/juju/juju-refresh) guide and other data-platform guide -->
 
 ### Encryption
 
-We recommend to deploy Charmed Spark K8s with encryption enabled for securing the communication between components, whenever available and supported by the server and client applications.
+We recommend deploying Charmed Apache Spark K8s with encryption enabled for securing the communication between components, whenever available and supported by the server and client applications.
 In the following, we provide further information on how to encrypt the various data flow between the different components of the solution:
 
 * Client <> Kubernetes API connections
@@ -145,13 +145,13 @@ Encryption is currently not supported and it is planned for 25.04.
 
 #### Spark Jobs communications
 
-To secure the RPC channel used for communication between driver and executor, use the [dedicated Spark properties](https://spark.apache.org/docs/latest/security.html#ssl-configuration). 
+To secure the RPC channel used for communication between driver and executor, use the [dedicated Apache Spark properties](https://spark.apache.org/docs/latest/security.html#ssl-configuration). 
 Refer to the [how-to manage spark accounts](/t/spark-client-snap-how-to-manage-spark-accounts/8959) for more information on how to customize the 
-Spark service account with additional properties, or the [Spark Configuration Management](/t/charmed-spark-documentation-explanation-components/11685) explanation page for more information on how Spark workload can be further configured.
+Apache Spark service account with additional properties, or the [Spark Configuration Management](/t/charmed-spark-documentation-explanation-components/11685) explanation page for more information on how Spark workload can be further configured.
 
 ### Authentication
 
-Charmed Spark K8s provides external authentication capabilities for:
+Charmed Apache Spark K8s provides external authentication capabilities for:
 
 1. Kubernetes API
 2. Spark History Server
@@ -192,4 +192,4 @@ For more information on how to enable and customise monitoring with COS, see the
 
 ## Additional resources
 
-For further information and details on the security and cryptographic specifications used by Charmed Spark, please refer to the [Security Explanation page](/t/charmed-spark-k8s-documentation-explanation-security/15795).
+For further information and details on the security and cryptographic specifications used by Charmed Apache Spark, please refer to the [Security Explanation page](/t/charmed-spark-k8s-documentation-explanation-security/15795).
