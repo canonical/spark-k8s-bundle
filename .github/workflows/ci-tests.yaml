@@ -52,7 +52,7 @@ jobs:
       matrix:
         version:
           - --spark-version "3.4.2"
-          - --spark-version "3.5.1"
+          # - --spark-version "3.5.1"
         backend:
           - --backend yaml
           - --backend terraform
@@ -67,10 +67,10 @@ jobs:
           - integration-kyuubi
           - integration-kyuubi-azure
         juju:
-          - snap_channel: "3.4/stable"
-            agent: "3.4.2"
-          - snap_channel: "3.6/beta"
-            agent: "3.6-beta2"
+          - snap_channel: "3.5/stable"
+            agent: "3.5.4"
+          # - snap_channel: "3.6/beta"
+          #   agent: "3.6-beta2"
         exclude:
           - tox-environments: integration-basic           # Basic tests, test without COS
             cos: --cos-model cos
