@@ -75,7 +75,7 @@ In the Charmed Apache Spark solution, the authentication mechanism exists at the
 
 Kyuubi Server authenticates to Zookeeper using a hash digest mechanism using digested MD5 hashes of username and password. Usernames and passwords are exchanged using a databag of the relation between Kyuubi and ZooKeeper. These credentials are stored unencrypted in configuration files in the `/opt/kyuubi/conf` directory inside the Kyuubi workload container.
 
-Clients need to connect to Zookeeper for service discovery and retrieve information about the list of healthy Kyuubi Servers. The connection to ZooKeeper for service discovery is currently unauthenticated, exposing the list of healthy Kyuubi servers stored in a dedicated ZooKeeper node publicly readable by everyone.
+Clients need to connect to Zookeeper for service discovery and to retrieve information about the list of healthy Kyuubi Servers. The connection to ZooKeeper for service discovery is currently unauthenticated, exposing the list of healthy Kyuubi servers stored in a dedicated ZooKeeper node publicly readable by everyone.
 
 ### Connection with PostgreSQL
 
