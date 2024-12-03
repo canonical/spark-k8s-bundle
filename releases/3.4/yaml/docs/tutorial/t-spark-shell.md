@@ -82,7 +82,7 @@ To test this function, the string `lines` can now be passed into it and the numb
 
 ```python
 >>> count_vowels(lines)
-128
+134
 ```
 
 Since Apache Spark is a distributed processing framework, we can split up this task and parallelize it over multiple executor pods. This parallelization can be done as simply as:
@@ -90,7 +90,7 @@ Since Apache Spark is a distributed processing framework, we can split up this t
 ```python
 >>> from operator import add
 >>> spark.sparkContext.parallelize(lines.splitlines(), 2).map(count_vowels).reduce(add)
-128
+134
 ```
 
 Here, we split the data into two executors (passed as an argument to `parallelize` function), generating a distributed data structure, e.g. RDD[str], where each line is stored in one of the (possibly many) executors. The number of vowels in each line is then computed, line by line, with the `map` function, and then the numbers are aggregated and added up to calculate the total number of occurrences of vowel characters in the entire dataset. This kind of parallelization of tasks is particularly useful in processing very large data sets which helps to reduce the processing time significantly, and it is generally referred to as the MapReduce pattern.
