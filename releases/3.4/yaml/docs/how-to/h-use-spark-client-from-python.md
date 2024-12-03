@@ -1,6 +1,6 @@
 ## Manage Service Accounts using the Python API
 
-The `spark-client` snap relies on the [`spark8t` toolkit](https://github.com/canonical/spark-k8s-toolkit-py). `spark8t` provides both a CLI and a programmatic interface to enhanced Spark client functionalities. 
+The `spark-client` snap relies on the [`spark8t` toolkit](https://github.com/canonical/spark-k8s-toolkit-py). `spark8t` provides both a CLI and a programmatic interface to enhanced Apache Spark client functionalities. 
 
 Here we describe how to use the `spark8t` toolkit (as part of the `spark-client` snap) to manage service accounts using Python.
 
@@ -8,7 +8,7 @@ Here we describe how to use the `spark8t` toolkit (as part of the `spark-client`
 
 The `spark8t` package is already part of the SNAP. However, if the python package is used outside of the SNAP context, please make sure that environment settings (described on the [tool's README](https://github.com/canonical/spark-k8s-toolkit-py)) are correctly configured.
 
-Furthermore you need to make sure that `PYTHONPATH` contains the location where the `spark8t` libraries were installed within the snap (something like `/snap/spark-client/current/lib/python3.10/site-packages`)
+Furthermore, you need to make sure that `PYTHONPATH` contains the location where the `spark8t` libraries were installed within the snap (something like `/snap/spark-client/current/lib/python3.10/site-packages`)
 
 ### Bind to Kubernetes
 
@@ -30,7 +30,7 @@ kube_interface = KubeInterface(defaults.kube_config)
 
 Note that if you want to override some of these settings, you can extend the `Default` class accordingly. 
 
-Alternatively you can also use auto-inference using the `kubectl` command via
+Alternatively, you can also use auto-inference using the `kubectl` command via
 
 ```python
 from spark8t.services import KubeInterface
@@ -56,7 +56,7 @@ service_accounts_namespace = kube_interface.exec(
 
 ### Manage Spark Service Accounts
 
-All functionalities for managing Spark service accounts are embedded within
+All functionalities for managing Apache Spark service accounts are embedded within
 the `K8sServiceAccountRegistry` that can be instantiated using the `kube_interface`
 object we defined above
 
@@ -70,9 +70,9 @@ registry = K8sServiceAccountRegistry(kube_interface)
 Once this object is instantiated we can perform several operations, as outlined 
 in the sections below
 
-#### Create new Spark service accounts
+#### Create new Apache Spark service accounts
 
-New Spark service accounts can be created by first creating a `ServiceAccount`
+New Apache Spark service accounts can be created by first creating a `ServiceAccount`
 domain object, and optionally specifying extra-properties, e.g. 
 
 ```python
@@ -98,7 +98,7 @@ This returns an id, which is effectively the `{namespace}:{username}`, e.g. "def
 
 #### Listing spark service accounts
 
-Once Spark service accounts have been created, these can be listed via
+Once Apache Spark service accounts have been created, these can be listed via
 
 ```python
 spark_service_accounts = registry.all()
@@ -126,9 +126,9 @@ registry.delete(service_account.id)
 
 #### Manage Primary Accounts
 
-`spark8t` and spark-client snap have the notation of the so called 'primary' service account, the 
-one that would be chosen by default, if no specific account is provided. The
-primary Spark service account can be set using 
+`spark8t` and spark-client snap have the notation of the so-called 'primary' service account, the 
+one that would be chosen by default if no specific account is provided. The
+primary Apache Spark service account can be set up using:
 
 ```python
 registry.set_primary(service_account_id)
@@ -140,7 +140,7 @@ or using an already existing `ServiceAccount` object:
 registry.set_primary(service_account.id)
 ```
 
-The primary Spark service account can be retrieved using 
+The primary Apache Spark service account can be retrieved using 
 
 ```python
 primary_account = registry.get_primary()
@@ -148,8 +148,8 @@ primary_account = registry.get_primary()
 
 #### Manage configurations of Spark service accounts
 
-Spark service accounts can have configuration that is provided (unless 
-overridden) during each execution of Spark Jobs. These configuration is stored in the `PropertyFile` object, that can be provided on creation of a `ServiceAccount` object (`extra_confs` argument). 
+Apache Spark service accounts can have a configuration that is provided (unless 
+overridden) during each execution of Spark Jobs. This configuration is stored in the `PropertyFile` object, which can be provided on the creation of a `ServiceAccount` object (`extra_confs` argument). 
 
 The `PropertyFile` object can either be created from a dictionary, as 
 done above
@@ -160,7 +160,7 @@ from spark8t.domain import PropertyFile
 static_property = PropertyFile({"my-key": "my-value"})
 ```
 
-or also read from a file, e.g. 
+or also read from a file, e.g.:
 
 ```python
 from spark8t.domain import PropertyFile
@@ -168,20 +168,20 @@ from spark8t.domain import PropertyFile
 static_property = PropertyFile.read(defaults.static_conf_file)
 ```
 
-`PropertyFile` objects can be merged using the `+` operator
+`PropertyFile` objects can be merged using the `+` operator:
 
 ```python
 merged_property = static_property + service_account.extra_confs
 ```
 
 And `ServiceAccount` properties can be updated using new "merged" properties 
-via the API provided by the registry
+via the API provided by the registry:
 
 ```python
 registry.set_configurations(service_account.id, merged_property)
 ```
 
-Alternatively, you can also store these properties in files
+Alternatively, you can also store these properties in files:
 
 ```python
 with open("my-file", "w") as fid:
