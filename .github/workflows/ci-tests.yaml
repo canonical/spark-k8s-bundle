@@ -69,8 +69,8 @@ jobs:
         juju:
           - snap_channel: "3.4/stable"
             agent: "3.4.2"
-          - snap_channel: "3.6/beta"
-            agent: "3.6-beta2"
+          - snap_channel: "3.6/stable"
+            agent: "3.6.0"
         exclude:
           - tox-environments: integration-basic           # Basic tests, test without COS
             cos: --cos-model cos
