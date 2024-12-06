@@ -3,7 +3,7 @@
 This is an introduction to the CLI interface for creating, managing and configuring Charmed Apache Spark service accounts. 
 
 [note]
-Charmed Apache Spark service accounts are designed to work seamlessly with the Spark Integration Hub charm, allowing you to manage Apache Spark configuration using Juju relations. For more information about how to use the configuration hub see the [How to guide](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296).
+Charmed Apache Spark service accounts are designed to work seamlessly with the Integration Hub for Apache Spark charm, allowing you to manage Apache Spark configuration using Juju relations. For more information about how to use the configuration hub see the [How to guide](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296).
 [/note]
 
 [note type="caution"]

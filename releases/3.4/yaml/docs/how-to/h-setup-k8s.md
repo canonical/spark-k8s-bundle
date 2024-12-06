@@ -153,8 +153,8 @@ The EKS cluster is now ready to be used.
 
 Object storage persistence integration with Charmed Apache Spark is critical for: 
 
-* reading and writing application data to be used in Spark Jobs
-* storing Spark Jobs logs to be then exposed via Charmed Apache Spark History Server
+* reading and writing application data to be used in Spark jobs
+* storing Spark jobs logs to be then exposed via Charmed Apache Spark History Server
 * enable Hive-compatible JDBC/ODBC endpoints provided by Apache Kyuubi to provide datalake capabilities on top of HDFS/Hadoop/object storages
 
 Charmed Apache Spark provides out-of-box integration with the following object storage backends:
@@ -262,7 +262,7 @@ To create a folder on an existing bucket, just place an empty path object `spark
 aws s3api put-object --bucket <S3_BUCKET> --key spark-events
 ```
 
-The S3-object storage should now be ready to be used by Spark Jobs to store their logs. 
+The S3-object storage should now be ready to be used by Spark jobs to store their logs. 
 
 #### Azure Storage
 

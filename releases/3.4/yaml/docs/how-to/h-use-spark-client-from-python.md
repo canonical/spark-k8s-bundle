@@ -149,7 +149,7 @@ primary_account = registry.get_primary()
 #### Manage configurations of Spark service accounts
 
 Apache Spark service accounts can have a configuration that is provided (unless 
-overridden) during each execution of Spark Jobs. This configuration is stored in the `PropertyFile` object, which can be provided on the creation of a `ServiceAccount` object (`extra_confs` argument). 
+overridden) during each execution of Spark jobs. This configuration is stored in the `PropertyFile` object, which can be provided on the creation of a `ServiceAccount` object (`extra_confs` argument). 
 
 The `PropertyFile` object can either be created from a dictionary, as 
 done above

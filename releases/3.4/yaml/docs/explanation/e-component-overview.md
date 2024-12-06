@@ -4,11 +4,11 @@ The Charmed Apache Spark Solution bundles the following components:
 
 * [spark8t](https://github.com/canonical/spark-k8s-toolkit-py), which is a Python package to enhance Apache Spark capabilities allowing to manage Spark jobs and service accounts, with hierarchical level of configuration
 * [Charmed Apache Spark Rock](https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark) OCI-compliant Image, that bundles Apache Spark binaries together with Canonical tooling to be used to start your Apache Spark workload on Kubernetes, to use Charmed Apache Spark CLI tooling or derive your own images from secured and supported bases;
-* [Apache Spark Client Snap](https://snapcraft.io/spark-client), to simplify Apache Spark installation on edge nodes or local machines, by leveraging on confined [SNAPs](https://snapcraft.io/) and exposing simple Snap commands to run and manage Spark Jobs 
+* [Apache Spark Client Snap](https://snapcraft.io/spark-client), to simplify Apache Spark installation on edge nodes or local machines, by leveraging on confined [SNAPs](https://snapcraft.io/) and exposing simple Snap commands to run and manage Spark jobs 
 * [Charmed Bundle](https://charmhub.io/spark-k8s-bundle) to deploy, manage and operate Charmed Apache Spark using [Juju](https://juju.is/). This includes:
-  * [Spark History Server](https://charmhub.io/spark-history-server-k8s) to expose a web UI for analysing the logs of previous Spark Jobs
+  * [Spark History Server](https://charmhub.io/spark-history-server-k8s) to expose a web UI for analysing the logs of previous Spark jobs
   * [Kyuubi](https://charmhub.io/kyuubi-k8s) to provide a JDBC/ODBC endpoint for running Hive powered by Apache Spark engines
-  * [Spark Integration Hub](https://charmhub.io/spark-integration-hub-k8s) to enable easy configuration of Apache Spark service accounts, providing a native Juju integration with [S3 Integrator](https://charmhub.io/s3-integrator) and [Azure Storage Integrator](https://charmhub.io/azure-storage-integrator) for enabling object-storage persistence and with the [Canonical Observability Stack (COS)](https://charmhub.io/cos-lite) for enabling resource usage monitoring and alerting.   
+  * [Integration Hub for Apache Spark](https://charmhub.io/spark-integration-hub-k8s) to enable easy configuration of Apache Spark service accounts, providing a native Juju integration with [S3 Integrator](https://charmhub.io/s3-integrator) and [Azure Storage Integrator](https://charmhub.io/azure-storage-integrator) for enabling object-storage persistence and with the [Canonical Observability Stack (COS)](https://charmhub.io/cos-lite) for enabling resource usage monitoring and alerting.   
 
 The following image shows how the different artifacts interacts with each other:
 

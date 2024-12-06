@@ -50,8 +50,8 @@ about the [Charmed Apache Spark hierarchical configuration](/8956) for more info
 
 ### Metrics
 
-Spark Jobs are ephemeral processes that may be long-lived in some cases but also very 
-short-lived on others. Spark Jobs may be launch occasionally, or multiple Spark Jobs
+Spark jobs are ephemeral processes that may be long-lived in some cases but also very 
+short-lived on others. Spark jobs may be launch occasionally, or multiple Spark jobs
 may be running at the same times. 
 
 In this sense, Apache Spark is very different from traditional database management systems
@@ -65,7 +65,7 @@ bundled in COS. However, because of the intrinsic characteristics of Apache Spar
 an approach is not directly suitable and feasible for Apache Spark. 
 
 Instead of being passively scraped and metrics being pulled directly by Prometheus, 
-Spark Jobs running with Charmed Apache Spark actively push the metrics into 
+Spark jobs running with Charmed Apache Spark actively push the metrics into 
 [Prometheus Pushgateway](https://github.com/prometheus/pushgateway), that is a *sink* component able to temporarily 
 store the metrics, and exposing a stable, reliable and long-lived endpoint to be 
 scraped by Prometheus. Metrics pushed into Prometheus Pushgateway are organized 

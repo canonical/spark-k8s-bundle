@@ -46,7 +46,7 @@ As you can see, PySpark spawned two executor pods within the `spark` namespace. 
 
 On the other hand, the PySpark shell started by the `spark-client` snap will act as a `driver`, controlling and orchestrating the operations of the executors. More information about the Apache Spark architecture can be found in the [Apache Spark documentation](https://spark.apache.org/docs/latest/cluster-overview.html).
 
-One good thing about the shell is that the Apache Spark context and session are already pre-loaded onto the shell and can be easily accessed with variables `sc` and `spark` respectively. You can even see this printed in the logs above, where upon initialization, the PySpark shell says `Spark context available as 'sc'` and `SparkSession available as 'spark'`. This shell is just like a regular Python shell, with Apache Spark context loaded on top of it.
+One good thing about the shell is that the Apache Spark Context and session are already pre-loaded onto the shell and can be easily accessed with variables `sc` and `spark` respectively. You can even see this printed in the logs above, where upon initialization, the PySpark shell says `Spark context available as 'sc'` and `SparkSession available as 'spark'`. This shell is just like a regular Python shell, with Apache Spark Context loaded on top of it.
 
 To start, you can print 'hello, world!' just like you'd do in a Python shell.
 
@@ -122,7 +122,7 @@ Type :help for more information.
 scala> 
 ```
 
-Just as in the PySpark shell, the Apache Spark context and Apache Spark session are readily available in the shell as `sc` and `spark` respectively. Moreover, new executor pods are created in `spark` namespace in order to execute the commands, just like with the PySpark shell.
+Just as in the PySpark shell, the Apache Spark Context and Apache Spark session are readily available in the shell as `sc` and `spark` respectively. Moreover, new executor pods are created in `spark` namespace in order to execute the commands, just like with the PySpark shell.
 
 The example of counting the vowel characters can be equivalently run in Scala with the following lines:
 

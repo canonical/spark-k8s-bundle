@@ -3,7 +3,7 @@
 Charmed Apache Spark supports native integration with the Canonical Observability Stack (COS). If you want to enable monitoring on top of Charmed Apache Spark, make sure that you have a Juju model with COS correctly deployed.
 
 To deploy COS on MicroK8s, follow the [step-by-step tutorial](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s).
-For more information about Charmed Spark and COS integration, refer to the [COS documentation](https://charmhub.io/topics/canonical-observability-stack) and the [monitoring explanation section](/t/charmed-spark-documentation-explanation-monitoring/14299).
+For more information about Charmed Apache Spark and COS integration, refer to the [COS documentation](https://charmhub.io/topics/canonical-observability-stack) and the [monitoring explanation section](/t/charmed-spark-documentation-explanation-monitoring/14299).
 
 Once COS is correctly deployed, to enable monitoring it is necessary to:
 
@@ -92,7 +92,7 @@ There are two ways to provide the `LOKI_URL` variables:
 1. Manually, via [Spark configuration](https://canonical.com/data/docs/spark/k8s/e-configuration):
    - `spark.executorEnv.LOKI_URL` - for executors
    - `spark.kubernetes.driverEnv.LOKI_URL` - for drivers
-2. Using the [`logging` relation](https://charmhub.io/spark-integration-hub-k8s/integrations#logging) in a Spark integration hub
+2. Using the [`logging` relation](https://charmhub.io/spark-integration-hub-k8s/integrations#logging) in an Integration Hub for Apache Spark
    charm either with the [Grafana-agent charm](https://charmhub.io/grafana-agent-k8s) (recommended) or
    directly with the [Loki charm](https://charmhub.io/loki-k8s), for example:
 
@@ -105,7 +105,7 @@ There are two ways to provide the `LOKI_URL` variables:
 Charmed Apache Spark service account created by `spark-client` snap and `spark8t` Python library
 are automatically configured to use monitoring by the
 [spark-integration-hub-k8s](https://charmhub.io/spark-integration-hub-k8s) charm, that
-is deployed as part of the Charmed Spark bundle.
+is deployed as part of the Charmed Apache Spark bundle.
 
 Just make sure that the `spark-integration-hub-k8s` charm is correctly related to
 the `prometheus-pushgateway` charm on the `pushgateway` interface.
@@ -130,7 +130,7 @@ PROMETHEUS_GATEWAY=$(juju status --format=yaml | yq ".applications.prometheus-pu
 ```
 
 [note]
-Besides the one above, the Charmed Spark service accounts are configured
+Besides the one above, the Charmed Apache Spark service accounts are configured
 for exporting metrics by means of other properties, returned by the `get-config`
 command. You can override some of them with custom values by either:
 

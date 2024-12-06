@@ -5,20 +5,20 @@ via Juju relations, therefore providing a charming, integrated user experience.
 
 The Integration Hub charm is part of the Charmed Apache Spark bundle, that can be deployed by following 
 the [How-to deploy guide](/t/charmed-spark-k8s-documentation-how-to-deploy-charmed-spark/10979). Alternatively, you can also deploy the 
-Spark Integration Hub charm standalone by running the following command:
+Integration Hub for Apache Spark charm standalone by running the following command:
 
 ```shell
 juju deploy spark-integration-hub-k8s --channel edge -n1
 ```
 
-Once deployed, the Spark Integration Hub will automatically manage the properties for all the service 
+Once deployed, the Integration Hub for Apache Spark will automatically manage the properties for all the service 
 accounts created either with the `spark-client` snap or using the `spark8t` python library. 
 Refer to the how-to guides for more information on the [snap usage](/t/spark-client-snap-how-to-manage-spark-accounts/8959) and 
 on the [python library](/t/spark-client-snap-how-to-python-api/8958).
 
 ### Enable object storage integration
 
-Spark Integration Hub can consume:
+Integration Hub for Apache Spark can consume:
 
 * `s3-credentials` relation provided by the [S3-integrator](https://charmhub.io/s3-integrator) to enable integration with an S3-compatible 
 object storage system
@@ -53,7 +53,7 @@ Please refer to the [How-To Setup Environment](/t/charmed-spark-k8s-documentatio
 different parameters for a MinIO deployed on MicroK8s and AWS S3. 
 For more information on how to deploy and configure the `s3-integrator` charm refer to the charm documentation.
 
-Once the `s3-integrator` is set up and in an idle/active state, the Spark Integration Hub charm can be integrated with
+Once the `s3-integrator` is set up and in an idle/active state, the Integration Hub for Apache Spark charm can be integrated with
 
 ```shell
 juju integrate s3-integrator spark-integration-hub-k8s
@@ -121,7 +121,7 @@ different parameters for Azure Storage backends.
 For more information on how to deploy and configure the Azure Storage Integrator charm refer 
 to the charm documentation.
 
-Once the Azure Storage Integrator charm is set up and on an `idle/active` state, the Spark Integration Hub charm can be integrated with
+Once the Azure Storage Integrator charm is set up and on an `idle/active` state, the Integration Hub for Apache Spark charm can be integrated with
 
 ```shell
 juju integrate azure-storage-integrator spark-integration-hub-k8s
@@ -149,7 +149,7 @@ The Integration Hub can consume the `pushgateway` relation provided by the
 You can find more information on how to deploy and configure a `prometheus-pushgateway` 
 charm [here](https://discourse.charmhub.io/t/prometheus-pushgateway-operator-k8s-docs-using-prometheus-pushgateway/11979/2).
 
-Once a `prometheus-pushgateway` charm is set up, the Apache Spark Integration Hub charm can be related:
+Once a `prometheus-pushgateway` charm is set up, the Integration Hub for Apache Spark charm can be related:
 
 ```shell
 juju integrate prometheus-pushgateway spark-integration-hub-k8s

@@ -72,7 +72,7 @@ In the following, we provide guidance on how to harden your deployment using:
 Charmed Apache Spark K8s runs on top of a set of Rockcraft-based images, all based on the same Apache Spark distribution binaries, 
 available in the [Apache Spark release page](https://launchpad.net/spark-releases), on top of Ubuntu 22.04. 
 The images that can be found in the [Charmed Apache Spark rock images GitHub repo](https://github.com/canonical/charmed-spark-rock) are used as the base 
-images for pods both for Spark Jobs and charms. 
+images for pods both for Spark jobs and charms. 
 The following table summarises the relation between the component and its underlying base image. 
 
 | Component                          | Image                                                                                                       |
@@ -106,7 +106,7 @@ In the following, we provide further information on how to encrypt the various d
 * Kyuubi <> ZooKeeper connection
 * Spark History Server client connection 
 * Kyuubi Client <> Kyuubi Server connection
-* Spark Jobs communications
+* Spark jobs communications
 
 #### Client <> Kubernetes API connections
 
@@ -135,15 +135,15 @@ how to enable and customize encryption for ZooKeeper.
 
 #### Spark History Server client connection 
 
-Spark History Server implements encryption terminated at ingress-level. Therefore, internal Kubernetes communication between ingress and spark-history server is 
-unencrypted. To enable encryption, see the [how-to expose History server](/t/charmed-spark-k8s-documentation-how-to-expose-history-server/14297) user guide. 
+Spark History Server implements encryption terminated at ingress-level. Therefore, internal Kubernetes communication between ingress and Spark History Server is 
+unencrypted. To enable encryption, see the [how-to expose Spark History Server](/t/charmed-spark-k8s-documentation-how-to-expose-history-server/14297) user guide. 
 
 #### Kyuubi Client <> Kyuubi Server connection
 
 The Kyuubi charm exposes a JDBC compliant endpoint which can be connected using JDBC compliant clients, like Beeline. 
 Encryption is currently not supported and it is planned for 25.04.
 
-#### Spark Jobs communications
+#### Spark jobs communications
 
 To secure the RPC channel used for communication between driver and executor, use the [dedicated Apache Spark properties](https://spark.apache.org/docs/latest/security.html#ssl-configuration). 
 Refer to the [how-to manage spark accounts](/t/spark-client-snap-how-to-manage-spark-accounts/8959) for more information on how to customize the 
@@ -183,7 +183,7 @@ using the [`get-jdbc-endpoint` action](https://charmhub.io/kyuubi-k8s/actions#ge
 
 ### Monitoring and auditing
 
-Charmed Spark provides native integration with the [Canonical Observability Stack (COS)](https://charmhub.io/topics/canonical-observability-stack).
+Charmed Apache Spark provides native integration with the [Canonical Observability Stack (COS)](https://charmhub.io/topics/canonical-observability-stack).
 To reduce the blast radius of infrastructure disruptions, the general recommendation is to deploy COS and the observed application into 
 separate environments, isolated from one another. Refer to the [COS production deployments best practices](https://charmhub.io/topics/canonical-observability-stack/reference/best-practices) page
 for more information. 

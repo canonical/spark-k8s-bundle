@@ -4,14 +4,14 @@ By default, Apache Spark stores the logs of drivers and executors as pod logs in
 
 Charmed Apache Spark provides native support and integration for these monitoring systems:
 
-1. Using the History Server, which is a UI that most Spark users are accustomed to, to analyze their jobs, at the application level (e.g. jobs separated by the different steps and so on).
+1. Using the Spark History Server, which is a UI that most Spark users are accustomed to, to analyze their jobs, at the application level (e.g. jobs separated by the different steps and so on).
 2. Using Canonical Observability Stack (COS), which is more oriented to cluster administrators, allowing them to set up alerts and dashboarding based on resource utilisation.
 
 Let's explore each one of these options.
 
 ## Monitoring with the Apache Spark History Server
 
-The History Server is a user interface to monitor the metrics and performance of completed and running Spark applications. The Spark History Server is offered as a charm in the Charmed Apache Spark solution, which can be deployed via Juju.
+The Spark History Server is a user interface to monitor the metrics and performance of completed and running Spark applications. The Spark History Server is offered as a charm in the Charmed Apache Spark solution, which can be deployed via Juju.
 
 Let's create a fresh Juju model for some experiments with the Spark History server.
 
