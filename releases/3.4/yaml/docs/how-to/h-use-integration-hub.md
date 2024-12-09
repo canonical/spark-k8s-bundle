@@ -1,24 +1,24 @@
-## Configure Service Account using the Spark Integration Hub Charm
+## Configure service accounts using the Integration Hub charm
 
-The Integration Hub charm allows seamless configuration of Charmed Spark service accounts
-via Juju relations, therefore providing a charming, integrated user-experience. 
+The Integration Hub charm allows seamless configuration of Charmed Apache Spark service accounts
+via Juju relations, therefore providing a charming, integrated user experience. 
 
-The Integration Hub charm is part of the Charmed Spark bundle, that can be deployed by following 
+The Integration Hub charm is part of the Charmed Apache Spark bundle, that can be deployed by following 
 the [How-to deploy guide](/t/charmed-spark-k8s-documentation-how-to-deploy-charmed-spark/10979). Alternatively, you can also deploy the 
-Spark Integration Hub charm standalone by running the following command
+Integration Hub for Apache Spark charm standalone by running the following command:
 
 ```shell
 juju deploy spark-integration-hub-k8s --channel edge -n1
 ```
 
-Once deployed, the Spark Integration Hub will automatically manage the properties for all the service 
+Once deployed, the Integration Hub for Apache Spark will automatically manage the properties for all the service 
 accounts created either with the `spark-client` snap or using the `spark8t` python library. 
 Refer to the how-to guides for more information on the [snap usage](/t/spark-client-snap-how-to-manage-spark-accounts/8959) and 
 on the [python library](/t/spark-client-snap-how-to-python-api/8958).
 
 ### Enable object storage integration
 
-Spark Integration Hub can consume:
+Integration Hub for Apache Spark can consume:
 
 * `s3-credentials` relation provided by the [S3-integrator](https://charmhub.io/s3-integrator) to enable integration with an S3-compatible 
 object storage system
@@ -53,13 +53,13 @@ Please refer to the [How-To Setup Environment](/t/charmed-spark-k8s-documentatio
 different parameters for a MinIO deployed on MicroK8s and AWS S3. 
 For more information on how to deploy and configure the `s3-integrator` charm refer to the charm documentation.
 
-Once the `s3-integrator` is set up and on an idle/active state, the Spark Integration Hub charm can be integrated with
+Once the `s3-integrator` is set up and in an idle/active state, the Integration Hub for Apache Spark charm can be integrated with
 
 ```shell
 juju integrate s3-integrator spark-integration-hub-k8s
 ```
 
-This will automatically add relevant configuration properties to your spark jobs,
+This will automatically add relevant configuration properties to your Spark jobs,
 depending on the storage backend. 
 This can be verified using the tools provided in the spark-client snap, e.g. 
 
@@ -67,7 +67,7 @@ This can be verified using the tools provided in the spark-client snap, e.g.
 spark-client.service-account-registry get-config --username <service_account> --namespace <namespace>
 ```
 
-You should see the following configuration automatically added to your service-account:
+You should see the following configuration automatically added to your service account:
 
 ```shell
 spark.hadoop.fs.s3a.aws.credentials.provider=org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider
@@ -121,13 +121,13 @@ different parameters for Azure Storage backends.
 For more information on how to deploy and configure the Azure Storage Integrator charm refer 
 to the charm documentation.
 
-Once the Azure Storage Integrator charm is set up and on an `idle/active` state, the Spark Integration Hub charm can be integrated with
+Once the Azure Storage Integrator charm is set up and on an `idle/active` state, the Integration Hub for Apache Spark charm can be integrated with
 
 ```shell
 juju integrate azure-storage-integrator spark-integration-hub-k8s
 ```
 
-This will automatically add relevant configuration properties to your spark jobs,
+This will automatically add relevant configuration properties to your Spark jobs,
 depending on the storage backend. 
 This can be verified using the tools provided in the spark-client snap, e.g. 
 
@@ -143,20 +143,20 @@ spark.hadoop.fs.azure.account.key.<AZURE_STORAGE_ACCOUNT>.dfs.core.windows.net=<
 
 ### Enable Monitoring with Prometheus pushgateway
 
-Spark Integration Hub can consume the `pushgateway` relation provided by the 
+The Integration Hub can consume the `pushgateway` relation provided by the 
 [Prometheus Pushgateway charm](https://charmhub.io/prometheus-pushgateway) to provide integration with an object storage. 
 
 You can find more information on how to deploy and configure a `prometheus-pushgateway` 
 charm [here](https://discourse.charmhub.io/t/prometheus-pushgateway-operator-k8s-docs-using-prometheus-pushgateway/11979/2).
 
-Once a `prometheus-pushgateway` charm is set up, the Spark Integration Hub charm can be related with
+Once a `prometheus-pushgateway` charm is set up, the Integration Hub for Apache Spark charm can be related:
 
 ```shell
 juju integrate prometheus-pushgateway spark-integration-hub-k8s
 ```
 
-This will add relevant configuration properties to your Charmed Spark service accounts, 
-that can be verified using the snap, e.g. 
+This will add relevant configuration properties to your Charmed Apache Spark service accounts, 
+that can be verified using the snap, e.g.:
 
 ```shell
 spark-client.service-account-registry get-config --username <service_account> --namespace <namespace>
@@ -181,33 +181,35 @@ spark.metrics.conf.executor.sink.prometheus.metrics-name-replacement=\$2
 
 ### Overriding values and adding other configurations
 
-Beside the configurations enabled by relations, custom configuration can also 
+Besides the configurations enabled by relations, custom configurations can also 
 be added directly using actions. 
 
-To add a new custom configuration property
+To add a new custom configuration property:
 
 ```shell
 juju run integration-hub/leader add-config conf="<property>=<value>"
 ```
 
-Configuration properties can be removed using 
+Configuration properties can be removed using:
 
 ```shell
 juju run integration-hub/leader clear-config
 ```
 
-or they can be removed one by one using
+or they can be removed one by one using:
 
 ```shell
 juju run integration-hub/leader remove-config key="<property>"
 ```
 
-Finally, to list all custom configuration properties, use
+Finally, to list all custom configuration properties, use:
 
 ```shell
 juju run integration-hub/leader list-config
 ```
 
-> **NOTE** Since the configurations provided using actions take the precedence,
-> the configuration items already provided by the integration may be overridden, 
-> thus allowing some customisation of what is automatically configured by default.
+[note]
+Since the configurations provided using actions take the precedence,
+the configuration items already provided by the integration may be overridden, 
+thus allowing some customisation of what is automatically configured by default.
+[/note]
