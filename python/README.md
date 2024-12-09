@@ -72,6 +72,7 @@ such as
 Canonical welcomes contributions to the `spark-test` library. Please check out our [guidelines](./CONTRIBUTING.md) if you're interested in contributing to the solution. Also, if you truly enjoy working on open-source projects like this one and you would like to be part of the OSS revolution, please don't forget to check out the [open positions](https://canonical.com/careers/all) we have at [Canonical](https://canonical.com/).  
 
 ## License
+
 The `spark-test` toolkit is free software, distributed under the Apache Software License, version 2.0. See LICENSE for more information.
 
 See [LICENSE](LICENSE) for more information.
