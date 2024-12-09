@@ -76,8 +76,8 @@ For documentation in this repository the following conventions are applied (see 
 
 | Full form | Alternatives | Incorrect examples |
 | -------- | ------- | ------- |
-| Apache Spark | Alternatives | Incorrect examples |
-| Charmed Apache Spark | | |
+| Apache Spark | | Spark |
+| Charmed Apache Spark | | Charmed Spark |
 | Spark History Server | Apache Spark History Server | |
 | Spark jobs | | Spark Jobs |
 | Spark Driver | | |
