@@ -87,8 +87,15 @@ Custom alerting rules can also be defined and efficiently managed by [AlertManag
 ### Logs 
 
 Logs of driver and executors are stored on the pod local filesystem by default, 
-and they are therefore generally lost once the job finishes and the pod is cleared. 
+however they can also be forwarded to the [Loki](https://grafana.com/oss/loki/) via the `LOKI_URL`
+environment variable. This variable is used by [Pebble](https://canonical-pebble.readthedocs-hosted.com/en/latest/),
+to configure [log-forwarding](https://canonical-pebble.readthedocs-hosted.com/en/latest/reference/log-forwarding/)
+to remote Loki server.
 
-However, Charmed Spark allows you to store these logs into S3 or Azure storage, so that they can 
+This feature is available from Charmed Spark version [3.4.2/edge](ghcr.io/canonical/charmed-spark:3.4.2-22.04_edge@sha256:321b6deb13f10c045028c9b25264b8113c6fdcbe4f487ff472a06fd7bdcb2758)
+and requires a working Loki. Hence, we recommend using it with
+[COS](https://charmhub.io/topics/canonical-observability-stack).
+
+Charmed Spark also allows you to store these logs into S3 or Azure storage, so that they can
 be re-read and visualized using the Spark History Server, allowing users to monitor 
 and visualize the information and metrics about the job execution.
