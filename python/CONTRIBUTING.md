@@ -9,7 +9,7 @@ This documents explains the processes and practices recommended for contributing
 - All enhancements require review before being merged. Code review typically examines
   - code quality
   - test coverage
-  - user experience for interacting with the other components of the Charmed Spark solution.
+  - user experience for interacting with the other components of the Charmed Apache Spark solution.
 - Please help us out in ensuring easy to review branches by rebasing your pull request branch onto the `main` branch. This also avoids merge commits and creates a linear Git commit history.
 
 To build and develop the package in this repository, we advise to use [Poetry](https://python-poetry.org/). For installing poetry on different platforms, please refer to [here](https://python-poetry.org/docs/#installation).

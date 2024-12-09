@@ -1,7 +1,7 @@
 # spark-test
 
 The main purpose of the `spark-test` library is to provide a seemless, user-friendly interface
-to implement tests for Spark on K8s. `spark-test` provides a number of pytest fixtures 
+to implement tests for Apache Spark on K8s. `spark-test` provides a number of pytest fixtures 
 that allow to create, manage and destroy various kind of resources needed for testing, 
 such as:
 
