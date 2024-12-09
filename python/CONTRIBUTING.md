@@ -68,6 +68,27 @@ Although Discourse content can be edited directly, unless the modifications are 
 4. Discourse Gatekeeper will raise a new PR or add new commits to an open Discourse PR, tracking the `discourse-gatekeeper/migrate` branch. The [sync_docs.yaml](https://github.com/canonical/spark-k8s-bundle/blob/main/.github/workflows/sync_docs.yaml) GitHub Actions provides further details on the Gatekeeper integration that can be run (a) in a scheduled fashion every night; (b) as a part of pull request CI, and (c) can be triggered manually. If new topics are referenced in the main index file on Discourse, these will be added to `docs/index.md` and the new topics pulled from Discourse.
 5. Once Gatekeeper has raised a new or updated an existing PR, feel free to close the initial PR manually created in step 2, with a comment referring to the PR created by Gatekeeper. If the initial PR was referring to a ticket, add the ticket to either the title or the description of the GateKeeper PR.
 
+### Terminology
+
+Apache®, [Apache Spark, Spark™](https://spark.apache.org/) and their respective logos are either registered trademarks or trademarks of the [Apache Software Foundation](https://www.apache.org/) in the United States and/or other countries.
+
+For documentation in this repository the following conventions are applied (see the table below).
+
+| Full form | Alternatives | Incorrect examples |
+| -------- | ------- | ------- |
+| Apache Spark | Alternatives | Incorrect examples |
+| Charmed Apache Spark | | |
+| Spark History Server | Apache Spark History Server | |
+| Spark jobs | | Spark Jobs |
+| Spark Driver | | |
+| Spark Executor | | |
+| Spark Context | | |
+| Integration Hub for Apache Spark | Integration Hub | Spark Integration Hub |
+| Client tools snap for Apache Spark | | Spark client snap, tools snap |
+
+The full form must be used at least once per page.
+The full form must be used at the first entry to the page’s headings, body of text, callouts, and graphics.
+For subsequent usage, the full form can be substituted by alternatives.
 
 ## Canonical Contributor Agreement
 
