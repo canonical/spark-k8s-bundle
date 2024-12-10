@@ -55,7 +55,7 @@ short-lived on others. Spark jobs may be launch occasionally, or multiple Spark 
 may be running at the same times. 
 
 In this sense, Apache Spark is very different from traditional database management systems
-(such as Kafka, MongoDB, PostgreSQL, etc), that are generally unique, with stable endpoints and 
+(such as Apache Kafka, MongoDB, PostgreSQL, etc), that are generally unique, with stable endpoints and 
 up and running at all times. 
 
 Such services generally expose a stable endpoint where relevant metrics (such as

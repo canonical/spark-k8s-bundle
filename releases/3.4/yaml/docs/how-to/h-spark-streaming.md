@@ -1,4 +1,4 @@
-## How to run Apache Spark Streaming against Kafka
+## How to run Apache Spark Streaming against Apache Kafka
 
 The following guide is to set up Apache Spark for structured streaming with Apache Kafka. 
 
@@ -12,7 +12,7 @@ First, create a fresh Juju model to be used as a workspace for spark-streaming e
 juju add-model spark-streaming
 ```
 
-Deploy the Apache Zookeeper and the Apache Kafka k8s-charms. Single units should be enough. 
+Deploy the Apache ZooKeeper and the Apache Kafka k8s-charms. Single units should be enough. 
 
 ```shell
 juju deploy zookeeper-k8s --series=jammy --channel=edge
@@ -30,7 +30,7 @@ juju deploy kafka-test-app --series=jammy --channel=edge --config role=producer 
 juju relate kafka-test-app  kafka-k8s
 ```
 
-To consume these messages we need to establish a connection between Spark and Kafka, which requires credentials.
+To consume these messages we need to establish a connection between Apache Spark and Apache Kafka, which requires credentials.
 
 We need to deploy the `data-integrator` charm, which performs credential retrieval:
 
@@ -76,7 +76,7 @@ kubectl exec -it testpod -n spark-streaming -- /bin/bash
 
 Create a Kubernetes cluster configuration within the test pod shell session to be able to work with `spark-client`.
 
-Launch a `pyspark` shell to read the structured stream from Kafka.
+Launch a `pyspark` shell to read the structured stream from Apache Kafka.
 
 ```shell
 cd /home/spark
@@ -92,7 +92,7 @@ spark-client.service-account-registry list
 spark-client.pyspark --username hello --namespace spark-streaming --conf spark.executor.instances=1 --conf spark.jars.ivy=/tmp --packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.2.0,org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0
 ```
 
-Within the `pyspark` shell, now use the credentials retrieved previously to read stream from Kafka.
+Within the `pyspark` shell, now use the credentials retrieved previously to read stream from Apache Kafka.
 
 ```python
 from pyspark.sql.functions import udf

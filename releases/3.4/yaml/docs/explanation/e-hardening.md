@@ -103,7 +103,7 @@ In the following, we provide further information on how to encrypt the various d
 * Client <> Kubernetes API connections
 * Object storage connections
 * Kyuubi <> PostgreSQL connection
-* Kyuubi <> ZooKeeper connection
+* Kyuubi <> Apache ZooKeeper connection
 * Spark History Server client connection 
 * Kyuubi Client <> Kyuubi Server connection
 * Spark jobs communications
@@ -127,11 +127,11 @@ Kyuubi integration with PostgreSQL can be secured by enabling encryption for the
 See the [PostgreSQL K8s how-to enable TLS](/t/charmed-postgresql-k8s-how-to-enable-tls-encryption/9593) user guide for more information on 
 how to enable and customize encryption. 
 
-#### Kyuubi <> ZooKeeper connection
+#### Kyuubi <> Apache ZooKeeper connection
 
-Kyuubi integration with ZooKeeper can be secured by enabling encryption for the ZooKeeper K8s charm. 
-See the [Kafka K8s how-to enable TLS](/t/charmed-kafka-k8s-documentation-how-to-enable-encryption/10289) user guide for more information on 
-how to enable and customize encryption for ZooKeeper. 
+Kyuubi integration with Apache ZooKeeper can be secured by enabling encryption for the Apache ZooKeeper K8s charm. 
+See the [Apache Kafka K8s how-to enable TLS](/t/charmed-kafka-k8s-documentation-how-to-enable-encryption/10289) user guide for more information on 
+how to enable and customize encryption for Apache ZooKeeper. 
 
 #### Spark History Server client connection 
 
