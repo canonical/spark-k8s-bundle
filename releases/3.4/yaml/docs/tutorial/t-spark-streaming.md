@@ -1,10 +1,10 @@
-# Streaming workloads with Charmed Spark
+# Streaming workloads with Charmed Apache Spark
 
-Spark comes with built-in support for streaming workloads via Spark Streaming. Charmed Spark takes it a step further by making it easy to integrate with Kafka using Juju. Kafka is an distributed event-store with a producer/consumer API, designed to achieve massive throughput with clustering for horizontal scalability and high-availability. For more information about Kafka, please refer to [the Kafka project page](https://kafka.apache.org/), and for more information about Spark Streaming, please refer [to the Spark project documentation](https://spark.apache.org/docs/latest/streaming-programming-guide.html). 
+Apache Spark comes with built-in support for streaming workloads via Apache Spark Streaming. Charmed Apache Spark takes it a step further by making it easy to integrate with Apache Kafka using Juju. Apache Kafka is a distributed event-store with a producer/consumer API, designed to achieve massive throughput with clustering for horizontal scalability and high availability. For more information about Apache Kafka, please refer to the [Apache Kafka project page](https://kafka.apache.org/), and for more information about Spark Streaming, please refer to the [Apache Spark project documentation](https://spark.apache.org/docs/latest/streaming-programming-guide.html). 
 
-In this section, we are going to generate some streaming data, push it to Kafka, and then consume the stream of data using Spark, making an aggregation. We are going to use `juju` to deploy a Kafka cluster as well as a simple test application which will generate and push events to Kafka. We will then show how to setup a Spark job to continuously consume those events from Kafka and calculate some statistics.
+In this section, we are going to generate some streaming data, push it to Apache Kafka, and then consume the stream of data using Apache Spark, making an aggregation. We are going to use `juju` to deploy an Apache Kafka cluster as well as a simple test application which will generate and push events to Apache Kafka. We will then show how to set up a Spark job to continuously consume those events from Apache Kafka and calculate some statistics.
 
-First of all, let's start by creating a fresh `juju` model to be used as an experimental workspace for this project.
+First of all, let's start by creating a fresh `juju` model to be used as an experimental workspace for this project:
 
 ```bash
 juju add-model spark-streaming
@@ -25,17 +25,18 @@ spark-client.service-account-registry create \
   --properties-file properties.conf
 ```
 
-Now, let's create a minimal Kafka and Zookeeper setup. This can be done quickly and easily using [`zookeeper-k8s`](https://github.com/canonical/zookeeper-k8s-operator) and [`kafka-k8s`](https://charmhub.io/kafka-k8s) charms. Although this setup is not highly-available, using single instances for both should be enough to understand the underlying concepts.
+Now, let's create a minimal Apache Kafka and Apache ZooKeeper setup. This can be done quickly and easily using the [`zookeeper-k8s`](https://github.com/canonical/zookeeper-k8s-operator) and [`kafka-k8s`](https://charmhub.io/kafka-k8s) charms. Although this setup is not highly available, using single instances for both should be enough to understand the underlying concepts.
 
 ```bash
-# Deploy Zookeper
+# Deploy Apache Zookeper
 juju deploy zookeeper-k8s --series=jammy --channel=edge
 
-# Deploy Kafka
+# Deploy Apache Kafka
 juju deploy kafka-k8s --series=jammy --channel=edge
 ```
 
 Once installed, let's see the current status of the Juju model with the following command:
+
 ```bash
 juju status --watch 1s
 ```
@@ -55,7 +56,7 @@ kafka-k8s/0*      blocked   idle   10.1.29.184         missing required zookeepe
 zookeeper-k8s/0*  active    idle   10.1.29.182         
 ```
 
-The `kafka-k8s/0` unit is blocked because we have not integrated Kafka with Zookeeper yet. We can do that using:
+The `kafka-k8s/0` unit is blocked because we have not integrated Apache Kafka with Apache ZooKeeper yet. We can do that using:
 
 ```bash
 juju integrate kafka-k8s zookeeper-k8s
@@ -76,11 +77,11 @@ kafka-k8s/0*      active    idle   10.1.29.184
 zookeeper-k8s/0*  active    idle   10.1.29.182 
 ```
 
-As you can see, both Kafka and Zookeeper charms are in "active" status. However, it can take some time before the application and the "units" that compose the application are finally transitioned to active/idle state.
+As you can see, both Apache Kafka and Apache ZooKeeper charms are in "active" status. However, it can take some time before the application and the "units" that compose the application are finally transitioned to active/idle state.
 
-For us to experiment with the streaming feature, we need some sample streaming data to be generated in Kafka continuously in real time. For that, we can use the `kafka-test-app` charm to produce events. 
+For us to experiment with the streaming feature, we need some sample streaming data to be generated in Apache Kafka continuously in real-time. For that, we can use the `kafka-test-app` charm to produce events. 
 
-Let's deploy this charm with 3 units, and integrate it with `kafka-k8s` so that it is able to write messages to Kafka.
+Let's deploy this charm with 3 units, and integrate it with `kafka-k8s` so that it is able to write messages to Apache Kafka.
 ```bash
 juju deploy kafka-test-app -n 3 --series=jammy --channel=edge --config role=producer --config topic_name=spark-streaming-store --config num_messages=100000
 
@@ -107,7 +108,7 @@ kafka-test-app/2*  active    idle   10.1.29.187         Topic spark-streaming-st
 zookeeper-k8s/0*   active    idle   10.1.29.182  
 ```
 
-Now messages will be generated and written to Kafka periodically by `kafka-test-app`. However, in order to establish a connection and actually consume these messages from Kafka, Spark needs to authenticate with Kafka using the credentials. For the retrieval of these credentials, we are going to use the [`data-integrator`](https://github.com/canonical/data-integrator) charm. Let's deploy `data-integrator` and integrate it with `kafka-k8s` with the following commands:
+Now messages will be generated and written to Apache Kafka periodically by `kafka-test-app`. However, to establish a connection and actually consume these messages from Apache Kafka, Apache Spark needs to authenticate with Apache Kafka using the credentials. For the retrieval of these credentials, we are going to use the [`data-integrator`](https://github.com/canonical/data-integrator) charm. Let's deploy `data-integrator` and integrate it with `kafka-k8s` with the following commands:
 
 ```bash
 juju deploy data-integrator --series=jammy --channel=edge --config extra-user-roles=consumer,admin --config topic-name=spark-streaming-store
@@ -136,7 +137,7 @@ kafka-test-app/2*   active    idle   10.1.29.187         Topic spark-streaming-s
 zookeeper-k8s/0*    active    idle   10.1.29.182 
 ```
 
-Now that `data-integrator` is deployed and integrated with `kafka-k8s`, we can get the credentials to connect to Kafka by running the `get-credentials` action exposed by the `data-integrator` charm.
+Now that `data-integrator` is deployed and integrated with `kafka-k8s`, we can get the credentials to connect to Apache Kafka by running the `get-credentials` action exposed by the `data-integrator` charm:
 
 ```bash
 juju run data-integrator/0 get-credentials
@@ -178,9 +179,10 @@ Let's see the format of an event generated by `kafka-test-app`.
 
 As we can see, the value of the "origin" key is the name and the IP address of the unit producing the events. 
 
-Now we will write a Spark job in Python that counts the number of events grouped by the "origin" key in real time.
+Now we will write a Spark job in Python that counts the number of events grouped by the "origin" key in real-time.
 
-First, we will authenticate with Kafka and load the events from the `spark-streaming-store` topic . This can be done using the `spark.readStream` function as follows:
+First, we will authenticate with Apache Kafka and load the events from the `spark-streaming-store` topic. This can be done using the `spark.readStream` function as follows:
+
 ```python
 lines = spark.readStream \
         .format("kafka") \
@@ -193,7 +195,7 @@ lines = spark.readStream \
         .load()
 ```
 
-Now, let's create a user defined function that fetches the value of the "origin" column from the event:
+Now, let's create a user-defined function that fetches the value of the "origin" column from the event:
 
 ```python
 from pyspark.sql.functions import udf
@@ -285,8 +287,7 @@ Save the Python code above in a file named `spark_streaming.py`. We'll copy this
 aws s3 cp spark_streaming.py s3://spark-tutorial/spark_streaming.py
 ```
 
-
-Once the file has been copied to S3r, let's submit a new job to our Spark cluster using `spark-submit`. Please note that we need to specify a few extra packages to interact with Kafka because they are not included by default in the Charmed Spark image.
+Once the file has been copied to S3, let's submit a new job to our Apache Spark cluster using `spark-submit`. Please note that we need to specify a few extra packages to interact with Apache Kafka because they are not included by default in the Charmed Apache Spark image.
 
 ```bash
 spark-client.spark-submit \
@@ -310,7 +311,6 @@ watch -n1 "kubectl get pods -n spark-streaming | grep 'spark-streaming-.*-driver
 
 The streaming output - directed to the console - is being written to the pod logs. To fetch the pod logs, we first need to know the name of the driver pod. Let's find its name to then fetch the logs as:
 
-
 ```bash
 pod_name=$(kubectl get pods -n spark-streaming | grep "spark-streaming-.*-driver" | tail -n 1 | cut -d' ' -f1)
 
@@ -318,7 +318,6 @@ kubectl logs -n spark-streaming -f $pod_name | grep "Batch: " -A 10 # filter out
 ```
 
 The option `-f` will tail the pod logs until `Ctrl + C` keys are pressed. If you observe carefully, you can see that new logs are appended roughly every ten seconds, including our aggregated results calculation containing the number of events grouped by the origin, similar to the following:
-
 
 ```
 ...
@@ -336,6 +335,6 @@ The option `-f` will tail the pod logs until `Ctrl + C` keys are pressed. If you
 ...
 ```
 
-Bravo! We succeeded in processing some streaming data with the Charmed Spark solution.
+Bravo! We succeeded in processing some streaming data with the Charmed Apache Spark solution.
 
 In the [next section](/t/13225), we will learn how to monitor the status of the job using the Spark History Server and the Canonical Observability Stack.
