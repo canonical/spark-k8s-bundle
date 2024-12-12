@@ -77,7 +77,7 @@ The following table summarizes the properties to be specified for the main bundl
 
 | key             | Description                                                                                                   |
 |-----------------|---------------------------------------------------------------------------------------------------------------|
-| service_account | Service Account to be used by Kyuubi Engines (deprecated)                                                     |
+| service_account | Service Account to be used by Apache Kyuubi Engines (deprecated)                                                     |
 | namespace       | Namespace where the charms will be deployed. This should correspond to the name of the Juju model to be used. |
 | s3_endpoint     | Endpoint of the S3-compatible object storage backend, in the form of `http(s)//host:port`.                    |
 | bucket          | Name of the S3 bucket to be used for storing logs and data                                                    |
@@ -98,7 +98,7 @@ The following table summarizes the properties to be specified for the main Azure
 
 | Key             | Description                                                                                                   |
 |-----------------|---------------------------------------------------------------------------------------------------------------|
-| `service_account` | Service Account to be used by Kyuubi Engines                                                                  |
+| `service_account` | Service Account to be used by Apache Kyuubi Engines                                                                  |
 | `namespace`       | Namespace where the charms will be deployed. This should correspond to the name of the Juju model to be used. |
 | `storage_account` | Name of the Azure storage account to be used.                                                                 |
 | `container`       | Name of the Azure storage container to be used for storing logs and data                                      |
@@ -180,7 +180,7 @@ The following table provides the description of the different configuration opti
 
 | key         | Description                                                                                                                           |
 |-------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| kyuubi_user | Service Account to be used by Kyuubi Engines (deprecated)                                                                             |
+| kyuubi_user | Service Account to be used by Apache Kyuubi Engines (deprecated)                                                                             |
 | model       | Namespace where the charms will be deployed. This should correspond to the name of the Juju model to be used.                         |
 | s3.endpoint | Endpoint of the S3-compatible object storage backend, in the form of `http(s)//host:port`.                                            |
 | s3.bucket   | Name of the S3 bucket to be used for storing logs and data                                                                            |
