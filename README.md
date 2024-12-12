@@ -5,7 +5,11 @@
 [![Docs](https://github.com/canonical/spark-k8s-bundle/actions/workflows/sync_docs.yaml/badge.svg)](https://github.com/canonical/spark-k8s-bundle/actions/workflows/sync_docs.yaml)
 <!-- [![Release](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-checks.yaml/badge.svg)](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-checks.yaml) -->
 
-Charmed Apache Spark bundle as well as [Client tools snap for Apache Spark](https://snapcraft.io/spark-client) and [spark8t](https://github.com/canonical/spark-k8s-toolkit-py) form the Charmed Apache Spark solution that makes operating Apache Spark workloads on Kubernetes seamless, secure, and production-ready.
+Charmed Apache Spark is a solution that makes operating Apache Spark workloads on Kubernetes seamless, secure, and production-ready. This solution includes:
+
+* charmed operators for several components in the Apache Spark ecosystems, bundled together in the Charmed Apache Spark bundle: [Charmcraft](https://charmhub.io/spark-k8s-bundle) | GitHub - this repository
+* Client tools snap for Apache Spark: [snapcraft](https://snapcraft.io/spark-client) | [GitHub](https://github.com/canonical/spark-client-snap)
+* [spark8t](https://github.com/canonical/spark-k8s-toolkit-py) Python library 
 
 This repository contains relevant artifacts for deploying and testing Charmed Apache Spark:
 
