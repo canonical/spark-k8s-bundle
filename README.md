@@ -1,4 +1,4 @@
-# Charmed Apache Spark K8s Bundle
+# Charmed Apache Spark
 
 [![CharmHub Badge](https://charmhub.io/spark-k8s-bundle/badge.svg)](https://charmhub.io/spark-k8s-bundle)
 [![Tests](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-tests.yaml/badge.svg?branch=main)](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-tests.yaml?query=branch%3Amain)
@@ -7,14 +7,14 @@
 
 Charmed Apache Spark bundle as well as [Client tools snap for Apache Spark](https://snapcraft.io/spark-client) and [spark8t](https://github.com/canonical/spark-k8s-toolkit-py) form the Charmed Apache Spark solution that makes operating Apache Spark workloads on Kubernetes seamless, secure, and production-ready.
 
-This repository contains relevant artifacts for deploying and testing the Charmed Apache Spark bundle in the following directories:
+This repository contains relevant artifacts for deploying and testing Charmed Apache Spark:
 
 * [python](./python) — contains the `spark-test` package that provides  utilities and fixtures to easily implement Charmed Apache Spark tests. Find more information in its [readme file](./python/README.md)
 * [releases](./releases) — contains the artifacts for the different channels, supporting the following backends:
   * [yaml](./releases/3.4/yaml) — using Juju YAML bundles to easily deploy Charmed Apache Spark on K8s
   * [terraform](releases/3.4/terraform) — using Terraform scripts to deploy Charmed Apache Spark using the [Juju Terraform provider](https://github.com/juju/terraform-provider-juju)
 
-The Charmed Apache Spark K8s bundle is also available on [Charmhub](https://charmhub.io/spark-k8s-bundle).
+Charmed Apache Spark bundle is also available on [Charmhub](https://charmhub.io/spark-k8s-bundle).
 
 ## Requirements
 
@@ -37,14 +37,14 @@ Charmed Apache Spark supports native integration with the Canonical Observabilit
 
 For information on security features and the use of cryptography, see the [Security explanation](https://charmhub.io/spark-k8s-bundle/docs/e-security) page.
 
-Security issues in the Charmed Apache Spark K8s bundle can be reported through [LaunchPad](https://wiki.ubuntu.com/DebuggingSecurity#How%20to%20File). Please do not file GitHub issues about security issues.
+Security issues in the Charmed Apache Spark can be reported through [LaunchPad](https://wiki.ubuntu.com/DebuggingSecurity#How%20to%20File). Please do not file GitHub issues about security issues.
 
 ## Contributing
 
-Canonical welcomes contributions to the Charmed Apache Spark bundle. Please check out our [contribution guidelines](python/CONTRIBUTING.md) if you're interested in contributing to the solution. If you truly enjoy working on open-source projects like this one and you would like to be part of the OSS revolution, please don't forget to check out the [career opportunities](https://canonical.com/careers/all) we have at [Canonical](https://canonical.com/).  
+Canonical welcomes contributions to Charmed Apache Spark. Please check out our [contribution guidelines](python/CONTRIBUTING.md) if you're interested in contributing to the solution. If you truly enjoy working on open-source projects like this one and you would like to be part of the OSS revolution, please don't forget to check out the [career opportunities](https://canonical.com/careers/all) we have at [Canonical](https://canonical.com/).  
 
 ## License
 
-The Charmed Apache Spark bundle is free software, distributed under the Apache Software License, version 2.0.
+The Charmed Apache Spark is free software, distributed under the Apache Software License, version 2.0.
 
 See [LICENSE](LICENSE) for more information.
