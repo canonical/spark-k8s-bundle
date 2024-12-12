@@ -80,7 +80,7 @@ The following table summarises the relation between the component and its underl
 | Spark Job (Driver)                 | [`charmed-spark`](https://github.com/orgs/canonical/packages/container/package/charmed-spark)               |
 | Spark Job (Executor)               | [`charmed-spark`](https://github.com/orgs/canonical/packages/container/package/charmed-spark)               |
 | Spark History Server               | [`charmed-spark`](https://github.com/orgs/canonical/packages/container/package/charmed-spark)               |
-| Kyuubi                             | [`charmed-spark-kyuubi`](https://github.com/orgs/canonical/packages/container/package/charmed-spark-kyuubi) |
+| Charmed Apache Kyuubi                             | [`charmed-spark-kyuubi`](https://github.com/orgs/canonical/packages/container/package/charmed-spark-kyuubi) |
 | Spark Job (Driver) - GPU Support   | [`charmed-spark-gpu`](https://github.com/orgs/canonical/packages/container/package/charmed-spark-gpu)       |
 | Spark Job (Executor) - GPU Support | [`charmed-spark-gpu`](https://github.com/orgs/canonical/packages/container/package/charmed-spark-gpu)       |
 | Integration Hub                    | [`spark-integration-hub`](https://github.com/orgs/canonical/packages/container/package/spark-integration-hub)                    |
@@ -89,8 +89,8 @@ New versions of the Charmed Apache Spark images may be released to provide patch
 
 ### Charmed operator security upgrades
 
-Charmed Apache Spark K8s operators, including Spark History server, Kyuubi, and Integration Hub, install a pinned revision of the 
-Charmed Apache Spark images outlined in the previous table in order to provide reproducible and secure environments. 
+Charmed Apache Spark K8s operators, including Spark History server, Charmed Apache Kyuubi, and Integration Hub, install a pinned revision of the 
+Charmed Apache Spark images outlined in the previous table to provide reproducible and secure environments. 
 New versions of Charmed Apache Spark K8s operators may therefore be released to provide patching of vulnerabilities (CVEs). 
 It is important to refresh the charm regularly to make sure the workload is as secure as possible. 
 <!-- For more information on how to refresh the charm, see the [how-to refresh](https://juju.is/docs/juju/juju-refresh) guide and other data-platform guide -->
@@ -102,8 +102,8 @@ In the following, we provide further information on how to encrypt the various d
 
 * Client <> Kubernetes API connections
 * Object storage connections
-* Kyuubi <> PostgreSQL connection
-* Kyuubi <> Apache ZooKeeper connection
+* Apache Kyuubi <> PostgreSQL connection
+* Apache Kyuubi <> Apache ZooKeeper connection
 * Spark History Server client connection 
 * Kyuubi Client <> Kyuubi Server connection
 * Spark jobs communications
@@ -121,15 +121,15 @@ object storage backend to make sure this option is supported and enabled. Please
 e.g. `spark-client`, `pods`, etc, are correctly configured with the trusted CA certificate of the K8s cluster. 
 See the [how-to manage certificates](/t/charmed-spark-k8s-documentation-using-self-signed-certificates/14898) guide for more information.
 
-#### Kyuubi <> PostgreSQL connection 
+#### Apache Kyuubi <> PostgreSQL connection 
 
-Kyuubi integration with PostgreSQL can be secured by enabling encryption for the PostgreSQL K8s charm. 
+Charmed Apache Kyuubi integration with PostgreSQL can be secured by enabling encryption for the PostgreSQL K8s charm. 
 See the [PostgreSQL K8s how-to enable TLS](/t/charmed-postgresql-k8s-how-to-enable-tls-encryption/9593) user guide for more information on 
 how to enable and customize encryption. 
 
-#### Kyuubi <> Apache ZooKeeper connection
+#### Apache Kyuubi <> Apache ZooKeeper connection
 
-Kyuubi integration with Apache ZooKeeper can be secured by enabling encryption for the Apache ZooKeeper K8s charm. 
+Charmed Apache Kyuubi integration with Apache ZooKeeper can be secured by enabling encryption for the Apache ZooKeeper K8s charm. 
 See the [Apache Kafka K8s how-to enable TLS](/t/charmed-kafka-k8s-documentation-how-to-enable-encryption/10289) user guide for more information on 
 how to enable and customize encryption for Apache ZooKeeper. 
 
@@ -140,7 +140,7 @@ unencrypted. To enable encryption, see the [how-to expose Spark History Server](
 
 #### Kyuubi Client <> Kyuubi Server connection
 
-The Kyuubi charm exposes a JDBC compliant endpoint which can be connected using JDBC compliant clients, like Beeline. 
+The Apache Kyuubi charm exposes a JDBC-compliant endpoint which can be connected using JDBC-compliant clients, like Beeline. 
 Encryption is currently not supported and it is planned for 25.04.
 
 #### Spark jobs communications
@@ -178,7 +178,7 @@ can be provided using the Spark History Server [charm configuration option](http
 
 #### Kyuubi JDBC endpoint
 
-Authentication can be enabled for Kyuubi via its integration with PostgreSQL charm on the `auth-db` interface. Currently only one admin user is enabled, whose credentials can be retrieved 
+Authentication can be enabled for Charmed Apache Kyuubi via its integration with PostgreSQL charm on the `auth-db` interface. Currently, only one admin user is enabled, whose credentials can be retrieved 
 using the [`get-jdbc-endpoint` action](https://charmhub.io/kyuubi-k8s/actions#get-jdbc-endpoint).
 
 ### Monitoring and auditing
