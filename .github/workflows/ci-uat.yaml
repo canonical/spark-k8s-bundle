@@ -93,12 +93,16 @@ jobs:
         #   AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |    
           cd python 
-          tox run -e integration-bundle -- ${{ matrix.backend }} ${{ matrix.version }} --keep-models --model test-uat --cos-model cos
           
+          # The first tests deploy the bundle
           tox run -e integration-bundle -- ${{ matrix.backend }} ${{ matrix.version }} --keep-models --model test-uat --cos-model cos
+
+          # Next we only use --no-deploy flag
           
-          tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} --keep-models --model test-uat --cos-model cos
-          tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} --keep-models --model test-uat --cos-model cos
+          tox run -e integration-bundle -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+          
+          tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+          tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
 
       - name: Setup tmate session
         timeout-minutes: 20

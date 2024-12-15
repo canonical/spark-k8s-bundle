@@ -43,7 +43,6 @@ async def test_deploy_bundle(ops_test: OpsTest, spark_bundle):
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_active_status(ops_test):
     """Test whether the bundle has deployed successfully."""
     for app_name in ops_test.model.applications:

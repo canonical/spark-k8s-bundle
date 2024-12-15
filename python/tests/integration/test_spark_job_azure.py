@@ -69,7 +69,6 @@ async def test_deploy_bundle(ops_test: OpsTest, spark_bundle_with_azure_storage)
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_active_status(ops_test):
     """Test whether the bundle has deployed successfully."""
     for app_name in ops_test.model.applications:
@@ -82,7 +81,6 @@ def spark_properties(small_profile_properties, image_properties):
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_run_job(
     ops_test: OpsTest, registry, service_account, pod, container, spark_properties
 ):
@@ -126,7 +124,6 @@ async def test_run_job(
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_job_logs_are_persisted(
     ops_test: OpsTest, registry, service_account, container
 ):
@@ -161,7 +158,6 @@ async def test_job_logs_are_persisted(
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_job_in_history_server(
     ops_test: OpsTest,
 ):
@@ -198,7 +194,6 @@ async def test_job_in_history_server(
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_job_in_prometheus_pushgateway(ops_test: OpsTest, cos):
     if not cos:
         pytest.skip("Not possible to test without cos")
@@ -235,7 +230,6 @@ async def test_job_in_prometheus_pushgateway(ops_test: OpsTest, cos):
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_job_in_prometheus(ops_test: OpsTest, registry, service_account, cos):
     if not cos:
         pytest.skip("Not possible to test without cos")
@@ -272,7 +266,6 @@ async def test_job_in_prometheus(ops_test: OpsTest, registry, service_account, c
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_spark_logforwaring_to_loki(
     ops_test: OpsTest, registry, service_account, cos
 ):
@@ -289,7 +282,6 @@ async def test_spark_logforwaring_to_loki(
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_history_server_metrics_in_cos(ops_test: OpsTest, cos):
     if not cos:
         pytest.skip("Not possible to test without cos")
