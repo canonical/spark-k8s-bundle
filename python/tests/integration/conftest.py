@@ -209,7 +209,9 @@ async def cos(ops_test: OpsTest, cos_model):
     """
     Deploy COS bundle depending upon the value of cos_model fixture, and yield its value.
     """
-    if cos_model and cos_model not in ops_test.models:
+    existing_models = await ops_test._controller.list_models()
+
+    if cos_model and cos_model not in existing_models:
 
         base_url = (
             "https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays"

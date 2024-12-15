@@ -2,6 +2,7 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
+import asyncio
 import logging
 import uuid
 
@@ -47,13 +48,18 @@ def namespace(namespace_name):
     return namespace_name
 
 
+@pytest.mark.skip_if_deployed
+@pytest.mark.abort_on_fail
+async def test_deploy_bundle(ops_test: OpsTest, spark_bundle_with_azure_storage):
+    await asyncio.sleep(0)  # do nothing, await deploy_cluster
+
+
 @pytest.mark.abort_on_fail
 @pytest.mark.asyncio
-async def test_deploy_bundle(ops_test, spark_bundle_with_azure_storage):
+async def test_active_status(ops_test):
     """Test whether the bundle has deployed successfully."""
-    async for applications in spark_bundle_with_azure_storage:
-        for app_name in applications:
-            assert ops_test.model.applications[app_name].status == "active"
+    for app_name in ops_test.model.applications:
+        assert ops_test.model.applications[app_name].status == "active"
 
 
 @pytest.mark.asyncio
