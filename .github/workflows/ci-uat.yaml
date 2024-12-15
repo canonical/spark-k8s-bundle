@@ -1,98 +1,26 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-name: Run Tests
+name: Mimic UAT Tests
 
 on:
-  schedule:
-    - cron: '53 0 * * *' # Daily at 00:53 UTC
-  workflow_call:
+  pull_request:
 
 jobs:
-  checks:
-    uses: ./.github/workflows/ci-checks.yaml
-
-  unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-
-    strategy:
-      fail-fast: true
-      matrix:
-        python-version:
-          # - '3.9'
-          - '3.10'
-    needs:
-      - checks
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - id: setup-python
-        name: Setup Python
-        uses: actions/setup-python@v5.0.0
-        with:
-          python-version: ${{matrix.python-version}}
-          architecture: x64
-      - name: Install tox & poetry
-        run: |
-          pip install tox
-          pip install "poetry<2.0.0"
-      - id: tests-unit
-        name: Run Unittests
-        run: |
-          cd python && tox -e unit
-
   integration-tests:
-    if: 'disabled' == 'true'
     name: Integration Tests
     runs-on: ubuntu-22.04
     timeout-minutes: 120
     strategy:
-      max-parallel: 7
       fail-fast: false
       matrix:
         version:
           - --spark-version "3.4.2"
-          - --spark-version "3.5.1"
         backend:
           - --backend yaml
-          - --backend terraform
-        cos:
-          -
-          - --cos-model cos
-        tox-environments:
-          - integration-basic
-          - integration-sparkjob
-          - integration-sparkjob-azure
-          - integration-bundle
-          - integration-kyuubi
-          - integration-kyuubi-azure
         juju:
-          - snap_channel: "3.4/stable"
-            agent: "3.4.2"
           - snap_channel: "3.6/stable"
             agent: "3.6.0"
-        exclude:
-          - tox-environments: integration-basic           # Basic tests, test without COS
-            cos: --cos-model cos
-          - tox-environments: integration-basic           # Basic tests, test without terraform
-            backend: --backend terraform
-          - tox-environments: integration-sparkjob        # COS is mandatory for the sparkjob test
-            cos: 
-          - tox-environments: integration-sparkjob-azure  # COS is mandatory for the sparkjob test
-            cos: 
-          - tox-environments: integration-sparkjob-azure  # Azure tests only supported in YAML bundle at the moment
-            backend: --backend terraform
-          - tox-environments: integration-kyuubi          # Kyuubi tests do not require COS  
-            cos: --cos-model cos
-          - tox-environments: integration-kyuubi-azure    # Kyuubi tests do not require COS
-            cos: --cos-model cos
-          - tox-environments: integration-kyuubi-azure    # Azure tests only supported in YAML bundle at the moment
-            backend: --backend terraform
-    needs:
-      - checks
-      - unit-tests
     steps:
       - name: (GitHub hosted) Free up disk space
         timeout-minutes: 5
@@ -127,7 +55,7 @@ jobs:
       - name: Install tox & poetry
         run: |
           pip install tox
-          pip install "poetry<2.0.0"
+          pip install poetry
       - name: Select tests
         id: select-tests
         run: |
@@ -160,11 +88,16 @@ jobs:
       - id: tests-integration
         name: Run Integration Tests
         timeout-minutes: 30
-        env:
-          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
-          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
+        # env:
+        #   AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+        #   AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |    
-          cd python && tox run -e ${{ matrix.tox-environments }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.backend }} ${{ matrix.cos }} ${{ matrix.version }} --keep-models
+          cd python 
+          tox run -e integration-bundle -- ${{ matrix.backend }} ${{ matrix.version }} --keep-models --model test-uat --cos-model cos
+          
+          tox run -e integration-bundle -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+          tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+
       - name: Setup tmate session
         timeout-minutes: 20
         if: ${{ failure() }}
