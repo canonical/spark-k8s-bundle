@@ -55,14 +55,12 @@ async def test_deploy_bundle(ops_test: OpsTest, spark_bundle_with_azure_storage)
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_active_status(ops_test):
     """Test whether the bundle has deployed successfully."""
     for app_name in ops_test.model.applications:
         assert ops_test.model.applications[app_name].status == "active"
 
 
-@pytest.mark.asyncio
 @pytest.mark.abort_on_fail
 async def test_authentication_is_enforced(ops_test):
     """Test that the authentication has been enabled in the bundle by default
@@ -79,7 +77,6 @@ async def test_authentication_is_enforced(ops_test):
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_jdbc_endpoint(ops_test: OpsTest):
     """Test that JDBC connection in Kyuubi works out of the box in bundle."""
 
@@ -103,7 +100,6 @@ async def test_jdbc_endpoint(ops_test: OpsTest):
     assert len(list(table.rows())) == 3
 
 
-@pytest.mark.asyncio
 @pytest.mark.abort_on_fail
 async def test_postgresql_metastore_is_used(ops_test: OpsTest):
     "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
@@ -133,7 +129,6 @@ async def test_postgresql_metastore_is_used(ops_test: OpsTest):
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
     if not cos:
         pytest.skip("Not possible to test without cos")
