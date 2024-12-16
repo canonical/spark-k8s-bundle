@@ -14,7 +14,6 @@ from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.core.kyuubi import KyuubiClient
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
-from spark_test.fixtures.s3 import bucket, credentials
 
 from .helpers import (
     construct_azure_resource_uri,
