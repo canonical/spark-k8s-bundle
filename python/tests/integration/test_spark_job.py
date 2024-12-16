@@ -218,7 +218,7 @@ async def test_job_in_history_server(
 
     logger.info(f"Number of apps: {len(apps)}")
 
-    assert len(apps) > 0
+    assert len(apps) == 1
 
 
 @pytest.mark.abort_on_fail
@@ -259,10 +259,13 @@ async def test_job_in_prometheus_pushgateway(ops_test: OpsTest, cos):
 
 @pytest.mark.abort_on_fail
 async def test_spark_metrics_in_prometheus(
-    ops_test: OpsTest, registry, service_account, cos
+    ops_test: OpsTest, registry, service_account, cos, tmp_folder
 ):
     if not cos:
         pytest.skip("Not possible to test without cos")
+
+    driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
+
     show_status_cmd = ["status"]
 
     _, stdout, _ = await ops_test.juju(*show_status_cmd)
@@ -281,25 +284,13 @@ async def test_spark_metrics_in_prometheus(
         )
 
         logger.info(f"query: {query}")
-        spark_id = query["data"]["result"][0]["metric"]["exported_job"]
-        logger.info(f"Spark id: {spark_id}")
-
-        driver_pods = get_spark_drivers(
-            registry.kube_interface.client, service_account.namespace
-        )
-
-        spark_job_driver = [
-            pod
-            for pod in driver_pods
-            if pod.labels.get("spark-app-selector", "") == spark_id
+        spark_ids = [
+            result["metric"]["exported_job"]
+            for result in query["data"]["result"]
         ]
+        logger.info(f"Spark ids: {spark_ids}")
 
-        assert len(spark_job_driver) == 1
-
-        logger.info(f"metadata: {spark_job_driver[0].metadata}")
-        spark_app_selector = spark_job_driver[0].labels["spark-app-selector"]
-        logger.info(f"Spark-app-selector: {spark_app_selector}")
-        assert spark_id == spark_app_selector
+        assert driver_pod.labels["spark-app-selector"] in spark_ids
 
 
 @pytest.mark.abort_on_fail
@@ -385,7 +376,7 @@ async def test_history_server_metrics_in_cos(ops_test: OpsTest, cos):
             # check if startup messages are there
             c = 0
             for timestamp, message in logs.items():
-                if "INFO HistoryServer" in message:
+                if "INFO FsHistoryProvider" in message:
                     c = c + 1
             logger.info(f"Number of line found: {c}")
             assert c > 0
