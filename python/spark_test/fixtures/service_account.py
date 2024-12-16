@@ -17,7 +17,8 @@ def _clearnup_registry(registry):
 def registry(interface):
     registry = K8sServiceAccountRegistry(interface)
     yield registry
-    _clearnup_registry(registry)
+
+    # _clearnup_registry(registry)
 
 
 @pytest.fixture(scope="module")
