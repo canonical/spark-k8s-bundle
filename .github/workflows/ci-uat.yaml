@@ -102,7 +102,10 @@ jobs:
           tox run -e integration-bundle -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
           
           tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+          tox run -e integration-spark-job -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+
           tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+          tox run -e integration-spark-job -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
 
       - name: Setup tmate session
         timeout-minutes: 20

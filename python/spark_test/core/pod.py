@@ -1,6 +1,6 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
-
+import json
 import subprocess
 from functools import cached_property
 from pathlib import Path
@@ -42,6 +42,21 @@ class Pod:
         self.pod_name = pod_name
         self.namespace = namespace
         self.kubeconfig_file = kubeconfig_file
+
+    def write(self, filename):
+        with open(filename, "w") as fid:
+            json.dump({
+                "pod_name": self.pod_name,
+                "namespace": self.namespace,
+                "kubeconfig_file": str(self.kubeconfig_file)
+            }, fid)
+
+    @classmethod
+    def load(cls, filename):
+        with open(filename, "r") as fid:
+            data = json.load(fid)
+        data["kubeconfig_file"] = Path(data["kubeconfig_file"])
+        return cls(**data)
 
     def exec(self, cmd: List[str], envs: Dict[str, str] | None = None):
         """Execute a command on the pod.
