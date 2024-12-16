@@ -1,7 +1,7 @@
 # spark-test
 
 The main purpose of the `spark-test` library is to provide a seemless, user-friendly interface
-to implement tests for Spark on K8s. `spark-test` provides a number of pytest fixtures 
+to implement tests for Charmed Apache Spark. `spark-test` provides a number of pytest fixtures 
 that allow to create, manage and destroy various kind of resources needed for testing, 
 such as:
 
@@ -72,6 +72,7 @@ such as
 Canonical welcomes contributions to the `spark-test` library. Please check out our [guidelines](./CONTRIBUTING.md) if you're interested in contributing to the solution. Also, if you truly enjoy working on open-source projects like this one and you would like to be part of the OSS revolution, please don't forget to check out the [open positions](https://canonical.com/careers/all) we have at [Canonical](https://canonical.com/).  
 
 ## License
+
 The `spark-test` toolkit is free software, distributed under the Apache Software License, version 2.0. See LICENSE for more information.
 
 See [LICENSE](LICENSE) for more information.
