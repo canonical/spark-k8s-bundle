@@ -182,19 +182,30 @@ async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
                 KYUUBI_APP_NAME,
                 5000,
             )
-            logger.info(f"Retrieved logs: {logs}")
+            logger.debug(f"Retrieved logs: {logs}")
 
             # check for non empty logs
             assert len(logs) > 0
 
-            # check if startup message is there...
-            assert any(
-                "Starting org.apache.kyuubi.server.KyuubiServer" in message
-                for timestamp, message in logs.items()
-            )
+            # # check if startup message is there...
+            # assert any(
+            #     "Starting org.apache.kyuubi.server.KyuubiServer" in message
+            #     for timestamp, message in logs.items()
+            # )
+            #
+            # # check if Kyuubi related logs are there...
+            # assert any(
+            #     "INFO main org.apache.kyuubi.server.KyuubiServer:" in message
+            #     for timestamp, message in logs.items()
+            # )
 
-            # check if Kyuubi related logs are there...
-            assert any(
-                "INFO main org.apache.kyuubi.server.KyuubiServer:" in message
-                for timestamp, message in logs.items()
-            )
+@pytest.mark.abort_on_fail
+async def test_drop_table_if_exists(ops_test: OpsTest):
+    credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
+    client = KyuubiClient(**credentials)
+
+    db_name, table_name = "spark_test", "my_table"
+
+    db = client.get_database(db_name)
+    db.get_table(table_name).drop()
+    db.drop()

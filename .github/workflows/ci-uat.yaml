@@ -102,10 +102,115 @@ jobs:
           tox run -e integration-bundle -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
           
           tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
-          tox run -e integration-spark-job -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+          tox run -e integration-sparkjob -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
 
           tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
-          tox run -e integration-spark-job -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+          tox run -e integration-sparkjob -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+
+      - name: Setup tmate session
+        timeout-minutes: 20
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
+
+  integration-tests-azure:
+    name: Integration Tests (Azure)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - --spark-version "3.4.2"
+        backend:
+          - --backend yaml
+        juju:
+          - snap_channel: "3.6/stable"
+            agent: "3.6.0"
+    steps:
+      - name: (GitHub hosted) Free up disk space
+        timeout-minutes: 5
+        run: |
+          printf '\nDisk usage before cleanup\n'
+          df --human-readable
+          # Based on https://github.com/actions/runner-images/issues/2840#issuecomment-790492173
+          rm -r /usr/share/dotnet
+          rm -r /opt/hostedtoolcache/
+          printf '\nDisk usage after cleanup\n'
+          df --human-readable
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - id: setup-python
+        name: Setup Python
+        uses: actions/setup-python@v5.0.0
+        with:
+          python-version: "3.10"
+          architecture: x64
+      - name: Get prefsrc
+        run: |
+          echo "IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')" >> $GITHUB_ENV
+      - name: Setup operator environment
+        uses: charmed-kubernetes/actions-operator@main
+        with:
+          juju-channel: ${{ matrix.juju.snap_channel }}
+          provider: microk8s
+          channel: 1.28-strict/stable
+          bootstrap-options: "--agent-version ${{ matrix.juju.agent }}"
+          microk8s-group: snap_microk8s
+          microk8s-addons: "rbac dns minio metallb:${{ env.IPADDR }}-${{ env.IPADDR }}"
+      - name: Install tox & poetry
+        run: |
+          pip install tox
+          pip install poetry
+      - name: Select tests
+        id: select-tests
+        run: |
+          if [ "${{ github.event_name }}" == "schedule" ]
+          then
+            echo Running unstable and stable tests
+            echo "mark_expression=" >> $GITHUB_OUTPUT
+          else
+            echo Skipping unstable tests
+            echo "mark_expression=not unstable" >> $GITHUB_OUTPUT
+          fi
+      - id: setup-terraform
+        name: Install terraform if needed
+        run: |
+          if ! [ -x "$(command -v terraform)" ]; then
+            echo "Installing terraform from snap"
+            sudo snap install terraform --classic 
+          fi
+      - id: cache-image
+        name: Cache Image Locally
+        run: |
+          # Download image for avoiding time out
+          IMAGE="ghcr.io/canonical/charmed-spark-kyuubi@sha256:9268d19a6eef91914e874734b320fab64908faf0f7adb8856be809bc60ecd1d0"
+          
+          docker pull $IMAGE 
+          docker save $IMAGE -o image.tar
+          sudo microk8s ctr images import --base-name $IMAGE image.tar
+          docker rmi $IMAGE
+          rm image.tar
+      - id: tests-integration
+        name: Run Integration Tests
+        timeout-minutes: 30
+        env:
+          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
+        run: |    
+          cd python 
+          
+          # The first tests deploy the bundle
+          tox run -e integration-bundle-azure -- ${{ matrix.backend }} ${{ matrix.version }} --keep-models --model test-uat --cos-model cos
+
+          # Next we only use --no-deploy flag
+          
+          tox run -e integration-bundle-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+          
+          tox run -e integration-kyuubi-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+          tox run -e integration-sparkjob-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+
+          tox run -e integration-kyuubi-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+          tox run -e integration-sparkjob-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
 
       - name: Setup tmate session
         timeout-minutes: 20
