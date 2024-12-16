@@ -39,6 +39,31 @@ class Bucket:
         self.bucket_name = bucket_name
 
     @classmethod
+    def get(cls, bucket_name: str, credentials: Credentials):
+        """Return an instance of an existing Bucket class.
+
+        Args:
+            bucket_name: name of the bucket
+            credentials: S3 credentials
+
+        Returns:
+            Bucket object
+        """
+
+        config = Config(connect_timeout=60, retries={"max_attempts": 0})
+        session = boto3.session.Session(
+            aws_access_key_id = credentials.access_key,
+            aws_secret_access_key = credentials.secret_key,
+        )
+
+        s3 = session.client("s3", endpoint_url=credentials.endpoint, config=config)
+
+        if not cls._exists(bucket_name, s3):
+            raise FileNotFoundError(f"Bucket {bucket_name} does not exist.")
+
+        return Bucket(s3, bucket_name)
+
+    @classmethod
     def create(cls, bucket_name: str, credentials: Credentials):
         """Create and return an instance of the Bucket class.
 
@@ -59,7 +84,7 @@ class Bucket:
         s3 = session.client("s3", endpoint_url=credentials.endpoint, config=config)
 
         if cls._exists(bucket_name, s3):
-            raise ValueError(f"Cannot create bucket {bucket_name}. Already exists.")
+            raise FileExistsError(f"Cannot create bucket {bucket_name}. Already exists.")
 
         s3.create_bucket(Bucket=bucket_name)
 

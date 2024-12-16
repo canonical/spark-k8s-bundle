@@ -36,10 +36,14 @@ def bucket_name():
 
 
 @pytest.fixture(scope="module")
-def bucket(credentials, bucket_name):
-    _bucket = Bucket.create(bucket_name, credentials)
+def bucket(ops_test, credentials, bucket_name):
+    try:
+        _bucket = Bucket.create(bucket_name, credentials)
+        _bucket.init()
+    except FileExistsError:
+        _bucket = Bucket.get(bucket_name, credentials)
 
-    _bucket.init()
     yield _bucket
 
-    _bucket.delete()
+    if not ops_test.keep_model:
+        _bucket.delete()
