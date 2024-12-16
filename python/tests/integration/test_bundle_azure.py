@@ -5,25 +5,20 @@
 
 import asyncio
 import logging
+import uuid
 
 import pytest
 from pytest_operator.plugin import OpsTest
 
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
-from spark_test.fixtures.s3 import bucket, credentials
 from spark_test.fixtures.service_account import registry, service_account
 
 logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")
-def bucket_name():
-    return "spark-bucket"
-
-
-@pytest.fixture
-def pod_name():
-    return "my-testpod"
+def container_name():
+    return f"spark-container-{uuid.uuid4()}"
 
 
 @pytest.fixture(scope="module")
@@ -35,6 +30,9 @@ def namespace_name(ops_test: OpsTest):
 def namespace(namespace_name):
     return namespace_name
 
+@pytest.fixture
+def pod_name():
+    return "my-testpod"
 
 @pytest.mark.skip_if_deployed
 @pytest.mark.abort_on_fail
