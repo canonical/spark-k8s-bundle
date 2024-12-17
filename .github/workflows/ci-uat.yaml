@@ -105,7 +105,7 @@ jobs:
           tox run -e integration-sparkjob -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
 
           tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
-          tox run -e integration-sparkjob -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+          tox run -e integration-sparkjob -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --model test-uat --cos-model cos
 
       # - name: Setup tmate session
       #   timeout-minutes: 20
@@ -210,7 +210,7 @@ jobs:
           tox run -e integration-sparkjob-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
 
           tox run -e integration-kyuubi-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
-          tox run -e integration-sparkjob-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+          tox run -e integration-sparkjob-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --model test-uat --cos-model cos
 
       # - name: Setup tmate session
       #   timeout-minutes: 20
