@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture(scope="module")
 def container_name():
-    return f"spark-container-{uuid.uuid4()}"
+    return f"spark-container"
 
 
 @pytest.fixture(scope="module")
