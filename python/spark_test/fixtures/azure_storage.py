@@ -29,7 +29,7 @@ def container(ops_test, azure_credentials, container_name):
         _container = Container.create(container_name, azure_credentials)
         _container.init()
     except FileExistsError:
-        _bucket = Container.get(container_name, azure_credentials)
+        _container = Container.get(container_name, azure_credentials)
 
     yield _container
 
