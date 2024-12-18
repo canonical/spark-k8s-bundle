@@ -83,6 +83,14 @@ def pytest_addoption(parser):
         help="Which Spark version to use for bundle testing.",
     )
     parser.addoption(
+        "--storage-backend",
+        choices=["s3", "azure"],
+        default="s3",
+        type=str,
+        help="Which storage backend to be used. Supported values are either "
+        "s3 (default) or azure.",
+    )
+    parser.addoption(
         "--uuid",
         default=uuid.uuid4(),
         type=str,
@@ -106,6 +114,12 @@ def backend(request) -> None | str:
 def spark_version(request) -> str:
     """The backend which is to be used to deploy the bundle."""
     return request.config.getoption("--spark-version") or "3.4.2"
+
+
+@pytest.fixture(scope="module")
+def storage_backend(request) -> str:
+    """The backend which is to be used to deploy the bundle."""
+    return request.config.getoption("--storage-backend")
 
 
 @pytest.fixture(scope="module")
@@ -273,7 +287,7 @@ async def cos(ops_test: OpsTest, cos_model):
 
 
 @pytest_asyncio.fixture(scope="module")
-async def spark_bundle(ops_test: OpsTest, credentials, bucket, bundle, cos):
+async def spark_bundle_with_s3(ops_test: OpsTest, credentials, bucket, bundle, cos):
     """Deploy all applications in the Kyuubi bundle, wait for all of them to be active,
     and finally yield a list of the names of the applications that were deployed.
     """
@@ -370,3 +384,38 @@ async def spark_bundle_with_azure_storage(
     )
 
     yield applications
+
+
+@pytest_asyncio.fixture(scope="module")
+async def spark_bundle(request, storage_backend):
+    if storage_backend == "s3":
+        return request.getfixturevalue("spark_bundle_with_s3")
+    elif storage_backend == "azure":
+        return request.getfixturevalue("spark_bundle_with_azure_storage")
+    else:
+        return ValueError("storage_backend argument not recognized")
+
+
+@pytest.fixture(scope="module")
+def bucket_name():
+    return "spark-bucket"
+
+
+@pytest.fixture(scope="module")
+def container_name(test_uuid):
+    return f"spark-container-{test_uuid}"
+
+
+@pytest.fixture
+def pod_name():
+    return "my-testpod"
+
+
+@pytest.fixture(scope="module")
+def namespace_name(ops_test: OpsTest):
+    return ops_test.model_name
+
+
+@pytest.fixture(scope="module")
+def namespace(namespace_name):
+    return namespace_name
