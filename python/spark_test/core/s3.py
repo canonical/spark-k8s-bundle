@@ -52,8 +52,8 @@ class Bucket:
 
         config = Config(connect_timeout=60, retries={"max_attempts": 0})
         session = boto3.session.Session(
-            aws_access_key_id = credentials.access_key,
-            aws_secret_access_key = credentials.secret_key,
+            aws_access_key_id=credentials.access_key,
+            aws_secret_access_key=credentials.secret_key,
         )
 
         s3 = session.client("s3", endpoint_url=credentials.endpoint, config=config)
@@ -84,7 +84,9 @@ class Bucket:
         s3 = session.client("s3", endpoint_url=credentials.endpoint, config=config)
 
         if cls._exists(bucket_name, s3):
-            raise FileExistsError(f"Cannot create bucket {bucket_name}. Already exists.")
+            raise FileExistsError(
+                f"Cannot create bucket {bucket_name}. Already exists."
+            )
 
         s3.create_bucket(Bucket=bucket_name)
 
