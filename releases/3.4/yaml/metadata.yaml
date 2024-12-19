@@ -4,11 +4,11 @@
 name: spark-k8s-bundle
 display-name: Charmed Kafka
 description: |
-  Spark is an distributed processing engine, designed to scale out your data 
-  analysis and machine learning tasks. This bundles charms to enable a Spark 
+  Apache Spark is an distributed processing engine, designed to scale out your data 
+  analysis and machine learning tasks. This bundles charms to enable a Apache Spark 
   deployment on K8s, featuring integration with object storage, monitoring,
   seamless and integrated configuration.
-summary: Charmed Spark K8s Operator
+summary: Charmed Apache Spark bundle
 docs: https://discourse.charmhub.io/t/charmed-spark-documentation/8963
 source: https://github.com/canonical/spark-k8s-bundle
 issues: https://github.com/canonical/spark-k8s-bundle/issues
