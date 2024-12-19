@@ -1,21 +1,22 @@
-## Deploy Charmed Spark on K8s 
+## Deploy Charmed Apache Spark on K8s 
 
-Charmed Spark comes with a bundled set of components that allow you to easily 
-manage Spark workloads on K8s, providing integration with object storage,
+Charmed Apache Spark comes with a bundled set of components that allow you to easily 
+manage Apache Spark workloads on K8s, providing integration with object storage,
 monitoring and log aggregation. For an overview on the different components
-that form Charmed Spark, please refer to [this section](./path/to/explanation.md).
+that form Charmed Apache Spark, please refer to [this section](./path/to/explanation.md).
 
 ### Prerequisites
 
-Since Charmed Spark will be managed by Juju, make sure that:
+Since Charmed Apache Spark will be managed by Juju, make sure that:
+
 * you have a Juju client (e.g. via a [SNAP](https://snapcraft.io/juju)) installed in your local machine  
 * you are able to connect to a juju controller
-* you have read-write permissions to either a S3-compatible or an Azure object storage
+* you have read-write permissions to either an S3-compatible or an Azure object storage
 
 To set up a Juju controller on K8s and the Juju client, you can refer to existing tutorials and documentation for [MicroK8s](https://juju.is/docs/olm/get-started-with-juju) and for [AWS EKS](https://juju.is/docs/juju/amazon-eks). Also refer to the [How-To Setup Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) guide to install and setup an S3-compatible object storage on MicroK8s (MinIO), EKS (AWS S3), or Azure object storages. 
 For other backends or K8s distributions other than MinIO on MicroK8s and S3 on EKS (e.g. Ceph, Charmed Kubernetes, GKE, etc.), please refer to their documentation.
 
-Charmed Spark supports native integration with the Canonical Observability Stack (COS). To enable monitoring on top of Charmed Spark, make sure that you have a Juju model with COS correctly deployed. To deploy COS on MicroK8s follow the step-by-step [tutorial](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s) or refer to its [documentation](https://charmhub.io/topics/canonical-observability-stack) for more informations.
+Charmed Apache Spark supports native integration with the Canonical Observability Stack (COS). To enable monitoring on top of Charmed Apache Spark, make sure that you have a Juju model with COS correctly deployed. To deploy COS on MicroK8s follow the step-by-step [tutorial](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s) or refer to its [documentation](https://charmhub.io/topics/canonical-observability-stack) for more informations.
 
 ### Preparation
 
@@ -28,18 +29,22 @@ to have a dedicated model for `Spark` components, e.g.
 juju add-model <juju_model>
 ```
 
-> Note that this will create a K8s namespace in which the different Charmed Spark components will be deployed to.
+[note]
+Note that this will create a K8s namespace to which the different Charmed Apache Spark components will be deployed.
+[/note]
 
-### Deploy Charmed Spark
+### Deploy Charmed Apache Spark
 
-Charmed Spark can be deployed via 
+Charmed Apache Spark can be deployed via:
+ 
 * Native Juju YAML bundle and overlays
 * Terraform modules
 
 #### Using Juju bundles
 
 Juju bundles are provided in the form of Jinja2 templates, for the following distribution:
-* Charmed Spark 3.4.x
+
+* Charmed Apache Spark 3.4.x
   * [main `bundle.yaml`](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/yaml/bundle.yaml.j2)
   * [`overlays`](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/yaml/overlays) 
 
@@ -55,9 +60,9 @@ Once the package is installed, you can render the template using
 jinja2 -D <key>=<value> bundle.yaml.j2 > bundle.yaml
 ```
 
-There exist different YAML bundle, with different configuration options, 
+There exist different YAML bundles, with different configuration options, 
 for S3 and Azure object storage backends. Please, refer to the next sections for 
-more information about how-to configure the deployments for the different 
+more information about how to configure the deployments for the different 
 object storage backends.
 
 Once the bundle is rendered, it can be simply deployed using 
@@ -72,14 +77,13 @@ The following table summarizes the properties to be specified for the main bundl
 
 | key             | Description                                                                                                   |
 |-----------------|---------------------------------------------------------------------------------------------------------------|
-| service_account | Service Account to be used by Kyuubi Engines (deprecated)                                                     |
+| service_account | Service Account to be used by Apache Kyuubi Engines (deprecated)                                                     |
 | namespace       | Namespace where the charms will be deployed. This should correspond to the name of the Juju model to be used. |
 | s3_endpoint     | Endpoint of the S3-compatible object storage backend, in the form of `http(s)//host:port`.                    |
 | bucket          | Name of the S3 bucket to be used for storing logs and data                                                    |
 
-
 Once the bundle is deployed, you will see that most of the charms will be in a blocked status because of missing or invalid S3 credentials.
-In particular, the `s3` charm should be notifying that it needs to be provided with the access and secret key. This can be done using the `sync-s3-credentials` action
+In particular, the `s3` charm should notify that it needs to be provided with access and a secret key. This can be done using the `sync-s3-credentials` action:
 
 ```shell
 juju run s3/leader sync-s3-credentials \
@@ -94,7 +98,7 @@ The following table summarizes the properties to be specified for the main Azure
 
 | Key             | Description                                                                                                   |
 |-----------------|---------------------------------------------------------------------------------------------------------------|
-| `service_account` | Service Account to be used by Kyuubi Engines                                                                  |
+| `service_account` | Service Account to be used by Apache Kyuubi Engines                                                                  |
 | `namespace`       | Namespace where the charms will be deployed. This should correspond to the name of the Juju model to be used. |
 | `storage_account` | Name of the Azure storage account to be used.                                                                 |
 | `container`       | Name of the Azure storage container to be used for storing logs and data                                      |
@@ -120,10 +124,13 @@ juju config azure-storage credentials=secret:<secret_id>
 
 After this, the different charms should start to receive the credentials and move into `active/idle` state.
 
+[note type="caution"]
+The Azure Storage Integrator charm assumes hierarchical namespaces to have been enabled by default. When you create a new storage account, please make sure you check the "Hierarchical Namespaces" checkbox. If you want to use a legacy storage account that doesn't have hierarchical namespaces enabled, please configure Azure Storage integrator charm to use WASB / WASBS protocol instead with: `juju config azure-storage connection-protocol=wasbs`
+[/note]
 
-> :warning: **NOTE**: The Azure Storage Integrator charm assumes heirarchical namespaces to have been enabled by default. When you create a new storage account, please make sure you check "Hierarchical Namespaces" checkbox. If you want to use legacy storage account that doesn't have hierarchical namespaces enabled, please configure Azure Storage integrator charm to use WASB / WASBS protocol instead with: `juju config azure-storage connection-protocol=wasbs`
-
-> :warning: **NOTE**: The directory `spark-events` needs to be created beforehand in the Azure container for the Spark History server to work. Please refer to the [How-To Setup Environment](https://discourse.charmhub.io/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618#setting-up-the-object-storage-14) guide for more detailed instructions.
+[note type="caution"]
+The directory `spark-events` needs to be created beforehand in the Azure container for the Spark History server to work. Please refer to the [How-To Setup Environment](https://discourse.charmhub.io/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618#setting-up-the-object-storage-14) guide for more detailed instructions.
+[/note]
 
 ##### Enabling COS
 
@@ -135,7 +142,7 @@ Similarly to the main bundle, the jinja2 template for the overlay can be rendere
 | cos_controller | Name of the controller hosting the COS model. | micro   |
 | cos_model      | Name of the COS model                         | cos     |
 
-Once the template is rendered, the COS-enabled Charmed Spark bundle can be deployed using:
+Once the template is rendered, the COS-enabled Charmed Apache Spark bundle can be deployed using:
 
 ```shell
 juju deploy -m <juju_model> ./bundle.yaml --overlay cos-integration.yaml
@@ -147,13 +154,15 @@ Make sure you have a working Terraform 1.8+ installed in your machine. You can i
 
 Terraform modules make use of the Terraform Juju provider. More information about the Juju provider can be found [here](https://registry.terraform.io/providers/juju/juju/latest/docs).
 
-The [Charmed Spark Terraform module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform) is composed of the following submodules:
-* [base module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/base) that bundles all the base resources of the Charmed Spark solution 
+The [Charmed Apache Spark Terraform module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform) is composed of the following submodules:
+* [base module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/base) that bundles all the base resources of the Charmed Apache Spark solution 
 * [cos-integration module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/cos) that bundles all the resources that enable integration with COS
 
-> :warning: Currently, only S3 storage backends are supported for Terraform-based bundles.
+[note type="caution"]
+Currently only S3 storage backends are supported for Terraform-based bundles.
+[/note]
 
-The Charmed Spark Terraform modules can be configured using a `.tfvars.json` file with the following schema:
+The Charmed Apache Spark Terraform modules can be configured using a `.tfvars.json` file with the following schema:
 
 ```json
 {
@@ -171,15 +180,17 @@ The following table provides the description of the different configuration opti
 
 | key         | Description                                                                                                                           |
 |-------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| kyuubi_user | Service Account to be used by Kyuubi Engines (deprecated)                                                                             |
+| kyuubi_user | Service Account to be used by Apache Kyuubi Engines (deprecated)                                                                             |
 | model       | Namespace where the charms will be deployed. This should correspond to the name of the Juju model to be used.                         |
 | s3.endpoint | Endpoint of the S3-compatible object storage backend, in the form of `http(s)//host:port`.                                            |
 | s3.bucket   | Name of the S3 bucket to be used for storing logs and data                                                                            |
 | cos_model   | (Optional) Name of the model where COS is deployed. If omitted, the resource of the cos-integration submodules will not be deployed   |
 
-> :warning: **NOTE**: The Juju Terraform provider does not yet support cross-controller relations with COS. Therefore, COS model must be hosted in the same controller as the Charmed Spark model. 
+[note type="caution"]
+The Juju Terraform provider does not yet support cross-controller relations with COS. Therefore, COS model must be hosted in the same controller as the Charmed Apache Spark model. 
+[/note]
 
-In order to deploy Charmed Spark using terraform, use standard TF syntax
+To deploy Charmed Apache Spark using Terraform, use standard TF syntax:
 
 * `terraform init` in order to initialize the modules
 * `terraform apply -var-file=<.tfvars.json_filename>`

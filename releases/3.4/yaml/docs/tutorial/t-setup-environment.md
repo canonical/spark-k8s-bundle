@@ -1,8 +1,11 @@
 # Set up the environment for the tutorial
 
+This section of the tutorial will guide you through the initial environment setup.
 
 ## Minimum requirements
+
 Before we start, make sure your machine meets the following requirements:
+
 * Ubuntu 22.04 (jammy) or later (the tutorial has been prepared and tested to work on 22.04)
 * 8 GB of RAM
 * 2 CPU threads
@@ -11,7 +14,7 @@ Before we start, make sure your machine meets the following requirements:
 
 ## Prepare MicroK8s
 
-Charmed Spark is developed to be run on top of a Kubernetes cluster. For the purpose of this tutorial, we are going to use [MicroK8s](https://microk8s.io/), a very simple production-grade conformant K8s that can run locally. 
+Charmed Apache Spark is developed to be run on top of a Kubernetes cluster. For this tutorial, we are going to use [MicroK8s](https://microk8s.io/), a very simple production-grade conformant K8s that can run locally. 
 
 Installing MicroK8s is as simple as running the following command:
 
@@ -19,7 +22,7 @@ Installing MicroK8s is as simple as running the following command:
 sudo snap install microk8s --channel=1.28-strict/stable
 ```
 
-Let's configure MicroK8s so that the currently logged in user has admin rights to the cluster.
+Let's configure MicroK8s so that the currently logged-in user has admin rights to the cluster.
 
 ```bash
 # Set an alias 'kubectl' that can be used instead of microk8s.kubectl
@@ -99,7 +102,7 @@ addons:
 
 ## Setup MinIO
 
-Spark can be configured to use S3 for object storage. However for simplicity, instead of using AWS S3, we're going to use an S3 compliant object storage library [`minio`](https://min.io/), an [add-on](https://microk8s.io/docs/addon-minio) for which is shipped by default in `microk8s` installation. Using MinIO, we can have an S3 compliant bucket created locally which is more convinient than AWS S3 for experimentation purposes. 
+Apache Spark can be configured to use S3 for object storage. However for simplicity, instead of using AWS S3, we're going to use an S3-compliant object storage library [`minio`](https://min.io/), an [add-on](https://microk8s.io/docs/addon-minio) for which is shipped by default in `microk8s` installation. Using MinIO, we can have an S3 compliant bucket created locally which is more convenient than AWS S3 for experimentation purposes. 
 
 Let's enable the `minio` addon for MicroK8s.
 ```bash
@@ -116,7 +119,7 @@ export S3_ENDPOINT=$(kubectl get service minio -n minio-operator -o jsonpath='{.
 export S3_BUCKET="spark-tutorial"
 ```
 
-Later during the tutorial, we will need to create a S3 bucket and upload some sample files into this bucket. The MinIO add-on offers access to a built-in Web UI which can be used to interact with the local S3 object storage. Alternatively, we can also use AWS CLI if we prefer to use CLI commands over a graphical user interface.
+Later during the tutorial, we will need to create an S3 bucket and upload some sample files into this bucket. The MinIO add-on offers access to a built-in Web UI which can be used to interact with the local S3 object storage. Alternatively, we can also use AWS CLI if we prefer to use CLI commands over a graphical user interface.
 
 To set up the AWS CLI, let's run the following commands:
 
@@ -160,7 +163,7 @@ Once you're logged in, you'll see the MinIO console as shown below.
 
 The list of the buckets currently in our S3 storage is empty. That's because we have not created any buckets yet! Let's proceed to create a new bucket now.
 
-Click "Create Bucket +" button on the top right. On the next screen, let's choose "spark-tutorial" for the name of the bucket and click "Create Bucket". 
+Click the "Create Bucket +" button on the top right. On the next screen, let's choose "spark-tutorial" for the name of the bucket and click "Create Bucket". 
 
 Alternatively, if you prefer to use AWS CLI, the same task of creating the bucket can be done with the following command:
 ```bash
@@ -177,10 +180,9 @@ aws s3 ls
 
 With the access key, secret key and the endpoint properly configured, you should see `spark-tutorial` bucket listed in the output.
 
-
 ## Set up Juju
 
-Juju is an Operator Lifecycle Manager (OLM) for clouds, bare metal, LXD or Kubernetes. We'll use `juju` to deploy and manage the Spark History Server and a number of other applications later to be integrated with Spark. Let's therefore let's install and configure a `juju` client using a snap.
+Juju is an Operator Lifecycle Manager (OLM) for clouds, bare metal, LXD or Kubernetes. We'll use `juju` to deploy and manage the Spark History Server and a number of other applications later to be integrated with Apache Spark. Let's therefore let's install and configure a `juju` client using a snap.
 
 ```bash
 sudo snap install juju --channel 3.1/stable
@@ -218,7 +220,7 @@ spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   - 
 
 ### Set up spark-client snap and service accounts
 
-When Spark jobs are run on top of Kubernetes, a set of resources like service account, associated roles, role bindings etc. need to be created and configured. To simplify this task, the Charmed Spark solution offers the `spark-client`. 
+When Spark jobs are run on top of Kubernetes, a set of resources like service account, associated roles, role bindings etc. need to be created and configured. To simplify this task, the Charmed Apache Spark solution offers the `spark-client`. 
 
 Let's install the `spark-client` snap at first:
 
@@ -232,7 +234,7 @@ Let's create a Kubernetes namespace for us to use as a playground in this tutori
 kubectl create namespace spark
 ```
 
-We will now create a Kubernetes service account that will be used to run the Spark jobs. The creation of the service account can be done using the `spark-client` snap, which will create necessary roles, rolebindings and other necessary configurations along with the creation of service account.
+We will now create a Kubernetes service account that will be used to run the Spark jobs. The creation of the service account can be done using the `spark-client` snap, which will create necessary roles, role bindings and other necessary configurations along with the creation of the service account.
 
 ```bash
 spark-client.service-account-registry create \
@@ -258,7 +260,7 @@ kubectl get rolebindings -n spark
 # spark-role-binding   Role/spark-role   69s
 ```
 
-For Spark to be able to access and use our local S3 bucket, we need to provide a few Spark configurations including the bucket endpoint, access key and secret key. In Charmed Spark solution, we bind these configurations to a Kubernetes service account such that when Spark jobs are executed with that service account, all the configurations binded to that service account are supplied to Spark automatically.
+For Apache Spark to be able to access and use our local S3 bucket, we need to provide a few configurations including the bucket endpoint, access key and secret key. In Charmed Apache Spark solution, we bind these configurations to a Kubernetes service account such that when Spark jobs are executed with that service account, all the configurations bound to that service account are supplied to Apache Spark automatically.
 
 The S3 configurations can be added to the `spark` service account we just created with the following command:
 
@@ -273,7 +275,7 @@ spark-client.service-account-registry add-config \
   --conf spark.hadoop.fs.s3a.secret.key=$SECRET_KEY
 ```
 
-The list of configurations binded for the service account `spark` can be verified with the command:
+The list of configurations bound for the service account `spark` can be verified with the command:
 
 ```bash
 spark-client.service-account-registry get-config \
@@ -292,6 +294,6 @@ spark.kubernetes.authenticate.driver.serviceAccountName=spark
 spark.kubernetes.namespace=spark
 ```
 
-That's it. We're now ready to dive head first into Spark!
+That's it. We're now ready to dive head-first into Apache Spark!
 
-In the [next section](/t/13232), we'll start submitting commands to Spark using the built-in interactive shell.
+In the [next section](/t/13232), we'll start submitting commands to Apache Spark using the built-in interactive shell.
