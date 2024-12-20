@@ -10,6 +10,8 @@ import boto3
 from botocore.client import Config
 from botocore.exceptions import ClientError
 
+from spark_test.core import StorageBackend
+
 
 @dataclass
 class Credentials:
@@ -25,7 +27,7 @@ class Credentials:
         return f"http://{self.host}:80"
 
 
-class Bucket:
+class Bucket(StorageBackend):
     """Class representing a S3 bucket."""
 
     def __init__(self, s3, bucket_name: str):
@@ -147,3 +149,14 @@ class Bucket:
     def list_objects(self) -> List[dict]:
         """Return the list of object contained in the bucket"""
         return self.s3.list_objects_v2(Bucket=self.bucket_name)["Contents"]
+
+    def list(self):
+        """Return the list of object names"""
+        return [
+            name
+            for obj in self.list_objects()
+            if not (name := obj["Key"]).endswith("/")
+        ]
+
+    def get_uri(self, file: str):
+        return f"s3a://{self.bucket_name}/{file}"
