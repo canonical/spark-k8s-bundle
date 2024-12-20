@@ -95,7 +95,13 @@ jobs:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |    
-          cd python 
+          cd python
+          
+          # Run simple tests to make sure backend works and to clean up if needed
+          tox run -e integration-bundle -- ${{ matrix.version }} ${{ matrix.storage-backend }} 
+          
+          # Sometimes deleting resources on the clouds may take some time
+          sleep 60
           
           # The first tests deploy the bundle
           tox run -e integration-bundle -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --keep-models --model test-uat --cos-model cos

@@ -30,3 +30,7 @@ class StorageBackend(ABC):
     @abstractmethod
     def list(self) -> list[str]:
         pass
+
+    @abstractmethod
+    def cleanup(self) -> bool:
+        pass

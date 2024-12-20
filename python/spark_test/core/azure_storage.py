@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from azure.storage.blob import BlobServiceClient
 
 from spark_test.core import StorageBackend
-
+from itertools import islice
 
 @dataclass
 class Credentials:
@@ -156,3 +156,15 @@ class Container(StorageBackend):
             f"abfss://{self.container_name}@{self.credentials.storage_account}.dfs.core.windows.net",
             file,
         )
+
+    def cleanup(self) -> bool:
+        try:
+            container_client = self.client.get_container_client(
+                container=self.container_name
+            )
+            while batch := list(islice(self.list_blobs(), 200)):
+                container_client.delete_blobs(*batch)
+        except Exception:
+            return False
+        return True
+
