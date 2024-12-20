@@ -98,7 +98,7 @@ jobs:
           cd python
           
           # Run simple tests to make sure backend works and to clean up if needed
-          tox run -e integration-bundle -- ${{ matrix.version }} ${{ matrix.storage-backend }} 
+          tox run -e integration-object-storage -- ${{ matrix.version }} ${{ matrix.storage-backend }} 
           
           # Sometimes deleting resources on the clouds may take some time
           sleep 60
