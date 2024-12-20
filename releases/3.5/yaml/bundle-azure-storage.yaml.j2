@@ -26,6 +26,14 @@ applications:
     storage:
       pgdata: kubernetes,1,1024M
     trust: true
+  zookeeper:
+    charm: zookeeper-k8s
+    channel: 3/edge
+    revision: 59
+    scale: 3
+    constraints: arch=amd64
+    resources:
+      zookeeper-image: 31
   metastore:
     charm: postgresql-k8s
     channel: 14/stable
@@ -76,3 +84,5 @@ relations:
   - kyuubi-users:database
 - - kyuubi:spark-service-account
   - integration-hub:spark-service-account
+- - kyuubi:zookeeper
+  - zookeeper:zookeeper
