@@ -6,8 +6,8 @@ import pytest
 from spark8t.domain import PropertyFile, ServiceAccount
 from spark8t.services import K8sServiceAccountRegistry
 
-from spark_test.fixtures.s3 import bucket, credentials
 from spark_test.fixtures.azure_storage import azure_credentials, container
+from spark_test.fixtures.s3 import bucket, credentials
 
 
 def _clearnup_registry(registry):
@@ -46,6 +46,7 @@ def small_profile_properties():
         }
     )
 
+
 @pytest.fixture
 def s3_properties(credentials):
     return PropertyFile(
@@ -59,13 +60,14 @@ def s3_properties(credentials):
         }
     )
 
+
 @pytest.fixture
 def azure_properties(azure_credentials, warehouse_path):
     return PropertyFile(
         {
             f"spark.hadoop.fs.azure.account.key.{azure_credentials.storage_account}.dfs.core.windows.net": azure_credentials.secret_key,
             "spark.sql.warehouse.dir": warehouse_path,
-            "spark.sql.catalog.local.warehouse": warehouse_path
+            "spark.sql.catalog.local.warehouse": warehouse_path,
         }
     )
 
@@ -80,7 +82,7 @@ def iceberg_properties(warehouse_path):
             "spark.sql.catalog.spark_catalog.type": "hive",
             "spark.sql.catalog.local": "org.apache.iceberg.spark.SparkCatalog",
             "spark.sql.catalog.local.type": "hadoop",
-            "spark.sql.catalog.local.warehouse": warehouse_path, # f"s3a://{bucket.bucket_name}/warehouse",
+            "spark.sql.catalog.local.warehouse": warehouse_path,  # f"s3a://{bucket.bucket_name}/warehouse",
             "spark.sql.defaultCatalog": "local",
         }
     )
