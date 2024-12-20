@@ -166,6 +166,6 @@ class Bucket(StorageBackend):
         try:
             objs = [{"Key": x["Key"]} for x in self.list_objects()]
             self.s3.delete_objects(Bucket=self.bucket_name, Delete={"Objects": objs})
-        except Exception as _:
+        except Exception:
             return False
         return True
