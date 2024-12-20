@@ -7,6 +7,8 @@ from dataclasses import dataclass
 
 from azure.storage.blob import BlobServiceClient
 
+from spark_test.core import StorageBackend
+
 
 @dataclass
 class Credentials:
@@ -22,8 +24,8 @@ class Credentials:
         return f"DefaultEndpointsProtocol=https;AccountName={self.storage_account};AccountKey={self.secret_key};EndpointSuffix=core.windows.net"
 
 
-class Container:
-    """Class representing a Azure Storage container."""
+class Container(StorageBackend):
+    """Class representing an Azure Storage container."""
 
     INIT_DIR = "spark-events"
     PLACEHOLDER = ".tmp"
@@ -135,12 +137,22 @@ class Container:
         return True
 
     def list_blobs(self):
-        hidden_blobs = [self.INIT_DIR, f"{self.INIT_DIR}/{self.PLACEHOLDER}"]
         container_client = self.client.get_container_client(
             container=self.container_name
         )
+        return list(container_client.list_blobs())
+
+    def list(self):
+        hidden_blobs = [self.INIT_DIR, f"{self.INIT_DIR}/{self.PLACEHOLDER}"]
+
         return [
             blob["name"]
-            for blob in container_client.list_blobs()
+            for blob in self.list_blobs()
             if blob["name"] not in hidden_blobs
         ]
+
+    def get_uri(self, file: str):
+        return os.path.join(
+            f"abfss://{self.container_name}@{self.credentials.storage_account}.dfs.core.windows.net",
+            file,
+        )
