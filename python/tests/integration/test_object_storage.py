@@ -2,22 +2,25 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-import pytest
 import logging
+
+import pytest
 
 from spark_test import RESOURCES
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
 from spark_test.fixtures.pod import pod
 from spark_test.fixtures.service_account import (
+    azure_properties,
     iceberg_properties,
     registry,
-    s3_properties, azure_properties,
+    s3_properties,
     service_account,
     small_profile_properties,
 )
 from spark_test.utils import get_spark_drivers
 
 logger = logging.getLogger(__name__)
+
 
 @pytest.fixture(scope="module")
 def namespace_name():
@@ -31,7 +34,11 @@ def warehouse_path(object_storage):
 
 @pytest.fixture
 def spark_properties(
-    request, small_profile_properties, storage_backend, iceberg_properties, image_properties
+    request,
+    small_profile_properties,
+    storage_backend,
+    iceberg_properties,
+    image_properties,
 ):
     if storage_backend == "s3":
         storage_properties = request.getfixturevalue("s3_properties")
@@ -41,7 +48,10 @@ def spark_properties(
         return ValueError("storage_backend argument not recognized")
 
     return (
-        small_profile_properties + storage_properties + iceberg_properties + image_properties
+        small_profile_properties
+        + storage_properties
+        + iceberg_properties
+        + image_properties
     )
 
 

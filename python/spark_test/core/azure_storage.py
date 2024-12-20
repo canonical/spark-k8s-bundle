@@ -4,11 +4,12 @@
 
 import os
 from dataclasses import dataclass
+from itertools import islice
 
 from azure.storage.blob import BlobServiceClient
 
 from spark_test.core import StorageBackend
-from itertools import islice
+
 
 @dataclass
 class Credentials:
@@ -167,4 +168,3 @@ class Container(StorageBackend):
         except Exception:
             return False
         return True
-
