@@ -66,10 +66,10 @@ applications:
     constraints: arch=amd64
     trust: true
 relations:
-- - integration-hub:azure-credentials
-  - azure-storage:azure-credentials
-- - history-server:azure-credentials
-  - azure-storage:azure-credentials
+- - integration-hub:azure-storage-credentials
+  - azure-storage:azure-storage-credentials
+- - history-server:azure-storage-credentials
+  - azure-storage:azure-storage-credentials
 - - kyuubi:metastore-db
   - metastore:database
 - - kyuubi:auth-db
