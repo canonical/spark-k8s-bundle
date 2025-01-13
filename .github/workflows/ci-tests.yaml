@@ -44,7 +44,6 @@ jobs:
           cd python && tox -e unit
 
   integration-tests:
-    if: 'disabled' == 'true'
     name: Integration Tests
     runs-on: ubuntu-22.04
     timeout-minutes: 120
