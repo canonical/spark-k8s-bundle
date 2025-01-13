@@ -82,6 +82,12 @@ def pytest_addoption(parser):
         type=str,
         help="Which Spark version to use for bundle testing.",
     )
+    parser.addoption(
+        "--uuid",
+        default=uuid.uuid4(),
+        type=str,
+        help="Which Spark version to use for bundle testing.",
+    )
 
 
 @pytest.fixture(scope="module")
@@ -100,6 +106,12 @@ def backend(request) -> None | str:
 def spark_version(request) -> str:
     """The backend which is to be used to deploy the bundle."""
     return request.config.getoption("--spark-version") or "3.4.2"
+
+
+@pytest.fixture(scope="module")
+def test_uuid(request) -> str:
+    """The backend which is to be used to deploy the bundle."""
+    return request.config.getoption("--uuid") or uuid.uuid4()
 
 
 @pytest.fixture(scope="module")

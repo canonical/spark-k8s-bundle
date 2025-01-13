@@ -197,20 +197,23 @@ jobs:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |    
-          cd python 
+          UUID=$(uuidgen)
+          echo "Using UUID: ${UUID}"
+          
+          cd python
           
           # The first tests deploy the bundle
-          tox run -e integration-bundle-azure -- ${{ matrix.backend }} ${{ matrix.version }} --keep-models --model test-uat --cos-model cos
+          tox run -e integration-bundle-azure -- ${{ matrix.backend }} ${{ matrix.version }} --keep-models --model test-uat --cos-model cos --uuid $UUID
 
           # Next we only use --no-deploy flag
           
-          tox run -e integration-bundle-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+          tox run -e integration-bundle-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
           
-          tox run -e integration-kyuubi-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
-          tox run -e integration-sparkjob-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
+          tox run -e integration-kyuubi-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
+          tox run -e integration-sparkjob-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
 
-          tox run -e integration-kyuubi-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
-          tox run -e integration-sparkjob-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --model test-uat --cos-model cos
+          tox run -e integration-kyuubi-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
+          tox run -e integration-sparkjob-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --model test-uat --cos-model cos --uuid $UUID
 
       # - name: Setup tmate session
       #   timeout-minutes: 20
