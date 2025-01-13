@@ -198,17 +198,11 @@ async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
             # check for non empty logs
             assert len(logs) > 0
 
-            # check if startup message is there...
-            # assert any(
-            #     "Starting org.apache.kyuubi.server.KyuubiServer" in message
-            #     for timestamp, message in logs.items()
-            # )
-
             # check if Kyuubi related logs are there...
-            # assert any(
-            #     "INFO main org.apache.kyuubi.server.KyuubiServer:" in message
-            #     for timestamp, message in logs.items()
-            # )
+            assert any(
+                "org.apache.kyuubi.session.KyuubiSessionImpl:" in message
+                for timestamp, message in logs.items()
+            )
 
 
 @pytest.mark.abort_on_fail
