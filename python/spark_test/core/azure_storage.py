@@ -59,8 +59,6 @@ class Container:
 
         return Container(client, container_name, credentials)
 
-
-
     @classmethod
     def create(cls, container_name: str, credentials: Credentials):
         """Create and return an instance of the Container class.

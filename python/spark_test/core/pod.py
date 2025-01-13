@@ -45,11 +45,14 @@ class Pod:
 
     def write(self, filename):
         with open(filename, "w") as fid:
-            json.dump({
-                "pod_name": self.pod_name,
-                "namespace": self.namespace,
-                "kubeconfig_file": str(self.kubeconfig_file)
-            }, fid)
+            json.dump(
+                {
+                    "pod_name": self.pod_name,
+                    "namespace": self.namespace,
+                    "kubeconfig_file": str(self.kubeconfig_file),
+                },
+                fid,
+            )
 
     @classmethod
     def load(cls, filename):

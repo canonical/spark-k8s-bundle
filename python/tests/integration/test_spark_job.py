@@ -10,7 +10,7 @@ from spark8t.domain import PropertyFile
 from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
-from spark_test.fixtures.pod import pod, Pod
+from spark_test.fixtures.pod import Pod, pod
 from spark_test.fixtures.s3 import bucket, credentials
 from spark_test.fixtures.service_account import (
     registry,
@@ -77,9 +77,11 @@ async def test_active_status(ops_test):
 def spark_properties(small_profile_properties, image_properties):
     return small_profile_properties + image_properties
 
+
 @pytest.fixture(scope="module")
 def tmp_folder(tmp_path_factory):
     return tmp_path_factory.mktemp("data")
+
 
 @pytest.mark.abort_on_fail
 async def test_run_job(
@@ -104,7 +106,9 @@ async def test_run_job(
 
     initial_driver_pods = set(
         pod.pod_name
-        for pod in get_spark_drivers(registry.kube_interface.client, service_account.namespace)
+        for pod in get_spark_drivers(
+            registry.kube_interface.client, service_account.namespace
+        )
     )
 
     pod.exec(
@@ -125,11 +129,7 @@ async def test_run_job(
     )
     assert len(driver_pods) == len(initial_driver_pods) + 1
 
-    driver_pod = [
-        pod
-        for pod in driver_pods
-        if pod.pod_name not in initial_driver_pods
-    ]
+    driver_pod = [pod for pod in driver_pods if pod.pod_name not in initial_driver_pods]
 
     assert len(driver_pod) == 1
 
@@ -146,8 +146,8 @@ async def test_run_job(
 
 @pytest.mark.abort_on_fail
 async def test_job_logs_are_persisted(
-        ops_test: OpsTest, registry, service_account, credentials, bucket, tmp_folder
-    ):
+    ops_test: OpsTest, registry, service_account, credentials, bucket, tmp_folder
+):
 
     driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
 
@@ -177,9 +177,7 @@ async def test_job_logs_are_persisted(
 
 
 @pytest.mark.abort_on_fail
-async def test_job_in_history_server(
-    ops_test: OpsTest, tmp_folder
-):
+async def test_job_in_history_server(ops_test: OpsTest, tmp_folder):
     driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
 
     # check that spark-history server contains the application entry
@@ -285,8 +283,7 @@ async def test_spark_metrics_in_prometheus(
 
         logger.info(f"query: {query}")
         spark_ids = [
-            result["metric"]["exported_job"]
-            for result in query["data"]["result"]
+            result["metric"]["exported_job"] for result in query["data"]["result"]
         ]
         logger.info(f"Spark ids: {spark_ids}")
 

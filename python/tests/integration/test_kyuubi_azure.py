@@ -34,7 +34,7 @@ KYUUBI_APP_NAME = "kyuubi"
 
 @pytest.fixture(scope="module")
 def container_name():
-    return f"spark-container"
+    return "spark-container"
 
 
 @pytest.fixture(scope="module")

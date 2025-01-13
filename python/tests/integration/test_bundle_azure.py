@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture(scope="module")
 def container_name():
-    return f"spark-container"
+    return "spark-container"
 
 
 @pytest.fixture(scope="module")
@@ -30,9 +30,11 @@ def namespace_name(ops_test: OpsTest):
 def namespace(namespace_name):
     return namespace_name
 
+
 @pytest.fixture
 def pod_name():
     return "my-testpod"
+
 
 @pytest.mark.skip_if_deployed
 @pytest.mark.abort_on_fail
