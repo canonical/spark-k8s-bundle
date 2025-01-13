@@ -55,7 +55,7 @@ jobs:
       - name: Install tox & poetry
         run: |
           pip install tox
-          pip install poetry
+          pip install poetry<2.0.0
       - name: Select tests
         id: select-tests
         run: |
@@ -160,7 +160,7 @@ jobs:
       - name: Install tox & poetry
         run: |
           pip install tox
-          pip install poetry
+          pip install poetry<2.0.0
       - name: Select tests
         id: select-tests
         run: |
