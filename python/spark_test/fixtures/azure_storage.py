@@ -24,8 +24,14 @@ def container_name():
 
 
 @pytest.fixture(scope="module")
-def container(azure_credentials, container_name):
-    _container = Container.create(container_name, azure_credentials)
-    _container.init()
+def container(ops_test, azure_credentials, container_name):
+    try:
+        _container = Container.create(container_name, azure_credentials)
+        _container.init()
+    except FileExistsError:
+        _container = Container.get(container_name, azure_credentials)
+
     yield _container
-    _container.delete()
+
+    if not ops_test.keep_model:
+        _container.delete()
