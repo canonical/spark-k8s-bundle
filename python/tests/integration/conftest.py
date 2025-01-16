@@ -164,9 +164,10 @@ def namespace(namespace_name):
 
 @pytest.fixture(scope="module")
 def bundle(
-    request, cos, backend, spark_version, tmp_path_factory
+    request, cos_model, backend, spark_version, tmp_path_factory
 ) -> Bundle[Path] | Terraform:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
+
     if file := request.config.getoption("--bundle"):
         bundle = Path(file)
     else:
@@ -199,7 +200,7 @@ def bundle(
             [Path(file) for file in files]
             if (files := request.config.getoption("--overlay"))
             else (
-                [bundle.parent / "overlays" / "cos-integration.yaml.j2"] if cos else []
+                [bundle.parent / "overlays" / "cos-integration.yaml.j2"] if cos_model else []
             )
         )
 
@@ -211,8 +212,9 @@ def bundle(
 
 
 @pytest.fixture(scope="module")
-def bundle_with_azure_storage(request, spark_version, cos) -> Bundle[Path]:
+def bundle_with_azure_storage(request, spark_version, cos_model) -> Bundle[Path]:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
+
     if file := request.config.getoption("--bundle"):
         bundle = Path(file)
     else:
@@ -233,7 +235,7 @@ def bundle_with_azure_storage(request, spark_version, cos) -> Bundle[Path]:
     overlays = (
         [Path(file) for file in files]
         if (files := request.config.getoption("--overlay"))
-        else ([bundle.parent / "overlays" / "cos-integration.yaml.j2"] if cos else [])
+        else ([bundle.parent / "overlays" / "cos-integration.yaml.j2"] if cos_model else [])
     )
 
     for file in overlays + [bundle]:
