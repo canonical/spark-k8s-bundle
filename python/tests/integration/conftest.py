@@ -200,7 +200,9 @@ def bundle(
             [Path(file) for file in files]
             if (files := request.config.getoption("--overlay"))
             else (
-                [bundle.parent / "overlays" / "cos-integration.yaml.j2"] if cos_model else []
+                [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
+                if cos_model
+                else []
             )
         )
 
@@ -235,7 +237,11 @@ def bundle_with_azure_storage(request, spark_version, cos_model) -> Bundle[Path]
     overlays = (
         [Path(file) for file in files]
         if (files := request.config.getoption("--overlay"))
-        else ([bundle.parent / "overlays" / "cos-integration.yaml.j2"] if cos_model else [])
+        else (
+            [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
+            if cos_model
+            else []
+        )
     )
 
     for file in overlays + [bundle]:
