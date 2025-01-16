@@ -32,6 +32,9 @@ SECRET_NAME_PREFIX = "integrator-hub-conf-"
 COS_ALIAS = "cos"
 JMX_EXPORTER_PORT = 9101
 JMX_CC_PORT = 9102
+ZOOKEEPER_PORT = 2181
+ZOOKEEPER_NAME = "zookeeper"
+HA_ZNODE_NAME = "/kyuubi"
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +76,7 @@ async def set_azure_credentials(
 async def get_address(ops_test: OpsTest, app_name, unit_num=0) -> str:
     """Get the address for a unit."""
     status = await ops_test.model.get_status()  # noqa: F821
+    logger.info(f"Status: {status}")
     address = status["applications"][app_name]["units"][f"{app_name}/{unit_num}"][
         "address"
     ]
@@ -129,19 +133,32 @@ async def fetch_jdbc_endpoint(ops_test):
     return jdbc_endpoint
 
 
-async def get_active_kyuubi_servers_list(ops_test: OpsTest) -> list[str]:
-    """Return the list of Kyuubi servers that are live in the cluster."""
-    jdbc_endpoint = await fetch_jdbc_endpoint(ops_test)
-    zookeper_quorum = jdbc_endpoint.split(";")[0].split("//")[-1]
+async def get_zookeeper_quorum(ops_test: OpsTest, zookeeper_name: str) -> str:
+    addresses = []
+    for unit in ops_test.model.applications[zookeeper_name].units:
+        app_name, unit_id = unit.name.split("/")
+        host = await get_address(ops_test, app_name=app_name, unit_num=unit_id)
+        port = ZOOKEEPER_PORT
+        addresses.append(f"{host}:{port}")
+    return ",".join(addresses)
 
+
+async def get_active_kyuubi_servers_list(
+    ops_test: OpsTest, zookeeper_name=ZOOKEEPER_NAME
+) -> list[str]:
+    """Return the list of Kyuubi servers that are live in the cluster."""
+    zookeeper_quorum = await get_zookeeper_quorum(
+        ops_test=ops_test, zookeeper_name=zookeeper_name
+    )
+    logger.info(f"Zookeeper quorum: {zookeeper_quorum}")
     pod_command = [
         "/opt/kyuubi/bin/kyuubi-ctl",
         "list",
         "server",
         "--zk-quorum",
-        zookeper_quorum,
+        zookeeper_quorum,
         "--namespace",
-        "/kyuubi",
+        HA_ZNODE_NAME,
         "--version",
         "1.9.0",
     ]

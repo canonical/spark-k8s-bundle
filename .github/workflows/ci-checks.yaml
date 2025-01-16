@@ -9,7 +9,7 @@ on:
 jobs:
   checks:
     name: Code checks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 5
     strategy:
       fail-fast: true
@@ -30,7 +30,7 @@ jobs:
       - name: Install tox & poetry
         run: |
           pipx install tox
-          pipx install poetry
+          pipx install "poetry<2.0.0"
       - id: code-checks
         name: Make sure the code follows conventions and tests correctly
         run: |

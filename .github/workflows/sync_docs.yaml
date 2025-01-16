@@ -11,7 +11,7 @@ on:
 jobs:
   sync-docs:
     name: Open PR with docs changes (3.4)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - name: Open PR with docs changes
