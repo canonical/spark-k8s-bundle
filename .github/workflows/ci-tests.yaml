@@ -57,16 +57,17 @@ jobs:
         backend:
           - --backend yaml
           - --backend terraform
+        storage-backend:
+          - --storage-backend s3
+          - --storage-backend azure
         cos:
           -
           - --cos-model cos
         tox-environments:
           - integration-basic
           - integration-sparkjob
-          - integration-sparkjob-azure
           - integration-bundle
           - integration-kyuubi
-          - integration-kyuubi-azure
         juju:
           - snap_channel: "3.4/stable"
             agent: "3.4.2"
@@ -79,16 +80,8 @@ jobs:
             backend: --backend terraform
           - tox-environments: integration-sparkjob        # COS is mandatory for the sparkjob test
             cos: 
-          - tox-environments: integration-sparkjob-azure  # COS is mandatory for the sparkjob test
-            cos: 
-          - tox-environments: integration-sparkjob-azure  # Azure tests only supported in YAML bundle at the moment
-            backend: --backend terraform
-          - tox-environments: integration-kyuubi          # Kyuubi tests do not require COS  
+          - tox-environments: integration-kyuubi          # Kyuubi tests do not require COS
             cos: --cos-model cos
-          - tox-environments: integration-kyuubi-azure    # Kyuubi tests do not require COS
-            cos: --cos-model cos
-          - tox-environments: integration-kyuubi-azure    # Azure tests only supported in YAML bundle at the moment
-            backend: --backend terraform
     needs:
       - checks
       - unit-tests
@@ -163,7 +156,10 @@ jobs:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |    
-          cd python && tox run -e ${{ matrix.tox-environments }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.backend }} ${{ matrix.cos }} ${{ matrix.version }} --keep-models
+          
+          juju list-models
+          
+          cd python && tox run -e ${{ matrix.tox-environments }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.backend }} ${{ matrix.cos }} ${{ matrix.version }} ${{ matrix.storage-backend }} --keep-models
       - name: Setup tmate session
         timeout-minutes: 20
         if: ${{ failure() }}

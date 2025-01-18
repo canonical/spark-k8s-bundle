@@ -9,7 +9,6 @@ from pathlib import Path
 from time import sleep
 
 import pytest
-import pytest_asyncio
 import requests
 from pytest_operator.plugin import OpsTest
 from spark8t.domain import PropertyFile
@@ -17,6 +16,7 @@ from spark8t.domain import PropertyFile
 from spark_test.core.azure_storage import Credentials as AzureStorageCredentials
 from spark_test.fixtures.azure_storage import azure_credentials, container
 from spark_test.fixtures.pod import spark_image
+from spark_test.fixtures.s3 import bucket, credentials
 from spark_test.fixtures.service_account import service_account
 from tests import IE_TEST_DIR, RELEASE_DIR
 
@@ -83,6 +83,14 @@ def pytest_addoption(parser):
         help="Which Spark version to use for bundle testing.",
     )
     parser.addoption(
+        "--storage-backend",
+        choices=["s3", "azure"],
+        default="s3",
+        type=str,
+        help="Which storage backend to be used. Supported values are either "
+        "s3 (default) or azure.",
+    )
+    parser.addoption(
         "--uuid",
         default=uuid.uuid4(),
         type=str,
@@ -109,6 +117,12 @@ def spark_version(request) -> str:
 
 
 @pytest.fixture(scope="module")
+def storage_backend(request) -> str:
+    """The backend which is to be used to deploy the bundle."""
+    return request.config.getoption("--storage-backend")
+
+
+@pytest.fixture(scope="module")
 def test_uuid(request) -> str:
     """The backend which is to be used to deploy the bundle."""
     return request.config.getoption("--uuid") or uuid.uuid4()
@@ -124,10 +138,36 @@ def image_properties(spark_image):
 
 
 @pytest.fixture(scope="module")
+def bucket_name():
+    return "spark-bucket"
+
+
+@pytest.fixture(scope="module")
+def container_name(test_uuid):
+    return f"spark-container-{test_uuid}"
+
+
+@pytest.fixture
+def pod_name():
+    return "my-testpod"
+
+
+@pytest.fixture(scope="module")
+def namespace_name(ops_test: OpsTest):
+    return ops_test.model_name
+
+
+@pytest.fixture(scope="module")
+def namespace(namespace_name):
+    return namespace_name
+
+
+@pytest.fixture(scope="module")
 def bundle(
-    request, cos, backend, spark_version, tmp_path_factory
+    request, cos_model, backend, spark_version, tmp_path_factory
 ) -> Bundle[Path] | Terraform:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
+
     if file := request.config.getoption("--bundle"):
         bundle = Path(file)
     else:
@@ -160,7 +200,9 @@ def bundle(
             [Path(file) for file in files]
             if (files := request.config.getoption("--overlay"))
             else (
-                [bundle.parent / "overlays" / "cos-integration.yaml.j2"] if cos else []
+                [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
+                if cos_model
+                else []
             )
         )
 
@@ -172,8 +214,9 @@ def bundle(
 
 
 @pytest.fixture(scope="module")
-def bundle_with_azure_storage(request, spark_version, cos) -> Bundle[Path]:
+def bundle_with_azure_storage(request, spark_version, cos_model) -> Bundle[Path]:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
+
     if file := request.config.getoption("--bundle"):
         bundle = Path(file)
     else:
@@ -194,7 +237,11 @@ def bundle_with_azure_storage(request, spark_version, cos) -> Bundle[Path]:
     overlays = (
         [Path(file) for file in files]
         if (files := request.config.getoption("--overlay"))
-        else ([bundle.parent / "overlays" / "cos-integration.yaml.j2"] if cos else [])
+        else (
+            [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
+            if cos_model
+            else []
+        )
     )
 
     for file in overlays + [bundle]:
@@ -216,7 +263,7 @@ def integration_test(request):
         )
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest.fixture(scope="module")
 async def cos(ops_test: OpsTest, cos_model):
     """
     Deploy COS bundle depending upon the value of cos_model fixture, and yield its value.
@@ -272,53 +319,54 @@ async def cos(ops_test: OpsTest, cos_model):
             await ops_test.forget_model(cos_model)
 
 
-@pytest_asyncio.fixture(scope="module")
-async def spark_bundle(ops_test: OpsTest, credentials, bucket, bundle, cos):
+@pytest.fixture(scope="module")
+async def spark_bundle_with_s3(ops_test: OpsTest, credentials, bucket, bundle, cos):
     """Deploy all applications in the Kyuubi bundle, wait for all of them to be active,
     and finally yield a list of the names of the applications that were deployed.
     """
+    async for my_cos in cos:
 
-    applications = await (
-        deploy_bundle_yaml(bundle, bucket, cos, ops_test)
-        if isinstance(bundle, Bundle)
-        else deploy_bundle_terraform(bundle, bucket, cos, ops_test)
-    )
-
-    if "s3" in applications:
-        await ops_test.model.wait_for_idle(
-            apps=["s3"], timeout=600, idle_period=30, status="blocked"
+        applications = await (
+            deploy_bundle_yaml(bundle, bucket, my_cos, ops_test)
+            if isinstance(bundle, Bundle)
+            else deploy_bundle_terraform(bundle, bucket, my_cos, ops_test)
         )
 
-        await set_s3_credentials(ops_test, credentials)
-
-    if cos:
-        with ops_test.model_context(COS_ALIAS) as cos_model:
-            await cos_model.wait_for_idle(
-                apps=[
-                    "loki",
-                    "grafana",
-                    "prometheus",
-                    "catalogue",
-                    "traefik",
-                    "alertmanager",
-                ],
-                idle_period=60,
-                timeout=3600,
-                raise_on_error=False,
+        if "s3" in applications:
+            await ops_test.model.wait_for_idle(
+                apps=["s3"], timeout=600, idle_period=30, status="blocked"
             )
 
-    await ops_test.model.wait_for_idle(
-        apps=applications,
-        timeout=3600,
-        idle_period=30,
-        status="active",
-        raise_on_error=False,
-    )
+            await set_s3_credentials(ops_test, credentials)
 
-    yield applications
+        if my_cos:
+            with ops_test.model_context(COS_ALIAS) as cos_model:
+                await cos_model.wait_for_idle(
+                    apps=[
+                        "loki",
+                        "grafana",
+                        "prometheus",
+                        "catalogue",
+                        "traefik",
+                        "alertmanager",
+                    ],
+                    idle_period=60,
+                    timeout=3600,
+                    raise_on_error=False,
+                )
+
+        await ops_test.model.wait_for_idle(
+            apps=applications,
+            timeout=3600,
+            idle_period=30,
+            status="active",
+            raise_on_error=False,
+        )
+
+        yield applications
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest.fixture(scope="module")
 async def spark_bundle_with_azure_storage(
     ops_test: OpsTest,
     azure_credentials: AzureStorageCredentials,
@@ -330,43 +378,67 @@ async def spark_bundle_with_azure_storage(
     and finally yield a list of the names of the applications that were deployed.
     For object storage, use azure-storage-integrator.
     """
-    applications = await deploy_bundle_yaml_azure_storage(
-        bundle_with_azure_storage, container, cos, ops_test
-    )
+    async for my_cos in cos:
 
-    if "azure-storage" in applications:
-        secret_uri = await add_juju_secret(
-            ops_test,
-            "azure-storage",
-            "iamsecret",
-            {"secret-key": azure_credentials.secret_key},
-        )
-        await set_azure_credentials(
-            ops_test, secret_uri=secret_uri, application_name="azure-storage"
+        applications = await deploy_bundle_yaml_azure_storage(
+            bundle_with_azure_storage, container, my_cos, ops_test
         )
 
-    if cos:
-        with ops_test.model_context(COS_ALIAS) as cos_model:
-            await cos_model.wait_for_idle(
-                apps=[
-                    "loki",
-                    "grafana",
-                    "prometheus",
-                    "catalogue",
-                    "traefik",
-                    "alertmanager",
-                ],
-                idle_period=60,
-                timeout=3600,
-                raise_on_error=False,
+        if "azure-storage" in applications:
+            secret_uri = await add_juju_secret(
+                ops_test,
+                "azure-storage",
+                "iamsecret",
+                {"secret-key": azure_credentials.secret_key},
+            )
+            await set_azure_credentials(
+                ops_test, secret_uri=secret_uri, application_name="azure-storage"
             )
 
-    await ops_test.model.wait_for_idle(
-        apps=applications,
-        timeout=2500,
-        idle_period=30,
-        status="active",
-        raise_on_error=False,
-    )
+        if my_cos:
+            with ops_test.model_context(COS_ALIAS) as cos_model:
+                await cos_model.wait_for_idle(
+                    apps=[
+                        "loki",
+                        "grafana",
+                        "prometheus",
+                        "catalogue",
+                        "traefik",
+                        "alertmanager",
+                    ],
+                    idle_period=60,
+                    timeout=3600,
+                    raise_on_error=False,
+                )
 
-    yield applications
+        await ops_test.model.wait_for_idle(
+            apps=applications,
+            timeout=2500,
+            idle_period=30,
+            status="active",
+            raise_on_error=False,
+        )
+
+        yield applications
+
+
+@pytest.fixture(scope="module")
+async def spark_bundle(request, storage_backend):
+    if storage_backend == "s3":
+        async for value in request.getfixturevalue("spark_bundle_with_s3"):
+            return value
+    elif storage_backend == "azure":
+        async for value in request.getfixturevalue("spark_bundle_with_azure_storage"):
+            return value
+    else:
+        return ValueError("storage_backend argument not recognized")
+
+
+@pytest.fixture(scope="module")
+def object_storage(request, storage_backend):
+    if storage_backend == "s3":
+        return request.getfixturevalue("bucket")
+    elif storage_backend == "azure":
+        return request.getfixturevalue("container")
+    else:
+        return ValueError("storage_backend argument not recognized")
