@@ -22,16 +22,16 @@ jobs:
           - snap_channel: "3.6/stable"
             agent: "3.6.0"
     steps:
-      # - name: (GitHub hosted) Free up disk space
-      #   timeout-minutes: 5
-      #   run: |
-      #     printf '\nDisk usage before cleanup\n'
-      #     df --human-readable
-      #     # Based on https://github.com/actions/runner-images/issues/2840#issuecomment-790492173
-      #     rm -r /usr/share/dotnet
-      #     rm -r /opt/hostedtoolcache/
-      #     printf '\nDisk usage after cleanup\n'
-      #     df --human-readable
+      - name: (GitHub hosted) Free up disk space
+        timeout-minutes: 5
+        run: |
+          printf '\nDisk usage before cleanup\n'
+          df --human-readable
+          # Based on https://github.com/actions/runner-images/issues/2840#issuecomment-790492173
+          rm -r /usr/share/dotnet
+          rm -r /opt/hostedtoolcache/
+          printf '\nDisk usage after cleanup\n'
+          df --human-readable
       - name: Checkout repo
         uses: actions/checkout@v4
       - id: setup-python
@@ -88,9 +88,6 @@ jobs:
       - id: tests-integration
         name: Run Integration Tests
         timeout-minutes: 60
-        # env:
-        #   AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
-        #   AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |    
           cd python 
           
@@ -104,13 +101,9 @@ jobs:
           tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
           tox run -e integration-sparkjob -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
 
+          # We re-run the last tests to make sure that the tests are idempotent
           tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos
           tox run -e integration-sparkjob -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --model test-uat --cos-model cos
-
-      # - name: Setup tmate session
-      #   timeout-minutes: 20
-      #   if: ${{ failure() }}
-      #   uses: mxschmitt/action-tmate@v3
 
   integration-tests-azure:
     name: Integration Tests (Azure)
@@ -127,16 +120,16 @@ jobs:
           - snap_channel: "3.6/stable"
             agent: "3.6.0"
     steps:
-      # - name: (GitHub hosted) Free up disk space
-      #   timeout-minutes: 5
-      #   run: |
-      #     printf '\nDisk usage before cleanup\n'
-      #     df --human-readable
-      #     # Based on https://github.com/actions/runner-images/issues/2840#issuecomment-790492173
-      #     rm -r /usr/share/dotnet
-      #     rm -r /opt/hostedtoolcache/
-      #     printf '\nDisk usage after cleanup\n'
-      #     df --human-readable
+      - name: (GitHub hosted) Free up disk space
+        timeout-minutes: 5
+        run: |
+          printf '\nDisk usage before cleanup\n'
+          df --human-readable
+          # Based on https://github.com/actions/runner-images/issues/2840#issuecomment-790492173
+          rm -r /usr/share/dotnet
+          rm -r /opt/hostedtoolcache/
+          printf '\nDisk usage after cleanup\n'
+          df --human-readable
       - name: Checkout repo
         uses: actions/checkout@v4
       - id: setup-python
@@ -212,10 +205,6 @@ jobs:
           tox run -e integration-kyuubi-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
           tox run -e integration-sparkjob-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
 
+          # We re-run the last tests to make sure that the tests are idempotent
           tox run -e integration-kyuubi-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
           tox run -e integration-sparkjob-azure -- ${{ matrix.backend }} ${{ matrix.version }} --no-deploy --model test-uat --cos-model cos --uuid $UUID
-
-      # - name: Setup tmate session
-      #   timeout-minutes: 20
-      #   if: ${{ failure() }}
-      #   uses: mxschmitt/action-tmate@v3
