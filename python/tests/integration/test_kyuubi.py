@@ -2,6 +2,7 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
+import asyncio
 import logging
 
 import psycopg2
@@ -45,16 +46,19 @@ def namespace(namespace_name):
     return namespace_name
 
 
+@pytest.mark.skip_if_deployed
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
-async def test_deploy_bundle(ops_test, spark_bundle):
+async def test_deploy_bundle(ops_test: OpsTest, spark_bundle):
+    await asyncio.sleep(0)  # do nothing, await deploy_cluster
+
+
+@pytest.mark.abort_on_fail
+async def test_active_status(ops_test):
     """Test whether the bundle has deployed successfully."""
-    async for applications in spark_bundle:
-        for app_name in applications:
-            assert ops_test.model.applications[app_name].status == "active"
+    for app_name in ops_test.model.applications:
+        assert ops_test.model.applications[app_name].status == "active"
 
 
-@pytest.mark.asyncio
 @pytest.mark.abort_on_fail
 async def test_authentication_is_enforced(ops_test):
     """Test that the authentication has been enabled in the bundle by default
@@ -71,7 +75,6 @@ async def test_authentication_is_enforced(ops_test):
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_jdbc_endpoint(ops_test: OpsTest):
     """Test that JDBC connection in Kyuubi works out of the box in bundle."""
 
@@ -95,7 +98,6 @@ async def test_jdbc_endpoint(ops_test: OpsTest):
     assert len(list(table.rows())) == 3
 
 
-@pytest.mark.asyncio
 @pytest.mark.abort_on_fail
 async def test_postgresql_metastore_is_used(ops_test: OpsTest):
     "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
@@ -124,7 +126,6 @@ async def test_postgresql_metastore_is_used(ops_test: OpsTest):
     assert num_tables != 0
 
 
-@pytest.mark.asyncio
 @pytest.mark.abort_on_fail
 async def test_ha_deployment(ops_test: OpsTest):
     active_servers = await get_active_kyuubi_servers_list(ops_test)
@@ -139,7 +140,6 @@ async def test_ha_deployment(ops_test: OpsTest):
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
     if not cos:
         pytest.skip("Not possible to test without cos")
@@ -193,19 +193,25 @@ async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
                 KYUUBI_APP_NAME,
                 5000,
             )
-            logger.info(f"Retrieved logs: {logs}")
+            logger.debug(f"Retrieved logs: {logs}")
 
             # check for non empty logs
             assert len(logs) > 0
 
-            # check if startup message is there...
+            # check if Kyuubi related logs are there...
             assert any(
-                "Starting org.apache.kyuubi.server.KyuubiServer" in message
+                "org.apache.kyuubi.session.KyuubiSessionImpl:" in message
                 for timestamp, message in logs.items()
             )
 
-            # check if Kyuubi related logs are there...
-            assert any(
-                "INFO main org.apache.kyuubi.server.KyuubiServer:" in message
-                for timestamp, message in logs.items()
-            )
+
+@pytest.mark.abort_on_fail
+async def test_drop_table_if_exists(ops_test: OpsTest):
+    credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
+    client = KyuubiClient(**credentials)
+
+    db_name, table_name = "spark_test", "my_table"
+
+    db = client.get_database(db_name)
+    db.get_table(table_name).drop()
+    db.drop()

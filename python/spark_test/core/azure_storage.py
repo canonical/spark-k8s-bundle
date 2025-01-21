@@ -42,6 +42,24 @@ class Container:
         self.credentials = credentials
 
     @classmethod
+    def get(cls, container_name: str, credentials: Credentials):
+        """Return an instance of an existing Container class.
+
+        Args:
+            container_name: name of the container
+            credentials: Azure Storage credentials
+
+        Returns:
+            Container object
+        """
+        client = BlobServiceClient.from_connection_string(credentials.connection_string)
+
+        if not cls._exists(container_name, client):
+            raise FileNotFoundError(f"Bucket {container_name} does not exist.")
+
+        return Container(client, container_name, credentials)
+
+    @classmethod
     def create(cls, container_name: str, credentials: Credentials):
         """Create and return an instance of the Container class.
 
@@ -55,7 +73,7 @@ class Container:
         client = BlobServiceClient.from_connection_string(credentials.connection_string)
 
         if cls._exists(container_name, client):
-            raise ValueError(
+            raise FileExistsError(
                 f"Cannot create container {container_name}. Already exists."
             )
 

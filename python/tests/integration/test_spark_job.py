@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import time
@@ -9,7 +10,7 @@ from spark8t.domain import PropertyFile
 from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
-from spark_test.fixtures.pod import pod
+from spark_test.fixtures.pod import Pod, pod
 from spark_test.fixtures.s3 import bucket, credentials
 from spark_test.fixtures.service_account import (
     registry,
@@ -59,13 +60,17 @@ def namespace(namespace_name):
     return namespace_name
 
 
+@pytest.mark.skip_if_deployed
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
-async def test_deploy_bundle(ops_test, spark_bundle):
+async def test_deploy_bundle(ops_test: OpsTest, spark_bundle):
+    await asyncio.sleep(0)  # do nothing, await deploy_cluster
+
+
+@pytest.mark.abort_on_fail
+async def test_active_status(ops_test):
     """Test whether the bundle has deployed successfully."""
-    async for applications in spark_bundle:
-        for app_name in applications:
-            assert ops_test.model.applications[app_name].status == "active"
+    for app_name in ops_test.model.applications:
+        assert ops_test.model.applications[app_name].status == "active"
 
 
 @pytest.fixture
@@ -73,8 +78,12 @@ def spark_properties(small_profile_properties, image_properties):
     return small_profile_properties + image_properties
 
 
+@pytest.fixture(scope="module")
+def tmp_folder(tmp_path_factory):
+    return tmp_path_factory.mktemp("data")
+
+
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_run_job(
     ops_test: OpsTest,
     registry,
@@ -83,6 +92,7 @@ async def test_run_job(
     credentials,
     bucket,
     spark_properties,
+    tmp_folder,
 ):
     """Run a spark job."""
 
@@ -93,6 +103,13 @@ async def test_run_job(
     bucket.upload_file("tests/integration/resources/spark_test.py")
 
     registry.set_configurations(service_account.id, spark_properties)
+
+    initial_driver_pods = set(
+        pod.pod_name
+        for pod in get_spark_drivers(
+            registry.kube_interface.client, service_account.namespace
+        )
+    )
 
     pod.exec(
         [
@@ -110,42 +127,46 @@ async def test_run_job(
     driver_pods = get_spark_drivers(
         registry.kube_interface.client, service_account.namespace
     )
-    assert len(driver_pods) == 1
+    assert len(driver_pods) == len(initial_driver_pods) + 1
 
-    logger.info(f"Driver pod: {driver_pods[0].pod_name}")
-    logger.info("\n".join(driver_pods[0].logs()))
+    driver_pod = [pod for pod in driver_pods if pod.pod_name not in initial_driver_pods]
 
-    line_check = filter(lambda line: "Number of lines" in line, driver_pods[0].logs())
+    assert len(driver_pod) == 1
+
+    logger.info(f"Driver pod: {driver_pod[0].pod_name}")
+    logger.info("\n".join(driver_pod[0].logs()))
+
+    line_check = filter(lambda line: "Number of lines" in line, driver_pod[0].logs())
 
     assert next(line_check)
 
+    # write out spark_job_id to be used elsewhere
+    driver_pod[0].write(tmp_folder / "spark-job-driver.json")
+
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_job_logs_are_persisted(
-    ops_test: OpsTest, registry, service_account, credentials, bucket
+    ops_test: OpsTest, registry, service_account, credentials, bucket, tmp_folder
 ):
+
+    driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
+
+    # Test that logs are persisted in S3
     integration_hub_conf = get_secret_data(
         service_account.namespace, service_account.name
     )
     logger.info(f"Integration Hub confs: {integration_hub_conf}")
 
-    # check that logs are in s3 folder
-    driver_pods = get_spark_drivers(
-        registry.kube_interface.client, service_account.namespace
-    )
-    assert len(driver_pods) == 1
     confs = registry.get(service_account.id).configurations
     logger.info(f"Configurations: {confs.props}")
     s3_folder = confs.props["spark.eventLog.dir"]
+
     logger.info(f"Log folder: {s3_folder}")
     logger.info(f"S3 objects: {bucket.list_objects()}")
-    driver_pod_name = driver_pods[0].pod_name
-    logger.info(f"Pod name: {driver_pod_name}")
 
-    logger.info(f"metadata: {driver_pods[0].metadata}")
+    logger.info(f"metadata: {driver_pod.metadata}")
 
-    spark_app_selector = driver_pods[0].labels["spark-app-selector"]
+    spark_app_selector = driver_pod.labels["spark-app-selector"]
 
     logs_discovered = False
     for obj in bucket.list_objects():
@@ -156,10 +177,9 @@ async def test_job_logs_are_persisted(
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
-async def test_job_in_history_server(
-    ops_test: OpsTest,
-):
+async def test_job_in_history_server(ops_test: OpsTest, tmp_folder):
+    driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
+
     # check that spark-history server contains the application entry
     status = await ops_test.model.get_status()
 
@@ -173,14 +193,19 @@ async def test_job_in_history_server(
 
     logger.info(f"Show unit: {stdout}")
 
+    spark_id = driver_pod.labels["spark-app-selector"]
+    logger.info(f"Spark ID: {spark_id}")
+
     for i in range(0, 5):
         try:
             logger.info(f"try n#{i} time: {time.time()}")
-            apps = json.loads(
+            raw_apps = json.loads(
                 urllib.request.urlopen(
                     f"http://{address}:18080/api/v1/applications"
                 ).read()
             )
+
+            apps = [app for app in raw_apps if app["id"] == spark_id]
         except Exception:
             apps = []
 
@@ -188,12 +213,13 @@ async def test_job_in_history_server(
             break
         else:
             await juju_sleep(ops_test, 30, HISTORY_SERVER)  # type: ignore
+
     logger.info(f"Number of apps: {len(apps)}")
+
     assert len(apps) == 1
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_job_in_prometheus_pushgateway(ops_test: OpsTest, cos):
     if not cos:
         pytest.skip("Not possible to test without cos")
@@ -230,12 +256,14 @@ async def test_job_in_prometheus_pushgateway(ops_test: OpsTest, cos):
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_spark_metrics_in_prometheus(
-    ops_test: OpsTest, registry, service_account, cos
+    ops_test: OpsTest, registry, service_account, cos, tmp_folder
 ):
     if not cos:
         pytest.skip("Not possible to test without cos")
+
+    driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
+
     show_status_cmd = ["status"]
 
     _, stdout, _ = await ops_test.juju(*show_status_cmd)
@@ -254,22 +282,15 @@ async def test_spark_metrics_in_prometheus(
         )
 
         logger.info(f"query: {query}")
-        spark_id = query["data"]["result"][0]["metric"]["exported_job"]
-        logger.info(f"Spark id: {spark_id}")
+        spark_ids = [
+            result["metric"]["exported_job"] for result in query["data"]["result"]
+        ]
+        logger.info(f"Spark ids: {spark_ids}")
 
-        driver_pods = get_spark_drivers(
-            registry.kube_interface.client, service_account.namespace
-        )
-        assert len(driver_pods) == 1
-
-        logger.info(f"metadata: {driver_pods[0].metadata}")
-        spark_app_selector = driver_pods[0].labels["spark-app-selector"]
-        logger.info(f"Spark-app-selector: {spark_app_selector}")
-        assert spark_id == spark_app_selector
+        assert driver_pod.labels["spark-app-selector"] in spark_ids
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_spark_logforwaring_to_loki(
     ops_test: OpsTest, registry, service_account, cos
 ):
@@ -286,7 +307,6 @@ async def test_spark_logforwaring_to_loki(
 
 
 @pytest.mark.abort_on_fail
-@pytest.mark.asyncio
 async def test_history_server_metrics_in_cos(ops_test: OpsTest, cos):
     if not cos:
         pytest.skip("Not possible to test without cos")
@@ -353,7 +373,7 @@ async def test_history_server_metrics_in_cos(ops_test: OpsTest, cos):
             # check if startup messages are there
             c = 0
             for timestamp, message in logs.items():
-                if "INFO HistoryServer" in message:
+                if "INFO FsHistoryProvider" in message:
                     c = c + 1
             logger.info(f"Number of line found: {c}")
             assert c > 0

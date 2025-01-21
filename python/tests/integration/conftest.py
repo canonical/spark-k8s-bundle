@@ -82,6 +82,12 @@ def pytest_addoption(parser):
         type=str,
         help="Which Spark version to use for bundle testing.",
     )
+    parser.addoption(
+        "--uuid",
+        default=uuid.uuid4(),
+        type=str,
+        help="Which Spark version to use for bundle testing.",
+    )
 
 
 @pytest.fixture(scope="module")
@@ -100,6 +106,12 @@ def backend(request) -> None | str:
 def spark_version(request) -> str:
     """The backend which is to be used to deploy the bundle."""
     return request.config.getoption("--spark-version") or "3.4.2"
+
+
+@pytest.fixture(scope="module")
+def test_uuid(request) -> str:
+    """The backend which is to be used to deploy the bundle."""
+    return request.config.getoption("--uuid") or uuid.uuid4()
 
 
 @pytest.fixture(scope="module")
@@ -209,7 +221,9 @@ async def cos(ops_test: OpsTest, cos_model):
     """
     Deploy COS bundle depending upon the value of cos_model fixture, and yield its value.
     """
-    if cos_model and cos_model not in ops_test.models:
+    existing_models = await ops_test._controller.list_models()
+
+    if cos_model and cos_model not in existing_models:
 
         base_url = (
             "https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays"
@@ -258,11 +272,12 @@ async def cos(ops_test: OpsTest, cos_model):
             await ops_test.forget_model(cos_model)
 
 
-@pytest.fixture(scope="module")
+@pytest_asyncio.fixture(scope="module")
 async def spark_bundle(ops_test: OpsTest, credentials, bucket, bundle, cos):
     """Deploy all applications in the Kyuubi bundle, wait for all of them to be active,
     and finally yield a list of the names of the applications that were deployed.
     """
+
     applications = await (
         deploy_bundle_yaml(bundle, bucket, cos, ops_test)
         if isinstance(bundle, Bundle)
@@ -303,7 +318,7 @@ async def spark_bundle(ops_test: OpsTest, credentials, bucket, bundle, cos):
     yield applications
 
 
-@pytest.fixture(scope="module")
+@pytest_asyncio.fixture(scope="module")
 async def spark_bundle_with_azure_storage(
     ops_test: OpsTest,
     azure_credentials: AzureStorageCredentials,
