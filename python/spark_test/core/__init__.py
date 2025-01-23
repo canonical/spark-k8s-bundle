@@ -5,7 +5,7 @@
 from abc import ABC, abstractmethod
 
 
-class StorageBackend(ABC):
+class ObjectStorageUnit(ABC):
     @abstractmethod
     def init(self):
         pass
@@ -28,7 +28,7 @@ class StorageBackend(ABC):
         pass
 
     @abstractmethod
-    def list(self) -> list[str]:
+    def list_content(self) -> list[str]:
         pass
 
     @abstractmethod

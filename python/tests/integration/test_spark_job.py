@@ -147,14 +147,14 @@ async def test_job_logs_are_persisted(
     log_folder = confs.props["spark.eventLog.dir"]
 
     logger.info(f"Log folder: {log_folder}")
-    logger.info(f"Objects: {object_storage.list()}")
+    logger.info(f"Objects: {object_storage.list_content()}")
 
     logger.info(f"metadata: {driver_pod.metadata}")
 
     spark_app_selector = driver_pod.labels["spark-app-selector"]
 
     logs_discovered = False
-    for obj in object_storage.list():
+    for obj in object_storage.list_content():
         if spark_app_selector in obj:
             logs_discovered = True
 

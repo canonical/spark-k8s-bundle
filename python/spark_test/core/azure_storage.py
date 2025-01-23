@@ -8,7 +8,7 @@ from itertools import islice
 
 from azure.storage.blob import BlobServiceClient
 
-from spark_test.core import StorageBackend
+from spark_test.core import ObjectStorageUnit
 
 
 @dataclass
@@ -25,7 +25,7 @@ class Credentials:
         return f"DefaultEndpointsProtocol=https;AccountName={self.storage_account};AccountKey={self.secret_key};EndpointSuffix=core.windows.net"
 
 
-class Container(StorageBackend):
+class Container(ObjectStorageUnit):
     """Class representing an Azure Storage container."""
 
     INIT_DIR = "spark-events"
@@ -143,7 +143,7 @@ class Container(StorageBackend):
         )
         return list(container_client.list_blobs())
 
-    def list(self):
+    def list_content(self):
         hidden_blobs = [self.INIT_DIR, f"{self.INIT_DIR}/{self.PLACEHOLDER}"]
 
         return [

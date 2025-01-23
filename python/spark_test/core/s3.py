@@ -12,7 +12,7 @@ from botocore.client import Config
 from botocore.exceptions import ClientError
 from exceptiongroup import catch
 
-from spark_test.core import StorageBackend
+from spark_test.core import ObjectStorageUnit
 
 
 @dataclass
@@ -29,7 +29,7 @@ class Credentials:
         return f"http://{self.host}:80"
 
 
-class Bucket(StorageBackend):
+class Bucket(ObjectStorageUnit):
     """Class representing a S3 bucket."""
 
     def __init__(self, s3, bucket_name: str):
@@ -151,7 +151,7 @@ class Bucket(StorageBackend):
         """Return the list of object contained in the bucket"""
         return self.s3.list_objects_v2(Bucket=self.bucket_name).get("Contents", [])
 
-    def list(self):
+    def list_content(self):
         """Return the list of object names"""
         return [
             name
