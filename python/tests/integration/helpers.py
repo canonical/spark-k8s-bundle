@@ -419,13 +419,6 @@ async def add_juju_secret(
     return secret_uri
 
 
-def construct_azure_resource_uri(container: Container, path: str):
-    return os.path.join(
-        f"abfss://{container.container_name}@{container.credentials.storage_account}.dfs.core.windows.net",
-        path,
-    )
-
-
 async def juju_sleep(ops: OpsTest, time: int, app: str | None = None):
     app_name = app if app else list(ops.model.applications.keys())[0]
 

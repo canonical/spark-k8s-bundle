@@ -4,11 +4,15 @@
 
 import os
 from dataclasses import dataclass
+from functools import cached_property
 from typing import List
 
 import boto3
 from botocore.client import Config
 from botocore.exceptions import ClientError
+from exceptiongroup import catch
+
+from spark_test.core import ObjectStorageUnit
 
 
 @dataclass
@@ -25,7 +29,7 @@ class Credentials:
         return f"http://{self.host}:80"
 
 
-class Bucket:
+class Bucket(ObjectStorageUnit):
     """Class representing a S3 bucket."""
 
     def __init__(self, s3, bucket_name: str):
@@ -102,8 +106,7 @@ class Bucket:
         if not self.exists():
             return
 
-        objs = [{"Key": x["Key"]} for x in self.list_objects()]
-        self.s3.delete_objects(Bucket=self.bucket_name, Delete={"Objects": objs})
+        self.cleanup()
         self.s3.delete_bucket(Bucket=self.bucket_name)
 
         self.s3.close()
@@ -113,7 +116,7 @@ class Bucket:
     def _exists(bucket_name, s3) -> bool:
         buckets = [
             bucket
-            for bucket in s3.list_buckets()["Buckets"]
+            for bucket in s3.list_buckets().get("Buckets", [])
             if bucket["Name"] == bucket_name
         ]
         return len(buckets) > 0
@@ -146,4 +149,23 @@ class Bucket:
 
     def list_objects(self) -> List[dict]:
         """Return the list of object contained in the bucket"""
-        return self.s3.list_objects_v2(Bucket=self.bucket_name)["Contents"]
+        return self.s3.list_objects_v2(Bucket=self.bucket_name).get("Contents", [])
+
+    def list_content(self):
+        """Return the list of object names"""
+        return [
+            name
+            for obj in self.list_objects()
+            if not (name := obj["Key"]).endswith("/")
+        ]
+
+    def get_uri(self, file: str):
+        return f"s3a://{self.bucket_name}/{file}"
+
+    def cleanup(self) -> bool:
+        try:
+            objs = [{"Key": x["Key"]} for x in self.list_objects()]
+            self.s3.delete_objects(Bucket=self.bucket_name, Delete={"Objects": objs})
+        except Exception:
+            return False
+        return True
