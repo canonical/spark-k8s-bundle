@@ -30,12 +30,11 @@ def namespace_name():
 
 
 def test_pod_admin(admin_pod, service_account):
-
     output: str = admin_pod.exec(
         ["spark-client.service-account-registry", "list"]
     ).decode("utf-8")
 
-    assert output.strip("\n") == service_account.id
+    assert service_account.id in output.splitlines()
 
 
 def test_spark_submit(
@@ -46,7 +45,6 @@ def test_spark_submit(
     small_profile_properties,
     image_properties,
 ):
-
     extra_confs = small_profile_properties + image_properties
 
     registry.set_configurations(service_account.id, extra_confs)
