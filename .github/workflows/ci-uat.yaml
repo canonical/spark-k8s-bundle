@@ -47,8 +47,8 @@ jobs:
           microk8s-addons: "rbac dns minio metallb:${{ env.IPADDR }}-${{ env.IPADDR }}"
       - name: Install tox & poetry
         run: |
-          pip install tox
-          pip install "poetry<2.0.0"
+          pipx install tox
+          pipx install poetry
       - name: Select tests
         id: select-tests
         run: |

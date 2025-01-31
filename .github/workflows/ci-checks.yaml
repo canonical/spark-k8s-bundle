@@ -15,8 +15,8 @@ jobs:
       fail-fast: true
       matrix:
         python-version:
-          - '3.9'
-          - '3.10'
+          - "3.10"
+          - "3.12"
     steps:
       - id: checkout
         name: Checkout repo
@@ -30,8 +30,8 @@ jobs:
       - name: Install tox & poetry
         run: |
           pipx install tox
-          pipx install "poetry<2.0.0"
+          pipx install poetry
       - id: code-checks
         name: Make sure the code follows conventions and tests correctly
         run: |
-          cd python && tox -e lint 
+          cd python && tox -e lint
