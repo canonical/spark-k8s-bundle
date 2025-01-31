@@ -5,6 +5,8 @@
 
 import pytest
 
+import spark_test.fixtures.k8s  # noqa
+import spark_test.fixtures.service_account  # noqa
 from spark_test.core.pod import Pod
 
 

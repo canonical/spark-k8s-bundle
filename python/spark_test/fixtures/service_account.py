@@ -8,6 +8,9 @@ import pytest
 from spark8t.domain import PropertyFile, ServiceAccount
 from spark8t.services import K8sServiceAccountRegistry
 
+import spark_test.fixtures.azure_storage  # noqa
+import spark_test.fixtures.s3  # noqa
+
 
 def _clearnup_registry(registry):
     [registry.delete(account.id) for account in registry.all()]

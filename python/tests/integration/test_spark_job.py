@@ -8,7 +8,7 @@ import pytest
 from pytest_operator.plugin import OpsTest
 from tenacity import Retrying, stop_after_attempt, wait_fixed
 
-from spark_test.fixtures.pod import Pod
+from spark_test.core.pod import Pod
 from spark_test.utils import get_spark_drivers
 
 from .helpers import (

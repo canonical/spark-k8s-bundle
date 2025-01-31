@@ -36,6 +36,7 @@ pytest_plugins = (
     "spark_test.fixtures.azure_storage",
     "spark_test.fixtures.pod",
     "spark_test.fixtures.s3",
+    "spark_test.fixtures.k8s",
     "spark_test.fixtures.service_account",
 )
 
