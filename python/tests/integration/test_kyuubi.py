@@ -11,6 +11,7 @@ from pytest_operator.plugin import OpsTest
 from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.core.kyuubi import KyuubiClient
+from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace  # noqa
 
 from .helpers import (
     get_active_kyuubi_servers_list,

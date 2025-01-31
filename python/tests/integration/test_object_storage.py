@@ -7,6 +7,16 @@ import logging
 import pytest
 
 from spark_test import RESOURCES
+from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace  # noqa
+from spark_test.fixtures.pod import pod  # noqa
+from spark_test.fixtures.service_account import (
+    azure_properties,  # noqa
+    iceberg_properties,  # noqa
+    registry,  # noqa
+    s3_properties,  # noqa
+    service_account,  # noqa
+    small_profile_properties,  # noqa
+)
 from spark_test.utils import get_spark_drivers
 
 logger = logging.getLogger(__name__)

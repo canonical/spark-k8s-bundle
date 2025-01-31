@@ -4,6 +4,13 @@
 
 import pytest
 
+from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace  # noqa
+from spark_test.fixtures.pod import admin_pod, pod  # noqa
+from spark_test.fixtures.service_account import (
+    registry,  # noqa
+    service_account,  # noqa
+    small_profile_properties,  # noqa
+)
 from spark_test.utils import get_spark_drivers
 
 

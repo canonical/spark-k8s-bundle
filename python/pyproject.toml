@@ -73,7 +73,7 @@ src = ["spark_test", "tests"]
 
 [tool.ruff.lint]
 select = ["B", "C", "D", "E", "F", "W", "B9", "I"]
-ignore = ["E501", "D107"]
+ignore = ["E501", "D107", "F811"]
 extend-ignore = [
   # Ignored by black
   "E203",

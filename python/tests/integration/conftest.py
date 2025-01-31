@@ -13,6 +13,10 @@ from pytest_operator.plugin import OpsTest
 from spark8t.domain import PropertyFile
 
 from spark_test.core.azure_storage import Credentials as AzureStorageCredentials
+from spark_test.fixtures.azure_storage import azure_credentials, container  # noqa
+from spark_test.fixtures.pod import spark_image  # noqa
+from spark_test.fixtures.s3 import bucket, credentials  # noqa
+from spark_test.fixtures.service_account import service_account  # noqa
 from tests import IE_TEST_DIR
 
 from .helpers import (
@@ -31,14 +35,6 @@ from .helpers import (
 from .terraform import Terraform
 
 logger = logging.getLogger(__name__)
-
-pytest_plugins = (
-    "spark_test.fixtures.azure_storage",
-    "spark_test.fixtures.pod",
-    "spark_test.fixtures.s3",
-    "spark_test.fixtures.k8s",
-    "spark_test.fixtures.service_account",
-)
 
 
 def pytest_addoption(parser):

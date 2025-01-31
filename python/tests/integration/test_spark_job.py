@@ -9,6 +9,13 @@ from pytest_operator.plugin import OpsTest
 from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.core.pod import Pod
+from spark_test.fixtures.k8s import envs, interface, kubeconfig  # noqa
+from spark_test.fixtures.pod import pod  # noqa
+from spark_test.fixtures.service_account import (
+    registry,  # noqa
+    service_account,  # noqa
+    small_profile_properties,  # noqa
+)
 from spark_test.utils import get_spark_drivers
 
 from .helpers import (

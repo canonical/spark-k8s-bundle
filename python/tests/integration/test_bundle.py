@@ -9,6 +9,10 @@ import logging
 import pytest
 from pytest_operator.plugin import OpsTest
 
+from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace  # noqa
+from spark_test.fixtures.s3 import bucket, credentials  # noqa
+from spark_test.fixtures.service_account import registry, service_account  # noqa
+
 logger = logging.getLogger(__name__)
 
 
