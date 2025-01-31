@@ -12,6 +12,9 @@ license = "Apache-2.0"
 readme = "README.md"
 packages = [{ include = "spark_test" }]
 
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.9"
+
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
 spark8t = ">=0.0.10"
