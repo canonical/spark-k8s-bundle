@@ -1,8 +1,9 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
+"""Kyuubi module."""
 
 from contextlib import contextmanager
-from typing import Type
+from typing import Iterable, Type
 
 from pyhive.hive import Connection
 
@@ -14,14 +15,19 @@ SchemaType = Type[int | str]
 
 
 class TableExists(Exception):
+    """Exception from table already exists."""
+
     pass
 
 
 class TableNotFound(Exception):
+    """Exception for table not found."""
+
     pass
 
 
 class KyuubiClient:
+    """Kyuubi client."""
 
     def __init__(self, username: str, password: str, host: str, port: int = 10009):
         self.username = username
@@ -31,7 +37,8 @@ class KyuubiClient:
 
     @property
     @contextmanager
-    def connection(self) -> Connection:
+    def connection(self) -> Iterable[Connection]:
+        """Instantiate connection."""
         conn = Connection(
             host=self.host,
             port=self.port,
@@ -44,12 +51,14 @@ class KyuubiClient:
 
     @property
     def databases(self):
+        """List databases."""
         with self.connection as conn, conn.cursor() as cursor:
             cursor.execute("SHOW DATABASES;")
             results = cursor.fetchall()
             return [result[0] for result in results]
 
     def get_database(self, name: str):
+        """Get database from name."""
         with self.connection as conn, conn.cursor() as cursor:
             cursor.execute(f"CREATE DATABASE IF NOT EXISTS {name};")
 
@@ -57,6 +66,7 @@ class KyuubiClient:
 
 
 class Database:
+    """Kyuubi database."""
 
     def __init__(self, name: str, client: KyuubiClient):
         self.client = client
@@ -64,6 +74,7 @@ class Database:
 
     @property
     def tables(self):
+        """List tables in database."""
         with self.client.connection as conn, conn.cursor() as cursor:
             cursor.execute(f"USE {self.name};")
             cursor.execute("SHOW TABLES;")
@@ -71,6 +82,7 @@ class Database:
             return [result[1] for result in results]
 
     def get_table(self, name: str):
+        """Get table from name."""
         if name not in self.tables:
             raise TableNotFound()
 
@@ -80,10 +92,12 @@ class Database:
             return Table(name, self, schema)
 
     def drop(self):
+        """Drop database."""
         with self.client.connection as conn, conn.cursor() as cursor:
             cursor.execute(f"DROP DATABASE {self.name};")
 
     def create_table(self, name: str, schema: list[tuple[str, SchemaType]]):
+        """Create table from name and schema."""
         if name in self.tables:
             raise TableExists(name)
 
@@ -97,6 +111,7 @@ class Database:
 
 
 class Table:
+    """Kyuubi table."""
 
     def __init__(
         self, name: str, database: Database, schema: list[tuple[str, SchemaType]]
@@ -106,22 +121,25 @@ class Table:
         self.schema = schema
 
     def validate(self, values: list[SchemaType]):
+        """Validate values."""
         output = {}
 
         for value, (col_name, _type) in zip(values, self.schema):
             if not isinstance(value, _type):
                 raise TypeError(
-                    f"Column {col_name}: Expected {_type}, " f"found {type(value)}"
+                    f"Column {col_name}: Expected {_type}, found {type(value)}"
                 )
             output[col_name] = value
 
         return output
 
     def drop(self):
+        """Drop table."""
         with self.database.client.connection as conn, conn.cursor() as cursor:
             cursor.execute(f"DROP TABLE {self.database.name}.{self.name};")
 
     def rows(self):
+        """Iterate over rows."""
         with self.database.client.connection as conn, conn.cursor() as cursor:
             cursor.execute(f"SELECT * FROM {self.database.name}.{self.name}")
 
@@ -129,6 +147,7 @@ class Table:
                 yield self.validate(row)
 
     def parse_value(self, value: SchemaType):
+        """Convert value to str."""
         match value:
             case int():
                 return str(value)
@@ -138,7 +157,6 @@ class Table:
                 raise TypeError(type(value))
 
     def _parse_row(self, row: list[SchemaType]):
-
         _ = self.validate(row)
 
         return "(" + ",".join(self.parse_value(value) for value in row) + ")"
@@ -147,6 +165,7 @@ class Table:
         return ", ".join(self._parse_row(row) for row in rows)
 
     def insert(self, *rows: list[SchemaType]):
+        """Insert rows."""
         with self.database.client.connection as conn, conn.cursor() as cursor:
             cursor.execute(
                 f"INSERT INTO {self.database.name}.{self.name} "

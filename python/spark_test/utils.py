@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
-
-from typing import List
+"""Utils module."""
 
 from lightkube import Client
 from lightkube.resources.core_v1 import Pod as LightKubePod
@@ -10,7 +9,8 @@ from lightkube.resources.core_v1 import Pod as LightKubePod
 from spark_test.core.pod import Pod
 
 
-def get_spark_drivers(client: Client, namespace: str) -> List[Pod]:
+def get_spark_drivers(client: Client, namespace: str) -> list[Pod]:
+    """Get Spark driver pod."""
     return [
         Pod(
             pod_name=pod.metadata.name,

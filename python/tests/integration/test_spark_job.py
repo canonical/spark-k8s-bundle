@@ -6,16 +6,9 @@ import urllib.request
 
 import pytest
 from pytest_operator.plugin import OpsTest
-from spark8t.domain import PropertyFile
 from tenacity import Retrying, stop_after_attempt, wait_fixed
 
-from spark_test.fixtures.k8s import envs, interface, kubeconfig
-from spark_test.fixtures.pod import Pod, pod
-from spark_test.fixtures.service_account import (
-    registry,
-    service_account,
-    small_profile_properties,
-)
+from spark_test.fixtures.pod import Pod
 from spark_test.utils import get_spark_drivers
 
 from .helpers import (
@@ -84,12 +77,12 @@ async def test_run_job(
 
     registry.set_configurations(service_account.id, spark_properties)
 
-    initial_driver_pods = set(
+    initial_driver_pods = {
         pod.pod_name
         for pod in get_spark_drivers(
             registry.kube_interface.client, service_account.namespace
         )
-    )
+    }
 
     pod.exec(
         [
@@ -133,7 +126,6 @@ async def test_job_logs_are_persisted(
     object_storage,
     tmp_folder,
 ):
-
     driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
 
     # Test that logs are persisted in S3
@@ -246,7 +238,6 @@ async def test_spark_metrics_in_prometheus(
     ops_test: OpsTest, registry, service_account, cos, tmp_folder
 ):
     async for cos_model_name in cos:
-
         if not cos_model_name:
             pytest.skip("Not possible to test without cos")
 
@@ -298,7 +289,6 @@ async def test_spark_logforwaring_to_loki(
 @pytest.mark.abort_on_fail
 async def test_history_server_metrics_in_cos(ops_test: OpsTest, cos):
     async for cos_model_name in cos:
-
         if not cos_model_name:
             pytest.skip("Not possible to test without cos")
 
@@ -310,7 +300,6 @@ async def test_history_server_metrics_in_cos(ops_test: OpsTest, cos):
         # We should leave time for Prometheus data to be published
         for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
             with attempt:
-
                 cos_address = await get_cos_address(
                     ops_test, cos_model_name=cos_model_name
                 )
@@ -364,7 +353,7 @@ async def test_history_server_metrics_in_cos(ops_test: OpsTest, cos):
                 assert len(logs) > 0
                 # check if startup messages are there
                 c = 0
-                for timestamp, message in logs.items():
+                for _timestamp, message in logs.items():
                     if "INFO FsHistoryProvider" in message:
                         c = c + 1
                 logger.info(f"Number of line found: {c}")

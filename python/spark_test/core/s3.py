@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
+"""S3 module."""
 
 import os
 from dataclasses import dataclass
-from functools import cached_property
 from typing import List
 
 import boto3
 from botocore.client import Config
 from botocore.exceptions import ClientError
-from exceptiongroup import catch
 
 from spark_test.core import ObjectStorageUnit
 
@@ -53,7 +52,6 @@ class Bucket(ObjectStorageUnit):
         Returns:
             Bucket object
         """
-
         config = Config(connect_timeout=60, retries={"max_attempts": 0})
         session = boto3.session.Session(
             aws_access_key_id=credentials.access_key,
@@ -78,7 +76,6 @@ class Bucket(ObjectStorageUnit):
         Returns:
             Bucket object
         """
-
         config = Config(connect_timeout=60, retries={"max_attempts": 0})
         session = boto3.session.Session(
             aws_access_key_id=credentials.access_key,
@@ -126,7 +123,7 @@ class Bucket(ObjectStorageUnit):
         return self._exists(self.bucket_name, self.s3)
 
     def upload_file(self, file_name, object_name=None):
-        """Upload a file to an S3 bucket
+        """Upload a file to an S3 bucket.
 
         Args:
             file_name: File to upload
@@ -135,7 +132,6 @@ class Bucket(ObjectStorageUnit):
         Returns:
              True if file was uploaded, else False
         """
-
         # If S3 object_name was not specified, use file_name
         if object_name is None:
             object_name = os.path.basename(file_name)
@@ -148,11 +144,11 @@ class Bucket(ObjectStorageUnit):
         return True
 
     def list_objects(self) -> List[dict]:
-        """Return the list of object contained in the bucket"""
+        """Return the list of object contained in the bucket."""
         return self.s3.list_objects_v2(Bucket=self.bucket_name).get("Contents", [])
 
     def list_content(self):
-        """Return the list of object names"""
+        """Return the list of object names."""
         return [
             name
             for obj in self.list_objects()
@@ -160,9 +156,11 @@ class Bucket(ObjectStorageUnit):
         ]
 
     def get_uri(self, file: str):
+        """Get file URI."""
         return f"s3a://{self.bucket_name}/{file}"
 
     def cleanup(self) -> bool:
+        """Cleanup objects from bucket."""
         try:
             objs = [{"Key": x["Key"]} for x in self.list_objects()]
             self.s3.delete_objects(Bucket=self.bucket_name, Delete={"Objects": objs})

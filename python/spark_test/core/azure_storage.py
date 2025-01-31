@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
+"""Azure storage module."""
 
 import os
 from dataclasses import dataclass
@@ -22,6 +23,7 @@ class Credentials:
     def connection_string(
         self,
     ) -> str:
+        """Credential connection string."""
         return f"DefaultEndpointsProtocol=https;AccountName={self.storage_account};AccountKey={self.secret_key};EndpointSuffix=core.windows.net"
 
 
@@ -112,7 +114,7 @@ class Container(ObjectStorageUnit):
         return self._exists(self.container_name, self.client)
 
     def upload_file(self, file_name, blob_name=None):
-        """Upload a file to an Azure Storage container
+        """Upload a file to an Azure Storage container.
 
         Args:
             file_name: File to upload
@@ -121,7 +123,6 @@ class Container(ObjectStorageUnit):
         Returns:
              True if file was uploaded, else False
         """
-
         # If blob_name was not specified, use file_name
         if blob_name is None:
             blob_name = os.path.basename(file_name)
@@ -138,12 +139,14 @@ class Container(ObjectStorageUnit):
         return True
 
     def list_blobs(self):
+        """List blobs in container."""
         container_client = self.client.get_container_client(
             container=self.container_name
         )
         return list(container_client.list_blobs())
 
     def list_content(self):
+        """List content from container blobs."""
         hidden_blobs = [self.INIT_DIR, f"{self.INIT_DIR}/{self.PLACEHOLDER}"]
 
         return [
@@ -153,12 +156,14 @@ class Container(ObjectStorageUnit):
         ]
 
     def get_uri(self, file: str):
+        """Get blob URI."""
         return os.path.join(
             f"abfss://{self.container_name}@{self.credentials.storage_account}.dfs.core.windows.net",
             file,
         )
 
     def cleanup(self) -> bool:
+        """Cleanup blobs from storage container."""
         try:
             container_client = self.client.get_container_client(
                 container=self.container_name
