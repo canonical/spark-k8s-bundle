@@ -1,43 +1,67 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-# ====================
-# PATTERN TO BE TESTED
-# ====================
-# resource "juju_model" "spark" {
-#   lifecycle {
-#     replace_triggered_by = []
-#   }
-#
-#   name = var.model
-#
-#   cloud {
-#     name = "microk8s"
-#   }
-#
-#   config = {
-#     logging-config              = "<root>=DEBUG"
-#     update-status-hook-interval = "5m"
-#   }
-# }
-
-data "juju_model" "spark" {
-  name = var.model
+terraform {
+  required_providers {
+    juju = {
+      source  = "juju/juju"
+      version = "0.16.0"
+    }
+  }
 }
 
-module "base" {
-  source = "./base"
+module "spark" {
+  source = "./terraform/spark"
 
-  model = data.juju_model.spark.name
-  s3 = var.s3
-  kyuubi_user = var.kyuubi_user
+  model          = var.spark_model
+  K8S_CLOUD      = var.K8S_CLOUD
+  K8S_CREDENTIAL = var.K8S_CREDENTIAL
+  kyuubi_user    = var.kyuubi_user
+}
+
+
+module "azure" {
+  depends_on = [module.spark]
+  count      = var.storage_backend == "azure" ? 1 : 0
+
+  source = "./terraform/azure-storage"
+
+  model        = var.spark_model
+  spark_charms = module.spark.charms
+  azure        = var.azure
+}
+
+module "s3" {
+  depends_on = [module.spark]
+  count      = var.storage_backend == "s3" ? 1 : 0
+
+  source = "./terraform/s3"
+
+  model        = var.spark_model
+  spark_charms = module.spark.charms
+  s3           = var.s3
 }
 
 module "cos" {
-  count  = var.cos_model == null ? 0 : 1
-  source = "./cos"
+  depends_on = [module.spark, module.s3, module.azure]
+  count      = var.cos_model == null ? 0 : 1
 
-  model = data.juju_model.spark.name
-  integration_hub = module.base.charms.hub
-  cos_model = var.cos_model
+  source = "./terraform/cos"
+
+  model          = var.cos_model
+  K8S_CLOUD      = var.K8S_CLOUD
+  K8S_CREDENTIAL = var.K8S_CREDENTIAL
+}
+
+module "observability" {
+  depends_on = [module.spark, module.cos]
+  count      = var.cos_model == null ? 0 : 1
+
+  source = "./terraform/observability"
+
+  cos_model    = var.cos_model
+  cos_user     = one(module.cos[*].user)
+  cos_charms   = one(module.cos[*].charms)
+  spark_model  = var.spark_model
+  spark_charms = module.spark.charms
 }
