@@ -11,7 +11,7 @@ from pytest_operator.plugin import OpsTest
 from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.core.kyuubi import KyuubiClient
-from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
+from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace  # noqa
 
 from .helpers import (
     get_active_kyuubi_servers_list,
@@ -136,7 +136,6 @@ async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
         # We should leave time for Prometheus data to be published
         for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
             with attempt:
-
                 cos_address = await get_cos_address(
                     ops_test, cos_model_name=cos_model_name
                 )

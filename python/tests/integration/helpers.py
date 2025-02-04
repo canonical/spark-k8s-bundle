@@ -12,14 +12,10 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, Generic, TypeVar
-from urllib.parse import urlencode
 
-import boto3
 import requests
 import yaml
-from botocore.exceptions import ClientError, SSLError
 from pytest_operator.plugin import OpsTest
-from spark8t.domain import ServiceAccount
 
 from spark_test.core.azure_storage import Container
 from spark_test.core.s3 import Bucket, Credentials
@@ -112,7 +108,9 @@ async def get_kyuubi_credentials(
     results = (await action.wait()).results
 
     address = await get_address(
-        ops_test, app_name=application_name, unit_num=leader_unit_id  # type: ignore
+        ops_test,
+        app_name=application_name,
+        unit_num=leader_unit_id,  # type: ignore
     )
 
     return {"username": "admin", "password": results["password"], "host": address}
@@ -440,8 +438,8 @@ async def get_cos_address(ops_test: OpsTest, cos_model_name: str) -> str:
 
     try:
         cos_addr = json.loads(cos_addr_res)
-    except json.JSONDecodeError:
-        raise ValueError
+    except json.JSONDecodeError as e:
+        raise ValueError from e
 
     endpoints = cos_addr["traefik/0"]["results"]["proxied-endpoints"]
     return json.loads(endpoints)["traefik"]["url"]
@@ -517,8 +515,8 @@ async def get_grafana_access(ops_test: OpsTest, cos_model_name: str) -> tuple[st
 
     try:
         grafana_data = json.loads(grafana_res)
-    except json.JSONDecodeError:
-        raise ValueError
+    except json.JSONDecodeError as e:
+        raise ValueError from e
 
     url = grafana_data["grafana/0"]["results"]["url"]
     password = grafana_data["grafana/0"]["results"]["admin-password"]

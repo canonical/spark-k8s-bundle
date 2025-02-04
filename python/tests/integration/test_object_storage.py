@@ -7,15 +7,15 @@ import logging
 import pytest
 
 from spark_test import RESOURCES
-from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace
-from spark_test.fixtures.pod import pod
+from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace  # noqa
+from spark_test.fixtures.pod import pod  # noqa
 from spark_test.fixtures.service_account import (
-    azure_properties,
-    iceberg_properties,
-    registry,
-    s3_properties,
-    service_account,
-    small_profile_properties,
+    azure_properties,  # noqa
+    iceberg_properties,  # noqa
+    registry,  # noqa
+    s3_properties,  # noqa
+    service_account,  # noqa
+    small_profile_properties,  # noqa
 )
 from spark_test.utils import get_spark_drivers
 
@@ -67,7 +67,6 @@ def test_cleanup_object_storage(
 def test_spark_iceberg_integration(
     pod, service_account, registry, object_storage, spark_properties
 ):
-
     num_rows = 4
 
     object_storage.upload_file(RESOURCES / "python" / "test-iceberg.py")

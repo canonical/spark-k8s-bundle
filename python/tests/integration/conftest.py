@@ -6,7 +6,6 @@ import os
 import shutil
 import uuid
 from pathlib import Path
-from time import sleep
 
 import pytest
 import requests
@@ -14,11 +13,11 @@ from pytest_operator.plugin import OpsTest
 from spark8t.domain import PropertyFile
 
 from spark_test.core.azure_storage import Credentials as AzureStorageCredentials
-from spark_test.fixtures.azure_storage import azure_credentials, container
-from spark_test.fixtures.pod import spark_image
-from spark_test.fixtures.s3 import bucket, credentials
-from spark_test.fixtures.service_account import service_account
-from tests import IE_TEST_DIR, RELEASE_DIR
+from spark_test.fixtures.azure_storage import azure_credentials, container  # noqa
+from spark_test.fixtures.pod import spark_image  # noqa
+from spark_test.fixtures.s3 import bucket, credentials  # noqa
+from spark_test.fixtures.service_account import service_account  # noqa
+from tests import IE_TEST_DIR
 
 from .helpers import (
     COS_ALIAS,
@@ -271,7 +270,6 @@ async def cos(ops_test: OpsTest, cos_model):
     existing_models = await ops_test._controller.list_models()
 
     if cos_model and cos_model not in existing_models:
-
         base_url = (
             "https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays"
         )
@@ -325,7 +323,6 @@ async def spark_bundle_with_s3(ops_test: OpsTest, credentials, bucket, bundle, c
     and finally yield a list of the names of the applications that were deployed.
     """
     async for my_cos in cos:
-
         applications = await (
             deploy_bundle_yaml(bundle, bucket, my_cos, ops_test)
             if isinstance(bundle, Bundle)
@@ -379,7 +376,6 @@ async def spark_bundle_with_azure_storage(
     For object storage, use azure-storage-integrator.
     """
     async for my_cos in cos:
-
         applications = await deploy_bundle_yaml_azure_storage(
             bundle_with_azure_storage, container, my_cos, ops_test
         )

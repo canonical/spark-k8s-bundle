@@ -1,5 +1,4 @@
 import argparse
-from random import random
 from time import sleep
 
 from pyspark.sql import SparkSession
