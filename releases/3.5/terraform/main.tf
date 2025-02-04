@@ -10,6 +10,8 @@ terraform {
   }
 }
 
+provider juju {}
+
 module "spark" {
   source = "./terraform/spark"
 
