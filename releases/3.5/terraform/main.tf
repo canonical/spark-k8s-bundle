@@ -13,7 +13,7 @@ terraform {
 module "spark" {
   source = "./terraform/spark"
 
-  model          = var.spark_model
+  model          = var.model
   K8S_CLOUD      = var.K8S_CLOUD
   K8S_CREDENTIAL = var.K8S_CREDENTIAL
   kyuubi_user    = var.kyuubi_user
@@ -26,7 +26,7 @@ module "azure" {
 
   source = "./terraform/azure-storage"
 
-  model        = var.spark_model
+  model        = var.model
   spark_charms = module.spark.charms
   azure        = var.azure
 }
@@ -37,7 +37,7 @@ module "s3" {
 
   source = "./terraform/s3"
 
-  model        = var.spark_model
+  model        = var.model
   spark_charms = module.spark.charms
   s3           = var.s3
 }
@@ -62,6 +62,6 @@ module "observability" {
   cos_model    = var.cos_model
   cos_user     = one(module.cos[*].user)
   cos_charms   = one(module.cos[*].charms)
-  spark_model  = var.spark_model
+  spark_model  = var.model
   spark_charms = module.spark.charms
 }

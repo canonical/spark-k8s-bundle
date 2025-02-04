@@ -17,7 +17,7 @@ variable "K8S_CREDENTIAL" {
 
 # Models
 
-variable "spark_model" {
+variable "model" {
   description = "The name of the Juju Model to deploy Spark to"
   type        = string
   default     = "spark"
