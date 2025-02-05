@@ -10,10 +10,21 @@ terraform {
   }
 }
 
-provider juju {}
+provider "juju" {}
+
+
+resource "juju_model" "spark" {
+  count      = var.create_model == true ? 1 : 0
+  name       = var.model
+  credential = var.K8S_CREDENTIAL
+  cloud {
+    name = var.K8S_CLOUD
+  }
+}
 
 module "spark" {
-  source = "./terraform/spark"
+  depends_on = [juju_model.spark]
+  source     = "./terraform/spark"
 
   model          = var.model
   K8S_CLOUD      = var.K8S_CLOUD

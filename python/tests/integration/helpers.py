@@ -398,6 +398,7 @@ async def deploy_bundle_terraform(
         "kyuubi_user": "kyuubi-test-user",
         "model": ops_test.model_name,
         "storage_backend": storage_backend,
+        "create_model": False,
     } | ({"cos_model": cos} if cos else {})
 
     logger.info(f"tf_vars: {tf_vars}")

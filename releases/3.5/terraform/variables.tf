@@ -18,9 +18,16 @@ variable "K8S_CREDENTIAL" {
 # Models
 
 variable "model" {
-  description = "The name of the Juju Model to deploy Spark to"
+  description = "The name of the juju model to deploy Spark to"
   type        = string
   default     = "spark"
+}
+
+variable "create_model" {
+  description = "Should terraform create the Juju model? If set to false, assume the model is created by a different mechanism."
+  type        = bool
+  default     = true
+  nullable    = false
 }
 
 variable "cos_model" {
@@ -59,7 +66,7 @@ variable "storage_backend" {
     error_message = "Valid values for var: test_variable are (s3, azure)."
   }
 
-  default = "azure"
+  default = "s3"
 }
 
 variable "s3" {

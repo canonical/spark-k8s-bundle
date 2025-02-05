@@ -4,7 +4,7 @@
 resource "juju_application" "history_server" {
   name = "history-server"
 
-  model = juju_model.spark.name
+  model = data.juju_model.spark.name
 
   charm {
     name     = "spark-history-server-k8s"
@@ -25,7 +25,7 @@ resource "juju_application" "kyuubi" {
 
   name = "kyuubi"
 
-  model = juju_model.spark.name
+  model = data.juju_model.spark.name
 
   charm {
     name     = "kyuubi-k8s"
@@ -38,7 +38,7 @@ resource "juju_application" "kyuubi" {
   }
 
   config = {
-    namespace       = juju_model.spark.name
+    namespace       = data.juju_model.spark.name
     service-account = var.kyuubi_user
     expose-external = "loadbalancer"
   }
@@ -52,7 +52,7 @@ resource "juju_application" "kyuubi" {
 resource "juju_application" "kyuubi_users" {
   name = "kyuubi-users"
 
-  model = juju_model.spark.name
+  model = data.juju_model.spark.name
 
   charm {
     name     = "postgresql-k8s"
@@ -74,7 +74,7 @@ resource "juju_application" "kyuubi_users" {
 resource "juju_application" "metastore" {
   name = "metastore"
 
-  model = juju_model.spark.name
+  model = data.juju_model.spark.name
 
   charm {
     name     = "postgresql-k8s"
@@ -96,7 +96,7 @@ resource "juju_application" "metastore" {
 resource "juju_application" "hub" {
   name = "integration-hub"
 
-  model = juju_model.spark.name
+  model = data.juju_model.spark.name
 
   charm {
     name     = "spark-integration-hub-k8s"
@@ -118,7 +118,7 @@ resource "juju_application" "hub" {
 resource "juju_application" "certificates" {
   name = "self-signed-certificates"
 
-  model = juju_model.spark.name
+  model = data.juju_model.spark.name
 
   charm {
     name     = "self-signed-certificates"

@@ -1,7 +1,6 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-
 resource "juju_application" "azure_storage" {
   name  = "azure-storage"
   model = var.model

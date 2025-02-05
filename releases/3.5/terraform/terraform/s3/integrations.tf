@@ -28,17 +28,3 @@ resource "juju_integration" "s3_hub" {
     endpoint = "s3-credentials"
   }
 }
-
-resource "juju_integration" "s3_kyuubi" {
-  model = var.model
-
-  application {
-    name     = juju_application.s3.name
-    endpoint = "s3-credentials"
-  }
-
-  application {
-    name     = var.spark_charms.kyuubi
-    endpoint = "s3-credentials"
-  }
-}
