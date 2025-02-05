@@ -58,7 +58,7 @@ module "s3" {
 }
 
 module "cos" {
-  depends_on = [module.spark, module.s3, module.azure, juju_model.cos]
+  depends_on = [juju_model.cos]
   count      = var.cos_model == null ? 0 : 1
   source     = "./terraform/cos"
   model      = var.cos_model
