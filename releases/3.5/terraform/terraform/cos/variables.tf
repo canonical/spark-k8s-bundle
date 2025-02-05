@@ -3,16 +3,6 @@
 
 # Define cos-specific variables
 
-variable "K8S_CLOUD" {
-  type        = string
-  description = "The kubernetes juju cloud name."
-}
-
-variable "K8S_CREDENTIAL" {
-  type        = string
-  description = "The name of the kubernetes juju credential."
-}
-
 variable "model" {
   description = "The name of the Juju model to deploy to"
   type        = string
