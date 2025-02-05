@@ -43,16 +43,16 @@ resource "juju_integration" "kyuubi_service_account" {
   }
 }
 
-resource "juju_integration" "kyuubi_tls" {
-  model = var.model
+# resource "juju_integration" "kyuubi_tls" {
+#   model = var.model
 
-  application {
-    name     = juju_application.kyuubi.name
-    endpoint = "certificates"
-  }
+#   application {
+#     name     = juju_application.kyuubi.name
+#     endpoint = "certificates"
+#   }
 
-  application {
-    name     = juju_application.certificates.name
-    endpoint = "certificates"
-  }
-}
+#   application {
+#     name     = juju_application.certificates.name
+#     endpoint = "certificates"
+#   }
+# }
