@@ -5,7 +5,7 @@
 
 
 resource "juju_integration" "traefik-grafana" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.traefik.name
@@ -19,7 +19,7 @@ resource "juju_integration" "traefik-grafana" {
 }
 
 resource "juju_integration" "prometheus-alertmanager-alerting" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.prometheus.name
@@ -34,7 +34,7 @@ resource "juju_integration" "prometheus-alertmanager-alerting" {
 
 
 resource "juju_integration" "grafana-prometheus-source" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.grafana.name
@@ -49,7 +49,7 @@ resource "juju_integration" "grafana-prometheus-source" {
 
 
 resource "juju_integration" "grafana-loki-source" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.grafana.name
@@ -64,7 +64,7 @@ resource "juju_integration" "grafana-loki-source" {
 
 
 resource "juju_integration" "grafana-alertmanager-source" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.grafana.name
@@ -79,7 +79,7 @@ resource "juju_integration" "grafana-alertmanager-source" {
 
 
 resource "juju_integration" "loki-alertmanager" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.loki.name
@@ -94,7 +94,7 @@ resource "juju_integration" "loki-alertmanager" {
 
 
 resource "juju_integration" "prometheus-traefik" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.prometheus.name
@@ -109,7 +109,7 @@ resource "juju_integration" "prometheus-traefik" {
 
 
 resource "juju_integration" "prometheus-alertmanager-metrics" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.prometheus.name
@@ -124,7 +124,7 @@ resource "juju_integration" "prometheus-alertmanager-metrics" {
 
 
 resource "juju_integration" "prometheus-loki" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.prometheus.name
@@ -139,7 +139,7 @@ resource "juju_integration" "prometheus-loki" {
 
 
 resource "juju_integration" "prometheus-grafana" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.prometheus.name
@@ -154,7 +154,7 @@ resource "juju_integration" "prometheus-grafana" {
 
 
 resource "juju_integration" "grafana-loki-dashboard" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.grafana.name
@@ -169,7 +169,7 @@ resource "juju_integration" "grafana-loki-dashboard" {
 
 
 resource "juju_integration" "grafana-prometheus-dashboard" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.grafana.name
@@ -184,7 +184,7 @@ resource "juju_integration" "grafana-prometheus-dashboard" {
 
 
 resource "juju_integration" "grafana-alertmanager-dashboard" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.grafana.name
@@ -199,7 +199,7 @@ resource "juju_integration" "grafana-alertmanager-dashboard" {
 
 
 resource "juju_integration" "catalogue-traefik" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.catalogue.name
@@ -214,7 +214,7 @@ resource "juju_integration" "catalogue-traefik" {
 
 
 resource "juju_integration" "catalogue-grafana" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.catalogue.name
@@ -229,7 +229,7 @@ resource "juju_integration" "catalogue-grafana" {
 
 
 resource "juju_integration" "catalogue-prometheus" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.catalogue.name
@@ -244,7 +244,7 @@ resource "juju_integration" "catalogue-prometheus" {
 
 
 resource "juju_integration" "catalogue-alertmanager" {
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
 
   application {
     name     = juju_application.catalogue.name

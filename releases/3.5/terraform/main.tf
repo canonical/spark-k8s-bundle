@@ -22,6 +22,15 @@ resource "juju_model" "spark" {
   }
 }
 
+resource "juju_model" "cos" {
+  count      = (var.create_model == true && var.cos_model != null) ? 1 : 0
+  name       = var.cos_model
+  credential = var.K8S_CREDENTIAL
+  cloud {
+    name = var.K8S_CLOUD
+  }
+}
+
 module "spark" {
   depends_on = [juju_model.spark]
   source     = "./terraform/spark"
@@ -56,7 +65,7 @@ module "s3" {
 }
 
 module "cos" {
-  depends_on = [module.spark, module.s3, module.azure]
+  depends_on = [module.spark, module.s3, module.azure, juju_model.spark]
   count      = var.cos_model == null ? 0 : 1
 
   source = "./terraform/cos"

@@ -4,7 +4,7 @@
 resource "juju_application" "alertmanager" {
   name  = "alertmanager"
   trust = true
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
   charm {
     name    = "alertmanager-k8s"
     channel = "latest/stable"
@@ -19,7 +19,7 @@ resource "juju_application" "alertmanager" {
 resource "juju_application" "catalogue" {
   name  = "catalogue"
   trust = true
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
   charm {
     name    = "catalogue-k8s"
     channel = "latest/stable"
@@ -34,7 +34,7 @@ resource "juju_application" "catalogue" {
 resource "juju_application" "grafana" {
   name  = "grafana"
   trust = true
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
   charm {
     name    = "grafana-k8s"
     channel = "latest/stable"
@@ -49,7 +49,7 @@ resource "juju_application" "grafana" {
 resource "juju_application" "loki" {
   name  = "loki"
   trust = true
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
   charm {
     name    = "loki-k8s"
     channel = "latest/stable"
@@ -65,7 +65,7 @@ resource "juju_application" "loki" {
 resource "juju_application" "prometheus" {
   name  = "prometheus"
   trust = true
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
   charm {
     name    = "prometheus-k8s"
     channel = "latest/stable"
@@ -83,7 +83,7 @@ resource "juju_application" "prometheus" {
 resource "juju_application" "traefik" {
   name  = "traefik"
   trust = true
-  model = juju_model.cos.name
+  model = data.juju_model.cos.name
   charm {
     name    = "traefik-k8s"
     channel = "latest/stable"
