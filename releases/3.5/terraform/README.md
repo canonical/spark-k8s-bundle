@@ -43,6 +43,7 @@ This means that using this structure, an optional module takes care of defining 
 | spark         | latest/edge   | kyuubi-k8s                   | 31       |
 | spark         | 14/stable     | postgresql-k8s               | 281      |
 | spark         | 14/stable     | postgresql-k8s               | 281      |
+| spark         | 3/edge        | zookeeper-k8s                | 75       |
 | s3            | latest/stable | s3-integrator                | 77       |
 
 ### Updating the table
@@ -78,7 +79,6 @@ for module in root["child_modules"]:
     for resource in module["resources"]:
         if not resource["type"] == "juju_application":
             continue
-
         charm = Charm(resource["values"]["charm"][0])
         charms_summary.append([name, *charm.values()])
 

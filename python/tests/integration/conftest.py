@@ -35,6 +35,14 @@ from .helpers import (
 )
 from .terraform import Terraform
 
+COS_APPS = [
+    "loki",
+    "grafana",
+    "prometheus",
+    "catalogue",
+    "traefik",
+    "alertmanager",
+]
 logger = logging.getLogger(__name__)
 
 
@@ -357,21 +365,14 @@ async def spark_bundle_with_s3(
         if my_cos:
             with ops_test.model_context(COS_ALIAS) as cos_model:
                 await cos_model.wait_for_idle(
-                    apps=[
-                        "loki",
-                        "grafana",
-                        "prometheus",
-                        "catalogue",
-                        "traefik",
-                        "alertmanager",
-                    ],
+                    apps=COS_APPS,
                     idle_period=60,
                     timeout=3600,
                     raise_on_error=False,
                 )
 
         await ops_test.model.wait_for_idle(
-            apps=applications,
+            apps=list(set(applications) - set(COS_APPS)),
             timeout=3600,
             idle_period=30,
             status="active",
@@ -422,21 +423,14 @@ async def spark_bundle_with_azure_storage(
         if my_cos:
             with ops_test.model_context(COS_ALIAS) as cos_model:
                 await cos_model.wait_for_idle(
-                    apps=[
-                        "loki",
-                        "grafana",
-                        "prometheus",
-                        "catalogue",
-                        "traefik",
-                        "alertmanager",
-                    ],
+                    apps=COS_APPS,
                     idle_period=60,
                     timeout=3600,
                     raise_on_error=False,
                 )
 
         await ops_test.model.wait_for_idle(
-            apps=applications,
+            apps=list(set(applications) - set(COS_APPS)),
             timeout=2500,
             idle_period=30,
             status="active",
