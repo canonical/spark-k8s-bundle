@@ -6,6 +6,7 @@ import os
 import shutil
 import uuid
 from pathlib import Path
+from typing import Iterable
 
 import pytest
 import requests
@@ -164,7 +165,7 @@ def namespace(namespace_name):
 @pytest.fixture(scope="module")
 def bundle(
     request, cos_model, backend, spark_version, tmp_path_factory
-) -> Bundle[Path] | Terraform:
+) -> Iterable[Bundle[Path] | Terraform]:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
 
     if file := request.config.getoption("--bundle"):
@@ -380,8 +381,18 @@ async def spark_bundle_with_azure_storage(
     For object storage, use azure-storage-integrator.
     """
     async for my_cos in cos:
-        applications = await deploy_bundle_yaml_azure_storage(
-            bundle_with_azure_storage, container, my_cos, ops_test
+        applications = await (
+            deploy_bundle_yaml_azure_storage(
+                bundle_with_azure_storage, container, my_cos, ops_test
+            )
+            if isinstance(bundle, Bundle)
+            else deploy_bundle_terraform(
+                bundle_with_azure_storage,
+                container,
+                my_cos,
+                ops_test,
+                storage_backend="azure",
+            )
         )
 
         if "azure-storage" in applications:
