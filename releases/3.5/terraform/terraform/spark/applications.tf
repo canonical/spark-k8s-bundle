@@ -43,7 +43,7 @@ resource "juju_application" "kyuubi" {
     expose-external = "loadbalancer"
   }
 
-  units = 1
+  units = 3
   trust = true
 
   constraints = "arch=amd64"
@@ -128,5 +128,23 @@ resource "juju_application" "certificates" {
 
   units = 1
 
+  constraints = "arch=amd64"
+}
+
+resource "juju_application" "zookeeper" {
+  name  = "zookeeper"
+  model = data.juju_model.spark.name
+
+  charm {
+    name     = "zookeeper-k8s"
+    channel  = "3/edge"
+    revision = 75
+  }
+
+  resources = {
+    zookeeper-image = 34
+  }
+
+  units       = 3
   constraints = "arch=amd64"
 }

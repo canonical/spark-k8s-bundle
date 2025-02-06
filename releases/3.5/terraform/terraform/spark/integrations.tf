@@ -2,7 +2,7 @@
 # See LICENSE file for licensing details.
 
 resource "juju_integration" "kyuubi_metastore" {
-  model = var.model
+  model = data.juju_model.spark.name
 
   application {
     name     = juju_application.metastore.name
@@ -16,7 +16,7 @@ resource "juju_integration" "kyuubi_metastore" {
 }
 
 resource "juju_integration" "kyuubi_users" {
-  model = var.model
+  model = data.juju_model.spark.name
 
   application {
     name     = juju_application.kyuubi_users.name
@@ -30,7 +30,7 @@ resource "juju_integration" "kyuubi_users" {
 }
 
 resource "juju_integration" "kyuubi_service_account" {
-  model = var.model
+  model = data.juju_model.spark.name
 
   application {
     name     = juju_application.kyuubi.name
@@ -42,6 +42,22 @@ resource "juju_integration" "kyuubi_service_account" {
     endpoint = "spark-service-account"
   }
 }
+
+resource "juju_integration" "kyuubi_zookeeper" {
+  model = data.juju_model.spark.name
+
+  application {
+    name     = juju_application.zookeeper.name
+    endpoint = "zookeeper"
+  }
+
+  application {
+    name     = juju_application.kyuubi.name
+    endpoint = "zookeeper"
+  }
+}
+
+# TODO(tls): Re-enable once we figure out why kyuubi crashes with this.
 
 # resource "juju_integration" "kyuubi_tls" {
 #   model = var.model
