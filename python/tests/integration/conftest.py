@@ -214,7 +214,9 @@ def bundle(
 
 
 @pytest.fixture(scope="module")
-def bundle_with_azure_storage(request, spark_version, cos_model) -> Bundle[Path]:
+def bundle_with_azure_storage(
+    request, spark_version, cos_model, backend, tmp_path_factory
+) -> Iterable[Bundle[Path] | Terraform]:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
 
     if file := request.config.getoption("--bundle"):
@@ -232,23 +234,34 @@ def bundle_with_azure_storage(request, spark_version, cos_model) -> Bundle[Path]
             )
         )
 
-        bundle = release_dir / "yaml" / "bundle-azure-storage.yaml.j2"
-
-    overlays = (
-        [Path(file) for file in files]
-        if (files := request.config.getoption("--overlay"))
-        else (
-            [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
-            if cos_model
-            else []
+        bundle = (
+            release_dir / "terraform"
+            if backend == "terraform"
+            else release_dir / "yaml" / "bundle.yaml.j2"
         )
-    )
 
-    for file in overlays + [bundle]:
-        if not file.exists():
-            raise FileNotFoundError(file.absolute())
+    if backend == "terraform":
+        tmp_path = tmp_path_factory.mktemp(uuid.uuid4().hex) / "terraform"
+        shutil.copytree(bundle, tmp_path)
+        client = Terraform(path=tmp_path)
+        yield client
 
-    yield Bundle(main=bundle, overlays=overlays)
+    else:
+        overlays = (
+            [Path(file) for file in files]
+            if (files := request.config.getoption("--overlay"))
+            else (
+                [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
+                if cos_model
+                else []
+            )
+        )
+
+        for file in overlays + [bundle]:
+            if not file.exists():
+                raise FileNotFoundError(file.absolute())
+
+        yield Bundle(main=bundle, overlays=overlays)
 
 
 @pytest.fixture
