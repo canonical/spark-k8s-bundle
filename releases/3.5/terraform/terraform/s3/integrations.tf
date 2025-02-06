@@ -2,7 +2,7 @@
 # See LICENSE file for licensing details.
 
 resource "juju_integration" "s3_history_server" {
-  model = var.model
+  model = data.juju_model.spark.name
 
   application {
     name     = juju_application.s3.name
@@ -16,7 +16,7 @@ resource "juju_integration" "s3_history_server" {
 }
 
 resource "juju_integration" "s3_hub" {
-  model = var.model
+  model = data.juju_model.spark.name
 
   application {
     name     = juju_application.s3.name

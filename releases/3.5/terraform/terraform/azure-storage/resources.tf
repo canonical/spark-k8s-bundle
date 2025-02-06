@@ -3,6 +3,10 @@
 
 # Define juju resources (model, secrets, storage)
 
+data "juju_model" "spark" {
+  name = var.model
+}
+
 resource "juju_secret" "azure_blob_storage_secret" {
   model = var.model
   name  = "azure_blob_storage_secret"

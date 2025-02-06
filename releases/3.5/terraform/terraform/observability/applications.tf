@@ -3,7 +3,7 @@
 
 resource "juju_application" "agent" {
   name  = "agent"
-  model = var.spark_model
+  model = data.juju_model.spark.name
   charm {
     name     = "grafana-agent-k8s"
     channel  = "latest/edge"
@@ -19,7 +19,7 @@ resource "juju_application" "agent" {
 
 resource "juju_application" "cos_configuration" {
   name  = "cos-configuration"
-  model = var.spark_model
+  model = data.juju_model.spark.name
   charm {
     name     = "cos-configuration-k8s"
     channel  = "latest/stable"
@@ -40,7 +40,7 @@ resource "juju_application" "cos_configuration" {
 
 resource "juju_application" "pushgateway" {
   name  = "pushgateway"
-  model = var.spark_model
+  model = data.juju_model.spark.name
   charm {
     name     = "prometheus-pushgateway-k8s"
     channel  = "latest/stable"
@@ -55,7 +55,7 @@ resource "juju_application" "pushgateway" {
 
 resource "juju_application" "scrape_config" {
   name  = "scrape-config"
-  model = var.spark_model
+  model = data.juju_model.spark.name
   charm {
     name     = "prometheus-scrape-config-k8s"
     channel  = "latest/stable"

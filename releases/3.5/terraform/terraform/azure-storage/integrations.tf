@@ -2,7 +2,7 @@
 # See LICENSE file for licensing details.
 
 resource "juju_integration" "history_server_azure" {
-  model = var.model
+  model = data.juju_model.spark.name
 
   application {
     name     = juju_application.azure_storage.name
@@ -16,7 +16,7 @@ resource "juju_integration" "history_server_azure" {
 }
 
 resource "juju_integration" "azure_hub" {
-  model = var.model
+  model = data.juju_model.spark.name
 
   application {
     name     = juju_application.azure_storage.name

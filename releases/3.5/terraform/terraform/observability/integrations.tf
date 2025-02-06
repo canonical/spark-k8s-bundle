@@ -14,7 +14,7 @@ data "juju_offer" "loki_logging" {
 }
 
 resource "juju_integration" "cos_configuration_agent" {
-  model = var.spark_model
+  model = data.juju_model.spark.name
 
   application {
     name     = juju_application.cos_configuration.name
@@ -28,7 +28,7 @@ resource "juju_integration" "cos_configuration_agent" {
 }
 
 resource "juju_integration" "pushgateway_scrape_config" {
-  model = var.spark_model
+  model = data.juju_model.spark.name
 
   application {
     name     = juju_application.pushgateway.name
@@ -42,7 +42,7 @@ resource "juju_integration" "pushgateway_scrape_config" {
 }
 
 resource "juju_integration" "scrape_config_agent" {
-  model = var.spark_model
+  model = data.juju_model.spark.name
 
   application {
     name     = juju_application.scrape_config.name
@@ -56,7 +56,7 @@ resource "juju_integration" "scrape_config_agent" {
 }
 
 resource "juju_integration" "agent_grafana_dashboards" {
-  model = var.spark_model
+  model = data.juju_model.spark.name
 
   application {
     name     = juju_application.agent.name
@@ -79,7 +79,7 @@ resource "juju_integration" "agent_grafana_dashboards" {
 }
 
 resource "juju_integration" "agent_prometheus" {
-  model = var.spark_model
+  model = data.juju_model.spark.name
 
   application {
     name     = juju_application.agent.name
@@ -102,7 +102,7 @@ resource "juju_integration" "agent_prometheus" {
 }
 
 resource "juju_integration" "agent_loki" {
-  model = var.spark_model
+  model = data.juju_model.spark.name
 
   application {
     name     = juju_application.agent.name
@@ -124,7 +124,7 @@ resource "juju_integration" "agent_loki" {
   }
 }
 resource "juju_integration" "pushgateway_integration_hub" {
-  model = var.spark_model
+  model = data.juju_model.spark.name
 
   application {
     name     = juju_application.pushgateway.name
@@ -138,7 +138,7 @@ resource "juju_integration" "pushgateway_integration_hub" {
 }
 
 resource "juju_integration" "history_server_agent_dashboard" {
-  model = var.spark_model
+  model = data.juju_model.spark.name
 
   application {
     name     = var.spark_charms.history_server
@@ -152,7 +152,7 @@ resource "juju_integration" "history_server_agent_dashboard" {
 }
 
 resource "juju_integration" "history_server_agent_logging" {
-  model = var.spark_model
+  model = data.juju_model.spark.name
 
   application {
     name     = var.spark_charms.history_server
@@ -166,7 +166,7 @@ resource "juju_integration" "history_server_agent_logging" {
 }
 
 resource "juju_integration" "history_server_agent_metrics" {
-  model = var.spark_model
+  model = data.juju_model.spark.name
 
   application {
     name     = var.spark_charms.history_server

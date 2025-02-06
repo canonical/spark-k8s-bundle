@@ -3,7 +3,7 @@
 
 resource "juju_application" "s3" {
   name  = "s3"
-  model = var.model
+  model = data.juju_model.spark.name
   charm {
     name     = "s3-integrator"
     channel  = "latest/stable"

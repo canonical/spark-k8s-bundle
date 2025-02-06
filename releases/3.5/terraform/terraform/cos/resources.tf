@@ -5,10 +5,6 @@
 
 data "juju_model" "cos" {
   name = var.model
-  # credential = var.K8S_CREDENTIAL
-  # cloud {
-  #   name = var.K8S_CLOUD
-  # }
 }
 
 resource "juju_offer" "prometheus_receive_remote_write" {
