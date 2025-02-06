@@ -264,13 +264,13 @@ def integration_test(request):
 
 
 @pytest.fixture(scope="module")
-async def cos(ops_test: OpsTest, cos_model):
+async def cos(ops_test: OpsTest, cos_model: str, backend: str):
     """
     Deploy COS bundle depending upon the value of cos_model fixture, and yield its value.
     """
     existing_models = await ops_test._controller.list_models()
 
-    if cos_model and cos_model not in existing_models:
+    if cos_model and cos_model not in existing_models and backend == "yaml":
         base_url = (
             "https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays"
         )
