@@ -10,7 +10,7 @@ variable "config_repo" {
 variable "config_grafana_path" {
   description = "The Grafana dashboard path from configuration repo root."
   type        = string
-  default     = "releases/3.4/resources/grafana/"
+  default     = "releases/3.5/resources/grafana/"
 }
 
 variable "spark_model" {
