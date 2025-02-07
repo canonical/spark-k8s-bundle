@@ -68,7 +68,7 @@ addopts = "--doctest-modules --cov=./spark_test"
 
 [tool.ruff]
 extend-exclude = ["__pycache__", "*.egg_info"]
-target-version = "py38"
+target-version = "py310"
 src = ["spark_test", "tests"]
 
 [tool.ruff.lint]
