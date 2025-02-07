@@ -245,7 +245,7 @@ def bundle_with_azure_storage(
         bundle = (
             release_dir / "terraform"
             if backend == "terraform"
-            else release_dir / "yaml" / "bundle.yaml.j2"
+            else release_dir / "yaml" / "bundle-azure-storage.yaml.j2"
         )
 
     if backend == "terraform":
@@ -340,18 +340,23 @@ async def cos(ops_test: OpsTest, cos_model: str, backend: str):
 
 
 @pytest.fixture(scope="module")
-async def spark_bundle_with_s3(
-    ops_test: OpsTest, credentials, bucket, bundle, cos, storage_backend
-):
+async def spark_bundle_with_s3(ops_test: OpsTest, credentials, bucket, bundle, cos):
     """Deploy all applications in the Kyuubi bundle, wait for all of them to be active,
     and finally yield a list of the names of the applications that were deployed.
     """
     my_cos = await anext(aiter(cos), None)
-    applications = await (
-        deploy_bundle_yaml(bundle, bucket, my_cos, ops_test)
-        if isinstance(bundle, Bundle)
-        else deploy_bundle_terraform(bundle, bucket, my_cos, ops_test, storage_backend)
-    )
+
+    if isinstance(bundle, Bundle):
+        applications = await deploy_bundle_yaml(bundle, bucket, my_cos, ops_test)
+
+    else:
+        applications = await deploy_bundle_terraform(
+            bundle,
+            bucket,
+            my_cos,
+            ops_test,
+            storage_backend="s3",
+        )
 
     if "s3" in applications:
         await ops_test.model.wait_for_idle(
