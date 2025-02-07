@@ -21,6 +21,8 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
 
 # Navigation
 
+[details=Navigation]
+
 | Level | Path                           | Navlink                                                                                                                                        |
 |-------|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
 | 1     | overview                       | [Overview](/t/spark-client-snap-documentation/8963)                                                                                            | 
@@ -55,6 +57,8 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
 | 2     | e-configuration                | [Charmed Apache Spark Hierarchical Configuration](/t/spark-client-snap-explanation-hierarchical-configuration-handling/8956)                          |
 | 2     | e-monitoring                   | [Charmed Apache Spark Monitoring](/t/charmed-spark-documentation-explanation-monitoring/14299)                                                        |
 | 2     | e-trademarks                 | [Trademarks](/t/charmed-apache-spark-k8s-documentation-trademarks-explanation/16101)                                                        |
+
+[/details]
 
 # Redirects
 
