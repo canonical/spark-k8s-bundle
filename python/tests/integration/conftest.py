@@ -346,40 +346,38 @@ async def spark_bundle_with_s3(
     """Deploy all applications in the Kyuubi bundle, wait for all of them to be active,
     and finally yield a list of the names of the applications that were deployed.
     """
-    async for my_cos in cos:
-        applications = await (
-            deploy_bundle_yaml(bundle, bucket, my_cos, ops_test)
-            if isinstance(bundle, Bundle)
-            else deploy_bundle_terraform(
-                bundle, bucket, my_cos, ops_test, storage_backend
-            )
-        )
+    my_cos = await anext(aiter(cos), None)
+    applications = await (
+        deploy_bundle_yaml(bundle, bucket, my_cos, ops_test)
+        if isinstance(bundle, Bundle)
+        else deploy_bundle_terraform(bundle, bucket, my_cos, ops_test, storage_backend)
+    )
 
-        if "s3" in applications:
-            await ops_test.model.wait_for_idle(
-                apps=["s3"], timeout=600, idle_period=30, status="blocked"
-            )
-
-            await set_s3_credentials(ops_test, credentials)
-
-        if my_cos:
-            with ops_test.model_context(COS_ALIAS) as cos_model:
-                await cos_model.wait_for_idle(
-                    apps=COS_APPS,
-                    idle_period=60,
-                    timeout=3600,
-                    raise_on_error=False,
-                )
-
+    if "s3" in applications:
         await ops_test.model.wait_for_idle(
-            apps=list(set(applications) - set(COS_APPS)),
-            timeout=3600,
-            idle_period=30,
-            status="active",
-            raise_on_error=False,
+            apps=["s3"], timeout=600, idle_period=30, status="blocked"
         )
 
-        yield applications
+        await set_s3_credentials(ops_test, credentials)
+
+    if my_cos:
+        with ops_test.model_context(COS_ALIAS) as cos_model:
+            await cos_model.wait_for_idle(
+                apps=COS_APPS,
+                idle_period=60,
+                timeout=3600,
+                raise_on_error=False,
+            )
+
+    await ops_test.model.wait_for_idle(
+        apps=list(set(applications) - set(COS_APPS)),
+        timeout=3600,
+        idle_period=30,
+        status="active",
+        raise_on_error=False,
+    )
+
+    yield applications
 
 
 @pytest.fixture(scope="module")
@@ -394,50 +392,51 @@ async def spark_bundle_with_azure_storage(
     and finally yield a list of the names of the applications that were deployed.
     For object storage, use azure-storage-integrator.
     """
-    async for my_cos in cos:
-        applications = await (
-            deploy_bundle_yaml_azure_storage(
-                bundle_with_azure_storage, container, my_cos, ops_test
-            )
-            if isinstance(bundle, Bundle)
-            else deploy_bundle_terraform(
-                bundle_with_azure_storage,
-                container,
-                my_cos,
-                ops_test,
-                storage_backend="azure",
-            )
+    my_cos = await anext(aiter(cos), None)
+
+    if isinstance(bundle_with_azure_storage, Bundle):
+        applications = await deploy_bundle_yaml_azure_storage(
+            bundle_with_azure_storage, container, my_cos, ops_test
         )
 
-        if "azure-storage" in applications:
-            secret_uri = await add_juju_secret(
-                ops_test,
-                "azure-storage",
-                "iamsecret",
-                {"secret-key": azure_credentials.secret_key},
-            )
-            await set_azure_credentials(
-                ops_test, secret_uri=secret_uri, application_name="azure-storage"
-            )
-
-        if my_cos:
-            with ops_test.model_context(COS_ALIAS) as cos_model:
-                await cos_model.wait_for_idle(
-                    apps=COS_APPS,
-                    idle_period=60,
-                    timeout=3600,
-                    raise_on_error=False,
-                )
-
-        await ops_test.model.wait_for_idle(
-            apps=list(set(applications) - set(COS_APPS)),
-            timeout=2500,
-            idle_period=30,
-            status="active",
-            raise_on_error=False,
+    else:
+        applications = await deploy_bundle_terraform(
+            bundle_with_azure_storage,
+            container,
+            my_cos,
+            ops_test,
+            storage_backend="azure",
         )
 
-        yield applications
+    if "azure-storage" in applications:
+        secret_uri = await add_juju_secret(
+            ops_test,
+            "azure-storage",
+            "iamsecret",
+            {"secret-key": azure_credentials.secret_key},
+        )
+        await set_azure_credentials(
+            ops_test, secret_uri=secret_uri, application_name="azure-storage"
+        )
+
+    if my_cos:
+        with ops_test.model_context(COS_ALIAS) as cos_model:
+            await cos_model.wait_for_idle(
+                apps=COS_APPS,
+                idle_period=60,
+                timeout=3600,
+                raise_on_error=False,
+            )
+
+    await ops_test.model.wait_for_idle(
+        apps=list(set(applications) - set(COS_APPS)),
+        timeout=2500,
+        idle_period=30,
+        status="active",
+        raise_on_error=False,
+    )
+
+    yield applications
 
 
 @pytest.fixture(scope="module")
