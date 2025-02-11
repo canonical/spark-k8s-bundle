@@ -59,16 +59,16 @@ resource "juju_integration" "kyuubi_zookeeper" {
 
 # TODO(tls): Re-enable once we figure out why kyuubi crashes with this.
 
-resource "juju_integration" "kyuubi_tls" {
-  model = var.model
+# resource "juju_integration" "kyuubi_tls" {
+#   model = var.model
 
-  application {
-    name     = juju_application.kyuubi.name
-    endpoint = "certificates"
-  }
+#   application {
+#     name     = juju_application.kyuubi.name
+#     endpoint = "certificates"
+#   }
 
-  application {
-    name     = juju_application.certificates.name
-    endpoint = "certificates"
-  }
-}
+#   application {
+#     name     = juju_application.certificates.name
+#     endpoint = "certificates"
+#   }
+# }
