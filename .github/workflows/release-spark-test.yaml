@@ -99,7 +99,7 @@ jobs:
 
   autorelease:
     name: Release the package on github
-    needs: [release_checks, build]
+    needs: [release_checks, tests, build]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     strategy:
@@ -142,7 +142,7 @@ jobs:
 
   upload-pypi:
     name: Publish to PyPI
-    needs: [release_checks, build]
+    needs: [release_checks, tests, build]
     runs-on: ubuntu-latest
     environment:
       name: testpypi

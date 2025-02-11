@@ -1,0 +1,16 @@
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+name: Verify contents of a PR
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+
+jobs:
+  tests:
+    uses: ./.github/workflows/ci-tests.yaml
+    secrets: inherit
