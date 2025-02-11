@@ -145,8 +145,8 @@ jobs:
     needs: [release_checks, tests, build]
     runs-on: ubuntu-latest
     environment:
-      name: testpypi
-      url: https://test.pypi.org/p/spark-k8s-test
+      name: testpypi # TODO: testpypi -> pypi
+      url: https://test.pypi.org/p/spark-k8s-test # TODO: test.pypi -> pypi
     steps:
       - name: Download all the dists
         uses: actions/download-artifact@v4
@@ -156,7 +156,8 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          repository-url: https://test.pypi.org/legacy/
+          repository-url: https://test.pypi.org/legacy/ #TODO: test.pypi -> pypi
+          skip-existing: true #TODO: true -> false
     permissions:
       id-token: write # Needed for trusted publishing (https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/)
 
