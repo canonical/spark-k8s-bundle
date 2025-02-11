@@ -131,6 +131,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          name: spark-k8s-test v${{ needs.release_checks.outputs.package_version }}
           body_path: ".github/RELEASE-TEMPLATE.md"
           files: |
             dist/${{ steps.artifact_names.outputs.wheel }}
