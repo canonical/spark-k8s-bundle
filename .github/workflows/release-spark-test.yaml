@@ -16,6 +16,7 @@ on:
 
 jobs:
   tests:
+    name: Run CI tests
     uses: ./.github/workflows/ci-tests.yaml
 
   release_checks:
