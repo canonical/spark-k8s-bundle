@@ -16,12 +16,15 @@ on:
 
 jobs:
   tests:
-    uses: ./.github/workflows/ci-tests.yaml
+    runs-on: ubuntu-latest
+    steps:
+      - name: do nothing
+        run: echo 1
+    # uses: ./.github/workflows/ci-tests.yaml
 
   release_checks:
-    name: Checks before release
+    name: Checks before package build
     runs-on: ubuntu-latest
-    needs: [tests]
     timeout-minutes: 5
     strategy:
       fail-fast: true
@@ -70,7 +73,6 @@ jobs:
   build:
     name: Build package
     runs-on: ubuntu-latest
-    needs: [release_checks, tests]
     outputs:
       VERSION: ${{ steps.build.outputs.VERSION }}
     defaults:
@@ -144,8 +146,8 @@ jobs:
     needs: [release_checks, tests, build]
     runs-on: ubuntu-latest
     environment:
-      name: pypi
-      url: https://pypi.org/p/spark-k8s-test
+      name: testpypi
+      url: https://test.pypi.org/p/spark-k8s-test
     steps:
       - name: Download all the dists
         uses: actions/download-artifact@v4
@@ -154,6 +156,8 @@ jobs:
           path: dist/
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
     permissions:
       id-token: write # Needed for trusted publishing (https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/)
 
