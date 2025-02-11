@@ -61,13 +61,13 @@ jobs:
           # - --storage-backend s3
           - --storage-backend azure
         cos:
-          -
-          # - --cos-model cos
+          # -
+          - --cos-model cos
         tox-environments:
           # - integration-basic
           # - integration-sparkjob
-          # - integration-bundle
-          - integration-kyuubi
+          - integration-bundle
+          # - integration-kyuubi
         juju:
           - snap_channel: "3.4/stable"
             agent: "3.4.2"
