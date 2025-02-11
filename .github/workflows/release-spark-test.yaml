@@ -15,9 +15,11 @@ on:
 
 
 jobs:
-  # tests:
-  #   uses: ./.github/workflows/ci-tests.yaml
-
+  tests:
+    steps:
+      - name: do nothing
+        run: echo 1
+    # uses: ./.github/workflows/ci-tests.yaml
 
   release_checks:
     name: Checks before package build
@@ -66,8 +68,6 @@ jobs:
     outputs:
       package_name: ${{ steps.package_metadata.outputs.name }}
       package_version: ${{ steps.package_metadata.outputs.version }}
-
-
 
   build:
     name: Build package
