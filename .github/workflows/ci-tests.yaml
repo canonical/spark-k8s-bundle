@@ -61,8 +61,8 @@ jobs:
           # - --storage-backend s3
           - --storage-backend azure
         cos:
-          # -
-          - --cos-model cos
+          -
+          # - --cos-model cos
         tox-environments:
           # - integration-basic
           # - integration-sparkjob
