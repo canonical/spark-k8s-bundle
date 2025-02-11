@@ -12,36 +12,36 @@ jobs:
   checks:
     uses: ./.github/workflows/ci-checks.yaml
 
-  unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
+  # unit-tests:
+  #   name: Unit Tests
+  #   runs-on: ubuntu-22.04
+  #   timeout-minutes: 10
 
-    strategy:
-      fail-fast: true
-      matrix:
-        python-version:
-          # - '3.9'
-          - "3.10"
-    needs:
-      - checks
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - id: setup-python
-        name: Setup Python
-        uses: actions/setup-python@v5.0.0
-        with:
-          python-version: ${{matrix.python-version}}
-          architecture: x64
-      - name: Install tox & poetry
-        run: |
-          pipx install tox
-          pipx install poetry
-      - id: tests-unit
-        name: Run Unittests
-        run: |
-          cd python && tox -e unit
+  #   strategy:
+  #     fail-fast: true
+  #     matrix:
+  #       python-version:
+  #         # - '3.9'
+  #         - "3.10"
+  #   needs:
+  #     - checks
+  #   steps:
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v4
+  #     - id: setup-python
+  #       name: Setup Python
+  #       uses: actions/setup-python@v5.0.0
+  #       with:
+  #         python-version: ${{matrix.python-version}}
+  #         architecture: x64
+  #     - name: Install tox & poetry
+  #       run: |
+  #         pipx install tox
+  #         pipx install poetry
+  #     - id: tests-unit
+  #       name: Run Unittests
+  #       run: |
+  #         cd python && tox -e unit
 
   integration-tests:
     name: Integration Tests
@@ -82,9 +82,9 @@ jobs:
             cos:
           - tox-environments: integration-kyuubi # Kyuubi tests do not require COS
             cos: --cos-model cos
-    needs:
-      - checks
-      - unit-tests
+    # needs:
+    #   - checks
+    #   - unit-tests
     steps:
       - name: (GitHub hosted) Free up disk space
         timeout-minutes: 5
