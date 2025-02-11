@@ -45,12 +45,10 @@ jobs:
       - name: Install poetry
         run: |
           pipx install poetry
-          poetry self add poetry-plugin-export
       - id: install_environment
         name: Set up build environment
         run: |
           poetry lock
-          poetry export -f requirements.txt --output requirements.txt
       - id: package_metadata
         name: Fetch package metadata
         run: |
