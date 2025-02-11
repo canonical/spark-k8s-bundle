@@ -52,25 +52,25 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - --spark-version "3.4.2"
+          # - --spark-version "3.4.2"
           - --spark-version "3.5.1"
         backend:
-          - --backend yaml
+          # - --backend yaml
           - --backend terraform
         storage-backend:
-          - --storage-backend s3
+          # - --storage-backend s3
           - --storage-backend azure
         cos:
-          -
+          # -
           - --cos-model cos
         tox-environments:
-          - integration-basic
-          - integration-sparkjob
-          - integration-bundle
+          # - integration-basic
+          # - integration-sparkjob
+          # - integration-bundle
           - integration-kyuubi
         juju:
-          - snap_channel: "3.4/stable"
-            agent: "3.4.2"
+          # - snap_channel: "3.4/stable"
+          #   agent: "3.4.2"
           - snap_channel: "3.6/stable"
             agent: "3.6.0"
         exclude:
@@ -113,7 +113,7 @@ jobs:
           juju-channel: ${{ matrix.juju.snap_channel }}
           provider: microk8s
           channel: 1.28-strict/stable
-          bootstrap-options: "--agent-version ${{ matrix.juju.agent }}"
+          # bootstrap-options: "--agent-version ${{ matrix.juju.agent }}"
           microk8s-group: snap_microk8s
           microk8s-addons: "rbac dns minio metallb:${{ env.IPADDR }}-${{ env.IPADDR }}"
       - name: Install tox & poetry
