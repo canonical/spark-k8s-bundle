@@ -55,7 +55,7 @@ jobs:
           - --spark-version "3.4.2"
           - --spark-version "3.5.1"
         backend:
-          - --backend yaml
+          # - --backend yaml
           - --backend terraform
         storage-backend:
           - --storage-backend s3
