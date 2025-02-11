@@ -1,7 +1,7 @@
 # Copyright 2025 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-name: Release spark-test Python library
+name: Release spark-k8s-test Python library
 
 env:
   BRANCH: ${{ github.ref_name }}
@@ -144,6 +144,9 @@ jobs:
     name: Publish to PyPI
     needs: [release_checks, build]
     runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/spark-k8s-test
     steps:
       - name: Download all the dists
         uses: actions/download-artifact@v4

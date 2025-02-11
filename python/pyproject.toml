@@ -2,7 +2,7 @@
 # See LICENSE file for licensing details.
 
 [tool.poetry]
-name = "spark-test"
+name = "spark-k8s-test"
 version = "0.0.1"
 description = "This project provides some utilities function and CLI commands to test Charmed Spark on K8s."
 authors = [
