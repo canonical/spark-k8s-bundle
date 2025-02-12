@@ -1,12 +1,15 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-name: Run Tests
+name: Run CI tests
 
 on:
-  schedule:
-    - cron: "53 0 * * *" # Daily at 00:53 UTC
   workflow_call:
+    inputs:
+      matrix:
+        required: true
+        type: object
+
 
 jobs:
   checks:
@@ -50,31 +53,7 @@ jobs:
     strategy:
       max-parallel: 7
       fail-fast: false
-      matrix:
-        spark-version: ["3.4.2", "3.5.1"]
-        bundle-backend: ["yaml", "terraform"]
-        storage-backend: ["s3", "azure"]
-        cos-model: ["", "cos"]
-        tox-environments:
-          - integration-sparkjob
-          - integration-bundle
-          - integration-kyuubi
-        juju:
-          - snap_channel: "3.4/stable"
-            agent: "3.4.2"
-          - snap_channel: "3.6/stable"
-            agent: "3.6.0"
-        exclude:
-          # COS bundle is mandatory for sparkjob test.
-          - tox-environments: integration-sparkjob # COS is mandatory for the sparkjob test
-            cos-model:
-
-          # COS bundle is mandatory for Kyuubi test.
-          - tox-environments: integration-kyuubi
-            cos-model:
-
-        include:
-          - tox-environments: integration-basic
+      matrix: ${{ inputs.matrix }}
 
     needs:
       - checks

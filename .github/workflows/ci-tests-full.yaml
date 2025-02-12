@@ -1,0 +1,45 @@
+
+name: Run CI tests (nightly)
+
+on:
+  schedule:
+    - cron: "53 0 * * *" # Daily at 00:53 UTC
+
+jobs:
+  run-tests:
+    uses: ./.github/workflows/ci-tests.yaml
+    secrets: inherit
+    with:
+      matrix: |
+        {
+          "spark-version": ["3.4.2", "3.5.1"],
+          "bundle-backend": ["yaml", "terraform"],
+          "storage-backend": ["s3", "azure"],
+          "cos-model": ["", "cos"],
+          "tox-environments": ["integration-sparkjob", "integration-bundle", "integration-kyuubi"],
+          "juju": [
+            {
+              "snap_channel": "3.4/stable",
+              "agent": "3.4.2"
+            },
+            {
+              "snap_channel": "3.6/stable",
+              "agent": "3.6.0"
+            }
+          ],
+          "exclude": [
+            {
+              "tox-environments": "integration-sparkjob",
+              "cos-model": ""
+            },
+            {
+              "tox-environments": "integration-kyuubi",
+              "cos-model": ""
+            }
+          ],
+          "include": [
+            {
+              "tox-environments": "integration-basic"
+            }
+          ]
+        }

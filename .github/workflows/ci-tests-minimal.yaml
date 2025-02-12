@@ -1,0 +1,15 @@
+name: Run minimal CI tests
+
+
+on:
+  workflow_call
+
+jobs:
+  run-tests:
+    uses: ./.github/workflows/ci-tests.yaml
+    secrets: inherit
+    with:
+      matrix: |
+        {
+          "tox-environments": ["integration-basic"]
+        }
