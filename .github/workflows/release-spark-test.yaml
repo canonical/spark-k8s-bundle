@@ -18,6 +18,7 @@ jobs:
   tests:
     name: Run CI tests
     uses: ./.github/workflows/ci-tests.yaml
+    secrets: inherit
 
   release_checks:
     name: Checks before release
