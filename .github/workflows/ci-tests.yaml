@@ -43,7 +43,7 @@ jobs:
           cd python && tox -e unit
 
   integration-tests:
-    name: Integration Tests
+    name: "${{ matrix.tox-environment }}: ${{ matrix.bundle-backend }} bundle | spark ${{ matrix.spark-version }} | ${{ matrix.storage-backend }} storage | juju ${{ matrix.juju.agent }} | ${{ matrix.cos }}"
     runs-on: ubuntu-22.04
     timeout-minutes: 120
     strategy:
@@ -54,7 +54,7 @@ jobs:
         bundle-backend: ["yaml", "terraform"]
         storage-backend: ["s3", "azure"]
         cos-model: ["", "cos"]
-        tox-environments:
+        tox-environment:
           - integration-sparkjob
           - integration-bundle
           - integration-kyuubi
@@ -65,15 +65,15 @@ jobs:
             agent: "3.6.2"
         exclude:
           # COS bundle is mandatory for sparkjob test.
-          - tox-environments: integration-sparkjob # COS is mandatory for the sparkjob test
+          - tox-environment: integration-sparkjob # COS is mandatory for the sparkjob test
             cos-model:
 
           # COS bundle is mandatory for Kyuubi test.
-          - tox-environments: integration-kyuubi
+          - tox-environment: integration-kyuubi
             cos-model:
 
         include:
-          - tox-environments: integration-basic
+          - tox-environment: integration-basic
 
     needs:
       - checks
@@ -149,4 +149,4 @@ jobs:
 
           juju list-models
 
-          cd python && tox run -e ${{ matrix.tox-environments }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ matrix.bundle-backend }} --cos-model ${{ matrix.cos-model }} --spark-version ${{ matrix.spark-version }} --storage-backend ${{ matrix.storage-backend }} --keep-models
+          cd python && tox run -e ${{ matrix.tox-environment }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ matrix.bundle-backend }} --cos-model ${{ matrix.cos-model }} --spark-version ${{ matrix.spark-version }} --storage-backend ${{ matrix.storage-backend }} --keep-models
