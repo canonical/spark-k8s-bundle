@@ -154,7 +154,3 @@ jobs:
           juju list-models
 
           cd python && tox run -e ${{ matrix.tox-environments }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ matrix.bundle-backend }} --cos-model ${{ matrix.cos-model }} --spark-version ${{ matrix.spark-version }} --storage-backend ${{ matrix.storage-backend }} --keep-models
-      - name: Setup tmate session
-        timeout-minutes: 20
-        if: ${{ failure() }}
-        uses: mxschmitt/action-tmate@v3
