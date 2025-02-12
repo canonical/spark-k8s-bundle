@@ -21,7 +21,6 @@ jobs:
       fail-fast: true
       matrix:
         python-version:
-          # - '3.9'
           - "3.10"
     needs:
       - checks
@@ -98,9 +97,6 @@ jobs:
         with:
           python-version: "3.10"
           architecture: x64
-      - name: Get prefsrc
-        run: |
-          echo "IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')" >> $GITHUB_ENV
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@main
         with:
@@ -109,7 +105,7 @@ jobs:
           channel: 1.28-strict/stable
           bootstrap-options: "--agent-version ${{ matrix.juju.agent || '3.4.2' }}"
           microk8s-group: snap_microk8s
-          microk8s-addons: "rbac dns minio metallb:${{ env.IPADDR }}-${{ env.IPADDR }}"
+          microk8s-addons: "rbac dns minio metallb:10.64.140.43-10.64.140.49"
       - name: Install tox & poetry
         run: |
           pip install tox
