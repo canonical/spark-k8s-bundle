@@ -1,0 +1,188 @@
+# Copyright 2025 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+name: Release spark-k8s-test Python library
+
+env:
+  BRANCH: ${{ github.ref_name }}
+
+
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+
+
+jobs:
+  tests:
+    name: Run CI tests
+    uses: ./.github/workflows/ci-tests.yaml
+
+  release_checks:
+    name: Checks before release
+    runs-on: ubuntu-latest
+    needs: [tests]
+    timeout-minutes: 5
+    strategy:
+      fail-fast: true
+    defaults:
+      run:
+        working-directory: ./python
+    steps:
+      - id: checkout
+        name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH }}
+          fetch-depth: 0
+      - id: setup_python
+        name: Setup Python
+        uses: actions/setup-python@v5.3.0
+        with:
+          python-version: "3.10"
+          architecture: x64
+      - name: Install poetry
+        run: |
+          pipx install poetry
+      - id: install_environment
+        name: Set up build environment
+        run: |
+          poetry lock
+      - id: package_metadata
+        name: Fetch package metadata
+        run: |
+          NAME=$(poetry version | awk '{print $1}')
+          VERSION=$(poetry version | awk '{print $2}')
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - id: version_vs_tag_check
+        name: Check if tag version matches project version
+        run: |
+          VERSION=${{ steps.package_metadata.outputs.version }}
+          BRANCH=${{ env.BRANCH }}
+          if [[ "$BRANCH" != "v$VERSION" ]]; then exit 1; fi
+    outputs:
+      package_name: ${{ steps.package_metadata.outputs.name }}
+      package_version: ${{ steps.package_metadata.outputs.version }}
+
+  build:
+    name: Build package
+    runs-on: ubuntu-latest
+    needs: [release_checks, tests]
+    outputs:
+      VERSION: ${{ steps.build.outputs.VERSION }}
+    defaults:
+      run:
+        working-directory: ./python
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH }}
+          fetch-depth: 0
+      - name: Install poetry
+        run: pipx install poetry
+      - name: Check for tag and build package
+        id: build
+        run: |
+          VERSION=$(poetry version -s)
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+          poetry build
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: distfiles
+          path: python/dist/
+
+  autorelease:
+    name: Release the package on github
+    needs: [release_checks, tests, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: true
+    defaults:
+      run:
+        working-directory: ./python
+    steps:
+      - id: checkout
+        name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH }}
+          fetch-depth: 0
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          name: distfiles
+          path: dist/
+      - id: artifact_names
+        name: Compute artifact names outputs
+        run: |
+          _NAME=${{ needs.release_checks.outputs.package_name }}
+          _VERSION=${{ needs.release_checks.outputs.package_version }}
+          echo "wheel=${_NAME}-${_VERSION}-py3-none-any.whl" >> "$GITHUB_OUTPUT"
+          echo "tarball=${_NAME}-${_VERSION}.tar.gz" >> "$GITHUB_OUTPUT"
+      - name: Create Github Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: spark-k8s-test v${{ needs.release_checks.outputs.package_version }}
+          body_path: ".github/RELEASE-TEMPLATE.md"
+          files: |
+            dist/${{ steps.artifact_names.outputs.wheel }}
+            dist/${{ steps.artifact_names.outputs.tarball }}
+    outputs:
+      version: ${{ needs.release_checks.outputs.package_version }}
+      wheel: ${{ steps.artifact_names.outputs.wheel }}
+      tarball: ${{ steps.artifact_names.outputs.tarball }}
+
+  upload-pypi:
+    name: Publish to PyPI
+    needs: [release_checks, tests, build]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/spark-k8s-test
+    steps:
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          name: distfiles
+          path: dist/
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+    permissions:
+      id-token: write # Needed for trusted publishing (https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/)
+
+  test:
+    name: Test Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      DOWNLOADS_PATH: "/releases/download"
+    needs: [autorelease]
+    steps:
+      - id: check-tar-gz
+        name: Check tar.gz package
+        run: |
+          # check if release is now published and available
+          TARBALL=${{ needs.autorelease.outputs.tarball }}
+          VERSION=${{ needs.autorelease.outputs.version }}
+          echo "Checking latest available package release: ${TARBALL}"
+          STATUSCODE=$(curl --silent --head $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/${{ env.DOWNLOADS_PATH }}/v${VERSION}/${TARBALL} | head -n 1 | cut -d' ' -f2)
+          if  [[ ${STATUSCODE} -ne 200 ]] && [[ ${STATUSCODE} -ne 302 ]]; then exit 1; fi
+      - id: download-package
+        name: Download wheel package
+        run: |
+          # check if release is now published and available
+          WHEEL=${{ needs.autorelease.outputs.wheel }}
+          VERSION=${{ needs.autorelease.outputs.version }}
+          echo "Downloading latest available Spark wheel package release ${WHEEL}."
+          wget $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/${{ env.DOWNLOADS_PATH }}/v${VERSION}/${WHEEL} --no-check-certificate
+      - id: install-package
+        name: Install wheel package file
+        run: |
+          pip install ./${{ needs.autorelease.outputs.wheel }}

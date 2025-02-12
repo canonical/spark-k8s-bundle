@@ -51,20 +51,11 @@ jobs:
       max-parallel: 7
       fail-fast: false
       matrix:
-        version:
-          - --spark-version "3.4.2"
-          - --spark-version "3.5.1"
-        backend:
-          - --backend yaml
-          - --backend terraform
-        storage-backend:
-          - --storage-backend s3
-          - --storage-backend azure
-        cos:
-          -
-          - --cos-model cos
+        spark-version: ["3.4.2", "3.5.1"]
+        bundle-backend: ["yaml", "terraform"]
+        storage-backend: ["s3", "azure"]
+        cos-model: ["", "cos"]
         tox-environments:
-          - integration-basic
           - integration-sparkjob
           - integration-bundle
           - integration-kyuubi
@@ -74,14 +65,17 @@ jobs:
           - snap_channel: "3.6/stable"
             agent: "3.6.0"
         exclude:
-          - tox-environments: integration-basic # Basic tests, test without COS
-            cos: --cos-model cos
-          - tox-environments: integration-basic # Basic tests, test without terraform
-            backend: --backend terraform
+          # COS bundle is mandatory for sparkjob test.
           - tox-environments: integration-sparkjob # COS is mandatory for the sparkjob test
-            cos:
-          - tox-environments: integration-kyuubi # Kyuubi tests do not require COS
-            cos: --cos-model cos
+            cos-model:
+
+          # COS bundle is mandatory for Kyuubi test.
+          - tox-environments: integration-kyuubi
+            cos-model:
+
+        include:
+          - tox-environments: integration-basic
+
     needs:
       - checks
       - unit-tests
@@ -110,10 +104,10 @@ jobs:
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@main
         with:
-          juju-channel: ${{ matrix.juju.snap_channel }}
+          juju-channel: ${{ matrix.juju.snap_channel || '3.4/stable' }}
           provider: microk8s
           channel: 1.28-strict/stable
-          bootstrap-options: "--agent-version ${{ matrix.juju.agent }}"
+          bootstrap-options: "--agent-version ${{ matrix.juju.agent || '3.4.2' }}"
           microk8s-group: snap_microk8s
           microk8s-addons: "rbac dns minio metallb:${{ env.IPADDR }}-${{ env.IPADDR }}"
       - name: Install tox & poetry
@@ -159,8 +153,4 @@ jobs:
 
           juju list-models
 
-          cd python && tox run -e ${{ matrix.tox-environments }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' ${{ matrix.backend }} ${{ matrix.cos }} ${{ matrix.version }} ${{ matrix.storage-backend }} --keep-models
-      - name: Setup tmate session
-        timeout-minutes: 20
-        if: ${{ failure() }}
-        uses: mxschmitt/action-tmate@v3
+          cd python && tox run -e ${{ matrix.tox-environments }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ matrix.bundle-backend }} --cos-model ${{ matrix.cos-model }} --spark-version ${{ matrix.spark-version }} --storage-backend ${{ matrix.storage-backend }} --keep-models
