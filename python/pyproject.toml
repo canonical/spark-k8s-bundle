@@ -21,6 +21,8 @@ spark8t = ">=0.0.10"
 boto3 = ">=1.34.55"
 pytest = ">=6.2"
 azure-storage-blob = "^12.21.0"
+pyhive = { extras = ["hive_pure_sasl"], version = "^0.7.0" }
+lightkube = ">=0.11"
 
 [tool.poetry.group.fmt]
 optional = true
@@ -54,7 +56,6 @@ pytest-mock = ">=3.10"
 parameterized = ">=0.9.0"
 juju = ">=3.4.0"
 pytest-operator = ">0.20"
-pyhive = { extras = ["hive_pure_sasl"], version = "^0.7.0" }
 psycopg2-binary = "^2.9.9"
 tenacity = "^9.0.0"
 requests = "^2.32.3"

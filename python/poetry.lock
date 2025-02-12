@@ -634,7 +634,7 @@ version = "1.0.0"
 description = "Clean single-source support for Python 3 and 2"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
-groups = ["integration"]
+groups = ["main"]
 files = [
     {file = "future-1.0.0-py3-none-any.whl", hash = "sha256:929292d34f5872e70396626ef385ec22355a1fae8ad29e1a734c3e43f9fbc216"},
     {file = "future-1.0.0.tar.gz", hash = "sha256:bd2968309307861edae1458a4f8a4f3598c03be43b97521076aebf5d94c07b05"},
@@ -1409,7 +1409,7 @@ version = "0.6.2"
 description = "Pure Python client SASL implementation"
 optional = false
 python-versions = "*"
-groups = ["integration"]
+groups = ["main"]
 files = [
     {file = "pure-sasl-0.6.2.tar.gz", hash = "sha256:53c1355f5da95e2b85b2cc9a6af435518edc20c81193faa0eea65fdc835138f4"},
     {file = "pure_sasl-0.6.2-py2-none-any.whl", hash = "sha256:edb33b1a46eb3c602c0166de0442c0fb41f5ac2bfccbde4775183b105ad89ab2"},
@@ -1479,7 +1479,7 @@ version = "0.7.0"
 description = "Python interface to Hive"
 optional = false
 python-versions = "*"
-groups = ["integration"]
+groups = ["main"]
 files = [
     {file = "PyHive-0.7.0.tar.gz", hash = "sha256:585beff9578a61b99aed47140fec97e26323e8c685a5b5d0c8550a8ebf8a24e0"},
 ]
@@ -1950,7 +1950,7 @@ version = "0.20.0"
 description = "Python bindings for the Apache Thrift RPC system"
 optional = false
 python-versions = "*"
-groups = ["integration"]
+groups = ["main"]
 files = [
     {file = "thrift-0.20.0.tar.gz", hash = "sha256:4dd662eadf6b8aebe8a41729527bd69adf6ceaa2a8681cbef64d1273b3e8feba"},
 ]
@@ -1969,7 +1969,7 @@ version = "0.4.3"
 description = "Thrift SASL Python module that implements SASL transports for Thrift (`TSaslClientTransport`)."
 optional = false
 python-versions = "*"
-groups = ["integration"]
+groups = ["main"]
 files = [
     {file = "thrift_sasl-0.4.3-py2.py3-none-any.whl", hash = "sha256:d24b49140115e6e2a96d08335cff225a27a28ea71866fb1b2bdb30ca5afca64e"},
     {file = "thrift_sasl-0.4.3.tar.gz", hash = "sha256:5bdd5b760d90a13d9b3abfce873db0425861aa8d6bf25912d3cc0467a4f773da"},
@@ -2180,4 +2180,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "95d99947823d043298a1372ed58259eb259cdbe89013b57d38541453f9f51e1f"
+content-hash = "120d10731f52f71fb1f6c502fd40ec3e498eb2bcb4d2387ba1cb55985c23891c"
