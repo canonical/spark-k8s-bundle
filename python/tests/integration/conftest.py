@@ -72,13 +72,18 @@ def pytest_addoption(parser):
         "--cos-model",
         required=False,
         type=str,
+        nargs="?",
+        const="",
+        default="",
         help="When provided, it deploys COS as well. "
         "If the model already exists, we assume COS had already been "
         "deployed.",
     )
     parser.addoption(
         "--backend",
+        nargs="?",
         choices=["yaml", "terraform"],
+        const="yaml",
         default="yaml",
         type=str,
         help="Which backend to use for bundle. Supported values are either "
@@ -86,6 +91,8 @@ def pytest_addoption(parser):
     )
     parser.addoption(
         "--spark-version",
+        nargs="?",
+        const="3.4.2",
         default="3.4.2",
         type=str,
         help="Which Spark version to use for bundle testing.",
@@ -93,6 +100,8 @@ def pytest_addoption(parser):
     parser.addoption(
         "--storage-backend",
         choices=["s3", "azure"],
+        nargs="?",
+        const="s3",
         default="s3",
         type=str,
         help="Which storage backend to be used. Supported values are either "
