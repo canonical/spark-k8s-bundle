@@ -45,7 +45,6 @@ jobs:
                 agent: "3.6.0"
     needs:
       - checks
-      - unit-tests
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
