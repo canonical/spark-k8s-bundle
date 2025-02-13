@@ -1,7 +1,7 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-name: Build snap and run tests
+name: Run CI checks
 
 on:
   workflow_call
