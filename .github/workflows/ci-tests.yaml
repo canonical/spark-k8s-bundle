@@ -83,5 +83,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Run individual integration test
         uses: ./.github/actions/run-test
+        timeout-minutes: 40
         with:
           tox-env: integration-basic

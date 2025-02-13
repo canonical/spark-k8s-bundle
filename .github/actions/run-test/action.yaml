@@ -54,7 +54,7 @@ runs:
   using: 'composite'
   steps:
     - name: (GitHub hosted) Free up disk space
-      timeout-minutes: 5
+      shell: bash
       run: |
         printf '\nDisk usage before cleanup\n'
         df --human-readable
@@ -72,6 +72,7 @@ runs:
         python-version: "3.10"
         architecture: x64
     - name: Get prefsrc
+      shell: bash
       run: |
         echo "IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')" >> $GITHUB_ENV
     - name: Setup operator environment
@@ -84,11 +85,13 @@ runs:
         microk8s-group: snap_microk8s
         microk8s-addons: "rbac dns minio metallb:${{ env.IPADDR }}-${{ env.IPADDR }}"
     - name: Install tox & poetry
+      shell: bash
       run: |
         pip install tox
         pip install poetry
     - name: Select tests
       id: select-tests
+      shell: bash
       run: |
         if [ "${{ github.event_name }}" == "schedule" ]
         then
@@ -100,6 +103,7 @@ runs:
         fi
     - id: setup-terraform
       name: Install terraform if needed
+      shell: bash
       run: |
         if ! [ -x "$(command -v terraform)" ]; then
           echo "Installing terraform from snap"
@@ -107,6 +111,7 @@ runs:
         fi
     - id: cache-image
       name: Cache Image Locally
+      shell: bash
       run: |
         # Download image for avoiding time out
         IMAGE="ghcr.io/canonical/charmed-spark-kyuubi@sha256:9268d19a6eef91914e874734b320fab64908faf0f7adb8856be809bc60ecd1d0"
@@ -118,7 +123,7 @@ runs:
         rm image.tar
     - id: tests-integration
       name: Run Integration Tests
-      timeout-minutes: 30
+      shell: bash
       env:
         AZURE_STORAGE_ACCOUNT: ${{ inputs.azure-storage-account }}
         AZURE_STORAGE_KEY: ${{ inputs.azure-storage-key }}
