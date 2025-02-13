@@ -79,7 +79,9 @@ jobs:
       - checks
       - unit-tests
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
       - name: Run individual integration test
-        uses: ./github/workflows/run-test.yaml
+        uses: ./github/actions/run-test.yaml
         with:
           tox-env: integration-basic
