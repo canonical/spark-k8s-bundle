@@ -48,8 +48,8 @@ jobs:
     strategy:
       max-parallel: 7
       fail-fast: false
-      # matrix:
-        # spark-version: ["3.4.2", "3.5.1"]
+      matrix:
+        spark-version: ["3.4.2", "3.5.1"]
         # bundle-backend: ["yaml", "terraform"]
         # storage-backend: ["s3", "azure"]
         # cos-model: ["", "cos"]
@@ -86,3 +86,4 @@ jobs:
         timeout-minutes: 40
         with:
           tox-env: integration-basic
+          spark-version: ${{ matrix.spark-version }}
