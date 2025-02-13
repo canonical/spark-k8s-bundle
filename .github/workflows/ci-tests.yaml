@@ -42,7 +42,7 @@ jobs:
           cd python && tox -e unit
 
   integration-tests:
-    name: "${{ matrix.tox-env }}: ${{ matrix.bundle-backend }} bundle | spark ${{ matrix.spark-version }} | ${{ matrix.storage-backend }} storage | juju ${{ matrix.juju.agent }} | ${{ matrix.cos-model }}"
+    name: "${{ matrix.tox-env }}: spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju.agent }} | ${{ matrix.cos-model }}"
     runs-on: ubuntu-22.04
     timeout-minutes: 120
     strategy:
@@ -69,6 +69,7 @@ jobs:
             spark-version: 3.5.1
           - tox-env: integration-bundle
             bundle-backend: yaml
+            spark-version: 3.4.2
 
     needs:
       - checks
@@ -85,7 +86,7 @@ jobs:
           spark-version: ${{ matrix.spark-version }}
           storage-backend: ${{ matrix.storage-backend }}
           cos-model: ${{ matrix.cos-model }}
-          juju-snap-channel: ${{ matrix.juju.snap_channel }}
-          juju-agent-version: ${{ matrix.juju.agent }}
+          juju-snap-channel: ${{ matrix.juju.snap_channel || '3.5/stable' }}
+          juju-agent-version: ${{ matrix.juju.agent || '3.5.6' }}
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
