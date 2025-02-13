@@ -42,11 +42,11 @@ jobs:
           cd python && tox -e unit
 
   integration-tests:
-    name: Integration Tests
+    name: "${{ matrix.tox-environment }}: ${{ matrix.bundle-backend }} bundle | spark ${{ matrix.spark-version }} | ${{ matrix.storage-backend }} storage | juju ${{ matrix.juju.agent }} | ${{ matrix.cos }}"
     runs-on: ubuntu-22.04
     timeout-minutes: 120
     strategy:
-      max-parallel: 7
+      max-parallel: 15
       fail-fast: false
       matrix:
         spark-version: ["3.4.2", "3.5.1"]
