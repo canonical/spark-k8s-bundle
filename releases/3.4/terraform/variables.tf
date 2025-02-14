@@ -37,6 +37,20 @@ variable "cos_model" {
   default     = null
 }
 
+variable "iam_model" {
+  description = "The name of the model where identity is deployed. If null, don't deploy identity related charms."
+  type        = string
+  nullable    = true
+  default     = null
+}
+
+variable "identity" {
+  description = "The name of the model where extra identity is deployed. If null, don't deploy identity needed to integrate with spark."
+  type        = string
+  nullable    = true
+  default     = null
+}
+
 # cos specifics
 
 variable "COS_TLS_CERT" {
@@ -93,4 +107,31 @@ variable "kyuubi_user" {
   description = "Define the user to be used for running Kyuubi enginers"
   type        = string
   default     = "kyuubi-spark-engine"
+}
+
+# identity
+
+variable "idp_provider_config" {
+  description = "The external Idp provider configurations."
+  type = object({
+    client_id : optional(string)
+    issuer_url : optional(string)
+    provider : string
+    provider_id : string
+    scope : optional(string, "profile email address phone")
+    microsoft_tenant_id : optional(string)
+    apple_team_id : optional(string)
+    apple_private_key_id : optional(string)
+  })
+  default = {
+    client_id   = "client_id"
+    provider    = "generic"
+    provider_id = "provider_id"
+  }
+}
+
+variable "client_secret" {
+  description = "The client secret of the idp provider"
+  type = string
+  default = null
 }

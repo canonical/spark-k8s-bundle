@@ -2,8 +2,6 @@
 # See LICENSE file for licensing details.
 
 
-
-
 resource "juju_integration" "traefik-grafana" {
   model = data.juju_model.cos.name
 

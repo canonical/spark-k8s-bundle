@@ -74,3 +74,38 @@ module "observability" {
   spark_model  = var.model
   spark_charms = module.spark.charms
 }
+
+module "identity" {
+  depends_on   = [module.spark]
+  count        = var.iam_model == null ? 0 : 1
+  source       = "./terraform/identity"
+  model        = var.model
+  spark_model = var.model
+  spark_charms = module.spark.charms
+  # identity_charms = module.iam-bundle.charms
+}
+
+
+module "iam-bundle" {
+  source       = "github.com/canonical/iam-bundle-integration?ref=v0.5.0"
+  model        = var.iam_model
+  count        = var.iam_model == null ? 0 : 1
+
+  depends_on   = [module.spark, module.identity]
+
+  idp_provider_config = var.idp_provider_config
+
+  idp_provider_credentials = {
+    client_secret : var.client_secret
+  }
+
+  postgresql_offer_url          = null
+  ingress_offer_url             = one(module.identity[*].ingress_offer) # here
+  openfga_offer_url             = null
+  send_ca_certificate_offer_url = null
+
+  # hydra    = "hydra"
+  # kratos   = "kratos"
+  # login_ui = "login_ui"
+  # admin_ui = "admin_ui"
+}
