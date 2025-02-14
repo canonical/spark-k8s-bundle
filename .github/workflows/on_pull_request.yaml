@@ -12,5 +12,6 @@ on:
 
 jobs:
   tests:
+    name: Run CI tests on a PR
     uses: ./.github/workflows/ci-tests-full.yaml
     secrets: inherit
