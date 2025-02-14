@@ -4,8 +4,13 @@
 import logging
 import os
 import shutil
+import signal
+import socket
+import time
 import uuid
+from contextlib import contextmanager
 from pathlib import Path
+from subprocess import PIPE, Popen, check_output
 from typing import Iterable
 
 import pytest
@@ -19,6 +24,7 @@ from spark_test.fixtures.pod import spark_image  # noqa
 from spark_test.fixtures.s3 import bucket, credentials  # noqa
 from spark_test.fixtures.service_account import service_account  # noqa
 from tests import IE_TEST_DIR
+from tests.integration.types import PortForwardTimeout
 
 from .helpers import (
     COS_ALIAS,
@@ -43,6 +49,7 @@ COS_APPS = [
     "traefik",
     "alertmanager",
 ]
+FORWARD_TIMEOUT_SECONDS = 5
 logger = logging.getLogger(__name__)
 
 
@@ -473,3 +480,81 @@ def object_storage(request, storage_backend):
         return request.getfixturevalue("container")
     else:
         return ValueError("storage_backend argument not recognized")
+
+
+@pytest.fixture(scope="session")
+def kubectl() -> str:
+    """Check that kubectl is in path and is able to access the cluster."""
+    if (kubectl_path := shutil.which("kubectl")) is None:
+        raise FileNotFoundError("Could not find 'kubectl' in PATH.")
+
+    check_output([kubectl_path, "get", "namespaces"])
+    return kubectl_path
+
+
+@pytest.fixture(scope="function")
+def port_forward(kubectl: str):
+    """Define a context-aware fixture to redirect a local port to a remote pod.
+
+    This fixture is used as follows:
+
+    ```
+    def test_with_port_forwarding(
+        ops_test: OpsTest,
+        port_forward: PortForwarder
+    ):
+        with port_forward(
+            pod="pod-name",
+            port=8080,
+            namespace="test-model"
+        ):
+            httpx.get("http://127.0.0.1:8080").content
+
+
+    ```
+
+    Important: the kubectl command from the microk8s snap is wrapped is such a way that
+    the cleanup part does not work as expected.
+    The actual port-forward process keeps running even when we forcefully terminate.
+    Use the kubectl snap instead.
+    """
+
+    @contextmanager
+    def _forwarder(pod: str, port: int, namespace: str):
+        forwarder = Popen(
+            [kubectl, "port-forward", pod, f"{port}:{port}", "-n", namespace],
+            stdout=PIPE,
+            stderr=PIPE,
+        )
+        start = time.monotonic()
+
+        while True:
+            match forwarder.poll(), time.monotonic():
+                case _, end if (end - start) > FORWARD_TIMEOUT_SECONDS:
+                    # If we cannot connect within a reasonable time span, forcefully
+                    # kill the process and raise an appropriate error
+                    forwarder.kill()
+                    raise PortForwardTimeout
+
+                case return_code, _ if return_code is not None:
+                    _, errs = forwarder.communicate(timeout=5)
+                    raise RuntimeError("Unable to forward the port:", errs)
+
+                case _, _:
+                    # Even if the command is actively running, we wait before the port
+                    # is listening before moving on to the tests.
+                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                        if not s.connect_ex(("localhost", port)):
+                            # All good, the port is in use
+                            break
+        try:
+            yield
+        except:
+            raise
+        finally:
+            # Stop port-forward command. If we timeout, we will get
+            # a related exception to signal that we should investigate.
+            forwarder.send_signal(signal.SIGINT)
+            forwarder.wait(timeout=3)
+
+    return _forwarder
