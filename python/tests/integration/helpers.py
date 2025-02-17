@@ -11,12 +11,13 @@ import urllib.request
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, Generic, TypeVar
+from typing import Any, Callable, Dict, Generic, TypeVar, cast
 
 import requests
 import yaml
 from pytest_operator.plugin import OpsTest
 
+from spark_test.core import ObjectStorageUnit
 from spark_test.core.azure_storage import Container
 from spark_test.core.s3 import Bucket, Credentials
 
@@ -385,20 +386,41 @@ async def deploy_bundle_yaml_azure_storage(
 
 async def deploy_bundle_terraform(
     bundle: Terraform,
-    bucket: Bucket,
+    storage_unit: ObjectStorageUnit,
     cos: str | None,
     ops_test: OpsTest,
+    storage_backend: str,
 ) -> list[str]:
+    if storage_backend == "azure":
+        storage_unit = cast(Container, storage_unit)
+        storage_vars = {
+            "azure": {
+                "storage_account": storage_unit.credentials.storage_account,
+                "container": storage_unit.container_name,
+                "secret_key": storage_unit.credentials.secret_key,
+            }
+        }
+
+    else:
+        storage_unit = cast(Bucket, storage_unit)
+        storage_vars = {
+            "s3": {
+                "bucket": storage_unit.bucket_name,
+                "endpoint": storage_unit.s3.meta.endpoint_url,
+            },
+        }
+
     tf_vars = {
-        "s3": {
-            "bucket": bucket.bucket_name,
-            "endpoint": bucket.s3.meta.endpoint_url,
-        },
         "kyuubi_user": "kyuubi-test-user",
         "model": ops_test.model_name,
+        "storage_backend": storage_backend,
+        "create_model": False,
     } | ({"cos_model": cos} if cos else {})
 
-    logger.info(f"tf_vars: {tf_vars}")
+    # NOTE: avoid logging secret key
+    logger.info(f"tf_vars: {tf_vars} + {storage_backend} information")
+
+    tf_vars = tf_vars | storage_vars
     outputs = bundle.apply(tf_vars=tf_vars)
 
     return list(outputs["charms"]["value"].values())

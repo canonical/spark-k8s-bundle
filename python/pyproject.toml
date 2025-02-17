@@ -59,6 +59,7 @@ pytest-operator = ">0.20"
 psycopg2-binary = "^2.9.9"
 tenacity = "^9.0.0"
 requests = "^2.32.3"
+psutil = "^7.0.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -69,7 +70,7 @@ addopts = "--doctest-modules --cov=./spark_test"
 
 [tool.ruff]
 extend-exclude = ["__pycache__", "*.egg_info"]
-target-version = "py38"
+target-version = "py310"
 src = ["spark_test", "tests"]
 
 [tool.ruff.lint]

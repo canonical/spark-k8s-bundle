@@ -4,8 +4,14 @@
 import logging
 import os
 import shutil
+import signal
+import socket
+import time
 import uuid
+from contextlib import contextmanager
 from pathlib import Path
+from subprocess import PIPE, Popen, check_output
+from typing import Iterable
 
 import pytest
 import requests
@@ -18,6 +24,7 @@ from spark_test.fixtures.pod import spark_image  # noqa
 from spark_test.fixtures.s3 import bucket, credentials  # noqa
 from spark_test.fixtures.service_account import service_account  # noqa
 from tests import IE_TEST_DIR
+from tests.integration.types import PortForwardTimeout
 
 from .helpers import (
     COS_ALIAS,
@@ -34,6 +41,15 @@ from .helpers import (
 )
 from .terraform import Terraform
 
+COS_APPS = [
+    "loki",
+    "grafana",
+    "prometheus",
+    "catalogue",
+    "traefik",
+    "alertmanager",
+]
+FORWARD_TIMEOUT_SECONDS = 5
 logger = logging.getLogger(__name__)
 
 
@@ -173,7 +189,7 @@ def namespace(namespace_name):
 @pytest.fixture(scope="module")
 def bundle(
     request, cos_model, backend, spark_version, tmp_path_factory
-) -> Bundle[Path] | Terraform:
+) -> Iterable[Bundle[Path] | Terraform]:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
 
     if file := request.config.getoption("--bundle"):
@@ -222,7 +238,9 @@ def bundle(
 
 
 @pytest.fixture(scope="module")
-def bundle_with_azure_storage(request, spark_version, cos_model) -> Bundle[Path]:
+def bundle_with_azure_storage(
+    request, spark_version, cos_model, backend, tmp_path_factory
+) -> Iterable[Bundle[Path] | Terraform]:
     """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
 
     if file := request.config.getoption("--bundle"):
@@ -240,23 +258,34 @@ def bundle_with_azure_storage(request, spark_version, cos_model) -> Bundle[Path]
             )
         )
 
-        bundle = release_dir / "yaml" / "bundle-azure-storage.yaml.j2"
-
-    overlays = (
-        [Path(file) for file in files]
-        if (files := request.config.getoption("--overlay"))
-        else (
-            [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
-            if cos_model
-            else []
+        bundle = (
+            release_dir / "terraform"
+            if backend == "terraform"
+            else release_dir / "yaml" / "bundle-azure-storage.yaml.j2"
         )
-    )
 
-    for file in overlays + [bundle]:
-        if not file.exists():
-            raise FileNotFoundError(file.absolute())
+    if backend == "terraform":
+        tmp_path = tmp_path_factory.mktemp(uuid.uuid4().hex) / "terraform"
+        shutil.copytree(bundle, tmp_path)
+        client = Terraform(path=tmp_path)
+        yield client
 
-    yield Bundle(main=bundle, overlays=overlays)
+    else:
+        overlays = (
+            [Path(file) for file in files]
+            if (files := request.config.getoption("--overlay"))
+            else (
+                [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
+                if cos_model
+                else []
+            )
+        )
+
+        for file in overlays + [bundle]:
+            if not file.exists():
+                raise FileNotFoundError(file.absolute())
+
+        yield Bundle(main=bundle, overlays=overlays)
 
 
 @pytest.fixture
@@ -272,13 +301,13 @@ def integration_test(request):
 
 
 @pytest.fixture(scope="module")
-async def cos(ops_test: OpsTest, cos_model):
+async def cos(ops_test: OpsTest, cos_model: str, backend: str):
     """
     Deploy COS bundle depending upon the value of cos_model fixture, and yield its value.
     """
     existing_models = await ops_test._controller.list_models()
 
-    if cos_model and cos_model not in existing_models:
+    if cos_model and cos_model not in existing_models and backend == "yaml":
         base_url = (
             "https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays"
         )
@@ -331,45 +360,45 @@ async def spark_bundle_with_s3(ops_test: OpsTest, credentials, bucket, bundle, c
     """Deploy all applications in the Kyuubi bundle, wait for all of them to be active,
     and finally yield a list of the names of the applications that were deployed.
     """
-    async for my_cos in cos:
-        applications = await (
-            deploy_bundle_yaml(bundle, bucket, my_cos, ops_test)
-            if isinstance(bundle, Bundle)
-            else deploy_bundle_terraform(bundle, bucket, my_cos, ops_test)
+    my_cos = await anext(aiter(cos), None)
+
+    if isinstance(bundle, Bundle):
+        applications = await deploy_bundle_yaml(bundle, bucket, my_cos, ops_test)
+
+    else:
+        applications = await deploy_bundle_terraform(
+            bundle,
+            bucket,
+            my_cos,
+            ops_test,
+            storage_backend="s3",
         )
 
-        if "s3" in applications:
-            await ops_test.model.wait_for_idle(
-                apps=["s3"], timeout=600, idle_period=30, status="blocked"
+    if "s3" in applications:
+        await ops_test.model.wait_for_idle(
+            apps=["s3"], timeout=600, idle_period=30, status="blocked"
+        )
+
+        await set_s3_credentials(ops_test, credentials)
+
+    if my_cos:
+        with ops_test.model_context(COS_ALIAS) as cos_model:
+            await cos_model.wait_for_idle(
+                apps=COS_APPS,
+                idle_period=60,
+                timeout=3600,
+                raise_on_error=False,
             )
 
-            await set_s3_credentials(ops_test, credentials)
+    await ops_test.model.wait_for_idle(
+        apps=list(set(applications) - set(COS_APPS)),
+        timeout=3600,
+        idle_period=30,
+        status="active",
+        raise_on_error=False,
+    )
 
-        if my_cos:
-            with ops_test.model_context(COS_ALIAS) as cos_model:
-                await cos_model.wait_for_idle(
-                    apps=[
-                        "loki",
-                        "grafana",
-                        "prometheus",
-                        "catalogue",
-                        "traefik",
-                        "alertmanager",
-                    ],
-                    idle_period=60,
-                    timeout=3600,
-                    raise_on_error=False,
-                )
-
-        await ops_test.model.wait_for_idle(
-            apps=applications,
-            timeout=3600,
-            idle_period=30,
-            status="active",
-            raise_on_error=False,
-        )
-
-        yield applications
+    yield applications
 
 
 @pytest.fixture(scope="module")
@@ -384,47 +413,51 @@ async def spark_bundle_with_azure_storage(
     and finally yield a list of the names of the applications that were deployed.
     For object storage, use azure-storage-integrator.
     """
-    async for my_cos in cos:
+    my_cos = await anext(aiter(cos), None)
+
+    if isinstance(bundle_with_azure_storage, Bundle):
         applications = await deploy_bundle_yaml_azure_storage(
             bundle_with_azure_storage, container, my_cos, ops_test
         )
 
-        if "azure-storage" in applications:
-            secret_uri = await add_juju_secret(
-                ops_test,
-                "azure-storage",
-                "iamsecret",
-                {"secret-key": azure_credentials.secret_key},
-            )
-            await set_azure_credentials(
-                ops_test, secret_uri=secret_uri, application_name="azure-storage"
-            )
-
-        if my_cos:
-            with ops_test.model_context(COS_ALIAS) as cos_model:
-                await cos_model.wait_for_idle(
-                    apps=[
-                        "loki",
-                        "grafana",
-                        "prometheus",
-                        "catalogue",
-                        "traefik",
-                        "alertmanager",
-                    ],
-                    idle_period=60,
-                    timeout=3600,
-                    raise_on_error=False,
-                )
-
-        await ops_test.model.wait_for_idle(
-            apps=applications,
-            timeout=2500,
-            idle_period=30,
-            status="active",
-            raise_on_error=False,
+    else:
+        applications = await deploy_bundle_terraform(
+            bundle_with_azure_storage,
+            container,
+            my_cos,
+            ops_test,
+            storage_backend="azure",
         )
 
-        yield applications
+    if "azure-storage" in applications:
+        secret_uri = await add_juju_secret(
+            ops_test,
+            "azure-storage",
+            "iamsecret",
+            {"secret-key": azure_credentials.secret_key},
+        )
+        await set_azure_credentials(
+            ops_test, secret_uri=secret_uri, application_name="azure-storage"
+        )
+
+    if my_cos:
+        with ops_test.model_context(COS_ALIAS) as cos_model:
+            await cos_model.wait_for_idle(
+                apps=COS_APPS,
+                idle_period=60,
+                timeout=3600,
+                raise_on_error=False,
+            )
+
+    await ops_test.model.wait_for_idle(
+        apps=list(set(applications) - set(COS_APPS)),
+        timeout=2500,
+        idle_period=30,
+        status="active",
+        raise_on_error=False,
+    )
+
+    yield applications
 
 
 @pytest.fixture(scope="module")
@@ -447,3 +480,81 @@ def object_storage(request, storage_backend):
         return request.getfixturevalue("container")
     else:
         return ValueError("storage_backend argument not recognized")
+
+
+@pytest.fixture(scope="session")
+def kubectl() -> str:
+    """Check that kubectl is in path and is able to access the cluster."""
+    if (kubectl_path := shutil.which("kubectl")) is None:
+        raise FileNotFoundError("Could not find 'kubectl' in PATH.")
+
+    check_output([kubectl_path, "get", "namespaces"])
+    return kubectl_path
+
+
+@pytest.fixture(scope="function")
+def port_forward(kubectl: str):
+    """Define a context-aware fixture to redirect a local port to a remote pod.
+
+    This fixture is used as follows:
+
+    ```
+    def test_with_port_forwarding(
+        ops_test: OpsTest,
+        port_forward: PortForwarder
+    ):
+        with port_forward(
+            pod="pod-name",
+            port=8080,
+            namespace="test-model"
+        ):
+            httpx.get("http://127.0.0.1:8080").content
+
+
+    ```
+
+    Important: the kubectl command from the microk8s snap is wrapped is such a way that
+    the cleanup part does not work as expected.
+    The actual port-forward process keeps running even when we forcefully terminate.
+    Use the kubectl snap instead.
+    """
+
+    @contextmanager
+    def _forwarder(pod: str, port: int, namespace: str):
+        forwarder = Popen(
+            [kubectl, "port-forward", pod, f"{port}:{port}", "-n", namespace],
+            stdout=PIPE,
+            stderr=PIPE,
+        )
+        start = time.monotonic()
+
+        while True:
+            match forwarder.poll(), time.monotonic():
+                case _, end if (end - start) > FORWARD_TIMEOUT_SECONDS:
+                    # If we cannot connect within a reasonable time span, forcefully
+                    # kill the process and raise an appropriate error
+                    forwarder.kill()
+                    raise PortForwardTimeout
+
+                case return_code, _ if return_code is not None:
+                    _, errs = forwarder.communicate(timeout=5)
+                    raise RuntimeError("Unable to forward the port:", errs)
+
+                case _, _:
+                    # Even if the command is actively running, we wait before the port
+                    # is listening before moving on to the tests.
+                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                        if not s.connect_ex(("localhost", port)):
+                            # All good, the port is in use
+                            break
+        try:
+            yield
+        except:
+            raise
+        finally:
+            # Stop port-forward command. If we timeout, we will get
+            # a related exception to signal that we should investigate.
+            forwarder.send_signal(signal.SIGINT)
+            forwarder.wait(timeout=3)
+
+    return _forwarder
