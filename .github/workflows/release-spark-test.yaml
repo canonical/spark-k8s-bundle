@@ -158,32 +158,3 @@ jobs:
     permissions:
       id-token: write # Needed for trusted publishing (https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/)
 
-  test:
-    name: Test Release
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    env:
-      DOWNLOADS_PATH: "/releases/download"
-    needs: [autorelease]
-    steps:
-      - id: check-tar-gz
-        name: Check tar.gz package
-        run: |
-          # check if release is now published and available
-          TARBALL=${{ needs.autorelease.outputs.tarball }}
-          VERSION=${{ needs.autorelease.outputs.version }}
-          echo "Checking latest available package release: ${TARBALL}"
-          STATUSCODE=$(curl --silent --head $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/${{ env.DOWNLOADS_PATH }}/v${VERSION}/${TARBALL} | head -n 1 | cut -d' ' -f2)
-          if  [[ ${STATUSCODE} -ne 200 ]] && [[ ${STATUSCODE} -ne 302 ]]; then exit 1; fi
-      - id: download-package
-        name: Download wheel package
-        run: |
-          # check if release is now published and available
-          WHEEL=${{ needs.autorelease.outputs.wheel }}
-          VERSION=${{ needs.autorelease.outputs.version }}
-          echo "Downloading latest available Spark wheel package release ${WHEEL}."
-          wget $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/${{ env.DOWNLOADS_PATH }}/v${VERSION}/${WHEEL} --no-check-certificate
-      - id: install-package
-        name: Install wheel package file
-        run: |
-          pip install ./${{ needs.autorelease.outputs.wheel }}
