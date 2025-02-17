@@ -178,3 +178,59 @@ resource "juju_integration" "history_server_agent_metrics" {
     endpoint = "metrics-endpoint"
   }
 }
+
+resource "juju_integration" "kyuubi_agent_metrics" {
+  model = data.juju_model.spark.name
+
+  application {
+    name     = var.spark_charms.kyuubi
+    endpoint = "metrics-endpoint"
+  }
+
+  application {
+    name     = juju_application.agent.name
+    endpoint = "metrics-endpoint"
+  }
+}
+
+resource "juju_integration" "kyuubi_agent_dashboards" {
+  model = data.juju_model.spark.name
+
+  application {
+    name     = var.spark_charms.kyuubi
+    endpoint = "grafana-dashboard"
+  }
+
+  application {
+    name     = juju_application.agent.name
+    endpoint = "grafana-dashboards-consumer"
+  }
+}
+
+resource "juju_integration" "kyuubi_agent_logging" {
+  model = data.juju_model.spark.name
+
+  application {
+    name     = var.spark_charms.kyuubi
+    endpoint = "logging"
+  }
+
+  application {
+    name     = juju_application.agent.name
+    endpoint = "logging-provider"
+  }
+}
+
+resource "juju_integration" "hub_agent_logging" {
+  model = data.juju_model.spark.name
+
+  application {
+    name     = var.spark_charms.hub
+    endpoint = "logging"
+  }
+
+  application {
+    name     = juju_application.agent.name
+    endpoint = "logging-provider"
+  }
+}
