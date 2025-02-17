@@ -40,7 +40,7 @@ This means that using this structure, an optional module takes care of defining 
 | spark         | latest/edge   | self-signed-certificates     | 163      |
 | spark         | 3.4/edge      | spark-history-server-k8s     | 37       |
 | spark         | latest/edge   | spark-integration-hub-k8s    | 31       |
-| spark         | latest/edge   | kyuubi-k8s                   | 31       |
+| spark         | latest/edge   | kyuubi-k8s                   | 39       |
 | spark         | 14/stable     | postgresql-k8s               | 281      |
 | spark         | 14/stable     | postgresql-k8s               | 281      |
 | spark         | 3/edge        | zookeeper-k8s                | 75       |

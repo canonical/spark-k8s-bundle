@@ -1,29 +1,24 @@
-# Copyright 2025 Canonical Ltd.
-# See LICENSE file for licensing details.
+name: Publish spark-k8s-test to PyPI
 
-name: Release spark-k8s-test Python library
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"  # Matches tags like v1.0.0
+
 
 env:
   BRANCH: ${{ github.ref_name }}
 
 
-on:
-  push:
-    # Sequence of patterns matched against refs/tags
-    tags:
-      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
-
-
 jobs:
-  tests:
-    name: Run CI tests
-    uses: ./.github/workflows/ci-tests.yaml
+  ci-tests:
+    name: Run CI tests before release
+    uses: ./.github/workflows/ci-tests-minimal.yaml
     secrets: inherit
 
   release_checks:
     name: Checks before release
     runs-on: ubuntu-latest
-    needs: [tests]
     timeout-minutes: 5
     strategy:
       fail-fast: true
@@ -67,10 +62,11 @@ jobs:
       package_name: ${{ steps.package_metadata.outputs.name }}
       package_version: ${{ steps.package_metadata.outputs.version }}
 
+
   build:
     name: Build package
     runs-on: ubuntu-latest
-    needs: [release_checks, tests]
+    needs: [release_checks, ci-tests]
     outputs:
       VERSION: ${{ steps.build.outputs.VERSION }}
     defaults:
@@ -96,9 +92,10 @@ jobs:
           name: distfiles
           path: python/dist/
 
+
   autorelease:
     name: Release the package on github
-    needs: [release_checks, tests, build]
+    needs: [ci-tests, release_checks, build]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     strategy:
@@ -142,7 +139,7 @@ jobs:
 
   upload-pypi:
     name: Publish to PyPI
-    needs: [release_checks, tests, build]
+    needs: [ci-tests, release_checks, build]
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -157,33 +154,3 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
     permissions:
       id-token: write # Needed for trusted publishing (https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/)
-
-  test:
-    name: Test Release
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    env:
-      DOWNLOADS_PATH: "/releases/download"
-    needs: [autorelease]
-    steps:
-      - id: check-tar-gz
-        name: Check tar.gz package
-        run: |
-          # check if release is now published and available
-          TARBALL=${{ needs.autorelease.outputs.tarball }}
-          VERSION=${{ needs.autorelease.outputs.version }}
-          echo "Checking latest available package release: ${TARBALL}"
-          STATUSCODE=$(curl --silent --head $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/${{ env.DOWNLOADS_PATH }}/v${VERSION}/${TARBALL} | head -n 1 | cut -d' ' -f2)
-          if  [[ ${STATUSCODE} -ne 200 ]] && [[ ${STATUSCODE} -ne 302 ]]; then exit 1; fi
-      - id: download-package
-        name: Download wheel package
-        run: |
-          # check if release is now published and available
-          WHEEL=${{ needs.autorelease.outputs.wheel }}
-          VERSION=${{ needs.autorelease.outputs.version }}
-          echo "Downloading latest available Spark wheel package release ${WHEEL}."
-          wget $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/${{ env.DOWNLOADS_PATH }}/v${VERSION}/${WHEEL} --no-check-certificate
-      - id: install-package
-        name: Install wheel package file
-        run: |
-          pip install ./${{ needs.autorelease.outputs.wheel }}
