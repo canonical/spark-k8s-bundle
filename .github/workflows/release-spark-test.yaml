@@ -6,13 +6,11 @@ name: Release spark-k8s-test Python library
 env:
   BRANCH: ${{ github.ref_name }}
 
-
 on:
   push:
     # Sequence of patterns matched against refs/tags
     tags:
       - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
-
 
 jobs:
   tests:
@@ -157,4 +155,3 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
     permissions:
       id-token: write # Needed for trusted publishing (https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/)
-
