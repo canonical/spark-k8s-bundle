@@ -12,6 +12,7 @@ from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.core.kyuubi import KyuubiClient
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace  # noqa
+from tests.integration.types import PortForwarder
 
 from .helpers import (
     get_active_kyuubi_servers_list,
@@ -87,27 +88,33 @@ async def test_jdbc_endpoint(ops_test: OpsTest):
 
 
 @pytest.mark.abort_on_fail
-async def test_postgresql_metastore_is_used(ops_test: OpsTest):
+async def test_postgresql_metastore_is_used(
+    ops_test: OpsTest, port_forward: PortForwarder
+):
     "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
     metastore_credentials = await get_postgresql_credentials(ops_test, "metastore")
-    connection = psycopg2.connect(
-        host=metastore_credentials["host"],
-        database=METASTORE_DATABASE_NAME,
-        user=metastore_credentials["username"],
-        password=metastore_credentials["password"],
-    )
 
-    db_name, table_name = "spark_test", "my_table"
+    with port_forward(pod="metastore-0", port=5432, namespace=ops_test.model.name):
+        connection = psycopg2.connect(
+            host=metastore_credentials["host"],
+            database=METASTORE_DATABASE_NAME,
+            user=metastore_credentials["username"],
+            password=metastore_credentials["password"],
+        )
 
-    # Fetch number of new db and tables that have been added to metastore
-    num_dbs = num_tables = 0
-    with connection.cursor() as cursor:
-        cursor.execute(f""" SELECT * FROM "DBS" WHERE "NAME" = '{db_name}' """)
-        num_dbs = cursor.rowcount
-        cursor.execute(f""" SELECT * FROM "TBLS" WHERE "TBL_NAME" = '{table_name}' """)
-        num_tables = cursor.rowcount
+        db_name, table_name = "spark_test", "my_table"
 
-    connection.close()
+        # Fetch number of new db and tables that have been added to metastore
+        num_dbs = num_tables = 0
+        with connection.cursor() as cursor:
+            cursor.execute(f""" SELECT * FROM "DBS" WHERE "NAME" = '{db_name}' """)
+            num_dbs = cursor.rowcount
+            cursor.execute(
+                f""" SELECT * FROM "TBLS" WHERE "TBL_NAME" = '{table_name}' """
+            )
+            num_tables = cursor.rowcount
+
+        connection.close()
 
     # Assert that new database and tables have indeed been added to metastore
     assert num_dbs != 0
@@ -129,68 +136,67 @@ async def test_ha_deployment(ops_test: OpsTest):
 
 @pytest.mark.abort_on_fail
 async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
-    async for cos_model_name in cos:
-        if not cos_model_name:
-            pytest.skip("Not possible to test without cos")
+    cos_model_name = await anext(aiter(cos), None)
 
-        # We should leave time for Prometheus data to be published
-        for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
-            with attempt:
-                cos_address = await get_cos_address(
-                    ops_test, cos_model_name=cos_model_name
-                )
-                assert published_prometheus_data(
-                    ops_test, cos_model_name, cos_address, "kyuubi_jvm_uptime"
-                )
+    if not cos_model_name:
+        pytest.skip("Not possible to test without cos")
 
-                # Alerts got published to Prometheus
-                alerts_data = published_prometheus_alerts(
-                    ops_test, cos_model_name, cos_address
-                )
-                logger.info(f"Alerts data: {alerts_data}")
+    # We should leave time for Prometheus data to be published
+    for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
+        with attempt:
+            cos_address = await get_cos_address(ops_test, cos_model_name=cos_model_name)
+            assert published_prometheus_data(
+                ops_test, cos_model_name, cos_address, "kyuubi_jvm_uptime"
+            )
 
-                logger.info("Rules: ")
-                for group in alerts_data["data"]["groups"]:
-                    for rule in group["rules"]:
-                        logger.info(f"Rule: {rule['name']}")
-                logger.info("End of rules.")
+            # Alerts got published to Prometheus
+            alerts_data = published_prometheus_alerts(
+                ops_test, cos_model_name, cos_address
+            )
+            logger.info(f"Alerts data: {alerts_data}")
 
-                for alert in [
-                    "KyuubiBufferPoolCapacityLow",
-                    "KyuubiJVMUptime",
-                ]:
-                    assert any(
-                        rule["name"] == alert
-                        for group in alerts_data["data"]["groups"]
-                        for rule in group["rules"]
-                    )
+            logger.info("Rules: ")
+            for group in alerts_data["data"]["groups"]:
+                for rule in group["rules"]:
+                    logger.info(f"Rule: {rule['name']}")
+            logger.info("End of rules.")
 
-                # Grafana dashboard got published
-                dashboards_info = await published_grafana_dashboards(
-                    ops_test, cos_model_name
-                )
-                logger.info(f"Dashboard info {dashboards_info}")
-                assert any(board["title"] == "Kyuubi" for board in dashboards_info)
-
-                # Loki logs are ingested
-                logs = await published_loki_logs(
-                    ops_test,
-                    cos_model_name,
-                    cos_address,
-                    "juju_application",
-                    KYUUBI_APP_NAME,
-                    5000,
-                )
-                logger.debug(f"Retrieved logs: {logs}")
-
-                # check for non empty logs
-                assert len(logs) > 0
-
-                # check if Kyuubi related logs are there...
+            for alert in [
+                "KyuubiBufferPoolCapacityLow",
+                "KyuubiJVMUptime",
+            ]:
                 assert any(
-                    "org.apache.kyuubi.session.KyuubiSessionImpl:" in message
-                    for timestamp, message in logs.items()
+                    rule["name"] == alert
+                    for group in alerts_data["data"]["groups"]
+                    for rule in group["rules"]
                 )
+
+            # Grafana dashboard got published
+            dashboards_info = await published_grafana_dashboards(
+                ops_test, cos_model_name
+            )
+            logger.info(f"Dashboard info {dashboards_info}")
+            assert any(board["title"] == "Kyuubi" for board in dashboards_info)
+
+            # Loki logs are ingested
+            logs = await published_loki_logs(
+                ops_test,
+                cos_model_name,
+                cos_address,
+                "juju_application",
+                KYUUBI_APP_NAME,
+                5000,
+            )
+            logger.debug(f"Retrieved logs: {logs}")
+
+            # check for non empty logs
+            assert len(logs) > 0
+
+            # check if Kyuubi related logs are there...
+            assert any(
+                "org.apache.kyuubi.session.KyuubiSessionImpl:" in message
+                for timestamp, message in logs.items()
+            )
 
 
 @pytest.mark.abort_on_fail
