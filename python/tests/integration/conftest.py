@@ -462,13 +462,12 @@ async def spark_bundle(request, storage_backend, cos, ops_test):
         credentials = request.getfixturevalue("credentials")
         bucket = request.getfixturevalue("bucket")
         bundle = request.getfixturevalue("bundle")
-        return await spark_bundle_with_s3(ops_test, credentials, bucket, bundle, cos)
+        return spark_bundle_with_s3(ops_test, credentials, bucket, bundle, cos)
     elif storage_backend == "azure":
-        pass
         azure_credentials = request.getfixturevalue("azure_credentials")
         container = request.getfixturevalue("container")
         bundle_with_azure_storage = request.getfixturevalue("bundle_with_azure_storage")
-        return await spark_bundle_with_azure_storage(
+        return spark_bundle_with_azure_storage(
             ops_test, azure_credentials, container, bundle_with_azure_storage, cos
         )
 
