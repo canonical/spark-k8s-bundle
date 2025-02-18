@@ -67,6 +67,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules --cov=./spark_test"
+log_cli_level = "INFO"
+asyncio_mode = "auto"
 
 [tool.ruff]
 extend-exclude = ["__pycache__", "*.egg_info"]

@@ -360,16 +360,15 @@ async def spark_bundle_with_s3(ops_test: OpsTest, credentials, bucket, bundle, c
     """Deploy all applications in the Kyuubi bundle, wait for all of them to be active,
     and finally yield a list of the names of the applications that were deployed.
     """
-    my_cos = await anext(aiter(cos), None)
 
     if isinstance(bundle, Bundle):
-        applications = await deploy_bundle_yaml(bundle, bucket, my_cos, ops_test)
+        applications = await deploy_bundle_yaml(bundle, bucket, cos, ops_test)
 
     else:
         applications = await deploy_bundle_terraform(
             bundle,
             bucket,
-            my_cos,
+            cos,
             ops_test,
             storage_backend="s3",
         )
@@ -381,7 +380,7 @@ async def spark_bundle_with_s3(ops_test: OpsTest, credentials, bucket, bundle, c
 
         await set_s3_credentials(ops_test, credentials)
 
-    if my_cos:
+    if cos:
         with ops_test.model_context(COS_ALIAS) as cos_model:
             await cos_model.wait_for_idle(
                 apps=COS_APPS,
@@ -413,18 +412,17 @@ async def spark_bundle_with_azure_storage(
     and finally yield a list of the names of the applications that were deployed.
     For object storage, use azure-storage-integrator.
     """
-    my_cos = await anext(aiter(cos), None)
 
     if isinstance(bundle_with_azure_storage, Bundle):
         applications = await deploy_bundle_yaml_azure_storage(
-            bundle_with_azure_storage, container, my_cos, ops_test
+            bundle_with_azure_storage, container, cos, ops_test
         )
 
     else:
         applications = await deploy_bundle_terraform(
             bundle_with_azure_storage,
             container,
-            my_cos,
+            cos,
             ops_test,
             storage_backend="azure",
         )
@@ -440,7 +438,7 @@ async def spark_bundle_with_azure_storage(
             ops_test, secret_uri=secret_uri, application_name="azure-storage"
         )
 
-    if my_cos:
+    if cos:
         with ops_test.model_context(COS_ALIAS) as cos_model:
             await cos_model.wait_for_idle(
                 apps=COS_APPS,
