@@ -530,6 +530,7 @@ def port_forward(kubectl: str):
         start = time.monotonic()
 
         while True:
+            time.sleep(0.5)
             match forwarder.poll(), time.monotonic():
                 case _, end if (end - start) > FORWARD_TIMEOUT_SECONDS:
                     # If we cannot connect within a reasonable time span, forcefully
