@@ -136,23 +136,19 @@ async def test_ha_deployment(ops_test: OpsTest):
 
 @pytest.mark.abort_on_fail
 async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
-    cos_model_name = await anext(aiter(cos), None)
-
-    if not cos_model_name:
+    if not cos:
         pytest.skip("Not possible to test without cos")
 
     # We should leave time for Prometheus data to be published
     for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
         with attempt:
-            cos_address = await get_cos_address(ops_test, cos_model_name=cos_model_name)
+            cos_address = await get_cos_address(ops_test, cos_model_name=cos)
             assert published_prometheus_data(
-                ops_test, cos_model_name, cos_address, "kyuubi_jvm_uptime"
+                ops_test, cos, cos_address, "kyuubi_jvm_uptime"
             )
 
             # Alerts got published to Prometheus
-            alerts_data = published_prometheus_alerts(
-                ops_test, cos_model_name, cos_address
-            )
+            alerts_data = published_prometheus_alerts(ops_test, cos, cos_address)
             logger.info(f"Alerts data: {alerts_data}")
 
             logger.info("Rules: ")
@@ -172,16 +168,14 @@ async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
                 )
 
             # Grafana dashboard got published
-            dashboards_info = await published_grafana_dashboards(
-                ops_test, cos_model_name
-            )
+            dashboards_info = await published_grafana_dashboards(ops_test, cos)
             logger.info(f"Dashboard info {dashboards_info}")
             assert any(board["title"] == "Kyuubi" for board in dashboards_info)
 
             # Loki logs are ingested
             logs = await published_loki_logs(
                 ops_test,
-                cos_model_name,
+                cos,
                 cos_address,
                 "juju_application",
                 KYUUBI_APP_NAME,
