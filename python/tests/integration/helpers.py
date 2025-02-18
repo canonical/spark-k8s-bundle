@@ -20,6 +20,7 @@ from pytest_operator.plugin import OpsTest
 from spark_test.core import ObjectStorageUnit
 from spark_test.core.azure_storage import Container
 from spark_test.core.s3 import Bucket, Credentials
+from tests.integration.types import KyuubiCredentials
 
 from .terraform import Terraform
 
@@ -97,7 +98,7 @@ async def get_leader_unit_number(ops_test: OpsTest, application_name: str) -> in
 
 async def get_kyuubi_credentials(
     ops_test: OpsTest, application_name="kyuubi", num_unit=0
-) -> dict[str, str]:
+) -> KyuubiCredentials:
     """Use the charm action to start a password rotation."""
 
     leader_unit_id = await get_leader_unit_number(ops_test, application_name)
@@ -511,7 +512,7 @@ def published_prometheus_data(
 
 async def published_grafana_dashboards(
     ops_test: OpsTest, cos_model_name: str
-) -> str | None:
+) -> dict | None:
     """Get the list of dashboards published to Grafana."""
     base_url, pw = await get_grafana_access(ops_test, cos_model_name)
     url = f"{base_url}/api/search?query=&starred=false"
@@ -568,7 +569,7 @@ async def published_loki_logs(
     field: str,
     value: str,
     limit: int = 300,
-) -> str | None:
+) -> dict:
     """Get the list of dashboards published to Grafana."""
     if "http://" in host:
         host = host.split("//")[1]

@@ -149,7 +149,7 @@ def storage_backend(request) -> str:
 @pytest.fixture(scope="module")
 def test_uuid(request) -> str:
     """The backend which is to be used to deploy the bundle."""
-    return request.config.getoption("--uuid") or uuid.uuid4()
+    return request.config.getoption("--uuid") or str(uuid.uuid4())
 
 
 @pytest.fixture(scope="module")
@@ -518,9 +518,12 @@ def port_forward(kubectl: str):
     """
 
     @contextmanager
-    def _forwarder(pod: str, port: int, namespace: str):
+    def _forwarder(pod: str, port: int, namespace: str, on_port: int | None = None):
+        if on_port is None:
+            on_port = port
+
         forwarder = Popen(
-            [kubectl, "port-forward", pod, f"{port}:{port}", "-n", namespace],
+            [kubectl, "port-forward", pod, f"{on_port}:{port}", "-n", namespace],
             stdout=PIPE,
             stderr=PIPE,
         )

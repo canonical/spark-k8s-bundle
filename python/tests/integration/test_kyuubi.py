@@ -27,6 +27,7 @@ from .helpers import (
 
 logger = logging.getLogger(__name__)
 
+METASTORE = "metastore"
 METASTORE_DATABASE_NAME = "hivemetastore"
 KYUUBI_APP_NAME = "kyuubi"
 
@@ -92,11 +93,11 @@ async def test_postgresql_metastore_is_used(
     ops_test: OpsTest, port_forward: PortForwarder
 ):
     "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
-    metastore_credentials = await get_postgresql_credentials(ops_test, "metastore")
+    metastore_credentials = await get_postgresql_credentials(ops_test, METASTORE)
 
-    with port_forward(pod="metastore-0", port=5432, namespace=ops_test.model.name):
+    with port_forward(pod=f"{METASTORE}-0", port=5432, namespace=ops_test.model.name):
         connection = psycopg2.connect(
-            host=metastore_credentials["host"],
+            host="127.0.0.1",
             database=METASTORE_DATABASE_NAME,
             user=metastore_credentials["username"],
             password=metastore_credentials["password"],
@@ -149,6 +150,7 @@ async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
 
             # Alerts got published to Prometheus
             alerts_data = published_prometheus_alerts(ops_test, cos, cos_address)
+            assert alerts_data is not None
             logger.info(f"Alerts data: {alerts_data}")
 
             logger.info("Rules: ")
@@ -169,6 +171,7 @@ async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
 
             # Grafana dashboard got published
             dashboards_info = await published_grafana_dashboards(ops_test, cos)
+            assert dashboards_info is not None
             logger.info(f"Dashboard info {dashboards_info}")
             assert any(board["title"] == "Kyuubi" for board in dashboards_info)
 
@@ -181,6 +184,7 @@ async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
                 KYUUBI_APP_NAME,
                 5000,
             )
+            assert logs
             logger.debug(f"Retrieved logs: {logs}")
 
             # check for non empty logs
