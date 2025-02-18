@@ -35,7 +35,6 @@ KYUUBI_APP_NAME = "kyuubi"
 @pytest.mark.skip_if_deployed
 @pytest.mark.abort_on_fail
 async def test_deploy_bundle(ops_test: OpsTest, spark_bundle):
-    await spark_bundle
     await asyncio.sleep(0)  # do nothing, await deploy_cluster
 
 

@@ -355,7 +355,6 @@ async def cos(ops_test: OpsTest, cos_model: str, backend: str):
             await ops_test.forget_model(cos_model)
 
 
-@pytest.fixture(scope="module")
 async def spark_bundle_with_s3(ops_test: OpsTest, credentials, bucket, bundle, cos):
     """Deploy all applications in the Kyuubi bundle, wait for all of them to be active,
     and finally yield a list of the names of the applications that were deployed.
@@ -397,10 +396,9 @@ async def spark_bundle_with_s3(ops_test: OpsTest, credentials, bucket, bundle, c
         raise_on_error=False,
     )
 
-    yield applications
+    return applications
 
 
-@pytest.fixture(scope="module")
 async def spark_bundle_with_azure_storage(
     ops_test: OpsTest,
     azure_credentials: AzureStorageCredentials,
@@ -455,19 +453,27 @@ async def spark_bundle_with_azure_storage(
         raise_on_error=False,
     )
 
-    yield applications
+    return applications
 
 
 @pytest.fixture(scope="module")
-async def spark_bundle(request, storage_backend):
+async def spark_bundle(request, storage_backend, cos, ops_test):
     if storage_backend == "s3":
-        async for value in request.getfixturevalue("spark_bundle_with_s3"):
-            return value
+        credentials = request.getfixturevalue("credentials")
+        bucket = request.getfixturevalue("bucket")
+        bundle = request.getfixturevalue("bundle")
+        return await spark_bundle_with_s3(ops_test, credentials, bucket, bundle, cos)
     elif storage_backend == "azure":
-        async for value in request.getfixturevalue("spark_bundle_with_azure_storage"):
-            return value
+        pass
+        azure_credentials = request.getfixturevalue("azure_credentials")
+        container = request.getfixturevalue("container")
+        bundle_with_azure_storage = request.getfixturevalue("bundle_with_azure_storage")
+        return await spark_bundle_with_azure_storage(
+            ops_test, azure_credentials, container, bundle_with_azure_storage, cos
+        )
+
     else:
-        return ValueError("storage_backend argument not recognized")
+        raise ValueError("storage_backend argument not recognized")
 
 
 @pytest.fixture(scope="module")
