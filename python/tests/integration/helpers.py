@@ -109,11 +109,20 @@ async def get_kyuubi_credentials(
 
     results = (await action.wait()).results
 
-    address = await get_address(
-        ops_test,
-        app_name=application_name,
-        unit_num=leader_unit_id,  # type: ignore
-    )
+    endpoint = await fetch_jdbc_endpoint(ops_test)
+
+    if (
+        host_match := re.match(
+            r"^(?:jdbc\:hive2\:\/\/)(?P<host>.*)(?:\:\d+/)$", endpoint
+        )
+    ) is not None:
+        address = host_match.group("host")
+    else:
+        address = await get_address(
+            ops_test,
+            app_name=application_name,
+            unit_num=leader_unit_id,  # type: ignore
+        )
 
     return {"username": "admin", "password": results["password"], "host": address}
 
