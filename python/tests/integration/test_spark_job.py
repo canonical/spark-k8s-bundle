@@ -201,6 +201,7 @@ async def test_job_in_history_server(
 async def test_job_in_prometheus_pushgateway(
     ops_test: OpsTest, cos, port_forward: PortForwarder
 ) -> None:
+    """Once the job is completed, we don't expect the prometheus pushgateway to hold any data."""
     if not cos:
         pytest.skip("Not possible to test without cos")
 
@@ -211,20 +212,9 @@ async def test_job_in_prometheus_pushgateway(
 
     metrics = {}
     with port_forward(pod=f"{PUSHGATEWAY}-0", port=9091, namespace=ops_test.model.name):
-        for i in range(0, 5):
-            try:
-                logger.info(f"try n#{i} time: {time.time()}")
+        metrics = httpx.get("http://127.0.0.1:9091/api/v1/metrics").json()
 
-                metrics = httpx.get("http://127.0.0.1:9091/api/v1/metrics").json()
-
-            except Exception:
-                break
-            if "data" in metrics and len(metrics["data"]) > 0:
-                break
-            else:
-                await juju_sleep(ops_test, 30, HISTORY_SERVER)  # type: ignore
-
-    assert len(metrics.get("data", [])) > 0
+    assert len(metrics.get("data", [])) == 0
 
 
 @pytest.mark.abort_on_fail
