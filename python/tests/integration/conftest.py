@@ -49,7 +49,7 @@ COS_APPS = [
     "traefik",
     "alertmanager",
 ]
-FORWARD_TIMEOUT_SECONDS = 5
+FORWARD_TIMEOUT_SECONDS = 10
 logger = logging.getLogger(__name__)
 
 
