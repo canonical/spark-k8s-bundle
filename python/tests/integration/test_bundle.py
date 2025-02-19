@@ -7,7 +7,6 @@ import asyncio
 import logging
 
 import pytest
-from pytest_operator.plugin import OpsTest
 
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace  # noqa
 from spark_test.fixtures.s3 import bucket, credentials  # noqa

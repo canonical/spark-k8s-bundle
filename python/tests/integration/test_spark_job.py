@@ -198,7 +198,7 @@ async def test_job_in_history_server(
 
 
 @pytest.mark.abort_on_fail
-async def test_job_in_prometheus_pushgateway(
+async def test_job_not_in_prometheus_pushgateway(
     ops_test: OpsTest, cos, port_forward: PortForwarder
 ) -> None:
     """Once the job is completed, we don't expect the prometheus pushgateway to hold any data."""
@@ -214,7 +214,7 @@ async def test_job_in_prometheus_pushgateway(
     with port_forward(pod=f"{PUSHGATEWAY}-0", port=9091, namespace=ops_test.model.name):
         metrics = httpx.get("http://127.0.0.1:9091/api/v1/metrics").json()
 
-    assert len(metrics.get("data", [])) == 0
+    assert len(metrics["data"]) == 0
 
 
 @pytest.mark.abort_on_fail
@@ -239,11 +239,12 @@ async def test_spark_metrics_in_prometheus(
     with (
         ops_test.model_context(COS_ALIAS) as cos_model,
         port_forward(
-            pod=f"{PROMETHEUS}-0", port=9090, namespace=cos_model.name, on_port=8080
+            pod=f"{PROMETHEUS}-0", port=9090, namespace=cos_model.name, on_port=9999
         ),
     ):
+        # 9090 seems to be already in use in some ManSol deployments
         query = httpx.get(
-            "http://127.0.0.1:8080/api/v1/query?query=push_time_seconds"
+            "http://127.0.0.1:9999/api/v1/query?query=push_time_seconds"
         ).json()
 
         logger.info(f"query: {query}")

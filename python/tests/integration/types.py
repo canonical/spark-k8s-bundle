@@ -13,10 +13,6 @@ class PortForwarder(Protocol):
         ...
 
 
-class PortForwardTimeout(Exception):
-    pass
-
-
 class KyuubiCredentials(TypedDict):
     username: str
     password: str

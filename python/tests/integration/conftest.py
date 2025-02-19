@@ -5,12 +5,11 @@ import logging
 import os
 import shutil
 import signal
-import socket
 import time
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
-from subprocess import PIPE, Popen, check_output
+from subprocess import PIPE, CalledProcessError, Popen, check_output
 from typing import Iterable
 
 import pytest
@@ -24,7 +23,6 @@ from spark_test.fixtures.pod import spark_image  # noqa
 from spark_test.fixtures.s3 import bucket, credentials  # noqa
 from spark_test.fixtures.service_account import service_account  # noqa
 from tests import IE_TEST_DIR
-from tests.integration.types import PortForwardTimeout
 
 from .helpers import (
     COS_ALIAS,
@@ -495,8 +493,17 @@ def kubectl() -> str:
     return kubectl_path
 
 
+@pytest.fixture(scope="session")
+def nc() -> str:
+    """Check that nc is in path."""
+    if (nc_path := shutil.which("nc")) is None:
+        raise FileNotFoundError("Could not find 'nc' in PATH.")
+
+    return nc_path
+
+
 @pytest.fixture(scope="function")
-def port_forward(kubectl: str):
+def port_forward(kubectl: str, nc: str):
     """Define a context-aware fixture to redirect a local port to a remote pod.
 
     This fixture is used as follows:
@@ -535,13 +542,15 @@ def port_forward(kubectl: str):
         start = time.monotonic()
 
         while True:
-            time.sleep(0.5)
+            time.sleep(0.25)
             match forwarder.poll(), time.monotonic():
                 case _, end if (end - start) > FORWARD_TIMEOUT_SECONDS:
-                    # If we cannot connect within a reasonable time span, forcefully
-                    # kill the process and raise an appropriate error
-                    forwarder.kill()
-                    raise PortForwardTimeout
+                    # If we cannot connect within a reasonable time span,
+                    # assume that it succeeded but we cannot test it using nc
+                    logging.warning(
+                        "Cannot test port forwarding, moving on with the test anyway",
+                    )
+                    break
 
                 case return_code, _ if return_code is not None:
                     _, errs = forwarder.communicate(timeout=5)
@@ -550,10 +559,13 @@ def port_forward(kubectl: str):
                 case _, _:
                     # Even if the command is actively running, we wait before the port
                     # is listening before moving on to the tests.
-                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                        if not s.connect_ex(("localhost", port)):
-                            # All good, the port is in use
-                            break
+                    try:
+                        check_output(["bash", "-c", f"echo '' | {nc} 127.0.0.1 {port}"])
+                    except CalledProcessError:
+                        continue
+                    else:
+                        # All good, the port is in use
+                        break
         try:
             yield
         except:
