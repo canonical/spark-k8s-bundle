@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, Generic, TypeVar, cast
 
+import httpx
 import requests
 import yaml
 from pytest_operator.plugin import OpsTest
@@ -481,7 +482,7 @@ def prometheus_exporter_data(host: str, port: int) -> str | None:
     """Check if a given host has metric service available and it is publishing."""
     url = f"http://{host}:{port}/metrics"
     try:
-        response = requests.get(url)
+        response = httpx.get(url)
         logger.info(f"Response: {response.text}")
     except requests.exceptions.RequestException:
         return
@@ -606,11 +607,9 @@ async def published_loki_logs(
 def assert_logs(loki_address: str) -> None:
     """Check the existence of the logs."""
     log_gl = urllib.parse.quote('{app="spark", pebble_service="sparkd"}')
-    query = json.loads(
-        urllib.request.urlopen(
-            f"http://{loki_address}:3100/loki/api/v1/query_range?query={log_gl}"
-        ).read()
-    )
+    query = httpx.get(
+        f"http://{loki_address}:3100/loki/api/v1/query_range?query={log_gl}"
+    ).json()
 
     # NOTE: This check depends on previous tests, because without the previous ones
     #       there will be no logs.

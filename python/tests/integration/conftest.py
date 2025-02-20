@@ -5,11 +5,12 @@ import logging
 import os
 import shutil
 import signal
+import socket
 import time
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
-from subprocess import PIPE, CalledProcessError, Popen, check_output
+from subprocess import PIPE, CalledProcessError, Popen, TimeoutExpired, check_output
 from typing import Iterable
 
 import pytest
@@ -502,8 +503,8 @@ def nc() -> str:
     return nc_path
 
 
-@pytest.fixture(scope="function")
-def port_forward(kubectl: str, nc: str):
+@pytest.fixture(scope="module")
+def port_forward(kubectl: str):
     """Define a context-aware fixture to redirect a local port to a remote pod.
 
     This fixture is used as follows:
@@ -534,6 +535,7 @@ def port_forward(kubectl: str, nc: str):
         if on_port is None:
             on_port = port
 
+        logger.info(f"Forwarding {pod} port {port} on {on_port}")
         forwarder = Popen(
             [kubectl, "port-forward", pod, f"{on_port}:{port}", "-n", namespace],
             stdout=PIPE,
@@ -542,7 +544,7 @@ def port_forward(kubectl: str, nc: str):
         start = time.monotonic()
 
         while True:
-            time.sleep(0.25)
+            time.sleep(0.5)
             match forwarder.poll(), time.monotonic():
                 case _, end if (end - start) > FORWARD_TIMEOUT_SECONDS:
                     # If we cannot connect within a reasonable time span,
@@ -553,19 +555,20 @@ def port_forward(kubectl: str, nc: str):
                     break
 
                 case return_code, _ if return_code is not None:
-                    _, errs = forwarder.communicate(timeout=5)
+                    try:
+                        _, errs = forwarder.communicate(timeout=5)
+                    except TimeoutExpired:
+                        errs = "unknown error"
                     raise RuntimeError("Unable to forward the port:", errs)
 
                 case _, _:
                     # Even if the command is actively running, we wait before the port
                     # is listening before moving on to the tests.
-                    try:
-                        check_output(["bash", "-c", f"echo '' | {nc} 127.0.0.1 {port}"])
-                    except CalledProcessError:
-                        continue
-                    else:
-                        # All good, the port is in use
-                        break
+                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                        if not s.connect_ex(("127.0.0.1", port)):
+                            # All good, the port is in use
+                            break
+
         try:
             yield
         except:
@@ -573,7 +576,9 @@ def port_forward(kubectl: str, nc: str):
         finally:
             # Stop port-forward command. If we timeout, we will get
             # a related exception to signal that we should investigate.
+
             forwarder.send_signal(signal.SIGINT)
             forwarder.wait(timeout=3)
+            logger.info("Stopped port forwarding")
 
     return _forwarder
