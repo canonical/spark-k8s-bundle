@@ -236,24 +236,27 @@ async def test_spark_metrics_in_prometheus(
     _, stdout, _ = await ops_test.juju(*show_status_cmd)
 
     logger.info(f"Show status: {stdout}")
+    # 9090 seems to be already in use in some ManSol deployments
     with (
         ops_test.model_context(COS_ALIAS) as cos_model,
         port_forward(
             pod=f"{PROMETHEUS}-0", port=9090, namespace=cos_model.name, on_port=9999
         ),
     ):
-        # 9090 seems to be already in use in some ManSol deployments
-        query = httpx.get(
-            "http://127.0.0.1:9999/api/v1/query?query=push_time_seconds"
-        ).json()
+        for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
+            with attempt:
+                query = httpx.get(
+                    "http://127.0.0.1:9999/api/v1/query?query=push_time_seconds"
+                ).json()
 
-        logger.info(f"query: {query}")
-        spark_ids = [
-            result["metric"]["exported_job"] for result in query["data"]["result"]
-        ]
-        logger.info(f"Spark ids: {spark_ids}")
+                logger.info(f"query: {query}")
+                spark_ids = [
+                    result["metric"]["exported_job"]
+                    for result in query["data"]["result"]
+                ]
+                logger.info(f"Spark ids: {spark_ids}")
 
-        assert driver_pod.labels["spark-app-selector"] in spark_ids
+                assert driver_pod.labels["spark-app-selector"] in spark_ids
 
 
 @pytest.mark.abort_on_fail
@@ -284,6 +287,7 @@ async def test_history_server_metrics_in_cos(
     with port_forward(
         pod=f"{HISTORY_SERVER}-0", port=JMX_EXPORTER_PORT, namespace=ops_test.model.name
     ):
+        logger.info("Accessing prometheus")
         result = prometheus_exporter_data(host="127.0.0.1", port=JMX_EXPORTER_PORT)
         assert result is not None
         assert "jmx_scrape_duration_seconds" in result
