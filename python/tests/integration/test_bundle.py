@@ -7,7 +7,6 @@ import asyncio
 import logging
 
 import pytest
-from pytest_operator.plugin import OpsTest
 
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace  # noqa
 from spark_test.fixtures.s3 import bucket, credentials  # noqa
@@ -18,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.skip_if_deployed
 @pytest.mark.abort_on_fail
-async def test_deploy_bundle(ops_test: OpsTest, spark_bundle):
+async def test_deploy_bundle(spark_bundle):
     await spark_bundle
     await asyncio.sleep(0)  # do nothing, await deploy_cluster
 
