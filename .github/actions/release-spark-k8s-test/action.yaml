@@ -57,6 +57,7 @@ runs:
       run: |
         VERSION=${{ steps.package_metadata.outputs.version }}
         BRANCH=${{ env.BRANCH }}
+        TEST_RELEASE="${{ inputs.test-release }}"
         if [[ "$TEST_RELEASE" != "true" && "$BRANCH" != "v$VERSION" ]]; then exit 1; fi
 
     - name: Build package
