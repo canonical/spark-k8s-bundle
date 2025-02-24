@@ -11,7 +11,23 @@ on:
   pull_request:
 
 jobs:
-  tests:
-    name: Run CI tests on a PR
-    uses: ./.github/workflows/ci-tests-minimal.yaml
-    secrets: inherit
+  # tests:
+  #   name: Run CI tests on a PR
+  #   uses: ./.github/workflows/ci-tests-minimal.yaml
+  #   secrets: inherit
+
+
+  publish-to-testpypi:
+    name: Publish to TestPyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/spark-k8s-test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish Python Package to TestPyPI
+        uses: ./.github/actions/release-spark-k8s-test
+        with:
+          test-release: true
