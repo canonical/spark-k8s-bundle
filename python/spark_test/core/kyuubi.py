@@ -29,23 +29,28 @@ class TableNotFound(Exception):
 class KyuubiClient:
     """Kyuubi client."""
 
-    def __init__(self, username: str, password: str, host: str, port: int = 10009):
-        self.username = username
-        self.password = password
+    def __init__(
+        self,
+        host: str = "localhost",
+        port: int = 10009,
+        username: str = None,
+        password: str = None,
+    ):
         self.host = host
         self.port = port
+        self.username = username
+        self.password = password
 
     @property
     @contextmanager
     def connection(self) -> Iterable[Connection]:
         """Instantiate connection."""
-        conn = Connection(
-            host=self.host,
-            port=self.port,
-            username=self.username,
-            password=self.password,
-            auth="CUSTOM",
-        )
+        params = {"host": self.host, "port": self.port}
+        if self.username:
+            params.update({"username": self.username})
+        if self.password:
+            params.update({"password": self.password, "auth": "CUSTOM"})
+        conn = Connection(**params)
         yield conn
         conn.close()
 
