@@ -1,4 +1,4 @@
-name: Publish spark-k8s-test to PyPI
+name: Publish spark-k8s-test to TestPyPI
 
 on:
   push:
@@ -91,7 +91,6 @@ jobs:
     name: Publish to PyPI
     needs: [release_checks, build]
     runs-on: ubuntu-latest
-    if: ${{ inputs.test-release }}
     environment:
       name: testpypi
       url: https://test.pypi.org/p/spark-k8s-test
