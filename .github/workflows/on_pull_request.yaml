@@ -16,18 +16,9 @@ jobs:
   #   uses: ./.github/workflows/ci-tests-minimal.yaml
   #   secrets: inherit
 
-
   publish-to-testpypi:
-    name: Publish to TestPyPI
-    runs-on: ubuntu-latest
-    environment:
-      name: testpypi
-      url: https://test.pypi.org/p/spark-k8s-test
+    name: Publish the package to TestPyPI
+    uses: ./.github/workflows/release-spark-k8s-test.yaml
+    with:
+      test-release: true
 
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Publish Python Package to TestPyPI
-        uses: ./.github/actions/release-spark-k8s-test
-        with:
-          test-release: true
