@@ -3,7 +3,7 @@
 """Kyuubi module."""
 
 from contextlib import contextmanager
-from typing import Iterable, Type
+from typing import Iterable, Union
 
 from pyhive.hive import Connection
 
@@ -11,7 +11,7 @@ TYPES = {int: "int", str: "string"}
 
 ITYPES = {v: k for k, v in TYPES.items()}
 
-SchemaType = Type[int | str]
+SchemaType = Union[int | str]
 
 
 class TableExists(Exception):
