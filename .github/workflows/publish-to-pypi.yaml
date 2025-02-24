@@ -5,6 +5,11 @@ on:
     tags:
       - 'v[0-9]+\.[0-9]+\.[0-9]+$'  # Matches tags like v1.0.0
 
+
+env:
+  BRANCH: ${{ github.ref_name }}
+
+
 jobs:
   tests:
     name: Run CI tests before release
