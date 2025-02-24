@@ -1,0 +1,15 @@
+name: Publish spark-k8s-test to PyPI
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+\.[0-9]+\.[0-9]+-test[0-9]+'  # Matches tags like v1.0.0-test1
+
+jobs:
+  publish-to-pypi:
+    name: Publish the package to PyPI
+    uses: ./.github/workflows/release-spark-k8s-test-reusable.yaml
+    secrets: inherit
+    with:
+      test-release: true
+

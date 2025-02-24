@@ -22,7 +22,6 @@ jobs:
     name: Checks before release
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    if: ${{ !inputs.test-release }}
     strategy:
       fail-fast: true
     defaults:
@@ -85,12 +84,7 @@ jobs:
       - name: Check for tag and build package
         id: build
         run: |
-          if [ "${{ inputs.test-release }}" = "true" ]; then
-            # Generate a random version string for test release
-            VERSION="0.0.0-$(uuidgen | tr '[:upper:]' '[:lower:]' | cut -d'-' -f1)"
-          else
-            VERSION=$(poetry version -s)
-          fi
+          VERSION=$(poetry version -s)
           echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
           poetry build
       - name: Store the distribution packages
@@ -165,7 +159,7 @@ jobs:
 
   upload-test-pypi:
     name: Publish to PyPI
-    needs: [build]
+    needs: [release_checks, build]
     runs-on: ubuntu-latest
     if: ${{ inputs.test-release }}
     environment:
