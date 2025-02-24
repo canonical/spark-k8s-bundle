@@ -3,7 +3,7 @@
 
 [tool.poetry]
 name = "spark-k8s-test"
-version = "0.0.2a1"
+version = "0.0.2a2"
 description = "This project provides some utilities function and CLI commands to test Charmed Spark on K8s."
 authors = [
   "Canonical Data Platform <data-platform@lists.launchpad.net>",

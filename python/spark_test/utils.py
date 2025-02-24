@@ -13,8 +13,10 @@ from spark_test.core.pod import Pod
 SPARK_EXECUTOR_POD_REGEX = r".*-exec-\d+"
 
 
-def get_spark_drivers(client: Client, namespace: str) -> list[Pod]:
+def get_spark_drivers(client: Client = None, namespace: str = "default") -> list[Pod]:
     """Get Spark driver pod."""
+    if client is None:
+        client = Client()
     return [
         Pod(
             pod_name=pod.metadata.name,
@@ -26,8 +28,12 @@ def get_spark_drivers(client: Client, namespace: str) -> list[Pod]:
     ]
 
 
-def get_spark_executors(client: Client, namespace: str, prefix: str = "") -> list[Pod]:
+def get_spark_executors(
+    client: Client = None, namespace: str = "default", prefix: str = ""
+) -> list[Pod]:
     """Get Spark executor pods for a given namespace."""
+    if client is None:
+        client = Client()
     return [
         Pod(
             pod_name=pod.metadata.name,
