@@ -9,6 +9,10 @@ inputs:
     description: 'Specifies whether this release is a test release (and thus to be released to TestPyPI)'
     required: false
     default: false
+  github-token:
+    description: 'The GitHub token needed to release the package to GitHub releases.'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -28,6 +32,7 @@ runs:
         architecture: x64
 
     - name: Install poetry
+      shell: bash
       run: |
         pipx install poetry
 
@@ -73,24 +78,24 @@ runs:
     - name: Create Github Release
       uses: softprops/action-gh-release@v2
       if: ${{ inputs.test-release == 'false' }}
-      working-directory: ./python
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
       with:
-        name: spark-k8s-test v${{ needs.release_checks.outputs.package_version }}
+        name: spark-k8s-test v${{ steps.package_metadata.outputs.version }}
         body_path: ".github/RELEASE-TEMPLATE.md"
         files: |
-          dist/${{ steps.artifact_names.outputs.wheel }}
-          dist/${{ steps.artifact_names.outputs.tarball }}
+          python/dist/${{ steps.artifact_names.outputs.wheel }}
+          python/dist/${{ steps.artifact_names.outputs.tarball }}
 
     - name: Publish to PyPI
       if: ${{ inputs.test-release == 'false' }}
-      working-directory: ./python
       uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        packages-dir: python/dist
 
     - name: Publish to TestPyPI
       if: ${{ inputs.test-release == 'true' }}    
-      working-directory: ./python
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         repository-url: https://test.pypi.org/legacy/
+        packages-dir: python/dist
