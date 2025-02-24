@@ -72,13 +72,13 @@ runs:
       shell: bash
       run: |
         _NAME=${{ steps.package_metadata.outputs.name }}
-        _VERSION=${{ steps.package_metadata.outputs.versionn }}
+        _VERSION=${{ steps.package_metadata.outputs.version }}
         echo "wheel=${_NAME}-${_VERSION}-py3-none-any.whl" >> "$GITHUB_OUTPUT"
         echo "tarball=${_NAME}-${_VERSION}.tar.gz" >> "$GITHUB_OUTPUT"
 
     - name: Create Github Release
-      uses: softprops/action-gh-release@v2
       if: ${{ inputs.test-release == 'false' }}
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
       with:
