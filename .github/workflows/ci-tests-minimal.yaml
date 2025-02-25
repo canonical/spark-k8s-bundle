@@ -6,7 +6,6 @@ name: Run CI tests
 on:
   workflow_call:
 
-
 jobs:
   checks:
     uses: ./.github/workflows/ci-checks.yaml
@@ -35,18 +34,18 @@ jobs:
         include:
           - tox-env: integration-basic
             spark-version: 3.4.2
-            juju: 
+            juju:
               - snap_channel: "3.6/stable"
                 agent: "3.6.0"
           - tox-env: integration-basic
             spark-version: 3.5.1
-            juju: 
+            juju:
               - snap_channel: "3.6/stable"
                 agent: "3.6.0"
           - tox-env: integration-bundle
             bundle-backend: yaml
             spark-version: 3.4.2
-            juju: 
+            juju:
               - snap_channel: "3.6/stable"
                 agent: "3.6.0"
 
@@ -68,3 +67,7 @@ jobs:
           juju-agent-version: ${{ matrix.juju.agent || '3.6.0' }}
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
+      - name: Setup tmate session
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 20
