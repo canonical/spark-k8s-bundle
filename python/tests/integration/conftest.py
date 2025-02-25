@@ -548,7 +548,7 @@ def port_forward(kubectl: str):
             match forwarder.poll(), time.monotonic():
                 case _, end if (end - start) > FORWARD_TIMEOUT_SECONDS:
                     # If we cannot connect within a reasonable time span,
-                    # assume that it succeeded but we cannot test it using nc
+                    # assume that it succeeded but we cannot test it using conventional methods
                     logging.warning(
                         "Cannot test port forwarding, moving on with the test anyway",
                     )

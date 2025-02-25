@@ -16,6 +16,6 @@ print(f"spark: {spark}")
 
 text_file = spark.read.text(file_uri)
 print(f"Number of lines {text_file.count()}")
-# give some buffer to send metrixs
-sleep(30)
+# give some buffer to send metrics
+sleep(60)
 print(f"Number of lines {text_file.count()}")
