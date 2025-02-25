@@ -108,7 +108,7 @@ async def test_run_benchmark_queries(ops_test: OpsTest):
     with client.connection as conn, conn.cursor() as cursor:
         cursor.execute("USE bench;")
         for i in range(1, 23):
-            with open(f"./resources/sql/{i}.sql", "r") as f:
+            with open(f"tests/integration/resources/sql/{i}.sql", "r") as f:
                 stmt = f.read()
             start = time.monotonic()
             cursor.execute(stmt)
