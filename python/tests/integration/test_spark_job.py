@@ -212,9 +212,11 @@ async def test_job_not_in_prometheus_pushgateway(
 
     metrics = {}
     with port_forward(pod=f"{PUSHGATEWAY}-0", port=9091, namespace=ops_test.model.name):
-        metrics = httpx.get("http://127.0.0.1:9091/api/v1/metrics").json()
-
-    assert len(metrics["data"]) == 0
+        for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
+            with attempt:
+                metrics = httpx.get("http://127.0.0.1:9091/api/v1/metrics").json()
+                logger.info(f"query: {metrics}")
+                assert len(metrics["data"]) == 0
 
 
 @pytest.mark.abort_on_fail
@@ -243,7 +245,7 @@ async def test_spark_metrics_in_prometheus(
             pod=f"{PROMETHEUS}-0", port=9090, namespace=cos_model.name, on_port=9999
         ),
     ):
-        for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
+        for attempt in Retrying(stop=stop_after_attempt(15), wait=wait_fixed(30)):
             with attempt:
                 query = httpx.get(
                     "http://127.0.0.1:9999/api/v1/query?query=push_time_seconds"
