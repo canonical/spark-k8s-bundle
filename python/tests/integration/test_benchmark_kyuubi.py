@@ -114,4 +114,4 @@ async def test_run_benchmark_queries(ops_test: OpsTest):
             cursor.execute(stmt)
             cursor.fetchall()
             end = time.monotonic()
-            logger.info(f"TPC-H #1: {end - start}")
+            logger.info(f"TPC-H #{i}: {end - start}")
