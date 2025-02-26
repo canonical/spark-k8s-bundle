@@ -238,11 +238,11 @@ async def test_spark_metrics_in_prometheus(
     _, stdout, _ = await ops_test.juju(*show_status_cmd)
 
     logger.info(f"Show status: {stdout}")
-    # 9090 seems to be already in use in some ManSol deployments
+    # NOTE: 9090 seems to be already in use in some ManSol deployments.
     with (
         ops_test.model_context(COS_ALIAS) as cos_model,
         port_forward(
-            pod=f"{PROMETHEUS}-0", port=9090, namespace=cos_model.name, on_port=9999
+            pod=f"{PROMETHEUS}-0", port=9090, namespace=cos_model.name, on_port=19090
         ),
     ):
         for attempt in Retrying(stop=stop_after_attempt(15), wait=wait_fixed(30)):
