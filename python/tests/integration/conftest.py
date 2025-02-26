@@ -10,7 +10,7 @@ import time
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
-from subprocess import PIPE, CalledProcessError, Popen, TimeoutExpired, check_output
+from subprocess import PIPE, Popen, TimeoutExpired, check_output
 from typing import Iterable
 
 import pytest

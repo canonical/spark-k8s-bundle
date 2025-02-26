@@ -59,7 +59,6 @@ pytest-operator = ">0.20"
 psycopg2-binary = "^2.9.9"
 tenacity = "^9.0.0"
 requests = "^2.32.3"
-psutil = "^7.0.0"
 httpx = "^0.28.1"
 
 [build-system]

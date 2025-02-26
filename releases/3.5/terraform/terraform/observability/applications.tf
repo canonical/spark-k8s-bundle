@@ -39,6 +39,9 @@ resource "juju_application" "pushgateway" {
   }
   units       = 1
   constraints = "arch=amd64"
+  storage_directives = {
+    pushgateway-store = "10G"
+  }
 }
 
 resource "juju_application" "scrape_config" {

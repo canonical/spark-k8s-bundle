@@ -101,7 +101,7 @@ async def test_run_job(
             service_account.namespace,
             "-v",
             object_storage.get_uri("spark_test.py"),
-            f"-f {object_storage.get_uri('spark_test.py')}",
+            f"-f {object_storage.get_uri('example.txt')}",
         ]
     )
 
@@ -238,18 +238,18 @@ async def test_spark_metrics_in_prometheus(
     _, stdout, _ = await ops_test.juju(*show_status_cmd)
 
     logger.info(f"Show status: {stdout}")
-    # NOTE: 9090 seems to be already in use in some ManSol deployments.
-    with (
-        ops_test.model_context(COS_ALIAS) as cos_model,
-        port_forward(
-            pod=f"{PROMETHEUS}-0", port=9090, namespace=cos_model.name, on_port=19090
-        ),
+    logger.info(f"Spark id: {driver_pod.labels['spark-app-selector']}")
+    # NOTE: 9090 seems to be commonly in use in some deployments.
+    with port_forward(
+        pod=f"{PROMETHEUS}-0", port=9090, namespace=COS_ALIAS, on_port=19090
     ):
-        for attempt in Retrying(stop=stop_after_attempt(15), wait=wait_fixed(30)):
+        for attempt in Retrying(
+            stop=stop_after_attempt(5), wait=wait_fixed(30), reraise=True
+        ):
             with attempt:
                 query = httpx.get(
-                    "http://127.0.0.1:9999/api/v1/query?query=push_time_seconds"
-                ).json()
+                    "http://127.0.0.1:19090/api/v1/query?query=push_time_seconds%5B20m%5D"
+                ).json()  # "push_time_seconds[20m]" quoted
 
                 logger.info(f"query: {query}")
                 spark_ids = [
