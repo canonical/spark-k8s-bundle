@@ -135,10 +135,10 @@ async def test_run_benchmark_queries(
                     cursor.execute(stmt)
                     cursor.fetchall()
                 except Exception:
-                    report_data[i].append(None)
+                    report_data[str(i)].append(None)
                 else:
                     end = time.monotonic()
-                    report_data[i].append(end - start)
+                    report_data[str(i)].append(end - start)
 
     logger.info("Creating report")
     df = pl.DataFrame(report_data)
