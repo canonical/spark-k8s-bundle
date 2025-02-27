@@ -13,6 +13,7 @@ applications:
     options:
       namespace: {{ namespace }}
       service-account: {{ service_account }}
+      expose-external: loadbalancer
     constraints: arch=amd64
     trust: true
   kyuubi-users:
