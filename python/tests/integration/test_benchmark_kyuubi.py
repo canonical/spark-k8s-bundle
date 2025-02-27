@@ -2,10 +2,14 @@
 # Copyright 2025 Canonical Ltd.
 # See LICENSE file for licensing details.
 import asyncio
+from collections import defaultdict
 import logging
 import time
 from subprocess import PIPE, check_output
 
+import polars as pl
+from great_tables import GT, md, loc, style
+from datetime import date
 import pytest
 from pyhive.hive import Cursor
 from pytest_operator.plugin import OpsTest
@@ -20,27 +24,32 @@ HUB = "integration-hub"
 logger = logging.getLogger(__name__)
 
 
+@pytest.fixture(scope="module")
+def sf(request) -> str:
+    """Get benchmark size factor."""
+    return request.config.getoption("--bench-sf")
+
+
 @pytest.mark.skip_if_deployed
 @pytest.mark.abort_on_fail
-async def test_deploy_bundle(ops_test: OpsTest, spark_bundle):
+async def test_deploy_bundle(ops_test: OpsTest, spark_bundle) -> None:
     await spark_bundle
     await asyncio.sleep(0)  # do nothing, await deploy_cluster
 
 
 @pytest.mark.abort_on_fail
-async def test_active_status(ops_test):
+async def test_active_status(ops_test: OpsTest) -> None:
     """Test whether the bundle has deployed successfully."""
     for app_name in ops_test.model.applications:
         assert ops_test.model.applications[app_name].status == "active"
 
 
 @pytest.mark.abort_on_fail
-async def test_setup_env(ops_test: OpsTest):
+async def test_setup_env(ops_test: OpsTest, sf: str) -> None:
     """Setup benchmark environment.
 
-    Persist benchmark data from the connector that generates them on the fly.
-
-    TODO: Parametrize size factor
+    - Persist benchmark data from the connector that generates them on the fly.
+    - Add benchmark configuration to integration hub
     """
     assert ops_test.model is not None
 
@@ -95,23 +104,96 @@ async def test_setup_env(ops_test: OpsTest):
             cursor.execute(f"""
                 CREATE TABLE bench.{table} AS
                 SELECT *
-                FROM tpch.sf1.{table};""")
+                FROM tpch.{sf}.{table};""")
 
 
 @pytest.mark.abort_on_fail
-async def test_run_benchmark_queries(ops_test: OpsTest):
+async def test_run_benchmark_queries(ops_test: OpsTest, sf: str) -> None:
     logger.info("Running benchmark queries")
     credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
     client = KyuubiClient(**credentials)
 
     cursor: Cursor
+    report_data = defaultdict(list)
     with client.connection as conn, conn.cursor() as cursor:
         cursor.execute("USE bench;")
         for i in range(1, 23):
+            logger.info(f"Running TPC-H #{i}")
             with open(f"tests/integration/resources/sql/{i}.sql", "r") as f:
                 stmt = f.read()
-            start = time.monotonic()
-            cursor.execute(stmt)
-            cursor.fetchall()
-            end = time.monotonic()
-            logger.info(f"TPC-H #{i}: {end - start}")
+            for j in range(8):
+                start = time.monotonic()
+                try:
+                    cursor.execute(stmt)
+                    cursor.fetchall()
+                except:
+                    report_data[i].append(None)
+                else:
+                    end = time.monotonic()
+                    report_data[i].append(end - start)
+
+    logger.info("Creating report")
+    df = pl.DataFrame(report_data)
+    pivoted = df.describe().transpose(
+        column_names="statistic", include_header=True, header_name="query"
+    )
+    table = (
+        GT(
+            pivoted.with_columns(
+                raw=pl.Series(report_data.values(), dtype=pl.List(pl.Float32))
+                .explode()
+                .fill_null(-1)
+                .reshape((len(report_data), -1))
+                .cast(pl.List(pl.Float32))
+            )
+        )
+        .tab_header(
+            title="TPC-H benchmark (seconds)",
+            subtitle=md(f"Size factor **{sf}** - {date.today()}"),
+        )
+        .fmt_nanoplot(columns="raw")
+        .fmt_number(columns=pivoted.columns[1:], decimals=2, drop_trailing_zeros=True)
+        .cols_label(query="Query #", raw="Iteration time*")
+        .tab_style(
+            style=style.text(transform="capitalize"), locations=loc.column_header()
+        )
+        .tab_source_note(md("*a `-1` value in the spark line denotes a missing value."))
+    )
+
+    table.write_raw_html("report.html")
+
+
+async def cleanup(ops_test: OpsTest) -> None:
+    """Cleanup deployment.
+
+    - Remove persisted data
+    - Remove benchmark configuration from integration hub
+    """
+    logger.info("Cleaning bench data")
+    credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
+    client = KyuubiClient(**credentials)
+
+    with client.connection as conn, conn.cursor() as cursor:
+        cursor.execute(f"DROP DATABASE bench;")
+
+    logger.info("Cleaning bench config")
+    leader_unit_id = await get_leader_unit_number(ops_test, HUB)
+    action = await ops_test.model.units.get(f"{HUB}/{leader_unit_id}").run_action(
+        "remove-config",
+        key="spark.sql.catalog.tpch",
+    )
+    await action.wait()
+    action = await ops_test.model.units.get(f"{HUB}/{leader_unit_id}").run_action(
+        "remove-config",
+        conf="spark.kubernetes.container.image",
+    )
+    await action.wait()
+    check_output(
+        f"JUJU_MODEL={ops_test.model_full_name} juju remove-relation {KYUUBI} {HUB}",
+        stderr=PIPE,
+        shell=True,
+        universal_newlines=True,
+    )
+    await ops_test.model.wait_for_idle(apps=[KYUUBI, HUB], idle_period=20, timeout=600)
+    await ops_test.model.add_relation(KYUUBI, HUB)
+    await ops_test.model.wait_for_idle(apps=[KYUUBI, HUB], idle_period=20, timeout=600)

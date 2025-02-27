@@ -119,6 +119,24 @@ def pytest_addoption(parser):
         type=str,
         help="Which Spark version to use for bundle testing.",
     )
+    parser.addoption(
+        "--bench-sf",
+        choices=[
+            "sf1",
+            "sf10",
+            "sf30",
+            "sf100",
+            "sf300",
+            "sf1000",
+            "sf3000",
+            "sf10000",
+            "sf30000",
+            "sf100000",
+        ],
+        type=str,
+        help="Benchmark size factor. 'sf1' = 1GB",
+        default="sf1",
+    )
 
 
 @pytest.fixture(scope="module")
