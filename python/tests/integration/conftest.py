@@ -139,7 +139,7 @@ def pytest_addoption(parser):
     )
     parser.addoption(
         "--bench-iterations",
-        default=6,
+        default=3,
         type=int,
         help="Number of iteration for each benchmark query.",
     )
