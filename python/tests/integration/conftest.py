@@ -137,6 +137,12 @@ def pytest_addoption(parser):
         help="Benchmark size factor. 'sf1' = 1GB",
         default="sf1",
     )
+    parser.addoption(
+        "--bench-iterations",
+        default=6,
+        type=int,
+        help="Number of iteration for each benchmark query.",
+    )
 
 
 @pytest.fixture(scope="module")

@@ -2,15 +2,15 @@
 # Copyright 2025 Canonical Ltd.
 # See LICENSE file for licensing details.
 import asyncio
-from collections import defaultdict
 import logging
 import time
+from collections import defaultdict
+from datetime import date
 from subprocess import PIPE, check_output
 
 import polars as pl
-from great_tables import GT, md, loc, style
-from datetime import date
 import pytest
+from great_tables import GT, loc, md, style
 from pyhive.hive import Cursor
 from pytest_operator.plugin import OpsTest
 
@@ -28,6 +28,12 @@ logger = logging.getLogger(__name__)
 def sf(request) -> str:
     """Get benchmark size factor."""
     return request.config.getoption("--bench-sf")
+
+
+@pytest.fixture(scope="module")
+def bench_iterations(request) -> int:
+    """Get benchmark number of iterations."""
+    return request.config.getoption("--bench-iterations")
 
 
 @pytest.mark.skip_if_deployed
@@ -108,7 +114,9 @@ async def test_setup_env(ops_test: OpsTest, sf: str) -> None:
 
 
 @pytest.mark.abort_on_fail
-async def test_run_benchmark_queries(ops_test: OpsTest, sf: str) -> None:
+async def test_run_benchmark_queries(
+    ops_test: OpsTest, sf: str, bench_iterations: int
+) -> None:
     logger.info("Running benchmark queries")
     credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
     client = KyuubiClient(**credentials)
@@ -121,12 +129,12 @@ async def test_run_benchmark_queries(ops_test: OpsTest, sf: str) -> None:
             logger.info(f"Running TPC-H #{i}")
             with open(f"tests/integration/resources/sql/{i}.sql", "r") as f:
                 stmt = f.read()
-            for j in range(8):
+            for _ in range(bench_iterations):
                 start = time.monotonic()
                 try:
                     cursor.execute(stmt)
                     cursor.fetchall()
-                except:
+                except Exception:
                     report_data[i].append(None)
                 else:
                     end = time.monotonic()
@@ -174,7 +182,7 @@ async def cleanup(ops_test: OpsTest) -> None:
     client = KyuubiClient(**credentials)
 
     with client.connection as conn, conn.cursor() as cursor:
-        cursor.execute(f"DROP DATABASE bench;")
+        cursor.execute("DROP DATABASE bench;")
 
     logger.info("Cleaning bench config")
     leader_unit_id = await get_leader_unit_number(ops_test, HUB)
