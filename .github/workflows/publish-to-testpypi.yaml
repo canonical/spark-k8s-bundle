@@ -108,4 +108,3 @@ jobs:
           repository-url: https://test.pypi.org/legacy/
     permissions:
       id-token: write # Needed for trusted publishing (https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/)
-
