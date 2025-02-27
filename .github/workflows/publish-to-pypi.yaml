@@ -154,4 +154,3 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
     permissions:
       id-token: write # Needed for trusted publishing (https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/)
-
