@@ -4,6 +4,7 @@
 
 from contextlib import contextmanager
 from typing import Iterable, Type
+from typing import TypeAlias
 
 from pyhive.hive import Connection
 
@@ -11,7 +12,8 @@ TYPES = {int: "int", str: "string"}
 
 ITYPES = {v: k for k, v in TYPES.items()}
 
-SchemaType = Type[int | str]
+DataType: TypeAlias = int | str
+SchemaType: TypeAlias = Type[DataType]
 
 
 class TableExists(Exception):
@@ -29,23 +31,28 @@ class TableNotFound(Exception):
 class KyuubiClient:
     """Kyuubi client."""
 
-    def __init__(self, username: str, password: str, host: str, port: int = 10009):
-        self.username = username
-        self.password = password
+    def __init__(
+        self,
+        host: str = "localhost",
+        port: int = 10009,
+        username: str | None = None,
+        password: str | None = None,
+    ):
         self.host = host
         self.port = port
+        self.username = username
+        self.password = password
 
     @property
     @contextmanager
     def connection(self) -> Iterable[Connection]:
         """Instantiate connection."""
-        conn = Connection(
-            host=self.host,
-            port=self.port,
-            username=self.username,
-            password=self.password,
-            auth="CUSTOM",
-        )
+        params = {"host": self.host, "port": self.port}
+        if self.username:
+            params.update({"username": self.username})
+        if self.password:
+            params.update({"password": self.password, "auth": "CUSTOM"})
+        conn = Connection(**params)
         yield conn
         conn.close()
 
@@ -120,7 +127,7 @@ class Table:
         self.database = database
         self.schema = schema
 
-    def validate(self, values: list[SchemaType]):
+    def validate(self, values: list[DataType]):
         """Validate values."""
         output = {}
 
@@ -146,7 +153,7 @@ class Table:
             for row in cursor.fetchall():
                 yield self.validate(row)
 
-    def parse_value(self, value: SchemaType):
+    def parse_value(self, value: DataType):
         """Convert value to str."""
         match value:
             case int():
@@ -156,15 +163,15 @@ class Table:
             case _:
                 raise TypeError(type(value))
 
-    def _parse_row(self, row: list[SchemaType]):
+    def _parse_row(self, row: list[DataType]):
         _ = self.validate(row)
 
         return "(" + ",".join(self.parse_value(value) for value in row) + ")"
 
-    def _parse_rows(self, rows: list[list[SchemaType]]):
+    def _parse_rows(self, rows: list[list[DataType]]):
         return ", ".join(self._parse_row(row) for row in rows)
 
-    def insert(self, *rows: list[SchemaType]):
+    def insert(self, *rows: list[DataType]):
         """Insert rows."""
         with self.database.client.connection as conn, conn.cursor() as cursor:
             cursor.execute(
