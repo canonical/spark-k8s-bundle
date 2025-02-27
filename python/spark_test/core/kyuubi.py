@@ -3,7 +3,8 @@
 """Kyuubi module."""
 
 from contextlib import contextmanager
-from typing import Iterable, Union
+from typing import Iterable, Type
+from typing import TypeAlias
 
 from pyhive.hive import Connection
 
@@ -11,7 +12,8 @@ TYPES = {int: "int", str: "string"}
 
 ITYPES = {v: k for k, v in TYPES.items()}
 
-SchemaType = Union[int | str]
+DataType: TypeAlias = int | str
+SchemaType: TypeAlias = Type[DataType]
 
 
 class TableExists(Exception):
@@ -33,8 +35,8 @@ class KyuubiClient:
         self,
         host: str = "localhost",
         port: int = 10009,
-        username: str = None,
-        password: str = None,
+        username: str | None = None,
+        password: str | None = None,
     ):
         self.host = host
         self.port = port
@@ -125,7 +127,7 @@ class Table:
         self.database = database
         self.schema = schema
 
-    def validate(self, values: list[SchemaType]):
+    def validate(self, values: list[DataType]):
         """Validate values."""
         output = {}
 
@@ -151,7 +153,7 @@ class Table:
             for row in cursor.fetchall():
                 yield self.validate(row)
 
-    def parse_value(self, value: SchemaType):
+    def parse_value(self, value: DataType):
         """Convert value to str."""
         match value:
             case int():
@@ -161,15 +163,15 @@ class Table:
             case _:
                 raise TypeError(type(value))
 
-    def _parse_row(self, row: list[SchemaType]):
+    def _parse_row(self, row: list[DataType]):
         _ = self.validate(row)
 
         return "(" + ",".join(self.parse_value(value) for value in row) + ")"
 
-    def _parse_rows(self, rows: list[list[SchemaType]]):
+    def _parse_rows(self, rows: list[list[DataType]]):
         return ", ".join(self._parse_row(row) for row in rows)
 
-    def insert(self, *rows: list[SchemaType]):
+    def insert(self, *rows: list[DataType]):
         """Insert rows."""
         with self.database.client.connection as conn, conn.cursor() as cursor:
             cursor.execute(

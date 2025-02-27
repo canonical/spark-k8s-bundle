@@ -11,7 +11,7 @@ env:
 
 
 jobs:
-  tests:
+  ci-tests:
     name: Run CI tests before release
     uses: ./.github/workflows/ci-tests-minimal.yaml
     secrets: inherit
@@ -66,7 +66,7 @@ jobs:
   build:
     name: Build package
     runs-on: ubuntu-latest
-    needs: [release_checks]
+    needs: [release_checks, ci-tests]
     outputs:
       VERSION: ${{ steps.build.outputs.VERSION }}
     defaults:
@@ -95,7 +95,7 @@ jobs:
 
   autorelease:
     name: Release the package on github
-    needs: [release_checks, build]
+    needs: [ci-tests, release_checks, build]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     strategy:
@@ -139,7 +139,7 @@ jobs:
 
   upload-pypi:
     name: Publish to PyPI
-    needs: [release_checks, build]
+    needs: [ci-tests, release_checks, build]
     runs-on: ubuntu-latest
     environment:
       name: pypi
