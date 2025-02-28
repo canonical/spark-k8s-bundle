@@ -109,7 +109,7 @@ runs:
       shell: bash
       run: |
         # Download image for avoiding time out
-        IMAGE="ghcr.io/canonical/charmed-spark-kyuubi@sha256:9268d19a6eef91914e874734b320fab64908faf0f7adb8856be809bc60ecd1d0"
+        IMAGE="ghcr.io/canonical/charmed-spark-kyuubi@sha256:3c49dfe71387bd702a30844c80c9a17a8bc8ecb99ebdee37eab4b05e44ac683f"
 
         docker pull $IMAGE
         docker save $IMAGE -o image.tar

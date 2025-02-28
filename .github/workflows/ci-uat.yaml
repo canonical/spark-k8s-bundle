@@ -17,7 +17,7 @@ jobs:
         version:
           - --spark-version "3.4.2"
         backend:
-          - --backend yaml
+          - --backend terraform
         storage-backend:
           - --storage-backend s3
           - --storage-backend azure
@@ -97,9 +97,10 @@ jobs:
 
           tox run -e integration-bundle -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
 
-          tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
           tox run -e integration-sparkjob -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
-
-          # We re-run the last tests to make sure that the tests are idempotent
           tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
+
+          sleep 120
+          # We re-run the last tests to make sure that the tests are idempotent
           tox run -e integration-sparkjob -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --no-deploy --model test-uat --cos-model cos --uuid $UUID
+          tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID

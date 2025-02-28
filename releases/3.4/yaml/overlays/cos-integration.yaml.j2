@@ -15,9 +15,9 @@ applications:
   agent:
     charm: grafana-agent-k8s
     channel: latest/stable
-    revision: 45
+    revision: 104
     resources:
-      agent-image: 42
+      agent-image: 45
     scale: 1
     constraints: arch=amd64
     storage:
@@ -25,8 +25,8 @@ applications:
     trust: true
   cos-configuration:
     charm: cos-configuration-k8s
-    channel: latest/edge
-    revision: 61
+    channel: latest/stable
+    revision: 67
     base: ubuntu@20.04/stable
     resources:
       git-sync-image: 34
@@ -41,7 +41,7 @@ applications:
       content-from-git: kubernetes,1,1024M
   pushgateway:
     charm: prometheus-pushgateway-k8s
-    channel: latest/edge
+    channel: latest/stable
     revision: 16
     resources:
       pushgateway-image: 8
