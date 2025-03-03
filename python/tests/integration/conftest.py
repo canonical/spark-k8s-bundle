@@ -13,8 +13,8 @@ from pathlib import Path
 from subprocess import PIPE, Popen, TimeoutExpired, check_output
 from typing import Iterable
 
+import httpx
 import pytest
-import requests
 from pytest_operator.plugin import OpsTest
 from spark8t.domain import PropertyFile
 
@@ -313,7 +313,7 @@ async def cos(ops_test: OpsTest, cos_model: str, backend: str):
 
         overlays = ["offers-overlay.yaml", "testing-overlay.yaml"]
 
-        def create_file(path: Path, response: requests.Response):
+        def create_file(path: Path, response: httpx.Response):
             path.write_text(response.content.decode("utf-8"))
             return path
 
@@ -325,7 +325,7 @@ async def cos(ops_test: OpsTest, cos_model: str, backend: str):
                 overlays=[
                     create_file(tmp_folder / overlay, response)
                     for overlay in overlays
-                    if (response := requests.get(f"{base_url}/{overlay}"))
+                    if (response := httpx.get(f"{base_url}/{overlay}"))
                     if response.status_code == 200
                 ],
             )

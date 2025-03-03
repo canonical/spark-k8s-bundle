@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Generic, TypeVar, cast
 
 import httpx
-import requests
 import yaml
 from pytest_operator.plugin import OpsTest
 
@@ -484,7 +483,7 @@ def prometheus_exporter_data(host: str, port: int) -> str | None:
     try:
         response = httpx.get(url)
         logger.info(f"Response: {response.text}")
-    except requests.exceptions.RequestException:
+    except httpx.RequestError:
         return
     if response.status_code == 200:
         return response.text
@@ -512,8 +511,8 @@ def published_prometheus_data(
         host = host.split("//")[1]
     url = f"http://{host}/{cos_model_name}-prometheus-0/api/v1/query?query={field}"
     try:
-        response = requests.get(url)
-    except requests.exceptions.RequestException:
+        response = httpx.get(url)
+    except httpx.RequestError:
         return
 
     if response.status_code == 200:
@@ -528,10 +527,8 @@ async def published_grafana_dashboards(
     url = f"{base_url}/api/search?query=&starred=false"
 
     try:
-        session = requests.Session()
-        session.auth = ("admin", pw)
-        response = session.get(url)
-    except requests.exceptions.RequestException:
+        response = httpx.get(url, auth=("admin", pw))
+    except httpx.RequestError:
         return
     if response.status_code == 200:
         return response.json()
@@ -556,16 +553,14 @@ async def get_grafana_access(ops_test: OpsTest, cos_model_name: str) -> tuple[st
     return url, password
 
 
-def published_prometheus_alerts(
-    ops_test: OpsTest, cos_model_name: str, host: str
-) -> dict | None:
+def published_prometheus_alerts(cos_model_name: str, host: str) -> dict | None:
     """Retrieve all Prometheus Alert rules that have been published."""
     if "http://" in host:
         host = host.split("//")[1]
     url = f"http://{host}/{cos_model_name}-prometheus-0/api/v1/rules"
     try:
-        response = requests.get(url)
-    except requests.exceptions.RequestException:
+        response = httpx.get(url)
+    except httpx.RequestError:
         return
 
     if response.status_code == 200:
@@ -586,10 +581,10 @@ async def published_loki_logs(
     url = f"http://{host}/{cos_model_name}-loki-0/loki/api/v1/query_range"
 
     try:
-        response = requests.get(
+        response = httpx.get(
             url, params={"query": f'{{{field}=~"{value}"}}', "limit": limit}
         )
-    except requests.exceptions.RequestException:
+    except httpx.RequestError:
         return {}
     if response.status_code != 200:
         return {}

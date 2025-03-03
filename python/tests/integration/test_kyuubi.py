@@ -149,7 +149,7 @@ async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
             )
 
             # Alerts got published to Prometheus
-            alerts_data = published_prometheus_alerts(ops_test, cos, cos_address)
+            alerts_data = published_prometheus_alerts(cos, cos_address)
             assert alerts_data is not None
             logger.info(f"Alerts data: {alerts_data}")
 

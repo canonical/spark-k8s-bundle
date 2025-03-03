@@ -3,8 +3,7 @@
 """Kyuubi module."""
 
 from contextlib import contextmanager
-from typing import Iterable, Type
-from typing import TypeAlias
+from typing import Iterable, Type, TypeAlias
 
 from pyhive.hive import Connection
 
@@ -131,7 +130,7 @@ class Table:
         """Validate values."""
         output = {}
 
-        for value, (col_name, _type) in zip(values, self.schema):
+        for value, (col_name, _type) in zip(values, self.schema, strict=False):
             if not isinstance(value, _type):
                 raise TypeError(
                     f"Column {col_name}: Expected {_type}, found {type(value)}"
