@@ -39,6 +39,7 @@ def bench_iterations(request) -> int:
 @pytest.mark.skip_if_deployed
 @pytest.mark.abort_on_fail
 async def test_deploy_bundle(ops_test: OpsTest, spark_bundle) -> None:
+    """Initial deployment, ignored if we pass an existing model."""
     await spark_bundle
     await asyncio.sleep(0)  # do nothing, await deploy_cluster
 
@@ -77,7 +78,7 @@ async def test_setup_env(ops_test: OpsTest, sf: str) -> None:
     await action.wait()
     action = await ops_test.model.units.get(f"{HUB}/{leader_unit_id}").run_action(
         "add-config",
-        conf="spark.kubernetes.container.image=docker.io/batalex/charmed-spark-kyuubi:1",
+        conf="spark.jars.packages=org.apache.kyuubi:kyuubi-spark-connector-tpch_2.12:1.9.3",
     )
     await action.wait()
 
@@ -117,6 +118,7 @@ async def test_setup_env(ops_test: OpsTest, sf: str) -> None:
 async def test_run_benchmark_queries(
     ops_test: OpsTest, sf: str, bench_iterations: int
 ) -> None:
+    """Run benchmark queries and generate report."""
     logger.info("Running benchmark queries")
     credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
     client = KyuubiClient(**credentials)
@@ -169,6 +171,7 @@ async def test_run_benchmark_queries(
     )
 
     table.write_raw_html("report.html")
+    logger.info("Report written to 'report.html'")
 
 
 async def cleanup(ops_test: OpsTest) -> None:
