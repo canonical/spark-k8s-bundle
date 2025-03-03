@@ -1,6 +1,6 @@
 import asyncio
 import logging
-import time
+from pathlib import Path
 
 import httpx
 import pytest
@@ -22,7 +22,6 @@ from .helpers import (
     assert_logs,
     get_cos_address,
     get_secret_data,
-    juju_sleep,
     prometheus_exporter_data,
     published_grafana_dashboards,
     published_loki_logs,
@@ -176,30 +175,19 @@ async def test_job_in_history_server(
     with port_forward(
         pod=f"{HISTORY_SERVER}-0", port=18080, namespace=ops_test.model.name
     ):
-        for i in range(0, 5):
-            try:
-                logger.info(f"try n#{i} time: {time.time()}")
+        for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
+            with attempt:
                 raw_apps = httpx.get(
                     "http://127.0.0.1:18080/api/v1/applications"
                 ).json()
-
+                logger.info(f"apps: {raw_apps}")
                 apps = [app for app in raw_apps if app["id"] == spark_id]
-            except Exception:
-                apps = []
-
-            if len(apps) > 0:
-                break
-            else:
-                await juju_sleep(ops_test, 30, HISTORY_SERVER)  # type: ignore
-
-    logger.info(f"Number of apps: {len(apps)}")
-
-    assert len(apps) == 1
+                assert len(apps) == 1
 
 
 @pytest.mark.abort_on_fail
 async def test_job_not_in_prometheus_pushgateway(
-    ops_test: OpsTest, cos, port_forward: PortForwarder
+    ops_test: OpsTest, cos, tmp_folder: Path, port_forward: PortForwarder
 ) -> None:
     """Once the job is completed, we don't expect the prometheus pushgateway to hold any data."""
     if not cos:
@@ -209,6 +197,9 @@ async def test_job_not_in_prometheus_pushgateway(
     show_status_cmd = ["status"]
     _, stdout, _ = await ops_test.juju(*show_status_cmd)
     logger.info(f"Show status: {stdout}")
+    driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
+    spark_id = driver_pod.labels["spark-app-selector"]
+    logger.info(f"Spark id: {spark_id}")
 
     metrics = {}
     with port_forward(pod=f"{PUSHGATEWAY}-0", port=9091, namespace=ops_test.model.name):
@@ -216,7 +207,23 @@ async def test_job_not_in_prometheus_pushgateway(
             with attempt:
                 metrics = httpx.get("http://127.0.0.1:9091/api/v1/metrics").json()
                 logger.info(f"query: {metrics}")
-                assert len(metrics["data"]) == 0
+                match metrics:
+                    case {"status": "success", "data": []}:
+                        pass
+
+                    case {"status": status} if status != "success":
+                        raise AssertionError
+
+                    case {"status": "success", "data": list(metrics)}:
+                        # We only check for the job we are interested in,
+                        # in case this step is run against a live deployment
+                        # where something else is happening
+                        assert not any(
+                            metric["labels"]["job"] == spark_id for metric in metrics
+                        )
+
+                    case _:
+                        raise AssertionError("Unknown data format")
 
 
 @pytest.mark.abort_on_fail
