@@ -494,15 +494,6 @@ def kubectl() -> str:
     return kubectl_path
 
 
-@pytest.fixture(scope="session")
-def nc() -> str:
-    """Check that nc is in path."""
-    if (nc_path := shutil.which("nc")) is None:
-        raise FileNotFoundError("Could not find 'nc' in PATH.")
-
-    return nc_path
-
-
 @pytest.fixture(scope="module")
 def port_forward(kubectl: str):
     """Define a context-aware fixture to redirect a local port to a remote pod.
