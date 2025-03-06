@@ -20,3 +20,8 @@ variable "zookeeper_units" {
   nullable    = false
 }
 
+variable "use_manual_tls" {
+  type    = bool
+  default = false
+}
+
