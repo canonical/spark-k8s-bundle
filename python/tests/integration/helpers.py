@@ -13,13 +13,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, Generic, TypeVar, cast
 
-import requests
+import httpx
 import yaml
 from pytest_operator.plugin import OpsTest
 
 from spark_test.core import ObjectStorageUnit
 from spark_test.core.azure_storage import Container
 from spark_test.core.s3 import Bucket, Credentials
+from tests.integration.types import KyuubiCredentials
 
 from .terraform import Terraform
 
@@ -97,7 +98,7 @@ async def get_leader_unit_number(ops_test: OpsTest, application_name: str) -> in
 
 async def get_kyuubi_credentials(
     ops_test: OpsTest, application_name="kyuubi", num_unit=0
-) -> dict[str, str]:
+) -> KyuubiCredentials:
     """Use the charm action to start a password rotation."""
 
     leader_unit_id = await get_leader_unit_number(ops_test, application_name)
@@ -108,11 +109,20 @@ async def get_kyuubi_credentials(
 
     results = (await action.wait()).results
 
-    address = await get_address(
-        ops_test,
-        app_name=application_name,
-        unit_num=leader_unit_id,  # type: ignore
-    )
+    endpoint = await fetch_jdbc_endpoint(ops_test)
+
+    if (
+        host_match := re.match(
+            r"^(?:jdbc\:hive2\:\/\/)(?P<host>.*)(?:\:\d+/)$", endpoint
+        )
+    ) is not None:
+        address = host_match.group("host")
+    else:
+        address = await get_address(
+            ops_test,
+            app_name=application_name,
+            unit_num=leader_unit_id,  # type: ignore
+        )
 
     return {"username": "admin", "password": results["password"], "host": address}
 
@@ -471,9 +481,9 @@ def prometheus_exporter_data(host: str, port: int) -> str | None:
     """Check if a given host has metric service available and it is publishing."""
     url = f"http://{host}:{port}/metrics"
     try:
-        response = requests.get(url)
+        response = httpx.get(url)
         logger.info(f"Response: {response.text}")
-    except requests.exceptions.RequestException:
+    except httpx.RequestError:
         return
     if response.status_code == 200:
         return response.text
@@ -501,8 +511,8 @@ def published_prometheus_data(
         host = host.split("//")[1]
     url = f"http://{host}/{cos_model_name}-prometheus-0/api/v1/query?query={field}"
     try:
-        response = requests.get(url)
-    except requests.exceptions.RequestException:
+        response = httpx.get(url)
+    except httpx.RequestError:
         return
 
     if response.status_code == 200:
@@ -511,16 +521,14 @@ def published_prometheus_data(
 
 async def published_grafana_dashboards(
     ops_test: OpsTest, cos_model_name: str
-) -> str | None:
+) -> dict | None:
     """Get the list of dashboards published to Grafana."""
     base_url, pw = await get_grafana_access(ops_test, cos_model_name)
     url = f"{base_url}/api/search?query=&starred=false"
 
     try:
-        session = requests.Session()
-        session.auth = ("admin", pw)
-        response = session.get(url)
-    except requests.exceptions.RequestException:
+        response = httpx.get(url, auth=("admin", pw))
+    except httpx.RequestError:
         return
     if response.status_code == 200:
         return response.json()
@@ -545,16 +553,14 @@ async def get_grafana_access(ops_test: OpsTest, cos_model_name: str) -> tuple[st
     return url, password
 
 
-def published_prometheus_alerts(
-    ops_test: OpsTest, cos_model_name: str, host: str
-) -> dict | None:
+def published_prometheus_alerts(cos_model_name: str, host: str) -> dict | None:
     """Retrieve all Prometheus Alert rules that have been published."""
     if "http://" in host:
         host = host.split("//")[1]
     url = f"http://{host}/{cos_model_name}-prometheus-0/api/v1/rules"
     try:
-        response = requests.get(url)
-    except requests.exceptions.RequestException:
+        response = httpx.get(url)
+    except httpx.RequestError:
         return
 
     if response.status_code == 200:
@@ -568,17 +574,17 @@ async def published_loki_logs(
     field: str,
     value: str,
     limit: int = 300,
-) -> str | None:
+) -> dict:
     """Get the list of dashboards published to Grafana."""
     if "http://" in host:
         host = host.split("//")[1]
     url = f"http://{host}/{cos_model_name}-loki-0/loki/api/v1/query_range"
 
     try:
-        response = requests.get(
+        response = httpx.get(
             url, params={"query": f'{{{field}=~"{value}"}}', "limit": limit}
         )
-    except requests.exceptions.RequestException:
+    except httpx.RequestError:
         return {}
     if response.status_code != 200:
         return {}
@@ -596,11 +602,9 @@ async def published_loki_logs(
 def assert_logs(loki_address: str) -> None:
     """Check the existence of the logs."""
     log_gl = urllib.parse.quote('{app="spark", pebble_service="sparkd"}')
-    query = json.loads(
-        urllib.request.urlopen(
-            f"http://{loki_address}:3100/loki/api/v1/query_range?query={log_gl}"
-        ).read()
-    )
+    query = httpx.get(
+        f"http://{loki_address}:3100/loki/api/v1/query_range?query={log_gl}"
+    ).json()
 
     # NOTE: This check depends on previous tests, because without the previous ones
     #       there will be no logs.

@@ -3,15 +3,17 @@
 # See LICENSE file for licensing details.
 """S3 module."""
 
+import logging
 import os
 from dataclasses import dataclass
-from typing import List
 
 import boto3
 from botocore.client import Config
 from botocore.exceptions import ClientError
 
 from spark_test.core import ObjectStorageUnit
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -143,7 +145,7 @@ class Bucket(ObjectStorageUnit):
             return False
         return True
 
-    def list_objects(self) -> List[dict]:
+    def list_objects(self) -> list[dict]:
         """Return the list of object contained in the bucket."""
         return self.s3.list_objects_v2(Bucket=self.bucket_name).get("Contents", [])
 
@@ -165,5 +167,6 @@ class Bucket(ObjectStorageUnit):
             objs = [{"Key": x["Key"]} for x in self.list_objects()]
             self.s3.delete_objects(Bucket=self.bucket_name, Delete={"Objects": objs})
         except Exception:
+            logger.exception("Issue while deleting file")
             return False
         return True

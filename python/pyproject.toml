@@ -18,7 +18,8 @@ poetry-plugin-export = ">=1.9"
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
 spark8t = ">=0.0.10"
-boto3 = ">=1.34.55"
+# NOTE(boto): 1.36+ incompatible with minio because of MD5 checksum
+boto3 = ">=1.34.55,<1.36"
 pytest = ">=6.2"
 azure-storage-blob = "^12.21.0"
 pyhive = { extras = ["hive_pure_sasl"], version = "^0.7.0" }
@@ -45,7 +46,6 @@ optional = true
 [tool.poetry.group.unit.dependencies]
 pytest-cov = ">=3.0"
 pytest-mock = ">=3.10"
-parameterized = ">=0.9.0"
 
 [tool.poetry.group.integration]
 optional = true
@@ -53,12 +53,11 @@ optional = true
 [tool.poetry.group.integration.dependencies]
 pytest-cov = ">=3.0"
 pytest-mock = ">=3.10"
-parameterized = ">=0.9.0"
 juju = ">=3.4.0"
 pytest-operator = ">0.20"
 psycopg2-binary = "^2.9.9"
 tenacity = "^9.0.0"
-requests = "^2.32.3"
+httpx = "^0.28.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -66,6 +65,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules --cov=./spark_test"
+log_cli_level = "INFO"
+asyncio_mode = "auto"
 
 [tool.ruff]
 extend-exclude = ["__pycache__", "*.egg_info"]
@@ -110,7 +111,6 @@ follow_imports = "silent"
 
 [[tool.mypy.overrides]]
 module = [
-  "parameterized",
   "envyaml",
   "pytest",
 ]
