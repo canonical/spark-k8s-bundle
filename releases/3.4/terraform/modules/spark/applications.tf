@@ -13,7 +13,7 @@ resource "juju_application" "history_server" {
   }
 
   resources = {
-    spark-history-server-image = "ghcr.io/canonical/charmed-spark@sha256:04727c07bd7ce9b244cf38376e6deb7acd7eabe5579d5f043c8b4af1aa9d79a4" # 3.5.1
+    spark-history-server-image = "ghcr.io/canonical/charmed-spark@sha256:1d9949dc7266d814e6483f8d9ffafeff32f66bb9939e0ab29ccfd9d5003a583a" # 3.4.2
   }
 
   units = 1
@@ -145,6 +145,6 @@ resource "juju_application" "zookeeper" {
     zookeeper-image = 34
   }
 
-  units       = 3
+  units       = var.zookeeper_units
   constraints = "arch=amd64"
 }

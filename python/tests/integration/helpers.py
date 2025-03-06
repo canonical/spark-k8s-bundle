@@ -325,6 +325,7 @@ async def deploy_bundle_yaml(
         "service_account": "kyuubi-test-user",
         "bucket": bucket.bucket_name,
         "s3_endpoint": bucket.s3.meta.endpoint_url,
+        "zookeeper_units": 1,
     } | ({"cos_controller": ops_test.controller_name, "cos_model": cos} if cos else {})
 
     bundle_content = bundle.map(lambda path: render_yaml(path, data, ops_test))
@@ -372,6 +373,7 @@ async def deploy_bundle_yaml_azure_storage(
         "service_account": "kyuubi-test-user",
         "container": container.container_name,
         "storage_account": container.credentials.storage_account,
+        "zookeeper_units": 1,
     } | ({"cos_controller": ops_test.controller_name, "cos_model": cos} if cos else {})
 
     bundle_content = bundle.map(lambda path: render_yaml(path, data, ops_test))
@@ -425,6 +427,7 @@ async def deploy_bundle_terraform(
         "model": ops_test.model_name,
         "storage_backend": storage_backend,
         "create_model": False,
+        "zookeeper_units": 1,
     } | ({"cos_model": cos} if cos else {})
 
     # NOTE: avoid logging secret key
