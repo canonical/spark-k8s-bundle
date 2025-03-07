@@ -2,8 +2,7 @@
 # See LICENSE file for licensing details.
 
 resource "juju_application" "history_server" {
-  name = "history-server"
-
+  name  = "history-server"
   model = data.juju_model.spark.name
 
   charm {
@@ -22,9 +21,7 @@ resource "juju_application" "history_server" {
 
 }
 resource "juju_application" "kyuubi" {
-
-  name = "kyuubi"
-
+  name  = "kyuubi"
   model = data.juju_model.spark.name
 
   charm {
@@ -50,8 +47,7 @@ resource "juju_application" "kyuubi" {
 }
 
 resource "juju_application" "kyuubi_users" {
-  name = "kyuubi-users"
-
+  name  = "kyuubi-users"
   model = data.juju_model.spark.name
 
   charm {
@@ -68,12 +64,10 @@ resource "juju_application" "kyuubi_users" {
   trust = true
 
   constraints = "arch=amd64"
-
 }
 
 resource "juju_application" "metastore" {
-  name = "metastore"
-
+  name  = "metastore"
   model = data.juju_model.spark.name
 
   charm {
@@ -90,12 +84,10 @@ resource "juju_application" "metastore" {
   trust = true
 
   constraints = "arch=amd64"
-
 }
 
 resource "juju_application" "hub" {
-  name = "integration-hub"
-
+  name  = "integration-hub"
   model = data.juju_model.spark.name
 
   charm {
@@ -110,23 +102,6 @@ resource "juju_application" "hub" {
 
   units = 1
   trust = true
-
-  constraints = "arch=amd64"
-
-}
-
-resource "juju_application" "certificates" {
-  name = "self-signed-certificates"
-
-  model = data.juju_model.spark.name
-
-  charm {
-    name     = "self-signed-certificates"
-    channel  = "latest/edge"
-    revision = 163
-  }
-
-  units = 1
 
   constraints = "arch=amd64"
 }
@@ -145,6 +120,7 @@ resource "juju_application" "zookeeper" {
     zookeeper-image = 34
   }
 
-  units       = var.zookeeper_units
+  units = var.zookeeper_units
+
   constraints = "arch=amd64"
 }
