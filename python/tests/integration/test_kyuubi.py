@@ -55,7 +55,7 @@ async def test_authentication_is_enforced(ops_test):
     credentials["password"] = "something-random"
 
     with pytest.raises(Exception) as e:
-        client = KyuubiClient(**credentials)
+        client = KyuubiClient(**credentials, use_ssl=True)
         client.get_database("spark_test")
 
         assert "Error validating the login" in str(e)
@@ -66,7 +66,7 @@ async def test_jdbc_endpoint(ops_test: OpsTest):
     """Test that JDBC connection in Kyuubi works out of the box in bundle."""
 
     credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
-    client = KyuubiClient(**credentials)
+    client = KyuubiClient(**credentials, use_ssl=True)
 
     db_name, table_name = "spark_test", "my_table"
 
@@ -200,7 +200,7 @@ async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
 @pytest.mark.abort_on_fail
 async def test_drop_table_if_exists(ops_test: OpsTest):
     credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
-    client = KyuubiClient(**credentials)
+    client = KyuubiClient(**credentials, use_ssl=True)
 
     db_name, table_name = "spark_test", "my_table"
 

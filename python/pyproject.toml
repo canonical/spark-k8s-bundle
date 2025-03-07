@@ -22,8 +22,8 @@ spark8t = ">=0.0.10"
 boto3 = ">=1.34.55,<1.36"
 pytest = ">=6.2"
 azure-storage-blob = "^12.21.0"
-pyhive = { extras = ["hive_pure_sasl"], version = "^0.7.0" }
 lightkube = ">=0.11"
+impyla = "^0.20.0"
 
 [tool.poetry.group.fmt]
 optional = true
