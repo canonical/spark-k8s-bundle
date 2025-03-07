@@ -73,6 +73,13 @@ applications:
     scale: 1
     constraints: arch=amd64
     trust: true
+  certificates:
+    charm: self-signed-certificates
+    channel: latest/edge
+    revision: 163
+    scale: 1
+    constraints: arch=amd64
+    trust: true
 relations:
 - - integration-hub:s3-credentials
   - s3:s3-credentials
@@ -86,3 +93,5 @@ relations:
   - integration-hub:spark-service-account
 - - kyuubi:zookeeper
   - zookeeper:zookeeper
+- - kyuubi:certificates
+  - certificates:certificates
