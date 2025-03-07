@@ -13,3 +13,14 @@ variable "kyuubi_user" {
   type        = string
 }
 
+variable "zookeeper_units" {
+  description = "Define the number of zookeeper units. 3 units are recommended for high availability."
+  type        = number
+  default     = 3
+  nullable    = false
+}
+
+variable "use_manual_tls" {
+  type    = bool
+  default = false
+}
