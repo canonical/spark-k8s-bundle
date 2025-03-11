@@ -30,7 +30,7 @@ resource "juju_model" "spark" {
 module "ssc" {
   depends_on  = [juju_model.spark]
   source      = "git::https://github.com/canonical/self-signed-certificates-operator//terraform"
-  model       = "spark"
+  model       = juju_model.spark.name
   channel     = "latest/edge"
   revision    = 163
   constraints = "arch=amd64"
@@ -39,21 +39,21 @@ module "ssc" {
 }
 
 module "spark" {
-  depends_on                = [juju_model.spark, module.ssc]
-  source                    = "git::https://github.com/canonical/spark-k8s-bundle//releases/3.5/terraform/spark"
-  model                     = "spark"
+  depends_on                = [juju_model.spark]
+  source                    = "git::https://github.com/canonical/spark-k8s-bundle//releases/3.5/terraform/modules/spark"
+  model                     = juju_model.spark.name
   tls_app_name              = module.ssc.app_name
   tls_certificates_endpoint = module.ssc.provides.certificates
 }
 
 module "azure" {
-  depends_on   = [module.spark]
-  source       = "git::https://github.com/canonical/spark-k8s-bundle//releases/3.5/terraform/azure-storage"
-  model        = "spark"
+  depends_on   = [juju_model.spark]
+  source       = "git::https://github.com/canonical/spark-k8s-bundle//releases/3.5/terraform/modules/azure-storage"
+  model        = juju_model.spark.name
   spark_charms = module.spark.charms
   azure = {
-    storage_account = storage_account,
-    storage_secret  = storage_secret
+    storage_account = "storage_account"
+    storage_secret  = "storage_secret"
   }
 }
 ```

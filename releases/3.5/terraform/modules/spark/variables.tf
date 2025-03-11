@@ -13,6 +13,7 @@ variable "kyuubi_user" {
   description = "User name to be used for running Kyuubi engines."
   type        = string
   nullable    = false
+  default     = "kyuubi-spark-engine"
 }
 
 variable "zookeeper_units" {
