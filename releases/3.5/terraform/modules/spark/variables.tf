@@ -4,23 +4,32 @@
 # Define spark-specific variables
 
 variable "model" {
-  description = "The name of the Juju Model to deploy to"
+  description = "Name of the Juju Model to deploy to."
   type        = string
+  nullable    = false
 }
 
 variable "kyuubi_user" {
-  description = "Define the user to be used for running Kyuubi enginers"
+  description = "User name to be used for running Kyuubi engines."
   type        = string
+  nullable    = false
 }
 
 variable "zookeeper_units" {
-  description = "Define the number of zookeeper units. 3 units are recommended for high availability."
+  description = "Number of zookeeper units. 3 units are recommended for high availability."
   type        = number
   default     = 3
   nullable    = false
 }
 
-variable "use_manual_tls" {
-  type    = bool
-  default = false
+variable "tls_app_name" {
+  description = "Name of the application providing the `tls-certificates` interface."
+  type        = string
+  nullable    = false
+}
+
+variable "tls_certificates_endpoint" {
+  description = "Name of the endpoint providing the `tls-certificates` interface."
+  type        = string
+  nullable    = false
 }

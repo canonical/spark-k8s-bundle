@@ -1,6 +1,90 @@
-# Spark
+# Spark bundle Terraform modules
+
+These Terraform modules aim to facilitate the deployment of the Charmed Spark solution, using the using the [Terraform juju provider](https://github.com/juju/terraform-provider-juju/). For more information, refer to the provider [documentation](https://registry.terraform.io/providers/juju/juju/latest/docs).
+
+The solution consists of the following modules:
+
+- `spark`: main spark module with integration-hub, history-server, kyuubi
+- `s3` and `azure-storage`: storage backend. Having one of them is necessary, and they are mutually exclusive
+- `observabiliby`: parts of the observability stack to be deployed alongside spark (config, pushgateway, etc.)
+
+> [!NOTE]
+> The `s3` module itself doesn't act as an S3 object storage system. For the solution to be functional, the `s3-integrator` charm needs to point to an S3-like storage.
+> The same applies to `azure-storage`.
+
+## Requirements
+
+This module requires a `juju` model to be available. Refer to the [usage section](#usage) below for more details.
 
 ## Usage
+
+### Quick start
+
+Here is what a minimal deployment could look like:
+
+```hcl
+resource "juju_model" "spark" {
+  name = "spark"
+}
+
+module "ssc" {
+  source      = "git::https://github.com/canonical/self-signed-certificates-operator//terraform"
+  model       = "spark"
+  channel     = "latest/edge"
+  revision    = 163
+  constraints = "arch=amd64"
+  base        = "ubuntu@22.04"
+  units       = 1
+}
+
+module "spark" {
+  depends_on                = [juju_model.spark, module.ssc]
+  source                    = "git::https://github.com/canonical/spark-k8s-bundle//releases/3.4/terraform/spark"
+  model                     = "spark"
+  tls_app_name              = module.ssc.app_name
+  tls_certificates_endpoint = module.ssc.provides.certificates
+}
+
+module "azure" {
+  depends_on   = [module.spark]
+  source       = "git::https://github.com/canonical/spark-k8s-bundle//releases/3.4/terraform/azure-storage"
+  model        = "spark"
+  spark_charms = module.spark.charms
+  azure = {
+    storage_account = storage_account,
+    storage_secret  = storage_secret
+  }
+}
+```
+
+### Inputs
+
+| Module        | Name                         | Type        | Description                                                              |
+| ------------- | ---------------------------- | ----------- | ------------------------------------------------------------------------ |
+| azure-storage | `azure`                      | object      | Azure Object storage information (storage account, key, container, etc.) |
+| azure-storage | `model`                      | string      | Name of the model to deploy to (same as spark).                          |
+| azure-storage | `spark_charms`               | map(string) | Names of the Spark applications in the Spark Juju model.                 |
+| observability | `config_repo`                | string      | COS configuration repo URL.                                              |
+| observability | `config_grafana_path`        | string      | Grafana dashboard path from configuration repo root.                     |
+| observability | `dashboards_offer`           | string      | URL of the `grafana_dashboards` interface offer.                         |
+| observability | `metrics_offer`              | string      | URL of the `prometheus_remote_write` interface offer.                    |
+| observability | `logging_offer`              | string      | URL of the `loki_push_api` interface offer.                              |
+| observability | `spark_charms`               | map(string) | Names of the Spark applications in the Spark Juju model.                 |
+| observability | `spark_model`                | string      | Name of the model to deploy to (same as spark).                          |
+| s3            | `s3`                         | object      | S3 Bucket information (bucket name, path, etc.)                          |
+| s3            | `model`                      | string      | Name of the model to deploy to (same as spark).                          |
+| s3            | `spark_charms`               | map(string) | Names of the Spark applications in the Spark Juju model.                 |
+| spark         | `model`                      | string      | Name of the model to deploy to.                                          |
+| spark         | `kyuubi_user`                | string      | User name to be used for running Kyuubi engines.                         |
+| spark         | `zookeeper_units`            | number      | Number of zookeeper units.                                               |
+| spark         | `tls_app_name`               | string      | Name of the application providing the `tls-certificates` interface.      |
+| spark         | `tls_certificates_endpoints` | string      | Name of the endpoint providing the `tls-certificates` interface.         |
+
+### Outputs
+
+All modules return a `charms` output, a map(string) of the charms deployed.
+
+## Development
 
 The features are split into multiples submodules, where each file has a dedicated role:
 
@@ -9,44 +93,28 @@ The features are split into multiples submodules, where each file has a dedicate
 - `resources.tf` -> Define juju models, secrets, cross model offers
   each module can also include `providers.tf`, `variables.tf` and `outputs.tf`. The latter is especially useful to pass values back to a different module.
 
-Modules description:
+We defined a dependency chain such as `azure-storage`, `observability` and `s3` depend on `spark`.
+By depending on `spark`, they can use whatever output `spark` defines.\
+This means that using this structure, a new optional module just takes care of defining its applications and their integrations with the existing resources, without any change needed from the existing modules.
 
-- `spark`: main spark module with integration-hub, history-server, kyuubi
-- `s3` and `azure-storage`: storage backend. Having one of them is necessary, and they are mutually exclusive
-- `cos`: observability stack (= the COS bundle)
-- `observabiliby`: parts of the observability stack to be deployed alongside spark (config, pushgateway, etc.)
+## Versions
 
-Outside the 5 main modules, `main.tf` only takes care of instantiating the modules and passing the variables to them.
-We defined a dependency chain such as cos, s3 and azure depends on spark.
-By depending on spark, they can use whatever output spark defines.\
-This means that using this structure, an optional module takes care of defining its applications and their integrations with the existing resources, in contrast to what was originally suggested by the reversed dependency chain in the GH repository.
-`observability` depends on both spark and cos.
+| Module        | Charm                        | Channel       | revision |
+| ------------- | ---------------------------- | ------------- | -------- |
+| azure         | azure-storage-integrator     | latest/edge   | 9        |
+| observability | grafana-agent-k8s            | latest/stable | 104      |
+| observability | cos-configuration-k8s        | latest/stable | 67       |
+| observability | prometheus-pushgateway-k8s   | latest/stable | 16       |
+| observability | prometheus-scrape-config-k8s | latest/stable | 56       |
+| spark         | spark-history-server-k8s     | 3.4/edge      | 37       |
+| spark         | spark-integration-hub-k8s    | latest/edge   | 31       |
+| spark         | kyuubi-k8s                   | latest/edge   | 39       |
+| spark         | postgresql-k8s               | 14/stable     | 281      |
+| spark         | postgresql-k8s               | 14/stable     | 281      |
+| spark         | zookeeper-k8s                | 3/edge        | 75       |
+| s3            | s3-integrator                | latest/stable | 77       |
 
-## Content
-
-| Module        | Channel       | Charm                        | revision |
-| ------------- | ------------- | ---------------------------- | -------- |
-| azure         | latest/edge   | azure-storage-integrator     | 9        |
-| cos           | latest/stable | alertmanager-k8s             |          |
-| cos           | latest/stable | catalogue-k8s                |          |
-| cos           | latest/stable | grafana-k8s                  |          |
-| cos           | latest/stable | loki-k8s                     |          |
-| cos           | latest/stable | prometheus-k8s               |          |
-| cos           | latest/stable | traefik-k8s                  |          |
-| observability | latest/edge   | grafana-agent-k8s            | 103      |
-| observability | latest/stable | cos-configuration-k8s        | 63       |
-| observability | latest/stable | prometheus-pushgateway-k8s   | 16       |
-| observability | latest/stable | prometheus-scrape-config-k8s | 51       |
-| spark         | latest/edge   | self-signed-certificates     | 163      |
-| spark         | 3.4/edge      | spark-history-server-k8s     | 37       |
-| spark         | latest/edge   | spark-integration-hub-k8s    | 31       |
-| spark         | latest/edge   | kyuubi-k8s                   | 39       |
-| spark         | 14/stable     | postgresql-k8s               | 281      |
-| spark         | 14/stable     | postgresql-k8s               | 281      |
-| spark         | 3/edge        | zookeeper-k8s                | 75       |
-| s3            | latest/stable | s3-integrator                | 77       |
-
-### Updating the table
+### Updating the version table
 
 1. Make sure that you work from a clean slate (no `terraform.tfstate`)\
    `terraform plan -out "tfplan"`
@@ -80,10 +148,10 @@ for module in root["child_modules"]:
         if not resource["type"] == "juju_application":
             continue
         charm = Charm(resource["values"]["charm"][0])
-        charms_summary.append([name, *charm.values()])
+        charms_summary.append([name, charm["name"], charm["channel"], charm["revision"]])
 
 
-data = [["Module", "Channel", "Charm", "revision"]] + charms_summary
+data = [["Module", "Charm", "Channel", "revision"]] + charms_summary
 md_table = "\n".join(
     [
         "| " + " | ".join(map(str, row)) + " |"

@@ -10,6 +10,6 @@ output "charms" {
     metastore      = juju_application.metastore.name
     hub            = juju_application.hub.name
     zookeeper      = juju_application.zookeeper.name
-    certificates   = element(concat(module.ssc[*].app_name, module.manualtls[*].app_name), 0)
+    certificates   = var.tls_app_name
   }
 }

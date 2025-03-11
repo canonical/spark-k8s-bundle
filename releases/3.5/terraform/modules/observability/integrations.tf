@@ -2,15 +2,15 @@
 # See LICENSE file for licensing details.
 
 data "juju_offer" "grafana_dashboards" {
-  url = local.endpoints.dashboards
+  url = var.dashboards_offer
 }
 
 data "juju_offer" "prometheus_receive_remote_write" {
-  url = local.endpoints.prometheus
+  url = var.metrics_offer
 }
 
 data "juju_offer" "loki_logging" {
-  url = local.endpoints.loki
+  url = var.logging_offer
 }
 
 resource "juju_integration" "cos_configuration_agent" {
