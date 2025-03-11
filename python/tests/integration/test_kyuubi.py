@@ -3,6 +3,8 @@
 # See LICENSE file for licensing details.
 
 import asyncio
+import ast
+import json
 import logging
 
 import psycopg2
@@ -66,7 +68,18 @@ async def test_jdbc_endpoint(ops_test: OpsTest):
     """Test that JDBC connection in Kyuubi works out of the box in bundle."""
 
     credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
-    client = KyuubiClient(**credentials, use_ssl=True)
+
+    logger.info("Get certificate from self-signed-certificates operator")
+    self_signed_certificate_unit = ops_test.model.applications["certificates"].units[0]
+    action = await self_signed_certificate_unit.run_action(
+        action_name="get-issued-certificates",
+    )
+    result = await action.wait()
+    items = ast.literal_eval(result.results.get("certificates"))
+    certificates = json.loads(items[0])
+    ca_cert = certificates["ca"]
+
+    client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
 
     db_name, table_name = "spark_test", "my_table"
 
