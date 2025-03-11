@@ -67,7 +67,3 @@ jobs:
           juju-agent-version: ${{ matrix.juju.agent || '3.6.0' }}
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
-      - name: Setup tmate session
-        if: ${{ failure() }}
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 20
