@@ -49,6 +49,6 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
   1. [Component Overview](explanation/e-component-overview.md)
   1. [Security](explanation/e-security.md)
   1. [Cryptography](explanation/e-cryptography.md)
-  1. [Charmed Apache Spark Hierarchical Configuration](explanation/e-configuration.md)
-  1. [Charmed Apache Spark Monitoring](explanation/e-monitoring.md)
+  1. [Configuration](explanation/e-configuration.md)
+  1. [Monitoring](explanation/e-monitoring.md)
   1. [Trademarks](explanation/e-trademarks.md)

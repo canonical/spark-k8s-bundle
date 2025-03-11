@@ -4,9 +4,17 @@ This document describes the cryptography used by Charmed Apache Spark K8s.
 
 ## Resource checksums
 
-The three charms in the Charmed Apache Spark solution: Spark History Server, Integration Hub for Apache Spark, and Charmed Apache Kyuubi; all employ pinned revisions of the workload images they operate on. The Spark History Server and Charmed Apache Kyuubi use different flavours of the [Charmed Apache Spark Rock image](https://github.com/canonical/charmed-spark-rock/) whereas the Integration Hub for Apache Spark uses the [Integration Hub for Apache Spark Rock image](https://github.com/canonical/spark-integration-hub-rock).
+All three charms in the Charmed Apache Spark solution employ pinned revisions of the workload images they operate on: 
+
+* Spark History Server
+* Integration Hub for Apache Spark
+* Charmed Apache Kyuubi 
+
+The Spark History Server and Charmed Apache Kyuubi use different flavours of the [Charmed Apache Spark Rock image](https://github.com/canonical/charmed-spark-rock/) whereas the Integration Hub for Apache Spark uses the [Integration Hub for Apache Spark Rock image](https://github.com/canonical/spark-integration-hub-rock).
+
 The Charmed Apache Spark K8s Bundle is a bundle of charms and relations necessary for preparing an end-to-end tested Apache Spark cluster ready for use. The bundle also pins the revisions of all individual charms and the revisions of the workload images used by those charms. In Terraform bundles, the pinning of workload images is done with a revision number, whereas in the YAML bundle, this is done with a SHA252 digest of the image.
-All artifacts, that are bundled into Charmed Apache Spark Rock image, Apache Spark Client snap and Integration Hub for Apache Spark Rock image are verified against their MD5, SHA256 or SHA512 checksums after the download. The Spark8t Python library in the rock image is installed from the GitHub repository itself with the version pinned.
+
+All artifacts, that are bundled into Charmed Apache Spark Rock image, Apache Spark Client snap, and Integration Hub for Apache Spark Rock image are verified against their MD5, SHA256 or SHA512 checksums after the download. The Spark8t Python library in the rock image is installed from the GitHub repository itself with the version pinned.
 
 ## Sources verification
 
@@ -64,12 +72,11 @@ In Charmed Apache Spark, the authentication mechanism exists at the following pl
 
 1. Connection with Apache ZooKeeper
 2. Connection with PostgreSQL
-3. Connection with S3 
-4. Connection with Azure Storage
-5. Kyuubi Client <> Kyuubi Server connection
-6. Connection with Kubernetes Substrate
-7. Connection between Spark Driver and Executors
-8. Spark History Server web interface
+3. Connection with object storage 
+4. Connection between Spark Driver and Executors
+5. Connection with Kubernetes Substrate
+6. Kyuubi Client <> Kyuubi Server connection
+7. Spark History Server web interface
  
 ### Connection with Apache Zookeeper
 
@@ -81,9 +88,11 @@ Clients need to connect to Apache ZooKeeper for service discovery and informatio
 
 Kyuubi Server authenticates to Postgres using username and password that are exchanged using relation data when the two applications are integrated. These credentials are stored by Apache Kyuubi in configuration files in the directory `/opt/kyuubi/conf` inside the workload container. For more information, see the [Apache Kyuubi official documentation](https://kyuubi.readthedocs.io/en/master/security/jdbc.html).
 
-### Connection to Object Storages
+### Connection to object storage 
 
-Authentication is required for Spark jobs, Spark History Server, and Apache Kyuubi to connect to either S3 or Azure object storages. Credentials are stored in peer-relation data for S3 Integrator and in Juju secrets for the Azure Object storage, and they are communicated to other charms (Spark History Server, Integration Hub and Apache Kyuubi) via relation databag. Integration Hub stores the credentials into Kubernetes Secrets to be made available for Spark jobs. Driver and executors store configuration files (where credential information is stored) unencrypted in `/etc/spark8t/conf`. Apache Kyuubi stores credentials in unencrypted configuration files in `/opt/spark/conf`, to be used to configure Apache Spark Engine, and `/opt/kyuubi/conf`, to be used to configure the Kyuubi Server. Spark History Server stores credentials in unencrypted configuration files in `/etc/spark/conf`.
+Authentication is required for Spark jobs, Spark History Server, and Apache Kyuubi to connect to either S3 or Azure object storages. Credentials are stored in peer-relation data for S3 Integrator and in Juju secrets for the Azure Object storage, and they are communicated to other charms (Spark History Server, Integration Hub and Apache Kyuubi) via relation databag. 
+
+Integration Hub stores the credentials into Kubernetes Secrets to be made available for Spark jobs. Driver and executors store configuration files (where credential information is stored) unencrypted in `/etc/spark8t/conf`. Apache Kyuubi stores credentials in unencrypted configuration files in `/opt/spark/conf`, to be used to configure Apache Spark Engine, and `/opt/kyuubi/conf`, to be used to configure the Kyuubi Server. Spark History Server stores credentials in unencrypted configuration files in `/etc/spark/conf`.
  
 ### Connection between Spark Driver and Executors
 
@@ -95,7 +104,7 @@ The connection between Charmed Apache Spark and Kubernetes Substrate can be auth
 
 ### Kyuubi Client <> Kyuubi Server Connection
 
-The Kyuubi Client (aka JDBC Client) can connect with the Kyuubi Server endpoint (aka JDBC endpoint) using a pair of username and password provided in the query. Apache Kyuubi charm internally implements this authentication by storing the list of users and their passwords stored as plaintext in a PostgreSQL database . For more information about the Kyuubi Client, see the [Apache Kyuubi official documentation](https://kyuubi.readthedocs.io/en/master/client/index.html).
+The Kyuubi Client (aka JDBC Client) can connect with the Kyuubi Server endpoint (aka JDBC endpoint) using a pair of username and password provided in the query. Apache Kyuubi charm internally implements this authentication by storing the list of users and their passwords stored as plaintext in a PostgreSQL database. For more information about the Kyuubi Client, see the [Apache Kyuubi official documentation](https://kyuubi.readthedocs.io/en/master/client/index.html).
 
 ### Spark History Server web interface
 
