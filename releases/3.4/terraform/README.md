@@ -28,6 +28,7 @@ resource "juju_model" "spark" {
 }
 
 module "ssc" {
+  depends_on  = [juju_model.spark]
   source      = "git::https://github.com/canonical/self-signed-certificates-operator//terraform"
   model       = "spark"
   channel     = "latest/edge"
