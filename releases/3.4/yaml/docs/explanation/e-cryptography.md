@@ -58,7 +58,7 @@ Spark History Server, Charmed Apache Kyuubi, and Integration Hub for Apache Spar
 
 The Apache Kyuubi charm may use PostgreSQL to store the metadata and user/authentication information. The communication between the charm and the PostgreSQL can be encrypted using TLS certificates. 
 
-The Apache Kyuubi charm has capabilities to connect to Apache ZooKeeper for HA and service discovery features. The communication between Kyuubi and Apache ZooKeeper can be encrypted using a TLS certificate. 
+The Apache Kyuubi charm has capabilities to connect to Apache ZooKeeper for Apache Spark engine discovery. The communication between Apache Kyuubi and Apache ZooKeeper can be encrypted using a TLS certificate.
 
 The Apache Kyuubi charm exposes a JDBC-compliant endpoint which can be connected using JDBC-compliant clients, like Beeline. Encryption is currently not supported and it is planned for 25.04.
 
@@ -81,8 +81,6 @@ In Charmed Apache Spark, the authentication mechanism exists at the following pl
 ### Connection with Apache Zookeeper
 
 Kyuubi Server authenticates to Apache ZooKeeper using a hash digest mechanism using digested MD5 hashes of username and password. Usernames and passwords are exchanged using a databag of the relation between Apache Kyuubi and Apache ZooKeeper. These credentials are stored unencrypted in configuration files in the `/opt/kyuubi/conf` directory inside the Apache Kyuubi workload container.
-
-Clients need to connect to Apache ZooKeeper for service discovery and information about the list of healthy Kyuubi Servers. The connection to Apache ZooKeeper for service discovery is currently unauthenticated, exposing the list of healthy Kyuubi Servers stored in a dedicated Apache ZooKeeper node publicly readable by everyone.
 
 ### Connection with PostgreSQL
 
