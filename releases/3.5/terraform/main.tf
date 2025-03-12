@@ -35,6 +35,7 @@ module "ssc" {
   depends_on  = [juju_model.spark]
   source      = "git::https://github.com/canonical/self-signed-certificates-operator//terraform"
   model       = var.model
+  app_name    = "certificates"
   channel     = "latest/edge"
   revision    = 163
   constraints = "arch=amd64"
