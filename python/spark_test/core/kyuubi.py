@@ -2,10 +2,14 @@
 # See LICENSE file for licensing details.
 """Kyuubi module."""
 
-from contextlib import contextmanager
-from typing import Iterable, Type, TypeAlias
+import tempfile
+from contextlib import closing, contextmanager
+from io import StringIO
+from pathlib import Path
+from typing import Generator, Type, TypeAlias
 
-from pyhive.hive import Connection
+from impala.dbapi import connect
+from impala.hiveserver2 import HiveServer2Connection as Connection
 
 TYPES = {int: "int", str: "string"}
 
@@ -36,24 +40,45 @@ class KyuubiClient:
         port: int = 10009,
         username: str | None = None,
         password: str | None = None,
+        use_ssl: bool = False,
+        ca_cert: str | Path | None = None,
     ):
+        """HiveServer connection.
+
+        'ca_cert', if set, is either a Path to the third-party CA certificate or the
+        actual content of the CA certificate in a str. If SSL is enabled but the
+        certificate is not specified, the server certificate will not be validated.
+        """
         self.host = host
         self.port = port
         self.username = username
         self.password = password
+        self.use_ssl = use_ssl
+        self.ca_cert = ca_cert
 
     @property
     @contextmanager
-    def connection(self) -> Iterable[Connection]:
+    def connection(self) -> Generator[Connection, None, None]:
         """Instantiate connection."""
-        params = {"host": self.host, "port": self.port}
+        params = {"host": self.host, "port": self.port, "use_ssl": self.use_ssl}
         if self.username:
-            params.update({"username": self.username})
+            params.update({"user": self.username})
         if self.password:
-            params.update({"password": self.password, "auth": "CUSTOM"})
-        conn = Connection(**params)
-        yield conn
-        conn.close()
+            params.update({"password": self.password, "auth_mechanism": "PLAIN"})
+
+        f = StringIO()
+        if self.use_ssl and self.ca_cert is not None:
+            if isinstance(self.ca_cert, Path):
+                params.update(ca_cert=str(self.ca_cert))
+            else:
+                f.close()
+                f = tempfile.NamedTemporaryFile("r+")
+                f.write(self.ca_cert)
+                f.seek(0)
+                params.update(ca_cert=f.name)
+
+        with closing(connect(**params)) as conn, closing(f):
+            yield conn
 
     @property
     def databases(self):

@@ -37,6 +37,7 @@ module "spark" {
   model           = var.model
   kyuubi_user     = var.kyuubi_user
   zookeeper_units = var.zookeeper_units
+  use_manual_tls  = false
 }
 
 
