@@ -66,7 +66,7 @@ resource "juju_integration" "kyuubi_tls" {
   }
 
   application {
-    name     = local.certificates
-    endpoint = "certificates"
+    name     = var.tls_app_name
+    endpoint = var.tls_certificates_endpoint
   }
 }

@@ -2,23 +2,24 @@
 # See LICENSE file for licensing details.
 
 variable "model" {
-  description = "The name of the Spark Juju Model to deploy to"
+  description = "Name of the Spark Juju Model to deploy to"
   type        = string
+  nullable    = false
 }
 
 variable "s3" {
   description = "S3 Bucket information"
   type = object({
-    bucket   = optional(string, "spark-test")
+    bucket   = optional(string, "spark-bucket")
     endpoint = optional(string, "https://s3.amazonaws.com")
   })
   default = {
-    bucket   = "myawsbucket-f9a34"
+    bucket   = "spark-bucket"
     endpoint = "https://s3.amazonaws.com"
   }
 }
 
 variable "spark_charms" {
-  description = "The names of the Spark applications in the Spark Juju model."
+  description = "Names of the Spark applications in the Spark Juju model."
   type        = map(string)
 }

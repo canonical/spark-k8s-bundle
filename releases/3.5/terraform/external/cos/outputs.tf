@@ -16,3 +16,15 @@ output "user" {
   description = "The name of the Juju user of the COS deployment."
   value       = var.cos_user
 }
+
+output "dashboards_offer" {
+  value = juju_offer.grafana_dashboards.url
+}
+
+output "metrics_offer" {
+  value = juju_offer.prometheus_receive_remote_write.url
+}
+
+output "logging_offer" {
+  value = juju_offer.loki_logging.url
+}

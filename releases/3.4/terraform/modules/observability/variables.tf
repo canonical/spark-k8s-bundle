@@ -2,47 +2,44 @@
 # See LICENSE file for licensing details.
 
 variable "config_repo" {
-  description = "The COS configuration repo URL."
+  description = "COS configuration repo URL."
   type        = string
   default     = "https://github.com/canonical/spark-k8s-bundle"
+  nullable    = false
 }
 
 variable "config_grafana_path" {
-  description = "The Grafana dashboard path from configuration repo root."
+  description = "Grafana dashboard path from configuration repo root."
   type        = string
   default     = "releases/3.4/resources/grafana/"
+  nullable    = false
 }
 
 variable "spark_model" {
-  description = "The name of the Spark Juju model."
+  description = "Name of the Spark Juju model."
   type        = string
+  nullable    = false
 }
 
 variable "spark_charms" {
-  description = "The names of the Spark applications in the Spark Juju model."
+  description = "Names of the Spark applications in the Spark Juju model."
   type        = map(string)
 }
 
-variable "cos_model" {
-  description = "The name of the COS Juju model."
+variable "dashboards_offer" {
+  description = "URL of the `grafana_dashboard` interface offer."
   type        = string
+  nullable    = false
 }
 
-variable "cos_user" {
-  description = "The name of the Juju user of the COS deployment."
+variable "metrics_offer" {
+  description = "URL of the `prometheus_remote_write` interface offer."
   type        = string
+  nullable    = false
 }
 
-variable "cos_charms" {
-  description = "The names of the COS applications in the COS Juju model."
-  type        = map(string)
+variable "logging_offer" {
+  description = "URL of the `loki_push_api` interface offer."
+  type        = string
+  nullable    = false
 }
-
-locals {
-  endpoints = {
-    dashboards = "${var.cos_user}/${var.cos_model}.grafana"
-    prometheus = "${var.cos_user}/${var.cos_model}.prometheus"
-    loki       = "${var.cos_user}/${var.cos_model}.loki"
-  }
-}
-
