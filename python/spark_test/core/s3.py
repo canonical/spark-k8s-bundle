@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
+"""S3 module."""
 
+import logging
 import os
 from dataclasses import dataclass
-from typing import List
 
 import boto3
 from botocore.client import Config
 from botocore.exceptions import ClientError
+
+from spark_test.core import ObjectStorageUnit
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -25,7 +30,7 @@ class Credentials:
         return f"http://{self.host}:80"
 
 
-class Bucket:
+class Bucket(ObjectStorageUnit):
     """Class representing a S3 bucket."""
 
     def __init__(self, s3, bucket_name: str):
@@ -39,6 +44,30 @@ class Bucket:
         self.bucket_name = bucket_name
 
     @classmethod
+    def get(cls, bucket_name: str, credentials: Credentials):
+        """Return an instance of an existing Bucket class.
+
+        Args:
+            bucket_name: name of the bucket
+            credentials: S3 credentials
+
+        Returns:
+            Bucket object
+        """
+        config = Config(connect_timeout=60, retries={"max_attempts": 0})
+        session = boto3.session.Session(
+            aws_access_key_id=credentials.access_key,
+            aws_secret_access_key=credentials.secret_key,
+        )
+
+        s3 = session.client("s3", endpoint_url=credentials.endpoint, config=config)
+
+        if not cls._exists(bucket_name, s3):
+            raise FileNotFoundError(f"Bucket {bucket_name} does not exist.")
+
+        return Bucket(s3, bucket_name)
+
+    @classmethod
     def create(cls, bucket_name: str, credentials: Credentials):
         """Create and return an instance of the Bucket class.
 
@@ -49,7 +78,6 @@ class Bucket:
         Returns:
             Bucket object
         """
-
         config = Config(connect_timeout=60, retries={"max_attempts": 0})
         session = boto3.session.Session(
             aws_access_key_id=credentials.access_key,
@@ -59,7 +87,9 @@ class Bucket:
         s3 = session.client("s3", endpoint_url=credentials.endpoint, config=config)
 
         if cls._exists(bucket_name, s3):
-            raise ValueError(f"Cannot create bucket {bucket_name}. Already exists.")
+            raise FileExistsError(
+                f"Cannot create bucket {bucket_name}. Already exists."
+            )
 
         s3.create_bucket(Bucket=bucket_name)
 
@@ -75,8 +105,7 @@ class Bucket:
         if not self.exists():
             return
 
-        objs = [{"Key": x["Key"]} for x in self.list_objects()]
-        self.s3.delete_objects(Bucket=self.bucket_name, Delete={"Objects": objs})
+        self.cleanup()
         self.s3.delete_bucket(Bucket=self.bucket_name)
 
         self.s3.close()
@@ -86,7 +115,7 @@ class Bucket:
     def _exists(bucket_name, s3) -> bool:
         buckets = [
             bucket
-            for bucket in s3.list_buckets()["Buckets"]
+            for bucket in s3.list_buckets().get("Buckets", [])
             if bucket["Name"] == bucket_name
         ]
         return len(buckets) > 0
@@ -96,7 +125,7 @@ class Bucket:
         return self._exists(self.bucket_name, self.s3)
 
     def upload_file(self, file_name, object_name=None):
-        """Upload a file to an S3 bucket
+        """Upload a file to an S3 bucket.
 
         Args:
             file_name: File to upload
@@ -105,7 +134,6 @@ class Bucket:
         Returns:
              True if file was uploaded, else False
         """
-
         # If S3 object_name was not specified, use file_name
         if object_name is None:
             object_name = os.path.basename(file_name)
@@ -117,6 +145,28 @@ class Bucket:
             return False
         return True
 
-    def list_objects(self) -> List[dict]:
-        """Return the list of object contained in the bucket"""
-        return self.s3.list_objects_v2(Bucket=self.bucket_name)["Contents"]
+    def list_objects(self) -> list[dict]:
+        """Return the list of object contained in the bucket."""
+        return self.s3.list_objects_v2(Bucket=self.bucket_name).get("Contents", [])
+
+    def list_content(self):
+        """Return the list of object names."""
+        return [
+            name
+            for obj in self.list_objects()
+            if not (name := obj["Key"]).endswith("/")
+        ]
+
+    def get_uri(self, file: str):
+        """Get file URI."""
+        return f"s3a://{self.bucket_name}/{file}"
+
+    def cleanup(self) -> bool:
+        """Cleanup objects from bucket."""
+        try:
+            objs = [{"Key": x["Key"]} for x in self.list_objects()]
+            self.s3.delete_objects(Bucket=self.bucket_name, Delete={"Objects": objs})
+        except Exception:
+            logger.exception("Issue while deleting file")
+            return False
+        return True

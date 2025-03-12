@@ -6,13 +6,14 @@ applications:
   kyuubi:
     charm: kyuubi-k8s
     channel: latest/edge
-    revision: 29
+    revision: 39
     resources:
-      kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:9268d19a6eef91914e874734b320fab64908faf0f7adb8856be809bc60ecd1d0 # 3.4.2
+      kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:3c49dfe71387bd702a30844c80c9a17a8bc8ecb99ebdee37eab4b05e44ac683f # 3.4.2
     scale: 3
     options:
       namespace: {{ namespace }}
       service-account: {{ service_account }}
+      expose-external: loadbalancer
     constraints: arch=amd64
     trust: true
   kyuubi-users:
@@ -30,7 +31,7 @@ applications:
     charm: zookeeper-k8s
     channel: 3/edge
     revision: 70
-    scale: 3
+    scale: {{ zookeeper_units or 3}}
     constraints: arch=amd64
     resources:
       zookeeper-image: 31
@@ -72,10 +73,15 @@ applications:
     scale: 1
     constraints: arch=amd64
     trust: true
+  certificates:
+    charm: self-signed-certificates
+    channel: latest/edge
+    revision: 163
+    scale: 1
+    constraints: arch=amd64
+    trust: true
 relations:
 - - integration-hub:s3-credentials
-  - s3:s3-credentials
-- - kyuubi:s3-credentials
   - s3:s3-credentials
 - - history-server:s3-credentials
   - s3:s3-credentials
@@ -87,3 +93,5 @@ relations:
   - integration-hub:spark-service-account
 - - kyuubi:zookeeper
   - zookeeper:zookeeper
+- - kyuubi:certificates
+  - certificates:certificates
