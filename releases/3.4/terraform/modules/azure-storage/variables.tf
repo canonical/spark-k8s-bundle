@@ -2,8 +2,9 @@
 # See LICENSE file for licensing details.
 
 variable "model" {
-  description = "The name of the Spark Juju Model to deploy to"
+  description = "Name of the Spark Juju Model to deploy to"
   type        = string
+  nullable    = false
 }
 
 variable "azure" {
@@ -19,6 +20,6 @@ variable "azure" {
 }
 
 variable "spark_charms" {
-  description = "The names of the Spark applications in the Spark Juju model."
+  description = "Names of the Spark applications in the Spark Juju model."
   type        = map(string)
 }
