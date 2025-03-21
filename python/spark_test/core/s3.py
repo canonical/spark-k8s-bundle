@@ -164,8 +164,8 @@ class Bucket(ObjectStorageUnit):
     def cleanup(self) -> bool:
         """Cleanup objects from bucket."""
         try:
-            objs = [{"Key": x["Key"]} for x in self.list_objects()]
-            self.s3.delete_objects(Bucket=self.bucket_name, Delete={"Objects": objs})
+            for obj in self.list_objects():
+                self.s3.delete_object(Bucket=self.bucket_name, Key=obj["Key"])
         except Exception:
             logger.exception("Issue while deleting file")
             return False
