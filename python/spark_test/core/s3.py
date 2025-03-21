@@ -106,7 +106,7 @@ class Bucket(ObjectStorageUnit):
             return
 
         self.cleanup()
-        self.s3.delete_bucket(Bucket=self.bucket_name)
+        self.s3.delete_bucket(Bucket=self.bucket_name, force=True)
 
         self.s3.close()
         self.s3 = None
