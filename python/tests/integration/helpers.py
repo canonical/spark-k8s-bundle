@@ -130,11 +130,13 @@ async def get_kyuubi_credentials(
 async def fetch_jdbc_endpoint(ops_test):
     """Return the JDBC endpoint for clients to connect to Kyuubi server."""
     logger.info("Running action 'get-jdbc-endpoint' on kyuubi-k8s unit...")
-    leader_unit_number = await get_leader_unit_number(ops_test, "kyuubi")
-    kyuubi_unit = ops_test.model.applications["kyuubi"].units[leader_unit_number]
-    action = await kyuubi_unit.run_action(
-        action_name="get-jdbc-endpoint",
-    )
+
+    application_name = "kyuubi"
+    leader_unit_id = await get_leader_unit_number(ops_test, application_name)
+    logger.info(f"Leader unit: {application_name}/{leader_unit_id}")
+    action = await ops_test.model.units.get(
+        f"{application_name}/{leader_unit_id}"
+    ).run_action("get-jdbc-endpoint")
     result = await action.wait()
 
     jdbc_endpoint = result.results.get("endpoint")
