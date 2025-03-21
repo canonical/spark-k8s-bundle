@@ -17,15 +17,10 @@ from spark_test.core.s3 import Bucket, Credentials
 def credentials():
     """S3 credentials."""
     if all(
-        var in os.environ
-        for var in [
-            "S3_ENDPOINT",
-            "S3_ACCESS_KEY",
-            "S3_SECRET_KEY"
-        ]
+        var in os.environ for var in ["S3_ENDPOINT", "S3_ACCESS_KEY", "S3_SECRET_KEY"]
     ):
         params = {
-            "access_key": os.environ["S3_ACCRESS_KEY"],
+            "access_key": os.environ["S3_ACCESS_KEY"],
             "secret_key": os.environ["S3_SECRET_KEY"],
             "host": os.environ["S3_ENDPOINT"],
         }

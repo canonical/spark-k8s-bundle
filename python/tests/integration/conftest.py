@@ -162,7 +162,7 @@ def image_properties(spark_image):
 
 @pytest.fixture(scope="module")
 def bucket_name():
-    return "spark-bucket"
+    return f"s3-bucket-{uuid.uuid4()}"
 
 
 @pytest.fixture(scope="module")
