@@ -151,6 +151,7 @@ class Bucket(ObjectStorageUnit):
 
     def list_content(self):
         """Return the list of object names."""
+        logger.info(f"Bucket: {self.bucket_name}")
         return [
             name
             for obj in self.list_objects()
