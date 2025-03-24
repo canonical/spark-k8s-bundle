@@ -2,8 +2,8 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-import asyncio
 import ast
+import asyncio
 import json
 import logging
 
