@@ -162,6 +162,8 @@ def image_properties(spark_image):
 
 @pytest.fixture(scope="module")
 def bucket_name():
+    if "S3_BUCKET" in os.environ:
+        return os.environ["S3_BUCKET"]
     return f"s3-bucket-{uuid.uuid4()}"
 
 

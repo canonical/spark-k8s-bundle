@@ -46,6 +46,8 @@ def credentials():
 @pytest.fixture(scope="module")
 def bucket_name():
     """Bucket name."""
+    if "S3_BUCKET" in os.environ:
+        return os.environ["S3_BUCKET"]
     return f"s3-bucket-{uuid.uuid4()}"
 
 
