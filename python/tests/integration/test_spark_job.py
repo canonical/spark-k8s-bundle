@@ -247,9 +247,7 @@ async def test_spark_metrics_in_prometheus(
     logger.info(f"Show status: {stdout}")
     logger.info(f"Spark id: {driver_pod.labels['spark-app-selector']}")
     # NOTE: 9090 seems to be commonly in use in some deployments.
-    with port_forward(
-        pod=f"{PROMETHEUS}-0", port=9090, namespace=COS_ALIAS, on_port=19090
-    ):
+    with port_forward(pod=f"{PROMETHEUS}-0", port=9090, namespace=cos, on_port=19090):
         for attempt in Retrying(
             stop=stop_after_attempt(5), wait=wait_fixed(30), reraise=True
         ):

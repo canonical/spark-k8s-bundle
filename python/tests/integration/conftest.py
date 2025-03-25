@@ -343,7 +343,7 @@ async def cos(ops_test: OpsTest, cos_model: str, backend: str):
 
         yield cos_model
 
-        await ops_test.forget_model(cos_model)
+        await ops_test.forget_model(COS_ALIAS)
     else:
         if cos_model:
             await ops_test.track_model(COS_ALIAS, model_name=cos_model)
@@ -351,7 +351,7 @@ async def cos(ops_test: OpsTest, cos_model: str, backend: str):
         yield cos_model
 
         if cos_model:
-            await ops_test.forget_model(cos_model)
+            await ops_test.forget_model(COS_ALIAS)
 
 
 async def spark_bundle_with_s3(ops_test: OpsTest, credentials, bucket, bundle, cos):
