@@ -323,3 +323,31 @@ To do this, you can use the `azcli` client snap:
 ```shell
 azcli storage blob upload --container-name <AZURE_CONTAINER> --name spark-events/a.tmp -f /dev/null
 ```
+
+## Use a local Python package with PySpark
+
+You can configure the spark-client snap to see and access Python packages, installed locally, outside of the snap, which are not available in the PySpark shell by default.
+
+For example, to do so for NumPy, follow the steps below.
+
+Create a virtual environment and install the Python package using
+
+```shell
+python3.10 -m venv .venv
+.venv/bin/pip install numpy
+```
+
+[note type="caution"]
+Ensure you use the same Python version as the one shipped in the spark-client snap. The python version is displayed upon entering the PySpark shell.
+[/note]
+
+After the installation, configure the client using the following environment variable:
+```shell
+export PYTHONPATH=path/to/.venv/lib/python3.10/site-packages
+```
+
+You may now enter the PySpark shell and import the package:
+
+```python
+import numpy as np
+``
