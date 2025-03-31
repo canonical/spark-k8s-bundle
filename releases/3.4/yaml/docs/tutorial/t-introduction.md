@@ -9,7 +9,7 @@ While this tutorial intends to guide you as you deploy Charmed Apache Spark for 
 * Experience using a Linux-based CLI
 * General familiarity with Kubernetes commands and concepts (e.g. `kubectl` command)
 * Familiarity with Apache Spark commands and concepts
-* A computer that meets the [minimum system requirements](/t/8962)
+* A computer that meets the Minimum system requirements from the [Initial set up page](set-up.md)
 
 ## Step-by-step learning experience
 
