@@ -9,9 +9,6 @@ resource "juju_application" "agent" {
     channel  = "latest/stable"
     revision = 104
   }
-  resources = {
-    agent-image = 45
-  }
   units       = 1
   trust       = true
   constraints = "arch=amd64"
@@ -52,8 +49,9 @@ resource "juju_application" "scrape_config" {
   name  = "scrape-config"
   model = data.juju_model.spark.name
   charm {
-    name    = "prometheus-scrape-config-k8s"
-    channel = "latest/stable"
+    name     = "prometheus-scrape-config-k8s"
+    channel  = "latest/stable"
+    revision = 51
   }
   config = {
     scrape_interval = "10s"
