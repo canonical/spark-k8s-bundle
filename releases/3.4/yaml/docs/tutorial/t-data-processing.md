@@ -39,8 +39,9 @@ kubectl get pods -n spark
 You should see output lines similar to the following:
 
 ```bash
-pysparkshell-xxxxxxxxxxxxxxxx-exec-1              1/1     Running            0          xs
-pysparkshell-xxxxxxxxxxxxxxxx-exec-2              1/1     Running            0          xs
+NAME                                              READY   STATUS             RESTARTS   AGE
+pysparkshell-xxxxxxxxxxxxxxxx-exec-1              1/1     Running            0          5s
+pysparkshell-xxxxxxxxxxxxxxxx-exec-2              1/1     Running            0          5s
 ```
 
 As you can see, PySpark spawned two executor pods within the `spark` namespace. This is the namespace that we provided as a value to the `--namespace` argument when launching `spark-client.pyspark`. It's in these executor pods that data is cached and the computation will be executed, therefore creating a computational architecture that can horizontally scale to large datasets ("big data"). 
