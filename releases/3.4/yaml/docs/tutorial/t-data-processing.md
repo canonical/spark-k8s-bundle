@@ -1,16 +1,6 @@
 # Distributed data processing
 
-[Apache Spark](https://spark.apache.org/) is an open-source unified analytics engine for large-scale data processing.
-
-Charmed Apache Spark prvodes you with multiple options to run your Spark jobs:
-
-* PySpark
-* Spark Submit
-* Scala shell
-
-<!-- Expand the list to be exhaustive -->
-
-For this tutorial we will use PySpark and Spark Submit.
+In this section, you will learn how to use PySpark and Spark Submit to run your Spark jobs. Make sure to finish setting up the environment from the [Environment setup](t-setup.md) page.
 
 ## PySpark shell
 
@@ -22,7 +12,7 @@ To proceed, run the PySpark interactive CLI:
 spark-client.pyspark --username spark --namespace spark
 ```
 
-Once the shell is open and ready, you should see a prompt similar to the following:
+Once the shell is open and ready, you should see a welcome screen similar to the following:
 
 ```
 Welcome to
@@ -98,34 +88,44 @@ def count_vowels(text: str) -> int:
 To test this function, the string `lines` can now be passed into it so the number of vowels will be returned to the console as follows:
 
 ```python
->>> count_vowels(lines)
-134
+count_vowels(lines)
 ```
 
-Since Apache Spark is a distributed processing framework, we can split up this task and parallelize it over multiple executor pods. This parallelization can be done as simply as:
+As a result, you should see the value returned by the function: `134`.
+
+Since Apache Spark is designed for distributed processing, we can run this task in parallel across multiple executor pods. This parallelization can be achieved as simply as:
 
 ```python
->>> from operator import add
->>> spark.sparkContext.parallelize(lines.splitlines(), 2).map(count_vowels).reduce(add)
-134
+from operator import add
+spark.sparkContext.parallelize(lines.splitlines(), 2).map(count_vowels).reduce(add)
 ```
 
-Here, we split the data into two executors (passed as an argument to `parallelize` function), generating a distributed data structure, e.g. RDD[str], where each line is stored in one of the (possibly many) executors. The number of vowels in each line is then computed, line by line, with the `map` function, and then the numbers are aggregated and added up to calculate the total number of occurrences of vowel characters in the entire dataset. This kind of parallelization of tasks is particularly useful in processing very large data sets which helps to reduce the processing time significantly, and it is generally referred to as the MapReduce pattern.
+Here, we split the data into two parts, generating a distributed data structure, where each line is stored in one of the (possibly many) executors. 
+The number of vowels in each line is computed, line by line, with the `count_vowels` function on each executor in parallel.
+Then the numbers are aggregated and added up to calculate the total number of occurrences of vowel characters in the entire dataset. 
 
-Now leave the PySpark shell: run `exit()` or press `Ctrl + D` key combination.
+This kind of parallelization of tasks is particularly useful in processing very large data sets which helps to reduce the processing time significantly, and it is generally referred to as the [MapReduce pattern](https://en.wikipedia.org/wiki/MapReduce).
 
-### Dataset distributed processing
+The returned result should be the same as we've seen earlier, with a non-distributed version: `134`.
 
-For Big Data applications you may want to use bigger datasets then fir into a single string variable.
+To continue with this tutorial, leave the PySpark shell: run `exit()` or press `Ctrl + D` key combination.
 
-Let's download a sample dataset, store it in S3 object storage, and do some simple processing with PySpark.
+### Distributed data processing
 
-#### Dataset
+Apache Spark is made to efficiently analyze large datasets across multiple nodes.
+Often times, the data files to be processed contain a huge amount of data, and it’s common to store them in an S3 storage and then have jobs read data from there in order to process it.
 
-For the purpose of this tutorial, we will use a sample dataset from Kaggle with Twitter posts.
-We will process this dataset on multiple Apache Spark executors to count the number of Twits with the word "Ubuntu" in them.
+Let's download a sample dataset, store it in an S3 object storage, and do some distributed processing with PySpark.
 
-First things first, let's download the dataset to the VM:
+#### Prepare a dataset
+
+For the purpose of this tutorial, we will use a dataset from Kaggle with over 3 million tweets: [Customer Support on Twitter](https://www.kaggle.com/datasets/thoughtvector/customer-support-on-twitter).
+
+If you download and check this dataset, you'll see it contains seven columns/fields, but we are only interested in the one with the header `text`.
+
+The dataset takes more then 500 MB of disk space, and we will process it on multiple Apache Spark executors.
+
+First, let's download the dataset to the VM:
 
 ```bash
 curl -L -o ./twitter.zip https://www.kaggle.com/api/v1/datasets/download/thoughtvector/customer-support-on-twitter
@@ -138,13 +138,15 @@ sudo apt install zip
 unzip twitter.zip
 ```
 
-Now that we have the files on the VM, let's upload them to our S3 storage:
+This archive unpacks a directory called `twcs` with a single csv file of the same in it. 
+Let's upload it to our S3 storage:
 
 ```bash
 aws s3 cp ./twcs/twcs.csv s3://spark-tutorial/twitter.csv --checksum-algorithm SHA256
 ```
 
-The dataset is stored now in our S3-compatible MinIO instance - in the `spark-tutorial` bucket with the filename `twitter.csv`. You can check this by listing all files in the bucket:
+Now the dataset is stored in our MinIO instance: in the `spark-tutorial` bucket with the filename `twitter.csv`. 
+You can check this by listing all files in the bucket:
 
 ```bash
 aws s3 ls spark-tutorial
@@ -152,41 +154,170 @@ aws s3 ls spark-tutorial
 
 #### Distributed dataset processing
 
-For distributed and parallel processing of data Apache Spark actively uses the concept of a [resilient distributed dataset (RDD)](https://spark.apache.org/docs/latest/rdd-programming-guide.html#resilient-distributed-datasets-rdds), which is a fault-tolerant collection of elements that can be operated on in parallel across the nodes of the cluster. 
-There are two ways to create RDDs: parallelizing an existing collection in a program, or referencing a dataset in an external storage system.
-
-Now that the dataset is stored in S3 we can access through PySpark.
-Let's start PySpark:
+To demonstarate how simple it is to use distributed data processing in Charmed Apache Spark, let's count the number of tweets that mention Ubuntu.
+Start the PySpark:
 
 ```bash
 spark-client.pyspark --username spark --namespace spark
 ```
 
-Now create an RDD from our sample dataset:
+For distributed and parallel data processing Apache Spark actively uses the concept of a [resilient distributed dataset (RDD)](https://spark.apache.org/docs/latest/rdd-programming-guide.html#resilient-distributed-datasets-rdds), which is a fault-tolerant collection of elements that can be operated on in parallel across the nodes of the cluster. 
 
-```bash
+Read CSV from S3 and create an RDD from our sample dataset:
+
+```python
 rdd = spark.read.csv("s3a://spark-tutorial/twitter.csv", header=True).rdd
 ```
 
+Now that RDD can be used for parallel processing by multiple Apache Spark executors.
+
 Count the number of tweets (lines in CSV) with "text" field containing "Ubuntu" in a case insensitive way:
 
-```bash
+```python
 count = rdd.map(lambda row: row['text']).map(lambda cell: 1 if isinstance(cell, str) and "ubuntu" in cell.lower() else 0).reduce(add)
 ```
 
-```bash
+Here, we extract the value of the `text` column for each row and for each value we convert it to lower case and check whether it contains `ubuntu`. If it does, we return `1`, otherwise - `0`.
+Finally, on a reduce step, we add up all values (ones and zeroes), resulting in the total number of rows that mention `ubuntu`.
+
+To get the answer, we just need to print it:
+
+```python
 print("Number of tweets containing Ubuntu:", count)
 ```
 
-For more information on Spark jobs, see the web GUI by the link from the PySpark welcome screen:
-
-http://10.181.60.89:4040/
-
-## Spark submit
-
-Interactive shells are a great way to experiment and learn the basics of Apache Spark. For a more advanced use case, jobs can be submitted to the Apache Spark cluster as scripts using `spark-submit`. 
-
-```bash
+The result should look similar to the following:
 
 ```
+Number of tweets containing Ubuntu: 54
+```
 
+#### PySpark web GUI
+
+The PySpark shell provides a web-based graphical user interface (GUI) where you can view the history of submitted jobs, environment variables, executor statuses, and other useful information for debugging.
+
+To open the GUI, use the link from the PySpark welcome screen, titled as "Spark context Web UI available at":
+
+```
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 3.4.2
+      /_/
+
+Using Python version 3.10.12 (main, Jan 17 2025 14:35:34)
+Spark context Web UI available at http://10.181.60.89:4040
+Spark context available as 'sc' (master = k8s://https://10.181.60.89:16443, app id = spark-79ab7a21242c4a81bc88c1f71348c102).
+SparkSession available as 'spark'.
+>>>
+```
+
+Interactive shells are a great way to experiment and learn the basics of Apache Spark. 
+For a more advanced usage, jobs can be submitted to the Apache Spark cluster as scripts. See below for details.
+
+## Run a script
+
+Charmed Apache Spark comes with a command that can be used to submit Spark jobs to the cluster from scripts written in high-level languages like Python and Scala. For that purpose, we can use the `spark-submit` command from the `spark-client` snap.
+
+### Prepare a script
+
+For a quick example, let's see how it can be done using slightly refactored code from the previous section:
+
+```python
+from operator import add
+from pyspark.sql import SparkSession
+
+def contains_ubuntu(text):
+    return 1 if isinstance(text, str) and "ubuntu" in text.lower() else 0
+
+# Create a Spark session 
+spark = SparkSession\
+        .builder\
+        .appName("CountUbuntuTweets")\
+        .getOrCreate()
+
+# Read the CSV file into a DataFrame and convert to RDD
+rdd = spark.read.csv("s3a://spark-tutorial/twitter.csv", header=True).rdd
+
+# Count how many rows contain the word "ubuntu" in the "text" column
+count = (
+    rdd.map(lambda row: row["text"])  # Extract the "text" column
+        .map(contains_ubuntu)  # Apply the contains_ubuntu function
+        .reduce(add)  # Sum all the 1 and 0 to get the total number of matches
+)
+
+# Print the result
+print(f"Number of tweets containing Ubuntu: {count}")
+
+spark.stop()
+```
+
+We’ve added a few more lines to what we’ve executed so far. The Apache Spark session, which would be available by default in a PySpark shell, needs to be explicitly created. Also, we’ve added `spark.stop()` at the end of the file to stop the Apache Spark session after completion of the job.
+
+Let’s save the aforementioned script in a file named `count-ubuntu.py` and proveed further to run it.
+
+### Run
+
+When submitting a Spark job, the driver won’t be running in the local machine but on a K8s pod, hence the script needs to be downloaded and then executed remotely in a dedicated pod.
+For that reason, we'll copy the file to the S3 storage to be easily accessible from K8s pods.
+
+Upload the file to the Multipass VM:
+
+```bash
+multipass transfer count-ubuntu.py spark-tutorial:count-ubuntu.py
+```
+
+where `spark-tutorial` is the name of the VM.
+
+Copy the file to the S3-compatible storage:
+
+```bash
+aws s3 cp count-ubuntu.py s3://spark-tutorial/count-ubuntu.py
+```
+
+Now run the script by issuing the following command:
+
+```bash
+spark-client.spark-submit \
+    --username spark --namespace spark \
+    --deploy-mode cluster \
+    s3a://spark-tutorial/count-ubuntu.py
+```
+
+When you run the command, you’ll see log output in the console with information about the state of the pods executing the task. 
+
+While `spark-submit` command spins up K8s pods and runs the script, you can check the K8s pods statuses by running the following command in a different shell on the VM:
+
+```bash
+watch -n1 "kubectl get pods -n spark"
+```
+
+You should see output similar to the following:
+
+```
+NAME                                        READY   STATUS      RESTARTS   AGE
+count-ubuntu-py-752c77960d097604-driver     1/1     Running     0          11s
+countubuntutweets-a4b68a960d0982c4-exec-1   1/1     Running     0          8s
+countubuntutweets-a4b68a960d0982c4-exec-2   0/1     Pending     0          8s
+```
+
+Here, we have a “driver” pod, that will be executing the script and spawning and coordinating the other two "executor" pods.
+The state of the pods transitions from `Pending` to `Running` and then, finally, to `Completed`.
+
+Once the job is completed, the driver and the executor pods are transitioned to the Completed state.
+The executor pods are deleted automatically.
+
+The script prints the result to the console output, but that's the driver's console.
+To see the printed message, let's find the driver pod's name and filter the logs from it:
+
+```bash
+pod_name=$(kubectl get pods -n spark | grep "count-ubuntu-.*-driver" | tail -n 1 | cut -d' ' -f1)
+kubectl logs $pod_name -n spark | grep "Number of tweets containing Ubuntu:"
+```
+
+The result should look similar to the following:
+
+```
+2025-04-07T11:32:44.872Z [sparkd] Number of tweets containing Ubuntu: 54
+```
