@@ -1,11 +1,15 @@
-# Set up the environment for the tutorial
+# Environment setup
 
-In this step, we will prepare an environment with the required components for deploying Charmed Apache Spark and following this tutorial. We are going to use [Multipass](https://canonical.com/multipass) to create an isolated virtual environment with the following software:
+Charmed Apache Spark solution is based on the `spark-client` snap that can run Spark jobs on a Kubernetes cluster.
+
+In this step, we will prepare a lightweight K8s environment, `spark-client` snap, and some addtional components required for this tutorial. We are going to use [Multipass](https://canonical.com/multipass) to create a virtual environment and set up the following software:
 
 * [MicroK8s](https://microk8s.io/) — a lightweight Kubernetes that can run locally
 * [Spark-client snap](https://snapcraft.io/spark-client) — client side scripts in a snap to submit Apache Spark jobs to a Kubernetes cluster
 * [MiniO](https://min.io/) — S3-compliant object storage
 * [Juju](https://juju.is/) — Canonical's orchestration system
+<!-- * [Spark History server]
+* [Kyuubi] -->
 
 ## Minimum system requirements
 
@@ -19,10 +23,10 @@ Before we start, make sure your machine meets the following minimal requirements
 
 ## Virtual machine
 
-Use Multipass to provision a new Ubuntu virtual machine with required parameters:
+Use Multipass to start a new Ubuntu virtual machine with the following parameters:
 
 ```bash
-multipass launch --cpus 2 --memory 8G --disk 50G --name spark-tutorial 24.04
+multipass launch --cpus 3 --memory 8G --disk 50G --name spark-tutorial 24.04
 ```
 
 [note]
@@ -44,18 +48,22 @@ multipass shell spark-tutorial
 ```
 
 From now on, unless stated otherwise, we will work inside this virtual machine's environment.
-For clarity, we will call it VM, while host machine that runs the Multipass will be called Host.
+For clarity, we will refer to it as VM, while the host machine that runs the Multipass will be called Host.
 
 ## MicroK8s
 
 Charmed Apache Spark is developed to be run on top of a Kubernetes cluster. 
 For the purpose of this tutorial we will be using a lightweight Kubernetes: [MicroK8s](https://microk8s.io/).
 
-Installing MicroK8s is as simple as running the following command (in the VM):
+Installing MicroK8s is as simple as running the following command:
 
 ```bash
 sudo snap install microk8s --channel=1.28-strict/stable
 ```
+
+Make sure to install the `1.28-strict/stable` version of MircoK8s which was tested to work with all the components of this tutorial.
+
+### Configuration
 
 Let's configure MicroK8s so that the currently logged-in user has admin rights to the cluster.
 
@@ -128,7 +136,7 @@ sudo microk8s enable metallb:$IPADDR-$IPADDR
 Wait for the commands to finish running and check the list of enabled addons:
 
 ```bash
-microk8s status --wait-ready` command. 
+microk8s status --wait-ready
 ```
 
 The output of the command should look similar to the following:
@@ -148,15 +156,15 @@ addons:
 ...
 ```
 
-The MicroK8s set up is complete.
+The MicroK8s setup is complete.
 
 ## The `spark-client` snap
 
-For Apache Spark jobs to be running run on top of Kubernetes, a set of resources like service account, associated roles, role bindings etc. need to be created and configured. 
+For Apache Spark jobs to be running run on top of Kubernetes, a set of resources (service account, associated roles, role bindings etc.) need to be created and configured.
 To simplify this task, the Charmed Apache Spark solution offers the `spark-client` snap. Install the snap: 
 
 ```bash
-sudo snap install spark-client
+sudo snap install spark-client --channel 3.4/edge
 ```
 
 Let's create a Kubernetes namespace for us to use as a playground in this tutorial.
@@ -268,7 +276,7 @@ Juju set up is complete now.
 ## MinIO
 
 Apache Spark can be configured to use S3 for object storage. 
-However, for this tutorial, instead of AWS S3, we'll use [MinIO](https://min.io/): an S3-compatible object storage solution. 
+However, for this tutorial, instead of AWS S3, we'll use [MinIO](https://min.io/): a lightweight S3-compatible object storage.
 It is available as a MicroK8s [add-on](https://microk8s.io/docs/addon-minio) by default, allowing us to create a local S3 bucket, which is more convenient for our local tests.
 
 Let's enable the MinIO addon for MicroK8s.
@@ -280,7 +288,7 @@ sudo microk8s enable minio
 Authentication with MinIO is managed with an access key and a secret key. 
 These credentials are generated and stored as Kubernetes secret when the MinIO add-on is enabled.
 
-Let's fetch these credentials and export them as environment variables in order to use them later:
+Let's fetch credentials and export them as environment variables in order to use them later:
 
 ```bash
 export ACCESS_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d)
@@ -289,10 +297,9 @@ export S3_ENDPOINT=$(kubectl get service minio -n minio-operator -o jsonpath='{.
 export S3_BUCKET="spark-tutorial"
 ```
 
-Later, during the tutorial, we will need to create an S3 bucket and upload some sample files into this bucket. 
-The MinIO add-on offers access to a built-in Web UI which can be used to interact with the local S3 object storage. Alternatively, you can also use AWS CLI if you prefer to use CLI commands over a GUI.
+The MinIO add-on offers access to a built-in Web UI which can be used to interact with the local S3 object storage. But for this tutorial, we will CLI commands.
 
-To set up the AWS CLI, let's run the following commands:
+To set up the AWS CLI, run the following commands:
 
 ```bash
 sudo snap install aws-cli --classic
@@ -303,48 +310,24 @@ aws configure set region "us-west-2"
 aws configure set endpoint_url "http://$S3_ENDPOINT"
 ```
 
-<!-- For us to be able to open MinIO web UI in the browser, we will need the IP address and port at which the MinIO Web UI is exposed. 
-
-Let's fetch the MinIO web interface URL as follows:
+Check the tool by listing all S3 buckets:
 
 ```bash
-MINIO_UI_IP=$(kubectl get service microk8s-console -n minio-operator -o jsonpath='{.spec.clusterIP}')
-MINIO_UI_PORT=$(kubectl get service microk8s-console -n minio-operator -o jsonpath='{.spec.ports[0].port}')
-export MINIO_UI_URL=$MINIO_UI_IP:$MINIO_UI_PORT
+aws s3 ls
 ```
 
-The MinIO web UI URL is a combination of an IP address and port. Print it by running:
+The list of the buckets in our S3 storage is empty now.
+That's because we have not created any buckets yet! 
+Let's proceed to create a new one.
 
-```bash
-echo $MINIO_UI_URL
-```
-
-Let's open this URL in a web browser. In the login page, the username is the access key and the password is the secret key we fetched earlier.
-
-These credentials can now be viewed simply by echoing the variables `ACCESS_KEY` and `SECRET_KEY`:
-
-```bash
-echo $ACCESS_KEY
-echo $SECRET_KEY
-```
-
-Once you're logged in, you'll see the MinIO console as shown below. 
-
-![minio-dashboard-empty|690x420](upload://kKewEicN0AXdVjLEUcEiPXvtOgj.jpeg)
-
-The list of the buckets currently in our S3 storage is empty. That's because we have not created any buckets yet! Let's proceed to create a new bucket now.
-
-Click the "Create Bucket +" button on the top right. On the next screen, let's choose "spark-tutorial" for the name of the bucket and click "Create Bucket". 
--->
-
-To create the `spark-tutorial` bucket using AWS CLI:
+To create the `spark-tutorial` bucket using AWS CLI, run:
 
 ```bash
 aws s3 mb s3://spark-tutorial
 ```
 
-We now have an S3 bucket available locally on our system! 
-This can be verified by listing the S3 buckets using the following command:
+We now have an S3 bucket available locally on our system!
+See for yourself by running the same command to list all buckets:
 
 ```bash
 aws s3 ls
@@ -354,8 +337,9 @@ With the access key, secret key and the endpoint properly configured, you should
 
 ### Credentials set up
 
-For Apache Spark to be able to access and use our local S3 bucket, we need to provide a few configurations including the bucket endpoint, access key and secret key. 
-In Charmed Apache Spark solution, we bind these configurations to a Kubernetes service account such that when Spark jobs are executed with that service account, all the configurations bound to that service account are supplied to Apache Spark automatically.
+For Apache Spark to be able to access and use our local S3 bucket, we need to provide a few configuration options including the bucket endpoint, access key and secret key.
+
+In Charmed Apache Spark solution, we bind these configuration options to a Kubernetes service account such that when Spark jobs are executed with that service account, all the configurations bound to that service account are supplied to Apache Spark automatically.
 
 The S3 configurations can be added to the `spark` service account we created earlier with the following command:
 
@@ -389,6 +373,12 @@ spark.hadoop.fs.s3a.secret.key=<secret_key>
 spark.kubernetes.authenticate.driver.serviceAccountName=spark
 spark.kubernetes.namespace=spark
 ```
+
+<!-- 
+## History Server
+
+## Kyuubi
+ -->
 
 That's it. We're now ready to dive head-first into Apache Spark!
 

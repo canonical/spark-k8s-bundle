@@ -18,7 +18,7 @@ To get started, follow this tutorial through each step of the process:
 | Step | Description |
 | ------- | ---------- |
 | 1. Introduction | This page.
-| 2. [Initial set up](set-up.md) | Prepare your cloud environment using Multipass and deploy Apache Spark with Juju.
+| 2. [Initial setup](t-setup.md) | Prepare your cloud environment using Multipass and deploy Apache Spark with `spark-client` snap.
 | 3. [Distributed data processing](distributed.md) | Explore how to process large datasets efficiently across multiple nodes.
 | 4. [Streaming workload processing](stream.md) | Learn how to handle real-time data streams.
 | 5. [History server](history-server.md) | Integrate with Apache Spark History Server.
