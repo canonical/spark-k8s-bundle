@@ -4,29 +4,21 @@ This section concludes the Tutorial by freeing up the resources used so far.
 
 ## Cleanup
 
-First of all, let's destroy the Juju controller we bootstrapped for the tutorial.
+Since we've used a Multipass VM for this tutorial, the clean up process consists of making sure the VM is deleted from the Host machine.
 
-```bash
-juju destroy-controller --destroy-all-models --destroy-storage --force spark-tutorial
+```shell
+multipass delete --purge spark-tutorial
 ```
 
-The `spark-streaming`, `history-server` and `cos` namespaces are automatically deleted when the corresponding models are destroyed. Let's also delete the `spark` K8s namespace. This will automatically clean up K8s resources within the namespace.
+This command immediately deletes VM and all associated resources.
 
-```bash
-kubectl delete namespace cos
-kubectl delete namespace history-server
-kubectl delete namespace spark-streaming
-kubectl delete namespace spark
-```
+## Next steps
 
-Finally, the S3 bucket that was created can be removed using the AWS CLI as follows:
+Parts of this tutorial were originally presented in a talk at Ubuntu Summit 2023. The recording is available on [YouTube](https://www.youtube.com/watch?v=nu1ll7VRqbI).
 
-```bash
-aws s3 rb  s3://spark-tutorial --force
-```
+This tutorial covers running Charmed Apache Spark locally using MicroK8s.
+Running Charmed Apache Spark on MicroK8s locally is limited by the available system resources.
+For a more scalable and production-ready setup, you can deploy the Charmed Apache Spark solution on AWS EKS.
 
-## Going Further
-
-Parts of this tutorial were originally covered in a talk at the Ubuntu Summit 2023, the recording of which is available [here on YouTube](https://www.youtube.com/watch?v=nu1ll7VRqbI).
-
-This tutorial covers running Charmed Apache Spark locally using MicroK8s. Running Charmed Apache Spark in MicroK8s locally is limited by the amount of resources available locally. For a more robust deployment, it's also possible to run Charmed Apache Spark solution on AWS EKS. Please refer to [this how-to guide](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) for guidance on deploying and configuring an AWS EKS cluster to run Charmed Apache Spark. Additionally, here is a video demonstration of running Charmed Apache Spark on top of AWS EKS at the [2023 Operator Day demo](https://github.com/deusebio/operator-day-2023-charmed-spark).
+Refer to the [how-to guide](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618) for instructions on deploying and configuring an AWS EKS cluster for Charmed Apache Spark.
+You can also check out a video demonstration from the [2023 Operator Day demo](https://github.com/deusebio/operator-day-2023-charmed-spark) showcasing Charmed Apache Spark running on AWS EKS.
