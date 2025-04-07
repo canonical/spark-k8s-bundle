@@ -193,30 +193,6 @@ The result should look similar to the following:
 Number of tweets containing Ubuntu: 54
 ```
 
-#### PySpark web GUI
-
-The PySpark shell provides a web-based graphical user interface (GUI) where you can view the history of submitted jobs, environment variables, executor statuses, and other useful information for debugging.
-
-To open the GUI, use the link from the PySpark welcome screen, titled as "Spark context Web UI available at":
-
-```
-Welcome to
-      ____              __
-     / __/__  ___ _____/ /__
-    _\ \/ _ \/ _ `/ __/  '_/
-   /__ / .__/\_,_/_/ /_/\_\   version 3.4.2
-      /_/
-
-Using Python version 3.10.12 (main, Jan 17 2025 14:35:34)
-Spark context Web UI available at http://10.181.60.89:4040
-Spark context available as 'sc' (master = k8s://https://10.181.60.89:16443, app id = spark-79ab7a21242c4a81bc88c1f71348c102).
-SparkSession available as 'spark'.
->>>
-```
-
-Interactive shells are a great way to experiment and learn the basics of Apache Spark. 
-For a more advanced usage, jobs can be submitted to the Apache Spark cluster as scripts. See below for details.
-
 ## Run a script
 
 Charmed Apache Spark comes with a command that can be used to submit Spark jobs to the cluster from scripts written in high-level languages like Python and Scala. For that purpose, we can use the `spark-submit` command from the `spark-client` snap.
@@ -322,3 +298,5 @@ The result should look similar to the following:
 ```
 2025-04-07T11:32:44.872Z [sparkd] Number of tweets containing Ubuntu: 54
 ```
+
+By default, Apache Spark stores the logs of drivers and executors as pod logs in the local file systems, which are lost once the pods are deleted. Apache Spark can store these logs in a persistent object storage system, like S3, so that they can later be retrieved and visualised by a component called the Spark History Server.
