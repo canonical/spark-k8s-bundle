@@ -1,133 +1,7 @@
-# Monitoring the Charmed Apache Spark cluster
+# Monitoring with Canonical Observability Stack 
 
-By default, Apache Spark stores the logs of drivers and executors as pod logs in the local file system, which are lost once the pods are deleted. Apache Spark provides us with the ability to store these logs in a persistent object storage system, like S3, so that they can later be retrieved and visualised by a component called the Spark History Server.
-
-Charmed Apache Spark provides native support and integration for these monitoring systems:
-
-1. Using the Spark History Server, which is a UI that most Spark users are accustomed to, to analyze their jobs, at the application level (e.g. jobs separated by the different steps and so on).
-2. Using Canonical Observability Stack (COS), which is more oriented to cluster administrators, allowing them to set up alerts and dashboarding based on resource utilisation.
-
-Let's explore each one of these options.
-
-## Monitoring with the Apache Spark History Server
-
-The Spark History Server is a user interface to monitor the metrics and performance of completed and running Spark applications. The Spark History Server is offered as a charm in the Charmed Apache Spark solution, which can be deployed via Juju.
-
-Let's create a fresh Juju model for some experiments with the Spark History server.
-
-```bash
-juju add-model history-server
-```
-
-To enable monitoring via the Spark History server, we must first create a service account with the necessary configuration for Spark jobs to be able to store logs in an S3 bucket. We then need to deploy the Spark History Server with Juju and configure it to read from the same S3 bucket that our Spark jobs write logs to.
-
-Since Juju has already created the namespace `history-server`, let's create a new service account in this namespace. We'll reuse the configuration options from the existing `spark` service account and add a few more configuration parameters in order to tell Apache Spark where to store and retrieve the logs.
-
-```bash
-# Get config from old service account and store in a file
-spark-client.service-account-registry get-config \
-  --username spark --namespace spark > properties.conf
-
-# Add a few more config options for the storage of event logs
-echo "spark.eventLog.enabled=true" >> properties.conf
-echo "spark.eventLog.dir=s3a://spark-tutorial/spark-events/" >> properties.conf
-echo "spark.history.fs.logDirectory=s3a://spark-tutorial/spark-events/" >> properties.conf
-
-# Create a new service account and load configurations from the file
-spark-client.service-account-registry create \
-  --username spark --namespace history-server \
-  --properties-file properties.conf
-```
-
-We've configured Apache Spark to write logs to the `spark-events` path in the `spark-tutorial` bucket. However, that path doesn't exist yet. Let's create that path in S3. (Note that the / at the end is required.)
-
-```bash
-aws s3api put-object --bucket spark-tutorial --key spark-events/
-```
-
-Now, let's deploy the [`spark-history-server-k8s`](https://github.com/canonical/spark-history-server-k8s-operator) charm into our Juju model. 
-
-```bash
-juju deploy spark-history-server-k8s -n1 --channel 3.4/stable
-```
-
-The Spark History Server needs to connect to the S3 bucket for it to be able to read the logs. This integration is provided to the Spark History Server charm by the [`s3-integrator`](https://github.com/canonical/s3-integrator) charm. Let's deploy the `s3-integrator` charm, configure it and integrate it with our `spark-history-server-k8s` deployment.
-
-```bash
-# Deploy s3-integrator
-juju deploy s3-integrator -n1 --channel edge
-
-# Configure s3-integrator with correct bucket name, directory path and endpoint
-juju config s3-integrator bucket=spark-tutorial path="spark-events" endpoint=http://$S3_ENDPOINT
-
-# Sync S3 credentials with s3-integrator
-juju run s3-integrator/leader sync-s3-credentials \
-  access-key=$ACCESS_KEY secret-key=$SECRET_KEY
-
-# Integrate s3-integrator with Spark History Server
-juju integrate s3-integrator spark-history-server-k8s
-```
-
-Let's view the status of the Juju model now with the command `juju status --watch 1s --relations`. Once deployment and integration have been completed for the charms, the status should look similar to the following:
-
-```
-Model           Controller      Cloud/Region        Version  SLA          Timestamp
-history-server  spark-tutorial  microk8s/localhost  3.1.7    unsupported  07:29:35Z
-
-App                       Version  Status  Scale  Charm                     Channel     Rev  Address         Exposed  Message
-s3-integrator                      active      1  s3-integrator             edge         14  10.152.183.87   no       
-spark-history-server-k8s           active      1  spark-history-server-k8s  3.4/stable   15  10.152.183.111  no       
-
-Unit                         Workload  Agent  Address      Ports  Message
-s3-integrator/0*             active    idle   10.1.29.167         
-spark-history-server-k8s/0*  active    idle   10.1.29.169         
-
-Integration provider               Requirer                                 Interface            Type     Message
-s3-integrator:s3-credentials       spark-history-server-k8s:s3-credentials  s3                   regular  
-s3-integrator:s3-integrator-peers  s3-integrator:s3-integrator-peers        s3-integrator-peers  peer   
-```
-
-The Spark History Server is now successfully configured to read logs from the S3 bucket. Let's run a simple job so that Apache Spark can generate some logs. We're going to use the same `count_vowels.py` example we used earlier, which already exists in the `spark-tutorial` bucket.
-
-
-```bash
-spark-client.spark-submit \
-    --username spark --namespace history-server \
-    --deploy-mode cluster \
-    s3a://spark-tutorial/count_vowels.py
-```
-
-The Spark History Server comes with a Web UI for us to view and monitor the Spark jobs submitted to our cluster. The web UI can be accessed at port 18080 of the IP address of the `spark-history-server-k8s/0` unit. However, it's good practice to access it via a Kubernetes Ingress rather than directly accessing the unit's IP address. Using an Ingress will allow us to have a common entrypoint to the applications running in the Juju model. We can add an Ingress by deploying and integrating the [`traefik-k8s`](https://charmhub.io/traefik-k8s) charm with our `spark-history-server-k8s` deployment.
-
-```bash
-# Deploy traefik charm
-juju deploy traefik-k8s --channel latest/stable --trust
-
-# Integrate traefik with spark-history-server-k8s
-juju integrate traefik-k8s spark-history-server-k8s
-```
-
-Now that Traefik has been deployed and configured, we can fetch the Ingress URL of the Spark History Server by running the `show-proxied-endpoints` action on the Traefik charm.
-
-```bash
-juju run traefik-k8s/0 show-proxied-endpoints
-# 
-# proxied-endpoints: '{"spark-history-server-k8s": {"url": "http://172.31.19.156/history-server-spark-history-server-k8s"}}'
-```
-
-Let's open a web browser and then browse to this URL in order to see the Spark History Server UI, which should be similar to the one shown below.
-
-![spark-history-server-landing|690x184](upload://pO7aEFZPU0dBftdQC034mtjUMIx.png)
-
-When you click on the application ID, you can see the event timeline for the particular Spark job and information about completed jobs, as shown in the picture below.
-
-![spark-history-server-jobs|690x288](upload://1yvLoxIEqeufMA4VKtUYmoKQmNt.png)
-
-In a similar way, you can view information about various stages in the job by navigating to the "Stages" menu. The values of the different properties used to run the job can be viewed on the "Environment" page. Finally, you can also view statistics about the individual executors on the "Executors" page. 
-
-Spend some time exploring the various pages. You might like to submit additional sample jobs and view their status.
-
-## Monitoring with Canonical Observability Stack 
+Canonical Observability Stack (COS) gathers, processes, visualizes, and alerts on telemetry signals generated by workloads running both within, and outside of, Juju.
+It is a universal monitoring solution that is designed for cluster administrators, allowing them to set up alerts and dashboarding based on resource utilisation.
 
 The Charmed Apache Spark solution comes with the [spark-metrics](https://github.com/banzaicloud/spark-metrics) exporter embedded in the [Charmed Apache Spark OCI image](https://github.com/canonical/charmed-spark-rock) which is used as a base image for driver and executor pods.
 The exporter is designed to push metrics to the [Prometheus Pushgateway](https://github.com/prometheus/pushgateway), which in turn is integrated with the [Canonical Observability Stack](https://charmhub.io/topics/canonical-observability-stack). 
@@ -137,19 +11,26 @@ To enable observability on Charmed Apache Spark, two steps are necessary:
 1. Deploy the COS (Canonical Observability Stack) bundle with Juju
 2. Configure the Apache Spark service account to use the Prometheus sink
 
-Let's begin by setting up the COS bundle. Let's start by creating a fresh Juju model with the name `cos`:
+Let's start by creating a fresh Juju model with the name `cos`:
 
 ```shell
 juju add-model cos
 ```
 
-Now, let's deploy the `cos-lite` charm bundle:
+Now, deploy the `cos-lite` charm bundle:
 
 ```shell
 juju deploy cos-lite --trust
 ```
 
-When you deploy `cos-lite`, it deploys several charms like Prometheus, Grafana, Loki, etc. that together build up the Canonical Observability Stack. You can view the list of charms that have been deployed and their relations with `juju status --relations`. The output is similar to the following (note that it may take some time for the status to be active for each charm):
+When you deploy the `cos-lite` bundle, it deploys several charms like Prometheus, Grafana, Loki, etc. that together build up the Canonical Observability Stack. 
+Check the list of charms that have been deployed, their statuses, and relations:
+
+```shell
+juju status --relations --watch 1s
+```
+
+Wait until the status to be active for each charm:
 
 ```
 Model  Controller  Cloud/Region        Version  SLA          Timestamp
@@ -201,22 +82,26 @@ traefik:peers                       traefik:peers                traefik_peers  
 traefik:traefik-route               grafana:ingress              traefik_route          regular  
 ```
 
-At this point, the observability stack has been deployed, but Charmed Apache Spark is not yet wired up to it. Generally, Prometheus collects metrics of services by regularly scraping dedicated endpoints. 
+At this point, the COS has been deployed, but Charmed Apache Spark is not yet wired up to it. 
+Generally, Prometheus collects metrics of services by regularly scraping dedicated endpoints. 
 
-However, Spark jobs can be ephemeral processes that may not last so long and are not really appropriate to be scraped. Moreover, the IPs/hostnames of pods are likely to change between runs, therefore requiring a more complex self-discoverable automation. For these reasons, we opted to have jobs run with Charmed Apache Spark push metrics (rather than having Prometheus pulling them) to a dedicated service, called Prometheus Pushgateway, which caches the metrics and exposes them to Prometheus for regular scraping, even when the Spark job has finished. 
+However, Spark jobs can be ephemeral processes that may not last so long and are not really appropriate to be scraped. 
+Moreover, the IPs/hostnames of pods are likely to change between runs, therefore requiring a more complex self-discoverable automation. 
+For these reasons, we opted to have jobs run with Charmed Apache Spark push metrics (rather than having Prometheus pulling them) to a dedicated service, called Prometheus Pushgateway, which caches the metrics and exposes them to Prometheus for regular scraping, even when the Spark job has finished. 
 
-Therefore, to wire Spark jobs up with the observability stack, we need to deploy a Prometheus Pushgateway and then add Apache Spark configuration parameters to be able to connect to it. The Prometheus Pushgateway in turn will then be integrated with Prometheus. Let's deploy the `prometheus-pushgateway-k8s` charm and integrate it with the `prometheus` charm:
+Therefore, to wire Spark jobs up with the observability stack, we need to deploy a Prometheus Pushgateway and then add Apache Spark configuration parameters to be able to connect to it. 
+The Prometheus Pushgateway in turn will then be integrated with Prometheus. 
 
-```bash
+Let's deploy the `prometheus-pushgateway-k8s` charm and integrate it with the `prometheus` charm:
+
+```shell
 juju deploy prometheus-pushgateway-k8s --channel edge
-
 juju integrate prometheus-pushgateway-k8s prometheus
 ```
 
 Now, for Apache Spark to be able to access the Prometheus gateway, we need the gateway address and port. Let's export them as environment variables so that they can be used later:
 
 ```shell
-# Get prometheus gateway IP
 export PROMETHEUS_GATEWAY=$(juju status --format=json | jq -r '.applications."prometheus-pushgateway-k8s".address') 
 
 export PROMETHEUS_PORT=9091
@@ -224,17 +109,24 @@ export PROMETHEUS_PORT=9091
 
 Now that we have the Prometheus gateway IP address and port, let's create a new service account in the `cos` namespace with all the configuration options that the `spark` service account in the `spark` namespace has, plus a few additional configuration options related to the Prometheus Pushgateway:
 
+Get config from old service account and store in a file:
+
 ```shell
-# Get config from old service account and store in a file
 spark-client.service-account-registry get-config \
   --username spark --namespace spark > properties.conf
+```
 
-# Create a new service account and load configurations from the file
+Create a new service account and load configurations from the file:
+
+```shell
 spark-client.service-account-registry create \
   --username spark --namespace cos \
   --properties-file properties.conf
+```
 
-# Add configuration options related to Prometheus
+Add configuration options related to Prometheus:
+
+```shell
 spark-client.service-account-registry add-config \
   --username spark --namespace cos \
       --conf spark.metrics.conf.driver.sink.prometheus.pushgateway-address=$PROMETHEUS_GATEWAY:$PROMETHEUS_PORT \
@@ -251,17 +143,23 @@ spark-client.service-account-registry add-config \
       --conf spark.metrics.conf.executor.sink.prometheus.metrics-name-replacement=\$2
 ```
 
-Now that Prometheus is configured, let's move on to configuring Grafana. For this tutorial, we are going to use a basic Grafana dashboard, which is available [here](https://github.com/canonical/charmed-spark-rock/blob/dashboard/dashboards/prod/grafana/spark_dashboard.json). We're going to use the [`cos-configuration-k8s`](https://github.com/canonical/cos-configuration-k8s-operator) charm to specify this dashboard is to be used by Grafana, and then integrate it with the `grafana` charm. 
+Now that Prometheus is configured, let's configure Grafana. 
+For this tutorial, we are going to use a [basic Grafana dashboard](https://github.com/canonical/charmed-spark-rock/blob/dashboard/dashboards/prod/grafana/spark_dashboard.json). 
+
+Deploy the [cos-configuration-k8s](https://github.com/canonical/cos-configuration-k8s-operator) charm for importing the grafana dashboard:
 
 ```bash
-# Deploy cos configuration charm to import the grafana dashboard
+
 juju deploy cos-configuration-k8s \
   --config git_repo=https://github.com/canonical/charmed-spark-rock \
   --config git_branch=dashboard \
   --config git_depth=1 \
   --config grafana_dashboards_path=dashboards/prod/grafana/
+```
 
-# integrate cos-configration charm to import grafana dashboard
+Integrate the cos-configration-k8s charm to import the grafana dashboard:
+
+```shell
 juju integrate cos-configuration-k8s grafana
 ```
 
@@ -325,33 +223,39 @@ traefik:peers                                 traefik:peers                     
 traefik:traefik-route                         grafana:ingress                               traefik_route              regular  
 ```
 
-Now that we have the observability stack up and running, let's run a simple Spark job so that the metric logs are pushed to the Prometheus gateway. For simplicity, we're going to use the same `count_vowels.py` script that we prepared in the earlier sections:
+Now that we have the observability stack up and running, let's run a simple Spark job so that the metric logs are pushed to the Prometheus gateway. For simplicity, we're going to use the same `count_ubuntu.py` script that we prepared in the earlier steps of this tutorial:
 
 ```bash
 spark-client.spark-submit \
     --username spark --namespace cos \
     --deploy-mode cluster \
-    s3a://spark-tutorial/count_vowels.py
+    s3a://spark-tutorial/count_ubuntu.py
 ```
 
-Once the job is completed, let's try to open the Grafana web UI and see some metrics. The credentials for the built-in `admin` user and the URL to the web UI can be grabbed using the `get-admin-password` action exposed by `grafana` charm:
+Once the job is completed, let's try to open the Grafana web UI and see some metrics. 
+The credentials for the built-in `admin` user and the URL to the web UI can be retrieved using the `get-admin-password` action exposed by the `grafana` charm:
 
 ```bash
 juju run grafana/leader get-admin-password
-# ...
-# admin-password: w5lk07PIW5U0
-# url: http://192.168.10.120/cos-grafana
 ```
 
-Open the URL in a web browser. Log in using `admin` as the username and the password that we just fetched in the earlier command. We should see the Grafana web UI, similar to the screenshot below.
+The resulted output should look like this:
 
-![grafana_landing_page|690x404](upload://cgje0BAWA7CNQIXPxmd0F533vrD.png)
+```shell
+admin-password: w5lk07PIW5U0
+url: http://192.168.10.120/cos-grafana
+```
 
+Open the URL in a web browser. 
+Log in using `admin` as the username and the password that we just fetched in the earlier command. 
+We should see the Grafana web UI:
 
-In the navigation menu on the left, select "Dashboards" and then "Browse". There you should see the "Spark Dashboard" listed. You'll see a dashboard similar to the one in the picture below. This is the dashboard we configured earlier with `cos-configuration-k8s` charm.
+![grafana_landing_page](https://assets.ubuntu.com/v1/55f212ec-grafana_landing_page.png)
 
-![spark_dashboard|690x404](upload://tBFcL7gREzWbGbO75iFrGniCTEa.png)
+In the navigation menu on the left, select "Dashboards" and then "Browse". 
+There you should see the "Spark Dashboard" listed. 
+This is the dashboard we configured earlier with `cos-configuration-k8s` charm:
 
-Play around the dashboard and observe the various metrics like Block Manager memory, JVM Executor Memory, etc. You can also reduce the time range to further zoom into the time graph.
+![spark_dashboard](https://assets.ubuntu.com/v1/cf80fe96-spark_dashboard.png)
 
-In the [next section](/t/13224), we are going to wrap up the tutorial and clean up all the resources we created.
+Play around the dashboard and observe the various metrics like Block Manager memory, JVM Executor Memory, etc.
