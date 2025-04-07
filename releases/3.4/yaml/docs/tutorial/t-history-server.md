@@ -2,15 +2,17 @@
 
 The Apache Spark History Server is a user interface to monitor the metrics and performance of completed and running Apache Spark applications. The History Server is offered as a charm in the Charmed Apache Spark solution, which can be deployed via Juju.
 
+The Apache Spark History Server is most suitable for engineer running Spark jobs for troubleshooting, debugging, and general oversight. If you require a solution for systematic metrics capture and analysis with alerting, see the Canonical Observability Stack (COS) page of this tutorial.
+
 ## Environment variables
 
-During this step of the tutorial we'll need some of the environment variables that were set earlier - at the environment setup step. In case you've restarted the VM and lost the environement variables, refresh them by running the following commands:
+At this step of the tutorial, you’ll need some environment variables that were set earlier during the environment setup.
+If you’ve restarted the VM and lost those variables, you can refresh them by running the following commands:
 
 ```bash
 export ACCESS_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d)
 export SECRET_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d)
 export S3_ENDPOINT=$(kubectl get service minio -n minio-operator -o jsonpath='{.spec.clusterIP}')
-export S3_BUCKET="spark-tutorial"
 ```
 
 ## Initial setup

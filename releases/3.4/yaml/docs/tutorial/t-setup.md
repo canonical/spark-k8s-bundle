@@ -341,7 +341,7 @@ For Apache Spark to be able to access and use our local S3 bucket, we need to pr
 
 In Charmed Apache Spark solution, we bind these configuration options to a Kubernetes service account such that when Spark jobs are executed with that service account, all the configurations bound to that service account are supplied to Apache Spark automatically.
 
-The S3 configurations can be added to the `spark` service account we created earlier with the following command:
+The S3 configurations can be added to the existing `spark` service account with the following command:
 
 ```bash
 spark-client.service-account-registry add-config \
@@ -354,7 +354,7 @@ spark-client.service-account-registry add-config \
   --conf spark.hadoop.fs.s3a.secret.key=$SECRET_KEY
 ```
 
-The list of configurations bound for the service account `spark` can be verified with the command:
+Now check the list of configurations bound for the service account:
 
 ```bash
 spark-client.service-account-registry get-config \
@@ -374,12 +374,4 @@ spark.kubernetes.authenticate.driver.serviceAccountName=spark
 spark.kubernetes.namespace=spark
 ```
 
-<!-- 
-## History Server
-
-## Kyuubi
- -->
-
-That's it. We're now ready to dive head-first into Apache Spark!
-
-In the [next section](/t/13232), we'll start submitting commands to Apache Spark using the built-in interactive shell.
+With that, the tutorial’s environment setup is complete!
