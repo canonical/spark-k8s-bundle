@@ -1,4 +1,4 @@
-# 2. Environment setup
+# 1. Environment setup
 
 Charmed Apache Spark solution is based on the `spark-client` snap that can run Spark jobs on a Kubernetes cluster.
 
@@ -8,8 +8,6 @@ In this step, we will prepare a lightweight K8s environment, `spark-client` snap
 * [Spark-client snap](https://snapcraft.io/spark-client) — client side scripts in a snap to submit Apache Spark jobs to a Kubernetes cluster
 * [MiniO](https://min.io/) — S3-compliant object storage
 * [Juju](https://juju.is/) — Canonical's orchestration system
-<!-- * [Spark History server]
-* [Kyuubi] -->
 
 ## Minimum system requirements
 
@@ -30,7 +28,8 @@ multipass launch --cpus 3 --memory 8G --disk 50G --name spark-tutorial 24.04
 ```
 
 [note]
-See also: 
+See also:
+
 * [How to create an instance](https://canonical.com/multipass/docs/create-an-instance#create-an-instance-with-a-specific-image) guide from Multipass documentation
 * [`multipass launch` command reference](https://canonical.com/multipass/docs/launch-command)
 [/note]
@@ -52,7 +51,7 @@ For clarity, we will refer to it as VM, while the host machine that runs the Mul
 
 ## MicroK8s
 
-Charmed Apache Spark is developed to be run on top of a Kubernetes cluster. 
+Charmed Apache Spark is developed to be run on top of a Kubernetes cluster.
 For the purpose of this tutorial we will be using a lightweight Kubernetes: [MicroK8s](https://microk8s.io/).
 
 Installing MicroK8s is as simple as running the following command:
@@ -100,7 +99,7 @@ microk8s status --wait-ready
 
 When MicroK8s cluster is running and ready, you should see an output similar to the following:
 
-```
+```text
 microk8s is running
 high-availability: no
 ...
@@ -141,7 +140,7 @@ microk8s status --wait-ready
 
 The output of the command should look similar to the following:
 
-```
+```text
 microk8s is running
 ...
 addons:
@@ -230,20 +229,20 @@ Next, we'll continue to set up additional software needed for Spark History Serv
 
 ## Juju
 
-[Juju](https://juju.is/) is an Operator Lifecycle Manager (OLM) for clouds, bare metal, LXD or Kubernetes. 
+[Juju](https://juju.is/) is an Operator Lifecycle Manager (OLM) for clouds, bare metal, LXD or Kubernetes.
 We'll use `juju` to deploy and manage the Spark History Server and a number of other applications later to be integrated with Apache Spark. 
 
 To install and configure a `juju` client using a snap:
 
 ```bash
 sudo snap install juju 
-
 mkdir -p ~/.local/share
 ```
 
-Juju can automatically detect all available clouds on our local machine (VM) without the need of additional setup or configuration. You can verify this by running `juju clouds` command that should produce an output similar to the following:
+Juju can automatically detects all available clouds on our local machine (VM) without the need of additional setup or configuration. 
+You can verify this by running `juju clouds` command that should produce an output similar to the following:
 
-```
+```text
 Only clouds with registered credentials are shown.
 There are more clouds, use --all to see them.
 You can bootstrap a new controller using one of these clouds...
@@ -254,17 +253,17 @@ localhost  1        localhost  lxd   0            built-in  LXD Container Hyperv
 microk8s   1        localhost  k8s   0            built-in  A Kubernetes Cluster
 ```
 
-As you can see, Juju has detected LXD as well as K8s installation in the system. 
+As you can see, Juju has detected LXD as well as K8s installation in the system.
 For us to be able to deploy Kubernetes charms, let's bootstrap a Juju controller in the `microk8s` cloud:
 
 ```bash
 juju bootstrap microk8s spark-tutorial
 ```
 
-The creation of the new controller can be verified with the `juju controllers` command. 
+The creation of the new controller can be verified with the `juju controllers` command.
 The output of the command should be similar to:
 
-```
+```text
 Use --refresh option with this command to see the latest information.
 
 Controller       Model  User   Access     Cloud/Region        Models  Nodes  HA  Version
