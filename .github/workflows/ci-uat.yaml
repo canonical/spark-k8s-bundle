@@ -5,6 +5,9 @@ name: Mimic UAT Tests
 
 on:
   pull_request:
+    paths-ignore:
+      - 'releases/3.4/yaml/docs/**'
+      - '**.md'
 
 jobs:
   integration-tests:
