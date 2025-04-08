@@ -1,4 +1,4 @@
-# Tutorial
+# 1. Tutorial introduction
 
 Charmed Apache Spark provides utility client applications and additional components for seamless deployment on Kubernetes. For a detailed overview of its components, see the [Components overview](/t/11685) page.
 
@@ -18,14 +18,9 @@ To get started, follow this tutorial through each step of the process:
 | Step | Description |
 | ------- | ---------- |
 | 1. Introduction | This page.
-| 2. [Initial setup](t-setup.md) | Prepare your cloud environment using Multipass and deploy Apache Spark with `spark-client` snap.
-| 3. [Distributed data processing](distributed.md) | Explore how to process large datasets efficiently across multiple nodes.
-| 4. [Streaming workload processing](stream.md) | Learn how to handle real-time data streams.
-| 5. [History server](history-server.md) | Integrate with Apache Spark History Server.
-| 6. [Monitoring](cos.md) | Set up monitoring and alerting using Canonical's Observability Stack (COS).
-| 7. [Kyuubi](kyuubi.md) | Scale your application by adding or removing juju units
-| 8. [Finish and clean up](finish.md) | Finish the tutorial by decommissioning your Charmed Apache Spark deployment and Juju environment to free up system resources.
-
-## Next step
-
-Let's proceed to set up the environment needed for this tutorial in the [next section](/t/13233).
+| 2. [Environment setup](t-setup.md) | Prepare your tutorial environment using a Multipass VM and deploy Apache Spark with `spark-client` snap.
+| 3. [Distributed data processing](t-data-processing.md) | Explore how to process large datasets efficiently across multiple nodes.
+<!-- | 4. [Streaming workload processing](stream.md) | Learn how to handle real-time data streams. -->
+| 4. [History server](t-history-server.md) | Integrate with Apache Spark History Server.
+| 5. [Monitoring with COS](t-cos.md) | Set up monitoring and alerting using Canonical's Observability Stack (COS).
+| 6. [Wrapping up](t-wrapping-up.md) | Finish the tutorial by decommissioning your Charmed Apache Spark environment to free up system resources.

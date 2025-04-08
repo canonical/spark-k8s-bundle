@@ -1,4 +1,4 @@
-# Environment setup
+# 2. Environment setup
 
 Charmed Apache Spark solution is based on the `spark-client` snap that can run Spark jobs on a Kubernetes cluster.
 

@@ -1,4 +1,4 @@
-# Wrapping Up
+# 6. Wrapping Up
 
 This section concludes the Tutorial by freeing up the resources used so far.
 
@@ -12,9 +12,10 @@ multipass delete --purge spark-tutorial
 
 This command immediately deletes VM and all associated resources.
 
-## Next steps
+## Learn more
 
-Parts of this tutorial were originally presented in a talk at Ubuntu Summit 2023. The recording is available on [YouTube](https://www.youtube.com/watch?v=nu1ll7VRqbI).
+Parts of this tutorial were originally presented in a talk at Ubuntu Summit 2023. 
+The recording is available on [YouTube](https://www.youtube.com/watch?v=nu1ll7VRqbI).
 
 This tutorial covers running Charmed Apache Spark locally using MicroK8s.
 Running Charmed Apache Spark on MicroK8s locally is limited by the available system resources.

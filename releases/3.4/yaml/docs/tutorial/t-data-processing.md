@@ -1,4 +1,4 @@
-# Distributed data processing
+# 3. Distributed data processing
 
 In this section, you will learn how to use PySpark and Spark Submit to run your Spark jobs. Make sure to finish setting up the environment from the [Environment setup](t-setup.md) page.
 
@@ -299,4 +299,4 @@ The result should look similar to the following:
 2025-04-07T11:32:44.872Z [sparkd] Number of tweets containing Ubuntu: 54
 ```
 
-By default, Apache Spark stores the logs of drivers and executors as pod logs in the local file systems, which are lost once the pods are deleted. Apache Spark can store these logs in a persistent object storage system, like S3, so that they can later be retrieved and visualised by a component called the Spark History Server.
+By default, Apache Spark stores the logs of drivers and executors as pod logs in the local file systems, which are lost once the pods are deleted. Apache Spark can store these logs in a persistent object storage system, like S3, so that they can later be retrieved and visualised by a component called Spark History Server.
