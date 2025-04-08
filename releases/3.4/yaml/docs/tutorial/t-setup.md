@@ -15,7 +15,7 @@ Before we start, make sure your machine meets the following minimal requirements
 
 * Ubuntu 22.04 (jammy) or later (the tutorial has been prepared and tested to work on 24.04)
 * 10 GB of RAM
-* 4 CPU threads
+* 5 CPU cores/threads
 * At least 50 GB of available storage
 * Access to the internet for downloading the required snaps and charms
 
