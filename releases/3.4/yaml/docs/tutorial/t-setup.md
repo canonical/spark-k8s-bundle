@@ -21,10 +21,10 @@ Before we start, make sure your machine meets the following minimal requirements
 
 ## Virtual machine
 
-Use Multipass to start a new Ubuntu virtual machine with the following parameters:
+Use Multipass to start a new Ubuntu virtual machine with the following recommended parameters:
 
 ```bash
-multipass launch --cpus 3 --memory 8G --disk 50G --name spark-tutorial 24.04
+multipass launch --cpus 4 --memory 8G --disk 50G --name spark-tutorial 24.04
 ```
 
 [note]

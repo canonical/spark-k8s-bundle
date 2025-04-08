@@ -1,12 +1,12 @@
 # 3. Data stream processing
 
-Apache Spark comes with a built-in support for streaming workloads via Apache Spark Streaming. Charmed Apache Spark takes it a step further by making it easy to integrate with Apache Kafka using Juju. 
+Apache Spark comes with a built-in support for streaming workloads via Apache Spark Streaming. Charmed Apache Spark takes it a step further by making it easy to integrate with Apache Kafka using Juju.
 
 Apache Kafka is a distributed event-store with a producer/consumer API, designed to achieve massive throughput with clustering for horizontal scalability and high availability. For more information about Apache Kafka, see the [Apache Kafka project page](https://kafka.apache.org/), and for Apache Spark Streaming, see the [Apache Spark project documentation](https://spark.apache.org/docs/latest/streaming-programming-guide.html).
 
 In this step of the tutorial, we are going to generate some data, push it to Apache Kafka, and then consume the stream of data using Apache Spark, making an aggregation. We are going to use `juju` to deploy an Apache Kafka cluster as well as a simple test application which will generate and push events to Apache Kafka. We will then show how to set up a Spark job to continuously consume those events from Apache Kafka and calculate some statistics.
 
-## VM configuration
+<!-- ## VM configuration
 
 For this step of the tutorial we will spawn multiple charms: Apache Kafka, Apache ZooKeeper, and `kafka-test-app`. The default number of vCPUs we've set for our VM is `3`, which might be not enough.
 
@@ -31,7 +31,7 @@ Now we need to open VM's shell again:
 multipass shell spark-tutorial
 ```
 
-Wait 3-5 minutes for the VM to fully load and make sure that `juju models` command returns a list of models for the `spark-tutorial` controller before proceeding further.
+Wait 3-5 minutes for the VM to fully load and make sure that `juju models` command returns a list of models for the `spark-tutorial` controller before proceeding further. -->
 
 ## Setup
 
@@ -41,11 +41,11 @@ First of all, let's start by creating a fresh `juju` model to be used as an expe
 juju add-model spark-streaming
 ```
 
-When you add a Juju model, a Kubernetes namespace of the same name is created automatically. 
+When you add a Juju model, a Kubernetes namespace of the same name is created automatically.
 You can verify that by running `kubectl get namespaces` - you should see a namespace called `spark-streaming`.
 
-The service account `spark` that we created in the earlier section is in the `spark` namespace. 
-Let's create a similar service account but now in the `spark-streaming` namespace. 
+The service account `spark` that we created in the earlier section is in the `spark` namespace.
+Let's create a similar service account but now in the `spark-streaming` namespace.
 We can copy the existing config options from the old service account into the new service account.
 
 Get config from the old service account in the `spark` namespace and store it in a file:
@@ -63,8 +63,8 @@ spark-client.service-account-registry create \
   --properties-file properties.conf
 ```
 
-Now, let's create a minimal Apache Kafka and Apache ZooKeeper setup. 
-This can be done quickly and easily using the [`zookeeper-k8s`](https://github.com/canonical/zookeeper-k8s-operator) and [`kafka-k8s`](https://charmhub.io/kafka-k8s) charms. 
+Now, let's create a minimal Apache Kafka and Apache ZooKeeper setup.
+This can be done quickly and easily using the [`zookeeper-k8s`](https://github.com/canonical/zookeeper-k8s-operator) and [`kafka-k8s`](https://charmhub.io/kafka-k8s) charms.
 Although this setup is not highly available, using single instances for both should be enough to understand the underlying concepts.
 
 ```bash
@@ -98,12 +98,16 @@ zookeeper-k8s/0*  active    idle   10.1.29.182
 
 As you can see, both Apache Kafka and Apache ZooKeeper charms are in the "active" status.
 
+[note]
+If you see `kafka-k8s` unit with the `zookeeper credentials not created yet` message and waiting - just wait a few more minutes (up to 5-10) for the charms to synchronize and share credentials with each other.
+[/note]
+
 ## Generating data stream
 
 For us to experiment with the streaming feature, we need some sample streaming data to be generated in Apache Kafka continuously in real-time.
 For that, we can use the `kafka-test-app` charm to produce events.
 
-Let's deploy this charm with 3 units, and integrate it with `kafka-k8s` so that it is able to write messages to Apache Kafka.
+Let's deploy this charm with `3` units, and integrate it with `kafka-k8s` so that it is able to write messages to Apache Kafka.
 
 ```bash
 juju deploy kafka-test-app -n 3 --config role=producer --config topic_name=spark-streaming-store --config num_messages=100000
@@ -115,12 +119,12 @@ Once the integration is complete, `juju status` should display something similar
 
 ```text
 Model            Controller      Cloud/Region        Version  SLA          Timestamp
-spark-streaming  spark-tutorial  microk8s/localhost  3.1.7    unsupported  10:17:32Z
+spark-streaming  spark-tutorial  microk8s/localhost  3.6.4    unsupported  10:17:32Z
 
-App             Version  Status  Scale  Charm           Channel  Rev  Address         Exposed  Message
-kafka-k8s                active      1  kafka-k8s       3/edge    47  10.152.183.242  no       
-kafka-test-app           active      3  kafka-test-app  edge       8  10.152.183.167  no       Topic spark-streaming-store enabled with process producer
-zookeeper-k8s            active      1  zookeeper-k8s   3/edge    42  10.152.183.87   no       
+App             Version  Status  Scale  Charm           Channel       Rev  Address         Exposed  Message
+kafka-k8s                active      1  kafka-k8s       3/stable      47  10.152.183.242   no       
+kafka-test-app           active      3  kafka-test-app  latest/stable  8  10.152.183.167   no       Topic spark-streaming-store enabled with process producer
+zookeeper-k8s            active      1  zookeeper-k8s   3/stable      42  10.152.183.87    no       
 
 Unit               Workload  Agent  Address      Ports  Message
 kafka-k8s/0*       active    idle   10.1.29.184         
@@ -176,19 +180,19 @@ Running operation 1 with 1 task
 
 Waiting for task 2...
 kafka:
-  consumer-group-prefix: relation-9-
+  consumer-group-prefix: relation-10-
   data: '{"extra-user-roles": "consumer,admin", "requested-secrets": "[\"username\",
     \"password\", \"tls\", \"tls-ca\", \"uris\"]", "topic": "spark-streaming-store"}'
   endpoints: kafka-k8s-0.kafka-k8s-endpoints:9092
-  password: g6c5gjg48IjTFld664ipkz8Khqb5FOG0
+  password: oZZVg6diO1ao1uA8izYCw396PUwHkwVR
   tls: disabled
   topic: spark-streaming-store
-  username: relation-9
+  username: relation-10
   zookeeper-uris: zookeeper-k8s-0.zookeeper-k8s-endpoints:2181/kafka-k8s
 ok: "True"
 ```
 
-As you can see, the endpoint, username and password to be used to authenticate with Kafka are displayed next to "endpoints", "username" and "password" respectively. 
+As you can see, the endpoint, username and password to be used to authenticate with Kafka are displayed next to "endpoints", "username" and "password" respectively.
 It will help if we store the username and password as variables so that they can be used later in the tutorial.
 To do that, we can specify `--format=json` when running the `get-credentials` action, and then filter out username and password using `jq`:
 
@@ -313,8 +317,13 @@ query.awaitTermination()
 ```
 
 Save the Python code above in a file named `spark_streaming.py`.
-We'll copy this script to the S3 bucket.
-Run the following command:
+Copy this file from the Host machine to the VM:
+
+```bash
+multipass transfer spark_streaming.py spark-tutorial-4:spark_streaming.py
+```
+
+Then, from the VM, copy it to the S3:
 
 ```bash
 aws s3 cp spark_streaming.py s3://spark-tutorial/spark_streaming.py
@@ -363,17 +372,16 @@ If you observe carefully, you can see that new logs are appended roughly every t
 
 ```text
 ...
-2024-02-16T12:50:12.886Z [sparkd] Batch: 13
-2024-02-16T12:50:12.886Z [sparkd] -------------------------------------------
-...
-2024-02-16T12:50:12.963Z [sparkd] +--------------------+-----+
-2024-02-16T12:50:12.963Z [sparkd] |              origin|count|
-2024-02-16T12:50:12.963Z [sparkd] +--------------------+-----+
-2024-02-16T12:50:12.963Z [sparkd] |kafka-test-app-1 ...|   38|
-2024-02-16T12:50:12.963Z [sparkd] |kafka-test-app-0 ...|   38|
-2024-02-16T12:50:12.963Z [sparkd] |kafka-test-app-2 ...|   39|
-2024-02-16T12:50:12.963Z [sparkd] +--------------------+-----+
-
+2025-04-08T10:00:38.367Z [sparkd] Batch: 5
+2025-04-08T10:00:38.367Z [sparkd] -------------------------------------------
+2025-04-08T10:00:38.381Z [sparkd] +--------------------+-----+
+2025-04-08T10:00:38.381Z [sparkd] |              origin|count|
+2025-04-08T10:00:38.381Z [sparkd] +--------------------+-----+
+2025-04-08T10:00:38.381Z [sparkd] |kafka-test-app-1 ...|   53|
+2025-04-08T10:00:38.381Z [sparkd] |kafka-test-app-0 ...|   53|
+2025-04-08T10:00:38.381Z [sparkd] |kafka-test-app-2 ...|   53|
+2025-04-08T10:00:38.381Z [sparkd] +--------------------+-----+
+2025-04-08T10:00:38.381Z [sparkd] 
 ...
 ```
 
@@ -381,11 +389,13 @@ At this point, we’ve successfully processed a data stream using the Charmed Ap
 
 ## Clean up
 
-To free up the resources used by in this step of the tutorial, delete the `spark-streaming` model that we've used to deploy Apache Kafka and Apache ZooKeeper charms:
+Stop all running commands in all terminals by pressing `Ctrl + C`.
+
+To free up the resources used by in this step of the tutorial, delete the `spark-streaming` model that we've used to deploy Apache Kafka and Apache ZooKeeper charms by running the following command in the VM:
 
 ```shell
 juju destroy-model spark-streaming --release-storage
 ```
 
-You no longer need additional vCPUs for the VM.
-You can either revert the setting back to `3` vCPUs or leave it as is.
+<!-- You no longer need additional vCPUs for the VM.
+You can either revert the setting back to `3` vCPUs or leave it as is. -->
