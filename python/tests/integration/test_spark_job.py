@@ -1,13 +1,19 @@
 import asyncio
 import logging
+import re
 from pathlib import Path
 
+import boto3.session
 import httpx
 import pytest
+from azure.storage.blob import BlobServiceClient
 from pytest_operator.plugin import OpsTest
 from tenacity import Retrying, stop_after_attempt, wait_fixed
 
+from spark_test.core.azure_storage import Container
+from spark_test.core.azure_storage import Credentials as AzureCreds
 from spark_test.core.pod import Pod
+from spark_test.core.s3 import Bucket
 from spark_test.fixtures.k8s import envs, interface, kubeconfig  # noqa
 from spark_test.fixtures.pod import pod  # noqa
 from spark_test.fixtures.service_account import (
@@ -135,7 +141,7 @@ async def test_job_logs_are_persisted(
 ):
     driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
 
-    # Test that logs are persisted in S3
+    # Test that logs are persisted in object storage
     integration_hub_conf = get_secret_data(
         service_account.namespace, service_account.name
     )
@@ -144,6 +150,48 @@ async def test_job_logs_are_persisted(
     confs = registry.get(service_account.id).configurations
     logger.info(f"Configurations: {confs.props}")
     log_folder = confs.props["spark.eventLog.dir"]
+
+    # Against a live deployment, the object storage configured might not be the one created in the tests
+    # We need to retrieve everything from the integration hub
+    if "spark.hadoop.fs.s3a.access.key" in confs.props:
+        access_key = confs.props["spark.hadoop.fs.s3a.access.key"]
+        secret_key = confs.props["spark.hadoop.fs.s3a.secret.key"]
+        endpoint = confs.props["spark.hadoop.fs.s3a.endpoint"]
+        log_match = re.match(r"s3a://(?P<bucket>.*)/(?P<path>.*)", log_folder)
+        assert log_match is not None
+        bucket_name = log_match.group("bucket")
+        session = boto3.session.Session(
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_key,
+        )
+
+        s3 = session.client(
+            "s3",
+            endpoint_url=credentials.endpoint,
+            config=boto3.session.Config(
+                connect_timeout=60, retries={"max_attempts": 0}
+            ),
+        )
+
+        object_storage = Bucket(s3, bucket_name)
+
+    else:
+        conf_key = next(key for key in confs.props if "spark.hadoop" in key)
+        storage_match = re.match(
+            r"spark\.hadoop\.fs\.azure\.account\.key\.(?P<account>.*)\.(?:dfs|blob).core.windows.net",
+            conf_key,
+        )
+        assert storage_match is not None
+        storage_account = storage_match.group("account")
+        secret_key = confs.props[conf_key]
+        credentials = AzureCreds(secret_key, storage_account)
+        client = BlobServiceClient.from_connection_string(credentials.connection_string)
+        endpoint, _, _ = log_folder.rpartition("/")
+        container_match = re.search(r"\:\/\/(?P<container>.*)@", endpoint)
+        assert container_match is not None
+        container_name = container_match.group("container")
+
+        object_storage = Container(client, container_name, credentials)
 
     logger.info(f"Log folder: {log_folder}")
     logger.info(f"Objects: {object_storage.list_content()}")
@@ -247,9 +295,7 @@ async def test_spark_metrics_in_prometheus(
     logger.info(f"Show status: {stdout}")
     logger.info(f"Spark id: {driver_pod.labels['spark-app-selector']}")
     # NOTE: 9090 seems to be commonly in use in some deployments.
-    with port_forward(
-        pod=f"{PROMETHEUS}-0", port=9090, namespace=COS_ALIAS, on_port=19090
-    ):
+    with port_forward(pod=f"{PROMETHEUS}-0", port=9090, namespace=cos, on_port=19090):
         for attempt in Retrying(
             stop=stop_after_attempt(5), wait=wait_fixed(30), reraise=True
         ):
