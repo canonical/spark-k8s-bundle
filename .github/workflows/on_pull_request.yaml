@@ -12,6 +12,7 @@ on:
     paths-ignore:
       - 'releases/3.4/yaml/docs/**'
       - '**.md'
+      - '.github/**'
 
 jobs:
   tests:
