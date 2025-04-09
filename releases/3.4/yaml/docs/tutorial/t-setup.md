@@ -2,7 +2,7 @@
 
 Charmed Apache Spark solution is based on the `spark-client` snap that can run Spark jobs on a Kubernetes cluster.
 
-In this step, we will prepare a lightweight K8s environment, `spark-client` snap, and some addtional components required for this tutorial. We are going to use [Multipass](https://canonical.com/multipass) to create a virtual environment and set up the following software:
+In this step, we will prepare a lightweight K8s environment, `spark-client` snap, and some additional components required for this tutorial. We are going to use [Multipass](https://canonical.com/multipass) to create a virtual environment and set up the following software:
 
 * [MicroK8s](https://microk8s.io/) — a lightweight Kubernetes that can run locally
 * [Spark-client snap](https://snapcraft.io/spark-client) — client side scripts in a snap to submit Apache Spark jobs to a Kubernetes cluster
@@ -60,7 +60,7 @@ Installing MicroK8s is as simple as running the following command:
 sudo snap install microk8s --channel=1.28-strict/stable
 ```
 
-Make sure to install the `1.28-strict/stable` version of MircoK8s which was tested to work with all the components of this tutorial.
+Make sure to install the `1.28-strict/stable` version of MicroK8s which was tested to work with all the components of this tutorial.
 
 ### Configuration
 

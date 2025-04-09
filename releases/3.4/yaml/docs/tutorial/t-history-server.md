@@ -58,7 +58,9 @@ Now let's create that path in S3, since it doesn't exist yet:
 aws s3api put-object --bucket spark-tutorial --key spark-events/
 ```
 
-Note that the `/` at the end of this command is required.
+[note]
+Ensure the previous command ends with a `/` sign.
+[/note]
 
 Next, deploy the [`spark-history-server-k8s`](https://github.com/canonical/spark-history-server-k8s-operator) charm into our Juju model:
 
@@ -73,6 +75,11 @@ Deploy the `s3-integrator` charm, configure it, set the credentials, and integra
 ```bash
 juju deploy s3-integrator -n1 --channel edge
 juju config s3-integrator bucket=spark-tutorial path="spark-events" endpoint=http://$S3_ENDPOINT
+```
+
+Wait a minute for the `s3-integrator` charm to deploy correctly before finishing the setup:
+
+```bash
 juju run s3-integrator/leader sync-s3-credentials \
   access-key=$ACCESS_KEY secret-key=$SECRET_KEY
 juju integrate s3-integrator spark-history-server-k8s
@@ -107,7 +114,7 @@ Let's run a simple job so that Apache Spark can generate some logs for us to see
 spark-client.spark-submit \
     --username spark --namespace history-server \
     --deploy-mode cluster \
-    s3a://spark-tutorial/count_vowels.py
+    s3a://spark-tutorial/count-ubuntu.py
 ```
 
 [note]
