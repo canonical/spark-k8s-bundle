@@ -202,7 +202,7 @@ async def cleanup(ops_test: OpsTest) -> None:
     await action.wait()
     action = await ops_test.model.units.get(f"{HUB}/{leader_unit_id}").run_action(
         "remove-config",
-        conf="spark.kubernetes.container.image",
+        conf="spark.jars.packages",
     )
     await action.wait()
     check_output(
