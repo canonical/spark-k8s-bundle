@@ -67,13 +67,6 @@ async def test_setup_env(ops_test: OpsTest, sf: str) -> None:
     assert ops_test.model is not None
 
     logger.info("Setup TPC-H connector")
-    check_output(
-        f"JUJU_MODEL={ops_test.model_full_name} juju remove-relation {KYUUBI} {HUB}",
-        stderr=PIPE,
-        shell=True,
-        universal_newlines=True,
-    )
-    await ops_test.model.wait_for_idle(apps=[KYUUBI, HUB], idle_period=20, timeout=600)
 
     leader_unit_id = await get_leader_unit_number(ops_test, HUB)
     logger.info(f"Leader unit: {HUB}/{leader_unit_id}")
@@ -88,7 +81,6 @@ async def test_setup_env(ops_test: OpsTest, sf: str) -> None:
     )
     await action.wait()
 
-    await ops_test.model.add_relation(KYUUBI, HUB)
     async with ops_test.fast_forward(fast_interval="90s"):
         await ops_test.model.wait_for_idle(
             apps=[KYUUBI, HUB],
@@ -205,12 +197,4 @@ async def cleanup(ops_test: OpsTest) -> None:
         conf="spark.jars.packages",
     )
     await action.wait()
-    check_output(
-        f"JUJU_MODEL={ops_test.model_full_name} juju remove-relation {KYUUBI} {HUB}",
-        stderr=PIPE,
-        shell=True,
-        universal_newlines=True,
-    )
-    await ops_test.model.wait_for_idle(apps=[KYUUBI, HUB], idle_period=20, timeout=600)
-    await ops_test.model.add_relation(KYUUBI, HUB)
     await ops_test.model.wait_for_idle(apps=[KYUUBI, HUB], idle_period=20, timeout=600)
