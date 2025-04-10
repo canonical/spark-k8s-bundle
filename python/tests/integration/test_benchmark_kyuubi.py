@@ -36,6 +36,12 @@ def bench_iterations(request) -> int:
     return request.config.getoption("--bench-iterations")
 
 
+@pytest.fixture(scope="module")
+def report_name(request) -> str:
+    """Get benchmark number of iterations."""
+    return request.config.getoption("--report-name")
+
+
 @pytest.mark.skip_if_deployed
 @pytest.mark.abort_on_fail
 async def test_deploy_bundle(ops_test: OpsTest, spark_bundle) -> None:
@@ -116,7 +122,7 @@ async def test_setup_env(ops_test: OpsTest, sf: str) -> None:
 
 @pytest.mark.abort_on_fail
 async def test_run_benchmark_queries(
-    ops_test: OpsTest, sf: str, bench_iterations: int
+    ops_test: OpsTest, sf: str, bench_iterations: int, report_name: str
 ) -> None:
     """Run benchmark queries and generate report."""
     logger.info("Running benchmark queries")
@@ -170,7 +176,7 @@ async def test_run_benchmark_queries(
         .tab_source_note(md("*a `-1` value in the spark line denotes a missing value."))
     )
 
-    table.write_raw_html("report.html")
+    table.write_raw_html(f"{report_name}.html")
     logger.info("Report written to 'report.html'")
 
 

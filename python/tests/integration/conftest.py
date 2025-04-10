@@ -143,6 +143,12 @@ def pytest_addoption(parser):
         type=int,
         help="Number of iteration for each benchmark query.",
     )
+    parser.addoption(
+        "--report-name",
+        default="report",
+        type=str,
+        help="File name for the benchmark report.",
+    )
 
 
 @pytest.fixture(scope="module")
