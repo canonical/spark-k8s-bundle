@@ -110,6 +110,7 @@ async def get_kyuubi_credentials(
     results = (await action.wait()).results
 
     endpoint = await fetch_jdbc_endpoint(ops_test)
+    logger.info(endpoint)
 
     if (
         host_match := re.match(
@@ -130,11 +131,13 @@ async def get_kyuubi_credentials(
 async def fetch_jdbc_endpoint(ops_test):
     """Return the JDBC endpoint for clients to connect to Kyuubi server."""
     logger.info("Running action 'get-jdbc-endpoint' on kyuubi-k8s unit...")
-    kyuubi_unit = ops_test.model.applications["kyuubi"].units[0]
-    action = await kyuubi_unit.run_action(
-        action_name="get-jdbc-endpoint",
+    leader_unit_id = await get_leader_unit_number(ops_test, "kyuubi")
+    action = await ops_test.model.units.get(f"kyuubi/{leader_unit_id}").run_action(
+        "get-jdbc-endpoint"
     )
+
     result = await action.wait()
+    logger.info(f"result: {result.results}")
 
     jdbc_endpoint = result.results.get("endpoint")
     logger.info(f"JDBC endpoint: {jdbc_endpoint}")

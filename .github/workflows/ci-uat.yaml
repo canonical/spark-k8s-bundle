@@ -95,8 +95,6 @@ jobs:
 
           # Next we only use --no-deploy flag
 
-          tox run -e integration-bundle -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
-
           tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
           tox run -e integration-sparkjob -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
 
