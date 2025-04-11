@@ -110,6 +110,7 @@ async def get_kyuubi_credentials(
     results = (await action.wait()).results
 
     endpoint = await fetch_jdbc_endpoint(ops_test)
+    logger.info(endpoint)
 
     if (
         host_match := re.match(
