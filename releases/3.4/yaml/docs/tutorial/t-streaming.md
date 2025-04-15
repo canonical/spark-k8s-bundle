@@ -6,33 +6,6 @@ Apache Kafka is a distributed event-store with a producer/consumer API, designed
 
 In this step of the tutorial, we are going to generate some data, push it to Apache Kafka, and then consume the stream of data using Apache Spark, making an aggregation. We are going to use `juju` to deploy an Apache Kafka cluster as well as a simple test application which will generate and push events to Apache Kafka. We will then show how to set up a Spark job to continuously consume those events from Apache Kafka and calculate some statistics.
 
-<!-- ## VM configuration
-
-For this step of the tutorial we will spawn multiple charms: Apache Kafka, Apache ZooKeeper, and `kafka-test-app`. The default number of vCPUs we've set for our VM is `3`, which might be not enough.
-
-Increase the number of vCPUs allocated to the VM.
-To do this, press `Ctrl + D` to exit VM shell and get to the Host machine, then run the following commands:
-
-```bash
-multipass stop spark-tutorial
-multipass multipass set local.spark-tutorial.cpus=5
-multipass start spark-tutorial
-```
-
-[note]
-See also: Multipass VM settings [reference](https://documentation.ubuntu.com/multipass/en/latest/reference/settings/#available-settings).
-[/note]
-
-That way we stop the VM, set the vCPU limit to a higher number that should be enough, and then start the VM again.
-
-Now we need to open VM's shell again:
-
-```bash
-multipass shell spark-tutorial
-```
-
-Wait 3-5 minutes for the VM to fully load and make sure that `juju models` command returns a list of models for the `spark-tutorial` controller before proceeding further. -->
-
 ## Setup
 
 First of all, let's start by creating a fresh `juju` model to be used as an experimental workspace for this project:
@@ -267,7 +240,7 @@ from json import loads
 # Create a Spark Session
 spark = SparkSession.builder.appName("SparkStreaming").getOrCreate()
 
-# Read username, password and endpoint from command line arguments.
+# Read username, password and endpoint from command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("--kafka-username", "-u",
                 help="The username to authenticate to Kafka",
