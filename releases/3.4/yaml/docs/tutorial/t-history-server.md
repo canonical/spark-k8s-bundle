@@ -32,7 +32,7 @@ First, get config from the old service account (in the `spark` namespace) and st
 
 ```bash
 spark-client.service-account-registry get-config \
-  --username spark --namespace spark > properties.confPrerequisites
+  --username spark --namespace spark > properties.conf
 ```
 
 Add a few more configuration options for the storage of event logs:
@@ -52,7 +52,7 @@ spark-client.service-account-registry create \
 ```
 
 We've configured Apache Spark to write logs to the `spark-events` path in the `spark-tutorial` bucket.
-Now let's create that path in S3, since it doesn't exist yet:
+Now let's create that directory in S3, since it doesn't exist yet:
 
 ```bash
 aws s3api put-object --bucket spark-tutorial --key spark-events/
@@ -73,7 +73,7 @@ The credentials for this connection are provided to the Spark History Server cha
 Deploy the `s3-integrator` charm, configure it, set the credentials, and integrate with `spark-history-server-k8s`:
 
 ```bash
-juju deploy s3-integrator -n1 --channel edge
+juju deploy s3-integrator
 juju config s3-integrator bucket=spark-tutorial path="spark-events" endpoint=http://$S3_ENDPOINT
 ```
 
@@ -118,7 +118,7 @@ spark-client.spark-submit \
 ```
 
 [note]
-Make sure to use the `history-server` namespace for submitting a job, otherwise History server won't be able to use it.
+Make sure to use the service account we have just created in the `history-server` namespace when submitting a job, otherwise the Spark Job will not be configured to write the logs to S3 and therefore History server won't be able to display them.
 [/note]
 
 Now that our S3-compliant storage has some logs, we can use History Server to explore them.
@@ -139,6 +139,8 @@ Now that Traefik has been deployed and configured, we can fetch the Ingress URL 
 ```bash
 juju run traefik-k8s/0 show-proxied-endpoints
 ```
+
+The output of that command should be similar to the following:
 
 ```text
 proxied-endpoints: '{"traefik-k8s": {"url": "http://10.181.60.89"}, "spark-history-server-k8s":

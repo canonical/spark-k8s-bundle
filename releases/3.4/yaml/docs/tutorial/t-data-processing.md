@@ -6,7 +6,7 @@ In this section, you will learn how to use PySpark and Spark Submit to run your 
 
 The `spark-client` snap comes with a built-in Python shell where we can execute commands interactively against an Apache Spark cluster using the Python programming language.
 
-To proceed, run the PySpark interactive CLI:
+To proceed, run the PySpark interactive CLI, specifying the service account to be used for retrieving configurations and running the executor pods (see more information below)
 
 ```bash
 spark-client.pyspark --username spark --namespace spark
@@ -30,7 +30,7 @@ SparkSession available as 'spark'.
 ```
 
 When you open the PySpark shell, Charmed Apache Spark spawns a couple of executor K8s pods in the background to process commands. 
-You can see them by fetching the list of pods in the `spark` namespace in a separate shell:
+You can see them by fetching the list of pods in the `spark` namespace in a separate VM shell:
 
 ```bash
 kubectl get pods -n spark
@@ -82,7 +82,8 @@ To test this function, the string `lines` can now be passed into it so the numbe
 count_vowels(lines)
 ```
 
-As a result, you should see the value returned by the function: `137`.
+As a result, you should see the value returned by the function: `137`. 
+However, this approach does not leverage parallelization or the distributed processing capabilities of Apache Spark. It simply executes the Python code.
 
 <!-- I don't know why, but sometimes the answer is 134, sometimes - 137. -->
 
@@ -243,7 +244,7 @@ Let’s save the aforementioned script in a file named `count-ubuntu.py` and pro
 
 ### Run
 
-When submitting a Spark job, the driver won’t be running in the local machine but on a K8s pod, hence the script needs to be downloaded and then executed remotely in a dedicated pod.
+When submitting a Spark job, the driver won’t be running in the local machine but on a K8s pod, hence the script needs to be downloaded and then executed remotely on Kubernetes in a dedicated pod.
 For that reason, we'll copy the file to the S3 storage to be easily accessible from K8s pods.
 
 Upload the file to the Multipass VM:
@@ -269,9 +270,11 @@ spark-client.spark-submit \
     s3a://spark-tutorial/count-ubuntu.py
 ```
 
-When you run the command, you’ll see log output in the console with information about the state of the pods executing the task.
+The --deploy-mode cluster option tells Spark Submit to run the driver on a K8s pod.
 
-While `spark-submit` command spins up K8s pods and runs the script, you can check the K8s pods statuses by running the following command in a different shell on the VM:
+When you execute the command, the console will display log output showing the state of the pods running the task.
+
+While the `spark-submit` command spins up K8s pods and runs the script, you can check the K8s pods statuses by running the following command in a different shell on the VM:
 
 ```bash
 watch -n1 "kubectl get pods -n spark"

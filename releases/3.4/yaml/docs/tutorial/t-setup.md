@@ -5,7 +5,7 @@ Charmed Apache Spark solution is based on the `spark-client` snap that can run S
 In this step, we will prepare a lightweight K8s environment, `spark-client` snap, and some additional components required for this tutorial. We are going to use [Multipass](https://canonical.com/multipass) to create a virtual environment and set up the following software:
 
 * [MicroK8s](https://microk8s.io/) — a lightweight Kubernetes that can run locally
-* [Spark-client snap](https://snapcraft.io/spark-client) — client side scripts in a snap to submit Apache Spark jobs to a Kubernetes cluster
+* [Spark-client snap](https://snapcraft.io/spark-client) — a snap that bundles client-side scripts to manage, configure, and run Apache Spark jobs on a Kubernetes cluster
 * [MiniO](https://min.io/) — S3-compliant object storage
 * [Juju](https://juju.is/) — Canonical's orchestration system
 
@@ -97,7 +97,7 @@ Check the status of the MicroK8s:
 microk8s status --wait-ready
 ```
 
-When MicroK8s cluster is running and ready, you should see an output similar to the following:
+When the MicroK8s cluster is running and ready, you should see an output similar to the following:
 
 ```text
 microk8s is running
@@ -115,7 +115,7 @@ addons:
 ```
 
 Let's generate a Kubernetes configuration file using MicroK8s and write it to `~/.kube/config`. 
-This is where Kubernetes looks for the Kubeconfig file by default.
+This is where `kubectl` looks for the Kubeconfig file by default.
 
 ```bash
 microk8s config | tee ~/.kube/config
@@ -198,19 +198,21 @@ kubectl get rolebindings -n spark
 # spark-role-binding   Role/spark-role   69s
 ```
 
+Now, launch a PySpark shell using the service account you created earlier to verify that it works:
+
 ```bash
 spark-client.pyspark \
   --username spark --namespace spark
 ```
 
-The resulted output should include a welcome screen from pySpark:
+The resulted output should include a welcome screen from PySpark:
 
 ```bash
 Welcome to
       ____              __
      / __/__  ___ _____/ /__
     _\ \/ _ \/ _ `/ __/  '_/
-   /__ / .__/\_,_/_/ /_/\_\   version 3.4.1
+   /__ / .__/\_,_/_/ /_/\_\   version 3.4.2
       /_/
 
 Using Python version 3.10.12 (main, Jan 17 2025 14:35:34)
@@ -220,10 +222,9 @@ SparkSession available as 'spark'.
 >>> 
 ```
 
-Use `CTRL + D` to leave pySpark CLI.
+Press `CTRL + D` to exit PySpark shell.
 
-Now the very basic Apache Spark set up is complete: we have a Kubernetes environment and a `spark-client` snap that is configured to use it.
-You can use the Web UI address to access PySparkShell application UI.
+The basic Apache Spark setup is now complete: you have a Kubernetes environment and a configured `spark-client` snap ready to use it. We will get back to using them in later steps of the tutorial.
 
 Next, we'll continue to set up additional software needed for Spark History Server and object storage that are also used during this tutorial.
 
@@ -270,7 +271,7 @@ Controller       Model  User   Access     Cloud/Region        Models  Nodes  HA 
 spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   -  3.6.4
 ```
 
-Juju set up is complete now.
+The Juju setup is complete.
 
 ## MinIO
 
@@ -296,7 +297,7 @@ export S3_ENDPOINT=$(kubectl get service minio -n minio-operator -o jsonpath='{.
 export S3_BUCKET="spark-tutorial"
 ```
 
-The MinIO add-on offers access to a built-in Web UI which can be used to interact with the local S3 object storage. But for this tutorial, we will CLI commands.
+The MinIO add-on offers access to a built-in Web UI which can be used to interact with the local S3 object storage. But for this tutorial, we will use CLI commands.
 
 To set up the AWS CLI, run the following commands:
 
@@ -338,7 +339,7 @@ With the access key, secret key and the endpoint properly configured, you should
 
 For Apache Spark to be able to access and use our local S3 bucket, we need to provide a few configuration options including the bucket endpoint, access key and secret key.
 
-In Charmed Apache Spark solution, we bind these configuration options to a Kubernetes service account such that when Spark jobs are executed with that service account, all the configurations bound to that service account are supplied to Apache Spark automatically.
+In the Charmed Apache Spark solution, these configurations are stored in a Kubernetes secret and bound to a Kubernetes service account. When Spark jobs are executed using that service account, all associated configurations are automatically retrieved and supplied to Apache Spark.
 
 The S3 configurations can be added to the existing `spark` service account with the following command:
 
