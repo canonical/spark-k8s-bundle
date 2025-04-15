@@ -50,21 +50,11 @@ On the other hand, the PySpark shell started by the `spark-client` snap will act
 
 The PySpark shell is just like a regular Python shell with Apache Spark Context that can be easily accessed with variables `sc` and `spark` respectively. You can even see this printed in its welcome screen.
 
-### Hello world
-
-Let's start by printing a simple 'hello, world!', just like you'd do in a regular Python shell:
-
-```python
-print('hello, world!')
-```
-
-You should see the phrase printed immediately.
-
 ### Counting vowels
 
 Let's try a simple example of counting the number of vowel characters in a string.
 
-Using PySpark shell, run the following to add the string variable `lines` that we are going to use:
+Using PySpark shell, run the following to set the string variable `lines` that we are going to use:
 
 ```python
 lines = """Canonical's Charmed Data Platform solution for Apache Spark runs Spark jobs on your Kubernetes cluster.
