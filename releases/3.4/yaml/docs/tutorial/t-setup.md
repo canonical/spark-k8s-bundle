@@ -57,10 +57,10 @@ For the purpose of this tutorial we will be using a lightweight Kubernetes: [Mic
 Installing MicroK8s is as simple as running the following command:
 
 ```bash
-sudo snap install microk8s --channel=1.28-strict/stable
+sudo snap install microk8s --channel=1.32-strict/stable
 ```
 
-Make sure to install the `1.28-strict/stable` version of MicroK8s which was tested to work with all the components of this tutorial.
+Make sure to install the `1.32-strict/stable` version of MicroK8s which was tested to work with all the components of this tutorial.
 
 ### Configuration
 
@@ -185,18 +185,27 @@ These resources can be viewed with `kubectl get` commands as follows:
 
 ```bash
 kubectl get serviceaccounts -n spark
-# NAME      SECRETS   AGE
-# default   0         50s
-# spark     0         15s
+kubectl get roles -n spark
+kubectl get rolebindings -n spark
+```
+
+[details="Output example"]
+```text
+kubectl get serviceaccounts -n spark
+NAME      SECRETS   AGE
+default   0         5m41s
+spark     0         2m49s
+
 
 kubectl get roles -n spark
-# NAME         CREATED AT
-# spark-role   2024-02-16T12:08:55Z
+NAME         CREATED AT
+spark-role   2025-04-16T09:13:00Z
 
 kubectl get rolebindings -n spark
-# NAME                 ROLE              AGE
-# spark-role-binding   Role/spark-role   69s
+NAME                 ROLE              AGE
+spark-role-binding   Role/spark-role   2m48s
 ```
+[/details]
 
 Now, launch a PySpark shell using the service account you created earlier to verify that it works:
 
@@ -268,14 +277,14 @@ The output of the command should be similar to:
 Use --refresh option with this command to see the latest information.
 
 Controller       Model  User   Access     Cloud/Region        Models  Nodes  HA  Version
-spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   -  3.6.4
+spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   -  3.6.5
 ```
 
 The Juju setup is complete.
 
 ## MinIO
 
-Apache Spark can be configured to use S3 for object storage. 
+Apache Spark can be configured to use S3 for object storage.
 However, for this tutorial, instead of AWS S3, we'll use [MinIO](https://min.io/): a lightweight S3-compatible object storage.
 It is available as a MicroK8s [add-on](https://microk8s.io/docs/addon-minio) by default, allowing us to create a local S3 bucket, which is more convenient for our local tests.
 
@@ -316,8 +325,12 @@ Check the tool by listing all S3 buckets:
 aws s3 ls
 ```
 
-The list of the buckets in our S3 storage is empty now.
-That's because we have not created any buckets yet! 
+[note]
+If you see an error message "Could not connect to the endpoint URL: ", then you need to wait a minute before trying the command above again.
+[/note]
+
+The list of the buckets in our S3 storage is empty now, and the command returns no output.
+That's because we have not created any buckets yet.
 Let's proceed to create a new one.
 
 To create the `spark-tutorial` bucket using AWS CLI, run:
@@ -333,7 +346,7 @@ See for yourself by running the same command to list all buckets:
 aws s3 ls
 ```
 
-With the access key, secret key and the endpoint properly configured, you should see `spark-tutorial` bucket listed in the output.
+With the access key, secret key, and the endpoint properly configured, you should see `spark-tutorial` bucket listed in the output.
 
 ### Credentials set up
 
@@ -373,5 +386,37 @@ spark.hadoop.fs.s3a.secret.key=<secret_key>
 spark.kubernetes.authenticate.driver.serviceAccountName=spark
 spark.kubernetes.namespace=spark
 ```
+
+You can also see the configuration stored in a Kubernetes secret:
+
+```bash
+kubectl get secret -n spark -o yaml
+```
+
+[details="Output example"]
+```text
+apiVersion: v1
+items:
+- apiVersion: v1
+  data:
+    spark.hadoop.fs.s3a.access.key: M0MyTHBKd1duSHd4SDZVQ2d3cVQ=
+    spark.hadoop.fs.s3a.aws.credentials.provider: b3JnLmFwYWNoZS5oYWRvb3AuZnMuczNhLlNpbXBsZUFXU0NyZWRlbnRpYWxzUHJvdmlkZXI=
+    spark.hadoop.fs.s3a.connection.ssl.enabled: ZmFsc2U=
+    spark.hadoop.fs.s3a.endpoint: MTAuMTUyLjE4My4xMDU=
+    spark.hadoop.fs.s3a.path.style.access: dHJ1ZQ==
+    spark.hadoop.fs.s3a.secret.key: MTlBaVdWZENxMWZ1dHBYeUM0bmRSTlJ0M3Fid3ZydXFHdGZNNjl4ZA==
+  kind: Secret
+  metadata:
+    creationTimestamp: "2025-04-16T09:13:00Z"
+    name: spark8t-sa-conf-spark
+    namespace: spark
+    resourceVersion: "5555"
+    uid: ddc76bf0-729f-4a01-9e0e-e1668b658036
+  type: Opaque
+kind: List
+metadata:
+  resourceVersion: ""
+```
+[/details]
 
 With that, the tutorial’s environment setup is complete!
