@@ -369,6 +369,3 @@ To free up the resources used by in this step of the tutorial, delete the `spark
 ```shell
 juju destroy-model spark-streaming --release-storage
 ```
-
-<!-- You no longer need additional vCPUs for the VM.
-You can either revert the setting back to `3` vCPUs or leave it as is. -->
