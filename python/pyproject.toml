@@ -59,6 +59,15 @@ psycopg2-binary = "^2.9.9"
 tenacity = "^9.0.0"
 httpx = "^0.28.1"
 
+
+[tool.poetry.group.benchmark]
+optional = true
+
+[tool.poetry.group.benchmark.dependencies]
+great-tables = "^0.16.1"
+polars = "^1.23.0"
+pandas = "^2.2.3"  # needed for great-tables' nanoplot
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

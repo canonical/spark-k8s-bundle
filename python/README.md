@@ -73,6 +73,14 @@ such as
 * Unittest: `tox -e unittest`
 * Integration tests: `tox -e integration`
 
+## User acceptance tests and benchmarks
+
+The tox environments can be run against a live deployment to assert its compliance.
+Here is an example running the `benchmarks` environment to stress-test a deployment in a `spark-model` Juju model:
+```shell
+tox run -e benchmarks -- --backend terraform --backend-storage azure --no-deploy --keep-models --model spark-model
+```
+
 ## Contributing
 
 Canonical welcomes contributions to the `spark-k8s-test` library. Please check out our [guidelines](./CONTRIBUTING.md) if you're interested in contributing to the solution. Also, if you truly enjoy working on open-source projects like this one and you would like to be part of the OSS revolution, please don't forget to check out the [open positions](https://canonical.com/careers/all) we have at [Canonical](https://canonical.com/).  
