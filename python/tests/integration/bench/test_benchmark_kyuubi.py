@@ -14,50 +14,9 @@ from pyhive.hive import Cursor
 from pytest_operator.plugin import OpsTest
 
 from spark_test.core.kyuubi import KyuubiClient
-
-from .helpers import get_kyuubi_credentials, get_leader_unit_number
-
-KYUUBI = "kyuubi"
-HUB = "integration-hub"
+from tests.integration.helpers import get_kyuubi_credentials, get_leader_unit_number
 
 logger = logging.getLogger(__name__)
-
-
-def pytest_addoption(parser):
-    """Add CLI options to pytest."""
-    parser.addoption(
-        "--foo",
-        default="report",
-        type=str,
-        help="File name for the benchmark report.",
-    )
-
-
-@pytest.fixture(scope="module")
-def foo(request):
-    return request.config.getoption("--foo")
-
-
-@pytest.fixture(scope="module")
-def sf(request) -> str:
-    """Get benchmark size factor."""
-    return request.config.getoption("--bench-sf")
-
-
-@pytest.fixture(scope="module")
-def bench_iterations(request) -> int:
-    """Get benchmark number of iterations."""
-    return request.config.getoption("--bench-iterations")
-
-
-@pytest.fixture(scope="module")
-def report_name(request) -> str:
-    """Get benchmark number of iterations."""
-    return request.config.getoption("--report-name")
-
-
-def test_something(foo):
-    raise ValueError(foo)
 
 
 @pytest.mark.skip_if_deployed
@@ -76,7 +35,7 @@ async def test_active_status(ops_test: OpsTest) -> None:
 
 
 @pytest.mark.abort_on_fail
-async def test_setup_env(ops_test: OpsTest, sf: str) -> None:
+async def test_setup_env(ops_test: OpsTest, sf: str, kyuubi: str, hub: str) -> None:
     """Setup benchmark environment.
 
     - Persist benchmark data from the connector that generates them on the fly.
@@ -86,14 +45,14 @@ async def test_setup_env(ops_test: OpsTest, sf: str) -> None:
 
     logger.info("Setup TPC-H connector")
 
-    leader_unit_id = await get_leader_unit_number(ops_test, HUB)
-    logger.info(f"Leader unit: {HUB}/{leader_unit_id}")
-    action = await ops_test.model.units.get(f"{HUB}/{leader_unit_id}").run_action(
+    leader_unit_id = await get_leader_unit_number(ops_test, hub)
+    logger.info(f"Leader unit: {hub}/{leader_unit_id}")
+    action = await ops_test.model.units.get(f"{hub}/{leader_unit_id}").run_action(
         "add-config",
         conf="spark.sql.catalog.tpch=org.apache.kyuubi.spark.connector.tpch.TPCHCatalog",
     )
     await action.wait()
-    action = await ops_test.model.units.get(f"{HUB}/{leader_unit_id}").run_action(
+    action = await ops_test.model.units.get(f"{hub}/{leader_unit_id}").run_action(
         "add-config",
         conf="spark.jars.packages=org.apache.kyuubi:kyuubi-spark-connector-tpch_2.12:1.9.3",
     )
@@ -101,7 +60,7 @@ async def test_setup_env(ops_test: OpsTest, sf: str) -> None:
 
     async with ops_test.fast_forward(fast_interval="90s"):
         await ops_test.model.wait_for_idle(
-            apps=[KYUUBI, HUB],
+            apps=[kyuubi, hub],
             status="active",
             idle_period=20,
             timeout=600,
@@ -190,7 +149,7 @@ async def test_run_benchmark_queries(
     logger.info("Report written to 'report.html'")
 
 
-async def cleanup(ops_test: OpsTest) -> None:
+async def cleanup(ops_test: OpsTest, kyuubi: str, hub: str) -> None:
     """Cleanup deployment.
 
     - Remove persisted data
@@ -204,15 +163,15 @@ async def cleanup(ops_test: OpsTest) -> None:
         cursor.execute("DROP DATABASE bench;")
 
     logger.info("Cleaning bench config")
-    leader_unit_id = await get_leader_unit_number(ops_test, HUB)
-    action = await ops_test.model.units.get(f"{HUB}/{leader_unit_id}").run_action(
+    leader_unit_id = await get_leader_unit_number(ops_test, hub)
+    action = await ops_test.model.units.get(f"{hub}/{leader_unit_id}").run_action(
         "remove-config",
         key="spark.sql.catalog.tpch",
     )
     await action.wait()
-    action = await ops_test.model.units.get(f"{HUB}/{leader_unit_id}").run_action(
+    action = await ops_test.model.units.get(f"{hub}/{leader_unit_id}").run_action(
         "remove-config",
         conf="spark.jars.packages",
     )
     await action.wait()
-    await ops_test.model.wait_for_idle(apps=[KYUUBI, HUB], idle_period=20, timeout=600)
+    await ops_test.model.wait_for_idle(apps=[kyuubi, hub], idle_period=20, timeout=600)

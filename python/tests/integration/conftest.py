@@ -119,36 +119,6 @@ def pytest_addoption(parser):
         type=str,
         help="Which Spark version to use for bundle testing.",
     )
-    parser.addoption(
-        "--bench-sf",
-        choices=[
-            "sf1",
-            "sf10",
-            "sf30",
-            "sf100",
-            "sf300",
-            "sf1000",
-            "sf3000",
-            "sf10000",
-            "sf30000",
-            "sf100000",
-        ],
-        type=str,
-        help="Benchmark size factor. 'sf1' = 1GB",
-        default="sf1",
-    )
-    parser.addoption(
-        "--bench-iterations",
-        default=3,
-        type=int,
-        help="Number of iteration for each benchmark query.",
-    )
-    parser.addoption(
-        "--report-name",
-        default="report",
-        type=str,
-        help="File name for the benchmark report.",
-    )
 
 
 @pytest.fixture(scope="module")
