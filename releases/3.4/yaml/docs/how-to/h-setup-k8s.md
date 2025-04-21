@@ -204,6 +204,7 @@ Once terraform is installed, we're ready to write the Terraform plan for our new
 ```bash
 git clone https://github.com/theoctober19th/charmed-spark-aks.git
 cd charmed-spark-aks/
+ls
 ```
 
 If you inspect the contents in the repo, you will see that there are different Terraform configuration files. These configuration files contain the specification for the resource group, virtual network and AKS cluster we're going to create.
