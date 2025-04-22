@@ -160,7 +160,7 @@ To deploy an Azure Kubernetes Service (AKS) cluster, you'd need to make sure you
 sudo snap install azcli
 ```
 
-Let's alias the `azcli.az` as `az` -- since most of the online resources including the Azure Docs refer to the CLI as `az`.
+Let's alias the command `azcli.az` as `az`, since most of the online resources -- including the Azure Docs -- refer to the CLI as `az`.
 
 ```bash
 sudo snap alias azcli.az az
@@ -216,7 +216,7 @@ terraform init
 terraform plan
 ```
 
-Under the plan, you should see that an AKS cluster, along with resource group, virtual network, subnet, NAT gateway, etc. should be on the "to-add" list.
+Under the plan, you should see that an AKS cluster, along with resource group, virtual network, subnet, NAT gateway, etc. are on the "to-add" list.
 
 Let's apply the plan and wait for the resources to be created:
 
