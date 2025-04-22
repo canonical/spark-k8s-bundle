@@ -31,7 +31,7 @@ resource "juju_application" "kyuubi" {
   }
 
   resources = {
-    kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:3c49dfe71387bd702a30844c80c9a17a8bc8ecb99ebdee37eab4b05e44ac683f" # 3.4.2
+    kyuubi-image = "batalex/charmed-spark-kyuubi:3.4.4-1.10.1" # 3.4.2
   }
 
   config = {
