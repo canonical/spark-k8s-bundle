@@ -106,7 +106,7 @@ s3-integrator:s3-integrator-peers  s3-integrator:s3-integrator-peers        s3-i
 
 The Spark History Server is now successfully configured to read logs from the S3 bucket.
 
-### Generating some logs
+## Generating some logs
 
 Let's run a simple job so that Apache Spark can generate some logs for us to see with History Server. We're going to use the same `count-ubuntu.py` example script we used earlier, which already exists in the `spark-tutorial` bucket:
 
@@ -123,9 +123,13 @@ Make sure to use the service account we have just created in the `history-server
 
 Now that our S3-compliant storage has some logs, we can use History Server to explore them.
 
-### Web UI setup
+## Web UI
 
-The Spark History Server comes with a Web UI for us to view and monitor the Spark jobs submitted to our cluster. The web UI can be accessed at port 18080 of the IP address of the `spark-history-server-k8s/0` unit. However, it's good practice to access it via a Kubernetes Ingress rather than directly accessing the unit's IP address. Using an Ingress will allow us to have a common entrypoint to the applications running in the Juju model. 
+The Spark History Server comes with a Web UI for users to view and monitor the Spark jobs submitted to the cluster.
+
+### Setup
+
+The web UI can be accessed at port 18080 of the IP address of the `spark-history-server-k8s/0` unit. However, it's good practice to access it via a Kubernetes Ingress rather than directly accessing the unit's IP address. Using an Ingress will allow us to have a common entrypoint to the applications running in the Juju model. 
 
 Let's add an Ingress by deploying and integrating the [`traefik-k8s`](https://charmhub.io/traefik-k8s) charm with `spark-history-server-k8s`:
 
@@ -147,7 +151,7 @@ proxied-endpoints: '{"traefik-k8s": {"url": "http://10.181.60.89"}, "spark-histo
   {"url": "http://10.181.60.89/history-server-spark-history-server-k8s"}}'
 ```
 
-## Open Histroy Server web UI
+### Usage
 
 Let's open a web browser and navigate to the `spark-history-server-k8s` URL in order to see the Apache Spark History Server web UI, which should be similar to the one shown below:
 

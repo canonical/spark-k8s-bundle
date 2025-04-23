@@ -50,7 +50,7 @@ On the other hand, the PySpark shell started by the `spark-client` snap will act
 
 The PySpark shell is just like a regular Python shell with Apache Spark Context that can be easily accessed with variables `sc` and `spark` respectively. You can even see this printed in its welcome screen.
 
-### Counting vowels
+### String processing
 
 Let's try a simple example of counting the number of vowel characters in a string.
 
@@ -117,7 +117,7 @@ The returned result should be the same as we've seen earlier, with a non-distrib
 
 To continue with this tutorial, leave the PySpark shell: run `exit()` or press `Ctrl + D` key combination.
 
-### Distributed data processing
+### Dataset processing
 
 Apache Spark is made to efficiently analyze large datasets across multiple nodes.
 Often times, the data files to be processed contain a huge amount of data, and it’s common to store them in an S3 storage and then have jobs read data from there in order to process it.

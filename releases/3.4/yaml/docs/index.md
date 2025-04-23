@@ -29,7 +29,7 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
 
 1. [Overview](overview.md)
 1. [Tutorial](tutorial)
-  1. [0. Introduction](tutorial/t-overview.md)
+  1. [Introduction](tutorial/t-overview.md)
   1. [1. Environment setup](tutorial/t-setup-environment.md)
   1. [2. Distributed data processing](tutorial/t-data-processing.md)
   1. [3. Data stream processing](tutorial/t-streaming.md)
