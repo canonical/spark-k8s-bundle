@@ -11,6 +11,8 @@ To enable observability on Charmed Apache Spark, two steps are necessary:
 1. Deploy the COS (Canonical Observability Stack) bundle with Juju
 2. Configure the Apache Spark service account to use the Prometheus sink
 
+## Deploy COS
+
 Let's start by creating a fresh Juju model with the name `cos`:
 
 ```shell
@@ -82,6 +84,8 @@ traefik:peers                       traefik:peers                traefik_peers  
 traefik:traefik-route               grafana:ingress              traefik_route          regular  
 ```
 
+## Configure
+
 At this point, the COS has been deployed, but Charmed Apache Spark is not yet wired up to it. 
 Generally, Prometheus collects metrics of services by regularly scraping dedicated endpoints. 
 
@@ -142,6 +146,8 @@ spark-client.service-account-registry add-config \
       --conf spark.metrics.conf.executor.sink.prometheus.metrics-name-capture-regex='([a-z0-9]*_[a-z0-9]*_[a-z0-9]*_)(.+)' \
       --conf spark.metrics.conf.executor.sink.prometheus.metrics-name-replacement=\$2
 ```
+
+### Grafana setup
 
 Now that Prometheus is configured, let's configure Grafana. 
 For this tutorial, we are going to use a [basic Grafana dashboard](https://github.com/canonical/charmed-spark-rock/blob/dashboard/dashboards/prod/grafana/spark_dashboard.json). 
@@ -222,6 +228,8 @@ traefik:metrics-endpoint                      prometheus:metrics-endpoint       
 traefik:peers                                 traefik:peers                                 traefik_peers              peer     
 traefik:traefik-route                         grafana:ingress                               traefik_route              regular  
 ```
+
+## Try dashboard
 
 Now that we have the observability stack up and running, let's run a simple Spark job so that the metric logs are pushed to the Prometheus gateway. For simplicity, we're going to use the same `count_ubuntu.py` script that we prepared in the earlier steps of this tutorial:
 
