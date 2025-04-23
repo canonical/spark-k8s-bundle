@@ -11,18 +11,16 @@ import urllib.request
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, Generic, TypeVar
-from urllib.parse import urlencode
+from typing import Any, Callable, Dict, Generic, TypeVar, cast
 
-import boto3
-import requests
+import httpx
 import yaml
-from botocore.exceptions import ClientError, SSLError
 from pytest_operator.plugin import OpsTest
-from spark8t.domain import ServiceAccount
 
+from spark_test.core import ObjectStorageUnit
 from spark_test.core.azure_storage import Container
 from spark_test.core.s3 import Bucket, Credentials
+from tests.integration.types import KyuubiCredentials
 
 from .terraform import Terraform
 
@@ -32,6 +30,9 @@ SECRET_NAME_PREFIX = "integrator-hub-conf-"
 COS_ALIAS = "cos"
 JMX_EXPORTER_PORT = 9101
 JMX_CC_PORT = 9102
+ZOOKEEPER_PORT = 2181
+ZOOKEEPER_NAME = "zookeeper"
+HA_ZNODE_NAME = "/kyuubi"
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +74,7 @@ async def set_azure_credentials(
 async def get_address(ops_test: OpsTest, app_name, unit_num=0) -> str:
     """Get the address for a unit."""
     status = await ops_test.model.get_status()  # noqa: F821
+    logger.info(f"Status: {status}")
     address = status["applications"][app_name]["units"][f"{app_name}/{unit_num}"][
         "address"
     ]
@@ -96,7 +98,7 @@ async def get_leader_unit_number(ops_test: OpsTest, application_name: str) -> in
 
 async def get_kyuubi_credentials(
     ops_test: OpsTest, application_name="kyuubi", num_unit=0
-) -> dict[str, str]:
+) -> KyuubiCredentials:
     """Use the charm action to start a password rotation."""
 
     leader_unit_id = await get_leader_unit_number(ops_test, application_name)
@@ -107,9 +109,21 @@ async def get_kyuubi_credentials(
 
     results = (await action.wait()).results
 
-    address = await get_address(
-        ops_test, app_name=application_name, unit_num=leader_unit_id  # type: ignore
-    )
+    endpoint = await fetch_jdbc_endpoint(ops_test)
+    logger.info(endpoint)
+
+    if (
+        host_match := re.match(
+            r"^(?:jdbc\:hive2\:\/\/)(?P<host>.*)(?:\:\d+/)$", endpoint
+        )
+    ) is not None:
+        address = host_match.group("host")
+    else:
+        address = await get_address(
+            ops_test,
+            app_name=application_name,
+            unit_num=leader_unit_id,  # type: ignore
+        )
 
     return {"username": "admin", "password": results["password"], "host": address}
 
@@ -117,11 +131,13 @@ async def get_kyuubi_credentials(
 async def fetch_jdbc_endpoint(ops_test):
     """Return the JDBC endpoint for clients to connect to Kyuubi server."""
     logger.info("Running action 'get-jdbc-endpoint' on kyuubi-k8s unit...")
-    kyuubi_unit = ops_test.model.applications["kyuubi"].units[0]
-    action = await kyuubi_unit.run_action(
-        action_name="get-jdbc-endpoint",
+    leader_unit_id = await get_leader_unit_number(ops_test, "kyuubi")
+    action = await ops_test.model.units.get(f"kyuubi/{leader_unit_id}").run_action(
+        "get-jdbc-endpoint"
     )
+
     result = await action.wait()
+    logger.info(f"result: {result.results}")
 
     jdbc_endpoint = result.results.get("endpoint")
     logger.info(f"JDBC endpoint: {jdbc_endpoint}")
@@ -129,19 +145,32 @@ async def fetch_jdbc_endpoint(ops_test):
     return jdbc_endpoint
 
 
-async def get_active_kyuubi_servers_list(ops_test: OpsTest) -> list[str]:
-    """Return the list of Kyuubi servers that are live in the cluster."""
-    jdbc_endpoint = await fetch_jdbc_endpoint(ops_test)
-    zookeper_quorum = jdbc_endpoint.split(";")[0].split("//")[-1]
+async def get_zookeeper_quorum(ops_test: OpsTest, zookeeper_name: str) -> str:
+    addresses = []
+    for unit in ops_test.model.applications[zookeeper_name].units:
+        app_name, unit_id = unit.name.split("/")
+        host = await get_address(ops_test, app_name=app_name, unit_num=unit_id)
+        port = ZOOKEEPER_PORT
+        addresses.append(f"{host}:{port}")
+    return ",".join(addresses)
 
+
+async def get_active_kyuubi_servers_list(
+    ops_test: OpsTest, zookeeper_name=ZOOKEEPER_NAME
+) -> list[str]:
+    """Return the list of Kyuubi servers that are live in the cluster."""
+    zookeeper_quorum = await get_zookeeper_quorum(
+        ops_test=ops_test, zookeeper_name=zookeeper_name
+    )
+    logger.info(f"Zookeeper quorum: {zookeeper_quorum}")
     pod_command = [
         "/opt/kyuubi/bin/kyuubi-ctl",
         "list",
         "server",
         "--zk-quorum",
-        zookeper_quorum,
+        zookeeper_quorum,
         "--namespace",
-        "/kyuubi",
+        HA_ZNODE_NAME,
         "--version",
         "1.9.0",
     ]
@@ -299,6 +328,7 @@ async def deploy_bundle_yaml(
         "service_account": "kyuubi-test-user",
         "bucket": bucket.bucket_name,
         "s3_endpoint": bucket.s3.meta.endpoint_url,
+        "zookeeper_units": 1,
     } | ({"cos_controller": ops_test.controller_name, "cos_model": cos} if cos else {})
 
     bundle_content = bundle.map(lambda path: render_yaml(path, data, ops_test))
@@ -346,6 +376,7 @@ async def deploy_bundle_yaml_azure_storage(
         "service_account": "kyuubi-test-user",
         "container": container.container_name,
         "storage_account": container.credentials.storage_account,
+        "zookeeper_units": 1,
     } | ({"cos_controller": ops_test.controller_name, "cos_model": cos} if cos else {})
 
     bundle_content = bundle.map(lambda path: render_yaml(path, data, ops_test))
@@ -370,20 +401,42 @@ async def deploy_bundle_yaml_azure_storage(
 
 async def deploy_bundle_terraform(
     bundle: Terraform,
-    bucket: Bucket,
+    storage_unit: ObjectStorageUnit,
     cos: str | None,
     ops_test: OpsTest,
+    storage_backend: str,
 ) -> list[str]:
+    if storage_backend == "azure":
+        storage_unit = cast(Container, storage_unit)
+        storage_vars = {
+            "azure": {
+                "storage_account": storage_unit.credentials.storage_account,
+                "container": storage_unit.container_name,
+                "secret_key": storage_unit.credentials.secret_key,
+            }
+        }
+
+    else:
+        storage_unit = cast(Bucket, storage_unit)
+        storage_vars = {
+            "s3": {
+                "bucket": storage_unit.bucket_name,
+                "endpoint": storage_unit.s3.meta.endpoint_url,
+            },
+        }
+
     tf_vars = {
-        "s3": {
-            "bucket": bucket.bucket_name,
-            "endpoint": bucket.s3.meta.endpoint_url,
-        },
         "kyuubi_user": "kyuubi-test-user",
         "model": ops_test.model_name,
+        "storage_backend": storage_backend,
+        "create_model": False,
+        "zookeeper_units": 1,
     } | ({"cos_model": cos} if cos else {})
 
-    logger.info(f"tf_vars: {tf_vars}")
+    # NOTE: avoid logging secret key
+    logger.info(f"tf_vars: {tf_vars} + {storage_backend} information")
+
+    tf_vars = tf_vars | storage_vars
     outputs = bundle.apply(tf_vars=tf_vars)
 
     return list(outputs["charms"]["value"].values())
@@ -400,13 +453,6 @@ async def add_juju_secret(
     command = f"grant-secret {secret_label} {charm_name}"
     _, stdout, _ = await ops_test.juju(*command.split())
     return secret_uri
-
-
-def construct_azure_resource_uri(container: Container, path: str):
-    return os.path.join(
-        f"abfss://{container.container_name}@{container.credentials.storage_account}.dfs.core.windows.net",
-        path,
-    )
 
 
 async def juju_sleep(ops: OpsTest, time: int, app: str | None = None):
@@ -430,8 +476,8 @@ async def get_cos_address(ops_test: OpsTest, cos_model_name: str) -> str:
 
     try:
         cos_addr = json.loads(cos_addr_res)
-    except json.JSONDecodeError:
-        raise ValueError
+    except json.JSONDecodeError as e:
+        raise ValueError from e
 
     endpoints = cos_addr["traefik/0"]["results"]["proxied-endpoints"]
     return json.loads(endpoints)["traefik"]["url"]
@@ -441,9 +487,9 @@ def prometheus_exporter_data(host: str, port: int) -> str | None:
     """Check if a given host has metric service available and it is publishing."""
     url = f"http://{host}:{port}/metrics"
     try:
-        response = requests.get(url)
+        response = httpx.get(url)
         logger.info(f"Response: {response.text}")
-    except requests.exceptions.RequestException:
+    except httpx.RequestError:
         return
     if response.status_code == 200:
         return response.text
@@ -471,8 +517,8 @@ def published_prometheus_data(
         host = host.split("//")[1]
     url = f"http://{host}/{cos_model_name}-prometheus-0/api/v1/query?query={field}"
     try:
-        response = requests.get(url)
-    except requests.exceptions.RequestException:
+        response = httpx.get(url)
+    except httpx.RequestError:
         return
 
     if response.status_code == 200:
@@ -481,16 +527,14 @@ def published_prometheus_data(
 
 async def published_grafana_dashboards(
     ops_test: OpsTest, cos_model_name: str
-) -> str | None:
+) -> dict | None:
     """Get the list of dashboards published to Grafana."""
     base_url, pw = await get_grafana_access(ops_test, cos_model_name)
     url = f"{base_url}/api/search?query=&starred=false"
 
     try:
-        session = requests.Session()
-        session.auth = ("admin", pw)
-        response = session.get(url)
-    except requests.exceptions.RequestException:
+        response = httpx.get(url, auth=("admin", pw))
+    except httpx.RequestError:
         return
     if response.status_code == 200:
         return response.json()
@@ -507,24 +551,22 @@ async def get_grafana_access(ops_test: OpsTest, cos_model_name: str) -> tuple[st
 
     try:
         grafana_data = json.loads(grafana_res)
-    except json.JSONDecodeError:
-        raise ValueError
+    except json.JSONDecodeError as e:
+        raise ValueError from e
 
     url = grafana_data["grafana/0"]["results"]["url"]
     password = grafana_data["grafana/0"]["results"]["admin-password"]
     return url, password
 
 
-def published_prometheus_alerts(
-    ops_test: OpsTest, cos_model_name: str, host: str
-) -> dict | None:
+def published_prometheus_alerts(cos_model_name: str, host: str) -> dict | None:
     """Retrieve all Prometheus Alert rules that have been published."""
     if "http://" in host:
         host = host.split("//")[1]
     url = f"http://{host}/{cos_model_name}-prometheus-0/api/v1/rules"
     try:
-        response = requests.get(url)
-    except requests.exceptions.RequestException:
+        response = httpx.get(url)
+    except httpx.RequestError:
         return
 
     if response.status_code == 200:
@@ -538,17 +580,17 @@ async def published_loki_logs(
     field: str,
     value: str,
     limit: int = 300,
-) -> str | None:
+) -> dict:
     """Get the list of dashboards published to Grafana."""
     if "http://" in host:
         host = host.split("//")[1]
     url = f"http://{host}/{cos_model_name}-loki-0/loki/api/v1/query_range"
 
     try:
-        response = requests.get(
+        response = httpx.get(
             url, params={"query": f'{{{field}=~"{value}"}}', "limit": limit}
         )
-    except requests.exceptions.RequestException:
+    except httpx.RequestError:
         return {}
     if response.status_code != 200:
         return {}
@@ -566,11 +608,9 @@ async def published_loki_logs(
 def assert_logs(loki_address: str) -> None:
     """Check the existence of the logs."""
     log_gl = urllib.parse.quote('{app="spark", pebble_service="sparkd"}')
-    query = json.loads(
-        urllib.request.urlopen(
-            f"http://{loki_address}:3100/loki/api/v1/query_range?query={log_gl}"
-        ).read()
-    )
+    query = httpx.get(
+        f"http://{loki_address}:3100/loki/api/v1/query_range?query={log_gl}"
+    ).json()
 
     # NOTE: This check depends on previous tests, because without the previous ones
     #       there will be no logs.

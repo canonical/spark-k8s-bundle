@@ -3,7 +3,7 @@ name: Sync docs from Discourse
 on:
   workflow_dispatch:
   schedule:
-    - cron: '53 0 * * *' # Daily at 00:53 UTC
+    - cron: "53 0 * * *" # Daily at 00:53 UTC
   # Triggered on push to branch "main" by .github/workflows/release.yaml
   workflow_call:
   pull_request:
@@ -11,7 +11,7 @@ on:
 jobs:
   sync-docs:
     name: Open PR with docs changes (3.4)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - name: Open PR with docs changes

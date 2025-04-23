@@ -22,7 +22,6 @@ class TerraformCmdError(Exception):
 
 
 class Terraform(WithLogging):
-
     DEFAULT_VARS_FILE = "terraform.tfvars.json"
 
     def __init__(self, path: Path | str, vars_file: str = DEFAULT_VARS_FILE):
@@ -33,7 +32,6 @@ class Terraform(WithLogging):
         self.init()
 
     def _exec_command(self, *cmds: list[str]) -> list[str]:
-
         try:
             result = subprocess.check_output(
                 *cmds, stderr=subprocess.PIPE, cwd=self.path
@@ -50,11 +48,10 @@ class Terraform(WithLogging):
             raise e
 
     def _get_version(self) -> str | None:
-
         try:
             version_output = self._exec_command(["terraform", "version"])
-        except subprocess.CalledProcessError:
-            raise TerraformNotInstalled()
+        except subprocess.CalledProcessError as e:
+            raise TerraformNotInstalled() from e
 
         return version_output[0].split(" ")[1]
 
@@ -81,7 +78,6 @@ class Terraform(WithLogging):
         dry_run: bool = False,
         update_vars: bool = False,
     ):
-
         new_vars = tf_vars if not update_vars else self.tf_vars | tf_vars
 
         bkp_file = Path(f"{self.vars_file}.bkp")
@@ -109,7 +105,7 @@ class Terraform(WithLogging):
             except subprocess.CalledProcessError as e:
                 # Rollback vars
                 shutil.move(f"{self.vars_file}.bkp", self.vars_file)
-                raise TerraformCmdError(e)
+                raise TerraformCmdError(e) from None
 
         # The command should have exited successfully, therefore consolidating
         # the new vars

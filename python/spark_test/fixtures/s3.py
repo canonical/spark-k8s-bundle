@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
+"""S3 fixtures."""
 
 import subprocess
 import uuid
@@ -13,6 +14,7 @@ from spark_test.core.s3 import Bucket, Credentials
 
 @pytest.fixture(scope="session")
 def credentials():
+    """S3 credentials."""
     output = subprocess.check_output(
         [f"{BINS.relative_to(PKG_DIR) / 's3.sh'}", "create"], cwd=PKG_DIR
     )
@@ -32,14 +34,20 @@ def credentials():
 
 @pytest.fixture(scope="module")
 def bucket_name():
+    """Bucket name."""
     return f"s3-bucket-{uuid.uuid4()}"
 
 
 @pytest.fixture(scope="module")
-def bucket(credentials, bucket_name):
-    _bucket = Bucket.create(bucket_name, credentials)
+def bucket(ops_test, credentials, bucket_name):
+    """Get or create bucket."""
+    try:
+        _bucket = Bucket.create(bucket_name, credentials)
+        _bucket.init()
+    except FileExistsError:
+        _bucket = Bucket.get(bucket_name, credentials)
 
-    _bucket.init()
     yield _bucket
 
-    _bucket.delete()
+    if not ops_test.keep_model:
+        _bucket.delete()

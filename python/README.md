@@ -1,7 +1,7 @@
-# spark-test
+# spark-k8s-test
 
-The main purpose of the `spark-test` library is to provide a seemless, user-friendly interface
-to implement tests for Charmed Apache Spark. `spark-test` provides a number of pytest fixtures 
+The main purpose of the `spark-k8s-test` library is to provide a seemless, user-friendly interface
+to implement tests for Charmed Apache Spark. `spark-k8s-test` provides a number of pytest fixtures 
 that allow to create, manage and destroy various kind of resources needed for testing, 
 such as:
 
@@ -9,17 +9,23 @@ such as:
 * S3 Buckets
 * `spark8t` managed service accounts / secrets
 
-Moreover, `spark-test` provides simple API to run spark-jobs within a Python testing 
+Moreover, `spark-k8s-test` provides simple API to run spark-jobs within a Python testing 
 environment
 
 ## Quick start
 
 ### Installation
 
-The package can be simply installed from source using
+The package can be simply installed from PyPI using
 
 ```commandline
-pip install . 
+pip install spark-k8s-test 
+```
+
+or from the source by cloning this repo and then running:
+
+```commandline
+pip install .
 ```
 
 The package assumes that a MicroK8s installation is present in the system, and 
@@ -67,12 +73,20 @@ such as
 * Unittest: `tox -e unittest`
 * Integration tests: `tox -e integration`
 
+## User acceptance tests and benchmarks
+
+The tox environments can be run against a live deployment to assert its compliance.
+Here is an example running the `benchmarks` environment to stress-test a deployment in a `spark-model` Juju model:
+```shell
+tox run -e benchmarks -- --backend terraform --backend-storage azure --no-deploy --keep-models --model spark-model
+```
+
 ## Contributing
 
-Canonical welcomes contributions to the `spark-test` library. Please check out our [guidelines](./CONTRIBUTING.md) if you're interested in contributing to the solution. Also, if you truly enjoy working on open-source projects like this one and you would like to be part of the OSS revolution, please don't forget to check out the [open positions](https://canonical.com/careers/all) we have at [Canonical](https://canonical.com/).  
+Canonical welcomes contributions to the `spark-k8s-test` library. Please check out our [guidelines](./CONTRIBUTING.md) if you're interested in contributing to the solution. Also, if you truly enjoy working on open-source projects like this one and you would like to be part of the OSS revolution, please don't forget to check out the [open positions](https://canonical.com/careers/all) we have at [Canonical](https://canonical.com/).  
 
 ## License
 
-The `spark-test` toolkit is free software, distributed under the Apache Software License, version 2.0. See LICENSE for more information.
+The `spark-k8s-test` toolkit is free software, distributed under the Apache Software License, version 2.0. See LICENSE for more information.
 
 See [LICENSE](LICENSE) for more information.
