@@ -199,17 +199,23 @@ Terraform is an infrastructure as code (IaC) tool that lets you create, change a
 sudo snap install terraform --classic
 ```
 
-Once terraform is installed, we're ready to write the Terraform plan for our new AKS cluster. The terraform script for the creation of a simple AKS cluster for Charmed Spark is already available [here](https://github.com/theoctober19th/charmed-spark-aks). Let's clone the repo and inspect a little bit into the content. 
+Once terraform is installed, we're ready to write the Terraform plan for our new AKS cluster. 
 
-```bash
-git clone https://github.com/theoctober19th/charmed-spark-aks.git
-cd charmed-spark-aks/
-ls
+The terraform scripts for the creation of a simple AKS cluster for Charmed Spark is already available [here](https://github.com/canonical/spark-k8s-bundle/tree/add-aks-setup/releases/3.4/yaml/docs-resources/aks-setup). If you inspect the contents there, you will see that there are different Terraform configuration files. These configuration files contain the specification for the resource group, virtual network and AKS cluster we're going to create.
+
+We can use the aforementioned Terraform module by referencing it as a module in a local Terraform file. Let's create a file named `setup.tf` locally and reference the aforementioned Terraform module as follows:
+
+
+```terraform
+# file: setup.tf
+
+module "aks_cluster" {
+  source     = "git::https://github.com/canonical/spark-k8s-bundle//releases/3.4/yaml/docs-resources/aks-setup?ref=add-aks-setup"
+}
+
 ```
 
-If you inspect the contents in the repo, you will see that there are different Terraform configuration files. These configuration files contain the specification for the resource group, virtual network and AKS cluster we're going to create.
-
-Let's initialize the Terraform module and view the plan:
+Now, let's initialize Terraform and view the plan (make sure you run these commands on the same directory that contains `setup.tf` file):
 
 ```bash
 terraform init
