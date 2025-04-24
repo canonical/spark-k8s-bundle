@@ -179,7 +179,7 @@ To sign in, use a web browser to open the page https://microsoft.com/devicelogin
 
 Browse to the page https://microsoft.com/devicelogin, enter the code displayed in the console earlier, and finally login with your Azure account credentials. When prompted for confirmation, click "Yes". Once the authentication is successful, you should see authentication success message in the browser. If you have multiple subscriptions associated with your Azure account, you maybe asked to choose the subscription by the CLI. Once that completes, the Azure CLI is now finally ready to be used.
 
-To cofirm that the authentication went well, you can try listing storage accounts in your Azure Cloud:
+To confirm that the authentication went well, you can try listing storage accounts in your Azure Cloud:
 
 ```bash
 az storage account list
