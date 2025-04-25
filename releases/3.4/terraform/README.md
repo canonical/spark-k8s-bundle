@@ -102,13 +102,13 @@ This means that using this structure, a new optional module just takes care of d
 
 | Module        | Charm                        | Channel       | revision |
 | ------------- | ---------------------------- | ------------- | -------- |
-| azure         | azure-storage-integrator     | latest/edge   | 9        |
+| azure         | azure-storage-integrator     | latest/edge   | 12        |
 | observability | grafana-agent-k8s            | latest/stable | 104      |
 | observability | cos-configuration-k8s        | latest/stable | 67       |
 | observability | prometheus-pushgateway-k8s   | latest/stable | 16       |
 | observability | prometheus-scrape-config-k8s | latest/stable | 56       |
-| spark         | spark-history-server-k8s     | 3.4/edge      | 37       |
-| spark         | spark-integration-hub-k8s    | latest/edge   | 43       |
+| spark         | spark-history-server-k8s     | 3.4/edge      | 40       |
+| spark         | spark-integration-hub-k8s    | latest/edge   | 46       |
 | spark         | kyuubi-k8s                   | latest/edge   | 45       |
 | spark         | postgresql-k8s               | 14/stable     | 281      |
 | spark         | postgresql-k8s               | 14/stable     | 281      |
