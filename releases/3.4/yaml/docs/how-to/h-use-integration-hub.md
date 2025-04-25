@@ -93,7 +93,7 @@ security over its value.
 Thus, create a Juju secret holding its value:
 
 ```shell
-juju add-secret azure-credentials secret-key=<AZURE_STORAGE_KEY>
+juju add-secret azure-storage-credentials secret-key=<AZURE_STORAGE_KEY>
 ```
 
 This should prompt the `secret:<secret_id>` that can be used to configure 
