@@ -156,7 +156,7 @@ To deploy an Azure Kubernetes Service (AKS) cluster, you'd need to make sure you
 
 [The Azure CLI](https://learn.microsoft.com/en-us/cli/azure/) is the official cross-platform command-line tool to connect to Azure Cloud and execute administrative commands on Azure resources.
 
-Installing Azure CLI with snap:
+Install Azure CLI with snap:
 
 ```bash
 sudo snap install azcli
