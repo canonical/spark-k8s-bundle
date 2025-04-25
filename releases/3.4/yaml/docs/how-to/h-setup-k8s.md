@@ -241,7 +241,7 @@ Apply the plan and wait for the resources to be created:
 terraform apply -auto-approve
 ```
 
-Once the resource creation completes, you check the resource group name and AKS cluster name:
+Once the resource creation completes, check the resource group name and AKS cluster name:
 
 ```bash
 terraform output
