@@ -152,7 +152,7 @@ The EKS cluster is now ready to be used.
 
 #### Azure AKS
 
-To deploy an Azure Kubernetes Service (AKS) cluster, you'd need to make sure you have Azure CLI properly installed and authenticated on your edge machine.
+To deploy an Azure Kubernetes Service (AKS) cluster, you'd need to make sure you have Azure CLI properly installed and authenticated.
 
 [The Azure CLI](https://learn.microsoft.com/en-us/cli/azure/) is the official cross-platform command-line tool to connect to Azure Cloud and execute administrative commands on Azure resources.
 
