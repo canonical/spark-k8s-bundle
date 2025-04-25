@@ -106,7 +106,7 @@ The following table summarizes the properties to be specified for the main Azure
 Create a Juju secret holding the values for the Azure secret key:
 
 ```shell
-juju add-secret azure-storage-credentials secret-key=<AZURE_STORAGE_KEY>
+juju add-secret azure-credentials secret-key=<AZURE_STORAGE_KEY>
 ```
 
 This should prompt the `secret:<secret_id>` that can be used to configure the bundle. 

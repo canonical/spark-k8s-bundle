@@ -22,7 +22,7 @@ Integration Hub for Apache Spark can consume:
 
 * `s3-credentials` relation provided by the [S3-integrator](https://charmhub.io/s3-integrator) to enable integration with an S3-compatible 
 object storage system
-* `azure-storage-credentials` relation provided by the [Azure Storage Integrator](https://charmhub.io/azure-storage-integrator) to enable integration with Azure Storages, such as Azure Blob Storage (WASB) and Azure DataLake Gen2 Storage (ABFS).
+* `azure-credentials` relation provided by the [Azure Storage Integrator](https://charmhub.io/azure-storage-integrator) to enable integration with Azure Storages, such as Azure Blob Storage (WASB) and Azure DataLake Gen2 Storage (ABFS).
 
 #### S3-compatible object storage
 
@@ -93,7 +93,7 @@ security over its value.
 Thus, create a Juju secret holding its value:
 
 ```shell
-juju add-secret azure-storage-credentials secret-key=<AZURE_STORAGE_KEY>
+juju add-secret azure-credentials secret-key=<AZURE_STORAGE_KEY>
 ```
 
 This should prompt the `secret:<secret_id>` that can be used to configure 
