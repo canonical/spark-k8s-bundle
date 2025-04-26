@@ -8,7 +8,7 @@ resource "juju_application" "history_server" {
   charm {
     name     = "spark-history-server-k8s"
     channel  = "3.4/edge"
-    revision = 37
+    revision = 40
   }
 
   resources = {
@@ -93,7 +93,7 @@ resource "juju_application" "hub" {
   charm {
     name     = "spark-integration-hub-k8s"
     channel  = "latest/edge"
-    revision = 43
+    revision = 46
   }
 
   resources = {

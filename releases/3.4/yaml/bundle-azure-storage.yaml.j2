@@ -48,7 +48,7 @@ applications:
   azure-storage:
     charm: azure-storage-integrator
     channel: latest/edge
-    revision: 2
+    revision: 12
     scale: 1
     constraints: arch=amd64
     options:
@@ -59,7 +59,7 @@ applications:
   history-server:
     charm: spark-history-server-k8s
     channel: 3.4/edge
-    revision: 33
+    revision: 40
     resources:
       spark-history-server-image: ghcr.io/canonical/charmed-spark@sha256:1d9949dc7266d814e6483f8d9ffafeff32f66bb9939e0ab29ccfd9d5003a583a # 3.4.2
     scale: 1
@@ -67,17 +67,17 @@ applications:
   integration-hub:
     charm: spark-integration-hub-k8s
     channel: latest/edge
-    revision: 22
+    revision: 46
     resources:
       integration-hub-image: 3
     scale: 1
     constraints: arch=amd64
     trust: true
 relations:
-- - integration-hub:azure-credentials
-  - azure-storage:azure-credentials
-- - history-server:azure-credentials
-  - azure-storage:azure-credentials
+- - integration-hub:azure-storage-credentials
+  - azure-storage:azure-storage-credentials
+- - history-server:azure-storage-credentials
+  - azure-storage:azure-storage-credentials
 - - kyuubi:metastore-db
   - metastore:database
 - - kyuubi:auth-db

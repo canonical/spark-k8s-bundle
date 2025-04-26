@@ -6,12 +6,12 @@ resource "juju_integration" "history_server_azure" {
 
   application {
     name     = juju_application.azure_storage.name
-    endpoint = "azure-credentials"
+    endpoint = "azure-storage-credentials"
   }
 
   application {
     name     = var.spark_charms.history_server
-    endpoint = "azure-credentials"
+    endpoint = "azure-storage-credentials"
   }
 }
 
@@ -20,11 +20,11 @@ resource "juju_integration" "azure_hub" {
 
   application {
     name     = juju_application.azure_storage.name
-    endpoint = "azure-credentials"
+    endpoint = "azure-storage-credentials"
   }
 
   application {
     name     = var.spark_charms.hub
-    endpoint = "azure-credentials"
+    endpoint = "azure-storage-credentials"
   }
 }

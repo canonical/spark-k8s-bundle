@@ -59,7 +59,7 @@ applications:
   history-server:
     charm: spark-history-server-k8s
     channel: 3.4/edge
-    revision: 33
+    revision: 40
     resources:
       spark-history-server-image: ghcr.io/canonical/charmed-spark@sha256:04727c07bd7ce9b244cf38376e6deb7acd7eabe5579d5f043c8b4af1aa9d79a4 # 3.5.1
     scale: 1
@@ -67,7 +67,7 @@ applications:
   integration-hub:
     charm: spark-integration-hub-k8s
     channel: latest/edge
-    revision: 43
+    revision: 46
     resources:
       integration-hub-image: 3
     scale: 1
