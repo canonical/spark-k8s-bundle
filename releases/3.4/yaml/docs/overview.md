@@ -10,6 +10,13 @@ Deploying Apache Spark applications to Kubernetes has several benefits over othe
 
 Charmed Apache Spark helps to address these usability concerns and provides a consistent management interface for operations engineers and cluster administrators who need to manage enablers like Spark History Server.
 
+## In this documentation
+
+| | |
+|--|--|
+|  [Tutorials](/t/13234)</br>  Get started - a hands-on introduction to using Charmed Apache Spark operator for new users </br> |  [How-to guides](/t/11618) </br> Step-by-step guides covering key operations and common tasks |
+| [Reference](/t/8962) </br> Technical information - specifications, APIs, architecture | [Explanation](/t/11685) </br> Concepts - discussion and clarification of key topics  |
+
 ## Project and community
 
 Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source project that welcomes community contributions, suggestions, fixes and constructive feedback.
@@ -17,7 +24,6 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
 - [Read our Code of Conduct](https://ubuntu.com/community/code-of-conduct)
 - [Join the Discourse forum](https://discourse.charmhub.io/tag/spark)
 - [Contribute and report bugs](https://github.com/canonical/spark-client-snap)
-
 
 # Navigation
 
@@ -27,13 +33,13 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
 |-------|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
 | 1     | overview                       | [Overview](/t/spark-client-snap-documentation/8963)                                                                                            | 
 | 1     | tutorial                       | [Tutorial]()                                                                                                                                   |
-| 2     | t-overview                     | [1. Introduction](/t/charmed-spark-documentation-tutorial-introduction/13234)                                                                  |
-| 2     | t-setup-environment            | [2. Set up the environment for the tutorial](/t/charmed-spark-documentation-tutorial-setup-environment/13233)                                  |
-| 2     | t-spark-shell                  | [2. Interacting with Spark using Interactive Shell](/t/charmed-spark-documentation-tutorial-spark-shell/13232)                                 |
-| 2     | t-spark-submit                 | [3. Submitting Jobs using Spark Submit](/t/charmed-spark-documentation-tutorial-spark-submit/13231)                                            |
-| 2     | t-spark-streaming              | [4. Streaming workloads with Charmed Apache Spark](/t/charmed-spark-documentation-tutorial-streaming/13230)                                           |
-| 2     | t-spark-monitoring             | [5. Monitoring the Spark cluster](/t/charmed-spark-documentation-tutorial-monitoring/13225)                                                    |
-| 2     | t-wrapping-up                  | [6. Wrapping Up](/t/charmed-spark-documentation-tutorial-wrapping-up/13224)                                                                    |
+| 2     | t-overview | [Introduction](/t/13234) |
+| 2     | t-setup-environment | [1. Environment setup](/t/13233) |
+| 2     | t-data-processing | [2. Distributed data processing](/t/13232) |
+| 2     | t-streaming | [3. Data stream processing](/t/13230) |
+| 2     | t-history-server | [4. History server](/t/17354) |
+| 2     | t-cos | [5. Monitoring with COS](/t/13225) |
+| 2     | t-wrapping-up | [6. Wrapping Up](/t/13224) |
 | 1     | how-to                         | [How To]()                                                                                                                                     |
 | 2     | h-setup-k8s                    | [Setup the Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618)                                                 |
 | 2     | h-deploy                       | [Deploy Charmed Apache Spark](/t/charmed-spark-k8s-documentation-how-to-deploy-charmed-spark/10979)                                                   |
@@ -65,4 +71,8 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
 [details=Mapping table]
 | Path | Location |
 | ---- | -------- |
+| t-spark-shell | t-data-processing |
+| t-spark-submit | t-overview |
+| t-spark-streaming | t-streaming |
+| t-spark-monitoring | t-cos |
 [/details]

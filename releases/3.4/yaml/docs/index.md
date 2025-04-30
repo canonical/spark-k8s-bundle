@@ -10,6 +10,13 @@ Deploying Apache Spark applications to Kubernetes has several benefits over othe
 
 Charmed Apache Spark helps to address these usability concerns and provides a consistent management interface for operations engineers and cluster administrators who need to manage enablers like Spark History Server.
 
+## In this documentation
+
+| | |
+|--|--|
+|  [Tutorials](/t/13234)</br>  Get started - a hands-on introduction to using Charmed Apache Spark operator for new users </br> |  [How-to guides](/t/11618) </br> Step-by-step guides covering key operations and common tasks |
+| [Reference](/t/8962) </br> Technical information - specifications, APIs, architecture | [Explanation](/t/11685) </br> Concepts - discussion and clarification of key topics  |
+
 ## Project and community
 
 Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source project that welcomes community contributions, suggestions, fixes and constructive feedback.
@@ -22,12 +29,12 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
 
 1. [Overview](overview.md)
 1. [Tutorial](tutorial)
-  1. [1. Introduction](tutorial/t-overview.md)
-  1. [2. Set up the environment for the tutorial](tutorial/t-setup-environment.md)
-  1. [2. Interacting with Spark using Interactive Shell](tutorial/t-spark-shell.md)
-  1. [3. Submitting Jobs using Spark Submit](tutorial/t-spark-submit.md)
-  1. [4. Streaming workloads with Charmed Apache Spark](tutorial/t-spark-streaming.md)
-  1. [5. Monitoring the Spark cluster](tutorial/t-spark-monitoring.md)
+  1. [Introduction](tutorial/t-overview.md)
+  1. [1. Environment setup](tutorial/t-setup-environment.md)
+  1. [2. Distributed data processing](tutorial/t-data-processing.md)
+  1. [3. Data stream processing](tutorial/t-streaming.md)
+  1. [4. History server](tutorial/t-history-server.md)
+  1. [5. Monitoring with COS](tutorial/t-cos.md)
   1. [6. Wrapping Up](tutorial/t-wrapping-up.md)
 1. [How To](how-to)
   1. [Setup the Environment](how-to/h-setup-k8s.md)
