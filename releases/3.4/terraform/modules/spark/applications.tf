@@ -27,11 +27,11 @@ resource "juju_application" "kyuubi" {
   charm {
     name     = "kyuubi-k8s"
     channel  = "latest/edge"
-    revision = 45
+    revision = 50
   }
 
   resources = {
-    kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:3c49dfe71387bd702a30844c80c9a17a8bc8ecb99ebdee37eab4b05e44ac683f" # 3.4.2
+    kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:29c84e1693ce7b5e6cf4fcb84570a79357f9bc1e66bce59d2e0031f1314699e5" # 3.4.4-1.10.1-22.04_edge 2025-05-06
   }
 
   config = {
