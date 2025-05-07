@@ -93,7 +93,7 @@ resource "juju_application" "hub" {
   charm {
     name     = "spark-integration-hub-k8s"
     channel  = "latest/edge"
-    revision = 48
+    revision = 49
   }
 
   resources = {
