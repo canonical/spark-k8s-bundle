@@ -116,8 +116,8 @@ runs:
         sudo microk8s ctr images import --base-name $IMAGE image.tar
         docker rmi $IMAGE
         rm image.tar
-    - name: Setup tmate session
-      uses: canonical/action-tmate@main
+    - name: Setup upterm session
+      uses: lhotari/action-upterm@v1
     - id: tests-integration
       name: Run Integration Tests
       shell: bash
