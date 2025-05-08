@@ -18,30 +18,30 @@ jobs:
       max-parallel: 15
       fail-fast: false
       matrix:
-        # tox-env:
-        #   - integration-sparkjob
-        #   - integration-bundle
-        #   - integration-kyuubi
-        # bundle-backend: ["terraform"]
-        # spark-version: ["3.4.4"]
-        # storage-backend: ["s3", "azure"]
-        # cos-model: ["cos"]
-        # juju:
-        #   - snap_channel: "3.5/stable"
-        #     agent: "3.5.6"
-        #   - snap_channel: "3.6/stable"
-        #     agent: "3.6.0"
+        tox-env:
+          - integration-sparkjob
+          - integration-bundle
+          - integration-kyuubi
+        bundle-backend: ["terraform"]
+        spark-version: ["3.4.4"]
+        storage-backend: ["s3", "azure"]
+        cos-model: ["cos"]
+        juju:
+          - snap_channel: "3.5/stable"
+            agent: "3.5.6"
+          - snap_channel: "3.6/stable"
+            agent: "3.6.0"
         include:
-        #   - tox-env: integration-basic
-        #     spark-version: 3.4.4
-        #     juju:
-        #       - snap_channel: "3.6/stable"
-        #         agent: "3.6.0"
-        #   - tox-env: integration-basic
-        #     spark-version: 3.5.4
-        #     juju:
-        #       - snap_channel: "3.6/stable"
-        #         agent: "3.6.0"
+          - tox-env: integration-basic
+            spark-version: 3.4.4
+            juju:
+              - snap_channel: "3.6/stable"
+                agent: "3.6.0"
+          - tox-env: integration-basic
+            spark-version: 3.5.4
+            juju:
+              - snap_channel: "3.6/stable"
+                agent: "3.6.0"
           - tox-env: integration-bundle
             bundle-backend: yaml
             spark-version: 3.4.4
