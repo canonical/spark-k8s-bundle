@@ -10,7 +10,7 @@ inputs:
     required: true
   spark-version:
     description: "The version of Spark to run the tests on"
-    default: 3.4.2
+    default: 3.4.4
     required: false
     type: string
   bundle-backend:
@@ -125,3 +125,6 @@ runs:
       run: |
         juju list-models
         cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ inputs.bundle-backend }} --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --keep-models
+    - name: Setup tmate session
+      if: ${{ failure() }}
+      uses: canonical/action-tmate@main
