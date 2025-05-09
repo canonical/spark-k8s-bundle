@@ -98,8 +98,8 @@ def pytest_addoption(parser):
     parser.addoption(
         "--spark-version",
         nargs="?",
-        const="3.4.2",
-        default="3.4.2",
+        const="3.4.4",
+        default="3.4.4",
         type=str,
         help="Which Spark version to use for bundle testing.",
     )
@@ -136,7 +136,7 @@ def backend(request) -> None | str:
 @pytest.fixture(scope="module")
 def spark_version(request) -> str:
     """The backend which is to be used to deploy the bundle."""
-    return request.config.getoption("--spark-version") or "3.4.2"
+    return request.config.getoption("--spark-version") or "3.4.4"
 
 
 @pytest.fixture(scope="module")
