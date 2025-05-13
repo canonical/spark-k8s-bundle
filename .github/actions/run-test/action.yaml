@@ -132,3 +132,7 @@ runs:
       run: |
         juju-crashdump
         echo "Done"
+    - id: debug
+      name: Debug session
+      if: ${{ failure() }}   
+      uses: mxschmitt/action-tmate@v3

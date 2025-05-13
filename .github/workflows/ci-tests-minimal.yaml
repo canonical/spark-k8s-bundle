@@ -67,3 +67,12 @@ jobs:
           juju-agent-version: ${{ matrix.juju.agent || '3.6.0' }}
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
+      - name: Collect logs if job failed
+        if: ${{ failure() }}   
+        run: |
+          juju-crashdump
+          echo "Done"
+      - id: debug
+        name: Debug session
+        if: ${{ failure() }}   
+        uses: mxschmitt/action-tmate@v3
