@@ -125,8 +125,10 @@ runs:
       run: |
         juju list-models
         cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ inputs.bundle-backend }} --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --keep-models
-    - name: Collect logs if job failed
-      if: ${{ failure() }}
+    - id: collect-logs
+      name: Collect logs if job failed
+      shell: bash
+      if: ${{ failure() }}   
       run: |
         juju-crashdump
         echo "Done"
