@@ -51,7 +51,7 @@ resource "juju_application" "scrape_config" {
   charm {
     name     = "prometheus-scrape-config-k8s"
     channel  = "latest/stable"
-    revision = 51
+    revision = 64
   }
   config = {
     scrape_interval = "10s"
