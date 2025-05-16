@@ -30,24 +30,24 @@ jobs:
           - snap_channel: "3.5/stable"
             agent: "3.5.6"
           - snap_channel: "3.6/stable"
-            agent: "3.6.0"
+            agent: "3.6.5"
         include:
           - tox-env: integration-basic
             spark-version: 3.4.2
             juju:
               - snap_channel: "3.6/stable"
-                agent: "3.6.0"
+                agent: "3.6.5"
           - tox-env: integration-basic
             spark-version: 3.5.1
             juju:
               - snap_channel: "3.6/stable"
-                agent: "3.6.0"
+                agent: "3.6.5"
           - tox-env: integration-bundle
             bundle-backend: yaml
             spark-version: 3.4.2
             juju:
               - snap_channel: "3.6/stable"
-                agent: "3.6.0"
+                agent: "3.6.5"
 
     needs:
       - checks
@@ -56,7 +56,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Run integration test
         uses: ./.github/actions/run-test
-        timeout-minutes: 40
         with:
           tox-env: ${{ matrix.tox-env }}
           bundle-backend: ${{ matrix.bundle-backend }}
@@ -64,6 +63,6 @@ jobs:
           storage-backend: ${{ matrix.storage-backend }}
           cos-model: ${{ matrix.cos-model }}
           juju-snap-channel: ${{ matrix.juju.snap_channel || '3.6/stable' }}
-          juju-agent-version: ${{ matrix.juju.agent || '3.6.0' }}
+          juju-agent-version: ${{ matrix.juju.agent || '3.6.5' }}
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}

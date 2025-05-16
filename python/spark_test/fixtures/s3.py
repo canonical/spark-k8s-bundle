@@ -39,7 +39,7 @@ def bucket_name():
 
 
 @pytest.fixture(scope="module")
-def bucket(ops_test, credentials, bucket_name):
+def bucket(credentials, bucket_name, request):
     """Get or create bucket."""
     try:
         _bucket = Bucket.create(bucket_name, credentials)
@@ -49,5 +49,6 @@ def bucket(ops_test, credentials, bucket_name):
 
     yield _bucket
 
-    if not ops_test.keep_model:
+    keep_models = bool(request.config.getoption("--keep-models"))
+    if not keep_models:
         _bucket.delete()

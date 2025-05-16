@@ -53,11 +53,11 @@ optional = true
 [tool.poetry.group.integration.dependencies]
 pytest-cov = ">=3.0"
 pytest-mock = ">=3.10"
-juju = ">=3.4.0"
-pytest-operator = ">0.20"
 psycopg2-binary = "^2.9.9"
 tenacity = "^9.0.0"
 httpx = "^0.28.1"
+jubilant = "^1.0.0"
+jinja2 = "*"
 
 
 [tool.poetry.group.benchmark]
