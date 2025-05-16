@@ -444,7 +444,7 @@ def spark_bundle_with_s3(juju: jubilant.Juju, credentials, bucket, bundle, cos):
         )
 
     if "s3" in applications:
-        juju.wait(lambda status: jubilant.all_active(status, "s3"))
+        juju.wait(lambda status: jubilant.all_agents_idle(status, "s3"))
 
         set_s3_credentials(juju, credentials)
 
