@@ -50,7 +50,7 @@ COS_APPS = [
 ]
 FORWARD_TIMEOUT_SECONDS = 10
 logger = logging.getLogger(__name__)
-# logging.getLogger("jubilant.wait").setLevel(logging.WARNING)
+logging.getLogger("jubilant.wait").setLevel(logging.WARNING)
 
 
 def pytest_runtest_setup(item):

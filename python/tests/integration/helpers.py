@@ -188,7 +188,7 @@ def get_postgresql_credentials(
     return {"username": "operator", "password": results["password"], "host": address}
 
 
-def render_bundle(self, bundle, context=None, **kwcontext) -> Path:
+def render_bundle(bundle, context=None, **kwcontext) -> Path:
     """Render a templated bundle using Jinja2.
 
     This can be used to populate built charm paths or config values.
@@ -199,8 +199,8 @@ def render_bundle(self, bundle, context=None, **kwcontext) -> Path:
 
     Returns the Path for the rendered bundle.
     """
-    bundles_dst_dir = self.tmp_path / "bundles"
-    bundles_dst_dir.mkdir(exist_ok=True)
+    bundles_dst_dir = Path(".build") / "bundles"
+    bundles_dst_dir.mkdir(exist_ok=True, parents=True)
     if context is None:
         context = {}
     context.update(kwcontext)
@@ -214,7 +214,7 @@ def render_bundle(self, bundle, context=None, **kwcontext) -> Path:
     else:
         bundle_text = textwrap.dedent(bundle).strip()
         infix = "".join(choices(hexdigits, k=4))
-        bundle_name = f"{self.model_name}-{infix}.yaml"
+        bundle_name = f"spark-{infix}.yaml"
     logger.info(f"Rendering bundle {bundle_name}")
     rendered = jinja2.Template(bundle_text).render(**context)
     dst = bundles_dst_dir / bundle_name
