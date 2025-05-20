@@ -22,21 +22,6 @@ HUB = "integration-hub"
 logger = logging.getLogger(__name__)
 
 
-def pytest_addoption(parser):
-    """Add CLI options to pytest."""
-    parser.addoption(
-        "--foo",
-        default="report",
-        type=str,
-        help="File name for the benchmark report.",
-    )
-
-
-@pytest.fixture(scope="module")
-def foo(request):
-    return request.config.getoption("--foo")
-
-
 @pytest.fixture(scope="module")
 def sf(request) -> str:
     """Get benchmark size factor."""
