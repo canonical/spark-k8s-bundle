@@ -16,6 +16,14 @@ from spark_test.core import ObjectStorageUnit
 logger = logging.getLogger(__name__)
 
 
+default_s3_config = Config(
+    connect_timeout=60,
+    retries={"max_attempts": 0},
+    request_checksum_calculation="when_supported",
+    response_checksum_validation="when_supported",
+)
+
+
 @dataclass
 class Credentials:
     """Class representing S3 credentials."""
@@ -54,13 +62,14 @@ class Bucket(ObjectStorageUnit):
         Returns:
             Bucket object
         """
-        config = Config(connect_timeout=60, retries={"max_attempts": 0})
         session = boto3.session.Session(
             aws_access_key_id=credentials.access_key,
             aws_secret_access_key=credentials.secret_key,
         )
 
-        s3 = session.client("s3", endpoint_url=credentials.endpoint, config=config)
+        s3 = session.client(
+            "s3", endpoint_url=credentials.endpoint, config=default_s3_config
+        )
 
         if not cls._exists(bucket_name, s3):
             raise FileNotFoundError(f"Bucket {bucket_name} does not exist.")
@@ -78,13 +87,14 @@ class Bucket(ObjectStorageUnit):
         Returns:
             Bucket object
         """
-        config = Config(connect_timeout=60, retries={"max_attempts": 0})
         session = boto3.session.Session(
             aws_access_key_id=credentials.access_key,
             aws_secret_access_key=credentials.secret_key,
         )
 
-        s3 = session.client("s3", endpoint_url=credentials.endpoint, config=config)
+        s3 = session.client(
+            "s3", endpoint_url=credentials.endpoint, config=default_s3_config
+        )
 
         if cls._exists(bucket_name, s3):
             raise FileExistsError(

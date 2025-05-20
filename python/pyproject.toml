@@ -18,8 +18,7 @@ poetry-plugin-export = ">=1.9"
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
 spark8t = ">=0.0.10"
-# NOTE(boto): 1.36+ incompatible with minio because of MD5 checksum
-boto3 = ">=1.34.55,<1.36"
+boto3 = ">=1.36"
 pytest = ">=6.2"
 azure-storage-blob = "^12.21.0"
 lightkube = ">=0.11"
@@ -39,6 +38,7 @@ codespell = "^2.1.0"
 ruff = "^0.9.4"
 mypy = ">=0.910"
 pytest-mypy = ">=0.10.3"
+types-boto3 = { extras = ["essentials"], version = ">=1.36.0" }
 
 [tool.poetry.group.unit]
 optional = true

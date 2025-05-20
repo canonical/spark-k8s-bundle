@@ -8,6 +8,7 @@ import httpx
 import jubilant
 import pytest
 from azure.storage.blob import BlobServiceClient
+from botocore.client import Config
 from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.core.azure_storage import Container
@@ -162,8 +163,11 @@ def test_job_logs_are_persisted(
         s3 = session.client(
             "s3",
             endpoint_url=credentials.endpoint,
-            config=boto3.session.Config(
-                connect_timeout=60, retries={"max_attempts": 0}
+            config=Config(
+                connect_timeout=60,
+                retries={"max_attempts": 0},
+                request_checksum_calculation="when_supported",
+                response_checksum_validation="when_supported",
             ),
         )
 
