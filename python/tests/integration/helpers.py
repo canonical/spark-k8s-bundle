@@ -10,7 +10,6 @@ import shutil
 import subprocess
 import textwrap
 import urllib.parse
-import urllib.request
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -198,6 +197,7 @@ def render_bundle(bundle, context=None, **kwcontext) -> Path:
     :param **kwcontext: Additional optional context as keyword args.
 
     Returns the Path for the rendered bundle.
+    Adapted from pytest_operator.
     """
     bundles_dst_dir = Path(".build") / "bundles"
     bundles_dst_dir.mkdir(exist_ok=True, parents=True)

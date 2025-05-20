@@ -126,19 +126,22 @@ def pytest_addoption(parser):
         type=str,
         help="Which Spark version to use for bundle testing.",
     )
-
-    parser.addoption("--no-deploy", action="store_true", help="foo")
-
     parser.addoption(
         "--model",
-        type=str,
-        help="Model",
+        action="store",
+        help="Juju model to use; if not provided, a new model "
+        "will be created for each test which requires one",
     )
-
     parser.addoption(
         "--keep-models",
         action="store_true",
-        help="Model",
+        help="Keep models handled by jubilant",
+    )
+    parser.addoption(
+        "--no-deploy",
+        action="store_true",
+        help="This, together with the `--model` parameter, ensures that all functions "
+        "marked with the` skip_if_deployed` tag are skipped.",
     )
 
 
