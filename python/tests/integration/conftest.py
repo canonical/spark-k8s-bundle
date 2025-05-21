@@ -50,7 +50,7 @@ COS_APPS = [
 ]
 FORWARD_TIMEOUT_SECONDS = 10
 logger = logging.getLogger(__name__)
-logging.getLogger("jubilant.wait").setLevel(logging.WARNING)
+# logging.getLogger("jubilant.wait").setLevel(logging.WARNING)
 
 
 def pytest_runtest_setup(item):
@@ -152,18 +152,19 @@ def juju(request: pytest.FixtureRequest):
 
     if model is None:
         with jubilant.temp_model(keep=keep_models) as juju:
-            juju.wait_timeout = 60 * 60
+            juju.wait_timeout = 30 * 60
 
             yield juju  # run the test
 
             if request.session.testsfailed:
-                log = juju.debug_log(limit=1000)
+                log = juju.debug_log(limit=50)
                 print(log, end="")
+                logger.info(juju.cli("status"))
 
     else:
         juju = jubilant.Juju()
         juju.model = str(model)
-        juju.wait_timeout = 60 * 60
+        juju.wait_timeout = 30 * 60
         try:
             juju.status()
         except jubilant.CLIError:
@@ -172,8 +173,9 @@ def juju(request: pytest.FixtureRequest):
         yield juju
 
         if request.session.testsfailed:
-            log = juju.debug_log(limit=1000)
+            log = juju.debug_log(limit=50)
             print(log, end="")
+            logger.info(juju.cli("status"))
 
 
 @pytest.fixture(scope="module")
