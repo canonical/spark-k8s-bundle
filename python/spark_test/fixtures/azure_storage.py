@@ -27,7 +27,7 @@ def container_name():
 
 
 @pytest.fixture(scope="module")
-def container(ops_test, azure_credentials, container_name):
+def container(azure_credentials, container_name, request):
     """Get or create azure storage container."""
     try:
         _container = Container.create(container_name, azure_credentials)
@@ -37,5 +37,6 @@ def container(ops_test, azure_credentials, container_name):
 
     yield _container
 
-    if not ops_test.keep_model:
+    keep_models = bool(request.config.getoption("--keep-models"))
+    if not keep_models:
         _container.delete()

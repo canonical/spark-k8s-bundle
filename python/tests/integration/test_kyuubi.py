@@ -2,14 +2,16 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
+from __future__ import annotations
+
 import ast
-import asyncio
 import json
 import logging
+from typing import cast
 
+import jubilant
 import psycopg2
 import pytest
-from pytest_operator.plugin import OpsTest
 from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.core.kyuubi import KyuubiClient
@@ -35,25 +37,20 @@ KYUUBI_APP_NAME = "kyuubi"
 
 
 @pytest.mark.skip_if_deployed
-@pytest.mark.abort_on_fail
-async def test_deploy_bundle(spark_bundle):
-    await spark_bundle
-    await asyncio.sleep(0)  # do nothing, await deploy_cluster
+def test_deploy_bundle(spark_bundle) -> None:
+    pass
 
 
-@pytest.mark.abort_on_fail
-async def test_active_status(ops_test):
+def test_active_status(juju: jubilant.Juju) -> None:
     """Test whether the bundle has deployed successfully."""
-    for app_name in ops_test.model.applications:
-        assert ops_test.model.applications[app_name].status == "active"
+    juju.wait(jubilant.all_active, delay=5)
 
 
-@pytest.mark.abort_on_fail
-async def test_authentication_is_enforced(ops_test):
+def test_authentication_is_enforced(juju: jubilant.Juju) -> None:
     """Test that the authentication has been enabled in the bundle by default
     and thus Kyuubi accept connections with invalid credentials.
     """
-    credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
+    credentials = get_kyuubi_credentials(juju, "kyuubi")
     credentials["password"] = "something-random"
 
     with pytest.raises(Exception) as e:
@@ -63,19 +60,17 @@ async def test_authentication_is_enforced(ops_test):
         assert "Error validating the login" in str(e)
 
 
-@pytest.mark.abort_on_fail
-async def test_jdbc_endpoint(ops_test: OpsTest):
+def test_jdbc_endpoint(juju: jubilant.Juju) -> None:
     """Test that JDBC connection in Kyuubi works out of the box in bundle."""
 
-    credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
+    credentials = get_kyuubi_credentials(juju, "kyuubi")
 
     logger.info("Get certificate from self-signed-certificates operator")
-    self_signed_certificate_unit = ops_test.model.applications["certificates"].units[0]
-    action = await self_signed_certificate_unit.run_action(
-        action_name="get-issued-certificates",
-    )
-    result = await action.wait()
-    items = ast.literal_eval(result.results.get("certificates"))
+    status = juju.status()
+    self_signed_certificate_unit = next(iter(status.apps["certificates"].units.keys()))
+    task = juju.run(self_signed_certificate_unit, "get-issued-certificates")
+    assert task.return_code == 0
+    items = ast.literal_eval(task.results["certificates"])
     certificates = json.loads(items[0])
     ca_cert = certificates["ca"]
 
@@ -101,14 +96,13 @@ async def test_jdbc_endpoint(ops_test: OpsTest):
     assert len(list(table.rows())) == 3
 
 
-@pytest.mark.abort_on_fail
-async def test_postgresql_metastore_is_used(
-    ops_test: OpsTest, port_forward: PortForwarder
-):
+def test_postgresql_metastore_is_used(
+    juju: jubilant.Juju, port_forward: PortForwarder
+) -> None:
     "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
-    metastore_credentials = await get_postgresql_credentials(ops_test, METASTORE)
+    metastore_credentials = get_postgresql_credentials(juju, METASTORE)
 
-    with port_forward(pod=f"{METASTORE}-0", port=5432, namespace=ops_test.model.name):
+    with port_forward(pod=f"{METASTORE}-0", port=5432, namespace=cast(str, juju.model)):
         connection = psycopg2.connect(
             host="127.0.0.1",
             database=METASTORE_DATABASE_NAME,
@@ -135,31 +129,28 @@ async def test_postgresql_metastore_is_used(
     assert num_tables != 0
 
 
-@pytest.mark.abort_on_fail
-async def test_ha_deployment(ops_test: OpsTest):
-    active_servers = await get_active_kyuubi_servers_list(ops_test)
+def test_ha_deployment(juju: jubilant.Juju) -> None:
+    active_servers = get_active_kyuubi_servers_list(juju)
     assert len(active_servers) == 3
 
+    model = cast(str, juju.model)
     expected_servers = [
-        f"kyuubi-0.kyuubi-endpoints.{ops_test.model_name}.svc.cluster.local",
-        f"kyuubi-1.kyuubi-endpoints.{ops_test.model_name}.svc.cluster.local",
-        f"kyuubi-2.kyuubi-endpoints.{ops_test.model_name}.svc.cluster.local",
+        f"kyuubi-0.kyuubi-endpoints.{model}.svc.cluster.local",
+        f"kyuubi-1.kyuubi-endpoints.{model}.svc.cluster.local",
+        f"kyuubi-2.kyuubi-endpoints.{model}.svc.cluster.local",
     ]
     assert set(active_servers) == set(expected_servers)
 
 
-@pytest.mark.abort_on_fail
-async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
+def test_kyuubi_metrics_in_cos(juju: jubilant.Juju, cos) -> None:
     if not cos:
         pytest.skip("Not possible to test without cos")
 
     # We should leave time for Prometheus data to be published
     for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
         with attempt:
-            cos_address = await get_cos_address(ops_test, cos_model_name=cos)
-            assert published_prometheus_data(
-                ops_test, cos, cos_address, "kyuubi_jvm_uptime"
-            )
+            cos_address = get_cos_address(cos_model_name=cos)
+            assert published_prometheus_data(cos, cos_address, "kyuubi_jvm_uptime")
 
             # Alerts got published to Prometheus
             alerts_data = published_prometheus_alerts(cos, cos_address)
@@ -183,14 +174,13 @@ async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
                 )
 
             # Grafana dashboard got published
-            dashboards_info = await published_grafana_dashboards(ops_test, cos)
+            dashboards_info = published_grafana_dashboards(cos)
             assert dashboards_info is not None
             logger.info(f"Dashboard info {dashboards_info}")
             assert any(board["title"] == "Kyuubi" for board in dashboards_info)
 
             # Loki logs are ingested
-            logs = await published_loki_logs(
-                ops_test,
+            logs = published_loki_logs(
                 cos,
                 cos_address,
                 "juju_application",
@@ -210,9 +200,8 @@ async def test_kyuubi_metrics_in_cos(ops_test: OpsTest, cos):
             )
 
 
-@pytest.mark.abort_on_fail
-async def test_drop_table_if_exists(ops_test: OpsTest):
-    credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
+def test_drop_table_if_exists(juju: jubilant.Juju) -> None:
+    credentials = get_kyuubi_credentials(juju, "kyuubi")
     client = KyuubiClient(**credentials, use_ssl=True)
 
     db_name, table_name = "spark_test", "my_table"

@@ -1,6 +1,9 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
+from __future__ import annotations
+
+import contextlib
 import logging
 import os
 import shutil
@@ -11,11 +14,11 @@ import uuid
 from contextlib import contextmanager
 from pathlib import Path
 from subprocess import PIPE, Popen, TimeoutExpired, check_output
-from typing import Iterable
+from typing import Generator, Iterable, cast
 
 import httpx
+import jubilant
 import pytest
-from pytest_operator.plugin import OpsTest
 from spark8t.domain import PropertyFile
 
 from spark_test.core.azure_storage import Credentials as AzureStorageCredentials
@@ -28,14 +31,11 @@ from tests import IE_TEST_DIR
 from .helpers import (
     COS_ALIAS,
     Bundle,
-    add_juju_secret,
     deploy_bundle,
     deploy_bundle_terraform,
     deploy_bundle_yaml,
     deploy_bundle_yaml_azure_storage,
-    juju_sleep,
     local_tmp_folder,
-    set_azure_credentials,
     set_s3_credentials,
 )
 from .terraform import Terraform
@@ -50,13 +50,20 @@ COS_APPS = [
 ]
 FORWARD_TIMEOUT_SECONDS = 10
 logger = logging.getLogger(__name__)
+logging.getLogger("jubilant.wait").setLevel(logging.WARNING)
+
+
+def pytest_runtest_setup(item):
+    if (
+        "skip_if_deployed" in item.keywords
+        and item.config.getoption("--no-deploy")
+        and item.config.getoption("--model") is not None
+    ):
+        pytest.skip("Skipping deployment because --no-deploy was specified.")
 
 
 def pytest_addoption(parser):
     """Add CLI options to pytest."""
-    parser.addoption(
-        "--integration", action="store_true", help="flag to enable integration tests"
-    )
     parser.addoption(
         "--release",
         required=False,
@@ -119,6 +126,54 @@ def pytest_addoption(parser):
         type=str,
         help="Which Spark version to use for bundle testing.",
     )
+    parser.addoption(
+        "--model",
+        action="store",
+        help="Juju model to use; if not provided, a new model "
+        "will be created for each test which requires one",
+    )
+    parser.addoption(
+        "--keep-models",
+        action="store_true",
+        help="Keep models handled by jubilant",
+    )
+    parser.addoption(
+        "--no-deploy",
+        action="store_true",
+        help="This, together with the `--model` parameter, ensures that all functions "
+        "marked with the` skip_if_deployed` tag are skipped.",
+    )
+
+
+@pytest.fixture(scope="module")
+def juju(request: pytest.FixtureRequest):
+    keep_models = bool(request.config.getoption("--keep-models"))
+    model = request.config.getoption("--model")
+
+    if model is None:
+        with jubilant.temp_model(keep=keep_models) as juju:
+            juju.wait_timeout = 60 * 60
+
+            yield juju  # run the test
+
+            if request.session.testsfailed:
+                log = juju.debug_log(limit=1000)
+                print(log, end="")
+
+    else:
+        juju = jubilant.Juju()
+        juju.model = str(model)
+        juju.wait_timeout = 60 * 60
+        try:
+            juju.status()
+        except jubilant.CLIError:
+            juju.add_model(str(model))
+
+        yield juju
+
+        if request.session.testsfailed:
+            log = juju.debug_log(limit=1000)
+            print(log, end="")
 
 
 @pytest.fixture(scope="module")
@@ -176,8 +231,8 @@ def pod_name():
 
 
 @pytest.fixture(scope="module")
-def namespace_name(ops_test: OpsTest):
-    return ops_test.model_name
+def namespace_name(juju: jubilant.Juju) -> str:
+    return cast(str, juju.model)
 
 
 @pytest.fixture(scope="module")
@@ -300,13 +355,21 @@ def integration_test(request):
 
 
 @pytest.fixture(scope="module")
-async def cos(ops_test: OpsTest, cos_model: str, backend: str):
+def cos(cos_model: str, backend: str):
     """
     Deploy COS bundle depending upon the value of cos_model fixture, and yield its value.
     """
-    existing_models = await ops_test._controller.list_models()
 
-    if cos_model and cos_model not in existing_models and backend == "yaml":
+    cos = jubilant.Juju()
+    cos.model = cos_model
+    try:
+        cos.status()
+    except jubilant.CLIError:
+        cos_exists = False
+    else:
+        cos_exists = True
+
+    if cos_model and not cos_exists and backend == "yaml":
         base_url = (
             "https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays"
         )
@@ -330,76 +393,86 @@ async def cos(ops_test: OpsTest, cos_model: str, backend: str):
                 ],
             )
 
-            await ops_test.track_model(COS_ALIAS, model_name=cos_model)
+            cos.add_model(COS_ALIAS)
 
-            with ops_test.model_context(COS_ALIAS) as model:
-                retcode, stdout, stderr = await deploy_bundle(ops_test, cos_bundle)
-                assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
-                logger.info(stdout)
+            deploy_bundle(cos, cos_bundle)
 
-                await model.create_offer("traefik:ingress")
-
-                await juju_sleep(ops_test, 15, "traefik")
+            cos.offer("traefik", endpoint="ingress")
+            cos.wait(lambda status: jubilant.all_active(status, "traefik"))
 
         yield cos_model
 
-        await ops_test.forget_model(COS_ALIAS)
     else:
-        if cos_model:
-            await ops_test.track_model(COS_ALIAS, model_name=cos_model)
-
+        try:
+            cos.add_model(COS_ALIAS)
+        except jubilant.CLIError:
+            # already exists
+            pass
         yield cos_model
 
-        if cos_model:
-            await ops_test.forget_model(COS_ALIAS)
+
+@contextlib.contextmanager
+def track_model(model: str) -> Generator[jubilant.Juju]:
+    """Context manager to create a temporary model for running tests in.
+
+    This creates a new model with a random name in the format ``jubilant-abcd1234``, and destroys
+    it and its storage when the context manager exits.
+
+    Provides a :class:`Juju` instance to operate on.
+
+    Args:
+        keep: If true, keep the created model around when the context manager exits.
+        controller: Name of controller where the temporary model will be added.
+    """
+    juju = jubilant.Juju()
+    juju.model = model
+    yield juju
 
 
-async def spark_bundle_with_s3(ops_test: OpsTest, credentials, bucket, bundle, cos):
+def spark_bundle_with_s3(juju: jubilant.Juju, credentials, bucket, bundle, cos):
     """Deploy all applications in the Kyuubi bundle, wait for all of them to be active,
     and finally yield a list of the names of the applications that were deployed.
     """
 
     if isinstance(bundle, Bundle):
-        applications = await deploy_bundle_yaml(bundle, bucket, cos, ops_test)
+        applications = deploy_bundle_yaml(bundle, bucket, cos, juju)
 
     else:
-        applications = await deploy_bundle_terraform(
+        applications = deploy_bundle_terraform(
             bundle,
             bucket,
             cos,
-            ops_test,
+            juju,
             storage_backend="s3",
         )
 
     if "s3" in applications:
-        await ops_test.model.wait_for_idle(
-            apps=["s3"], timeout=600, idle_period=30, status="blocked"
-        )
+        juju.wait(lambda status: jubilant.all_agents_idle(status, "s3"))
 
-        await set_s3_credentials(ops_test, credentials)
+        set_s3_credentials(juju, credentials)
 
     if cos:
-        with ops_test.model_context(COS_ALIAS) as cos_model:
-            await cos_model.wait_for_idle(
-                apps=COS_APPS,
-                idle_period=60,
-                timeout=3600,
-                raise_on_error=False,
+        with track_model(COS_ALIAS) as cos_model:
+            logger.info("Waiting for COS deployment to settle down")
+            cos_model.wait(
+                lambda status: jubilant.all_agents_idle(status, *COS_APPS),
+                timeout=1800,
+                delay=10,
             )
 
-    await ops_test.model.wait_for_idle(
-        apps=list(set(applications) - set(COS_APPS)),
-        timeout=3600,
-        idle_period=30,
-        status="active",
-        raise_on_error=False,
+    logger.info("Waiting for spark deployment to settle down")
+    juju.wait(
+        lambda status: jubilant.all_active(
+            status, *list(set(applications) - set(COS_APPS))
+        ),
+        timeout=1800,
+        delay=10,
     )
-
     return applications
 
 
-async def spark_bundle_with_azure_storage(
-    ops_test: OpsTest,
+def spark_bundle_with_azure_storage(
+    juju: jubilant.Juju,
     azure_credentials: AzureStorageCredentials,
     container,
     bundle_with_azure_storage,
@@ -411,63 +484,60 @@ async def spark_bundle_with_azure_storage(
     """
 
     if isinstance(bundle_with_azure_storage, Bundle):
-        applications = await deploy_bundle_yaml_azure_storage(
-            bundle_with_azure_storage, container, cos, ops_test
+        applications = deploy_bundle_yaml_azure_storage(
+            bundle_with_azure_storage, container, cos, juju
         )
 
     else:
-        applications = await deploy_bundle_terraform(
+        applications = deploy_bundle_terraform(
             bundle_with_azure_storage,
             container,
             cos,
-            ops_test,
+            juju,
             storage_backend="azure",
         )
 
     if "azure-storage" in applications:
-        secret_uri = await add_juju_secret(
-            ops_test,
-            "azure-storage",
-            "iamsecret",
-            {"secret-key": azure_credentials.secret_key},
+        secret_uri = juju.add_secret(
+            "iamsecret", {"secret-key": azure_credentials.secret_key}
         )
-        await set_azure_credentials(
-            ops_test, secret_uri=secret_uri, application_name="azure-storage"
-        )
+        juju.cli("grant-secret", secret_uri, "azure-storage")
+        juju.config("azure-storage", {"credentials": secret_uri})
 
     if cos:
-        with ops_test.model_context(COS_ALIAS) as cos_model:
-            await cos_model.wait_for_idle(
-                apps=COS_APPS,
-                idle_period=60,
-                timeout=3600,
-                raise_on_error=False,
+        with track_model(COS_ALIAS) as cos_model:
+            logger.info("Waiting for COS deployment to settle down")
+            cos_model.wait(
+                lambda status: jubilant.all_active(status, *COS_APPS),
+                timeout=1800,
+                delay=10,
             )
 
-    await ops_test.model.wait_for_idle(
-        apps=list(set(applications) - set(COS_APPS)),
-        timeout=2500,
-        idle_period=30,
-        status="active",
-        raise_on_error=False,
+    logger.info("Waiting for spark deployment to settle down")
+    juju.wait(
+        lambda status: jubilant.all_active(
+            status, *list(set(applications) - set(COS_APPS))
+        ),
+        timeout=1800,
+        delay=10,
     )
 
     return applications
 
 
 @pytest.fixture(scope="module")
-async def spark_bundle(request, storage_backend, cos, ops_test):
+def spark_bundle(request, storage_backend, cos, juju: jubilant.Juju):
     if storage_backend == "s3":
         credentials = request.getfixturevalue("credentials")
         bucket = request.getfixturevalue("bucket")
         bundle = request.getfixturevalue("bundle")
-        return spark_bundle_with_s3(ops_test, credentials, bucket, bundle, cos)
+        return spark_bundle_with_s3(juju, credentials, bucket, bundle, cos)
     elif storage_backend == "azure":
         azure_credentials = request.getfixturevalue("azure_credentials")
         container = request.getfixturevalue("container")
         bundle_with_azure_storage = request.getfixturevalue("bundle_with_azure_storage")
         return spark_bundle_with_azure_storage(
-            ops_test, azure_credentials, container, bundle_with_azure_storage, cos
+            juju, azure_credentials, container, bundle_with_azure_storage, cos
         )
 
     else:

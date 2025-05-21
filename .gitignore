@@ -48,3 +48,4 @@ __pycache__
 env
 .vscode
 dist
+.build
