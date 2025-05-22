@@ -20,7 +20,7 @@ resource "juju_model" "spark" {
 }
 
 resource "juju_model" "cos" {
-  count      = var.cos.external ? 0 : 1
+  count      = var.cos.deployed == "bundled" ? 1 : 0
   name       = var.cos.model
   credential = var.K8S_CREDENTIAL
   cloud {
@@ -70,26 +70,19 @@ module "s3" {
 
 module "cos" {
   depends_on = [juju_model.cos]
-  count      = var.cos.external ? 0 : 1
+  count      = var.cos.deployed == "bundled" ? 1 : 0
   source     = "./external/cos"
   model      = var.cos.model
 }
 
-locals {
-  deploy_cos_components = !var.cos.external || alltrue([
-    var.cos.offers.dashboard != null && var.cos.offers.dashboard != "",
-    var.cos.offers.metrics != null && var.cos.offers.metrics != "",
-    var.cos.offers.logging != null && var.cos.offers.logging != "",
-  ])
-}
 
 module "observability" {
   depends_on       = [module.spark, module.cos]
-  count            = local.deploy_cos_components ? 1 : 0
+  count            = var.cos.deployed == "no" ? 0 : 1
   source           = "./modules/observability"
-  dashboards_offer = var.cos.external ? var.cos.offers.dashboard : one(module.cos[*].dashboards_offer)
-  logging_offer    = var.cos.external ? var.cos.offers.logging : one(module.cos[*].logging_offer)
-  metrics_offer    = var.cos.external ? var.cos.offers.metrics : one(module.cos[*].metrics_offer)
+  dashboards_offer = var.cos.deployed == "external" ? var.cos.offers.dashboard : one(module.cos[*].dashboards_offer)
+  logging_offer    = var.cos.deployed == "external" ? var.cos.offers.logging : one(module.cos[*].logging_offer)
+  metrics_offer    = var.cos.deployed == "external" ? var.cos.offers.metrics : one(module.cos[*].metrics_offer)
   spark_model      = var.model
   spark_charms     = module.spark.charms
 }
