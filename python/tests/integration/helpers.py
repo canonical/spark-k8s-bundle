@@ -414,13 +414,24 @@ def deploy_bundle_terraform(
             },
         }
 
+    cos_vars = {
+        "cos": {
+            "model": cos,
+            "deployed": "bundled",
+        }
+    } if cos else {
+        "cos": {
+            "deployed": "no"
+        }
+    }
+
     tf_vars = {
         "kyuubi_user": "kyuubi-test-user",
         "model": cast(str, juju.model),
         "storage_backend": storage_backend,
         "create_model": False,
         "zookeeper_units": 1,
-    } | ({"cos_model": cos} if cos else {})
+    } | cos_vars
 
     # NOTE: avoid logging secret key
     logger.info(f"tf_vars: {tf_vars} + {storage_backend} information")
