@@ -414,16 +414,16 @@ def deploy_bundle_terraform(
             },
         }
 
-    cos_vars = {
-        "cos": {
-            "model": cos,
-            "deployed": "bundled",
+    cos_vars = (
+        {
+            "cos": {
+                "model": cos,
+                "deployed": "bundled",
+            }
         }
-    } if cos else {
-        "cos": {
-            "deployed": "no"
-        }
-    }
+        if cos
+        else {"cos": {"deployed": "no"}}
+    )
 
     tf_vars = {
         "kyuubi_user": "kyuubi-test-user",
