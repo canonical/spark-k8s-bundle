@@ -30,29 +30,25 @@ variable "create_model" {
   nullable    = false
 }
 
-variable "cos_model" {
-  description = "The name of the model where cos is deployed. If null, don't deploy cos related charms."
-  type        = string
-  nullable    = true
-  default     = null
-}
-
 # cos specifics
 
-variable "COS_TLS_CERT" {
-  type        = string
-  default     = ""
-  description = "COS certificate"
-}
-variable "COS_TLS_KEY" {
-  type        = string
-  default     = ""
-  description = "COS certificate key"
-}
-variable "COS_TLS_CA" {
-  type        = string
-  default     = ""
-  description = "COS CA certificate"
+variable "cos" {
+  description = "Observability settings"
+  type = object({
+    model           = optional(string, "cos")
+    external        = optional(bool, false)
+    offers          = optional(object({
+        dashboard  = optional(string, ""),
+        metrics    = optional(string, ""),
+        logging    = optional(string, "")
+    }), {}),
+    tls = optional(object({
+        cert = optional(string, "")
+        key  = optional(string, "")
+        ca   = optional(string, "")
+    }), {})
+  })
+  default = {model="cos", external=false, offers={}, tls={}}
 }
 
 # Storage
