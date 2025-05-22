@@ -13,7 +13,7 @@ module "spark_deployment" {
   depends_on = [module.cos]
   source = "../3.4/terraform"
   cos = {
-    external=true,
+    deployed="external",
     offers={
       dashboard=module.cos.dashboards_offer,
       metrics=module.cos.metrics_offer,
