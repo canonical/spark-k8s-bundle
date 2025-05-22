@@ -20,7 +20,7 @@ resource "juju_model" "spark" {
 }
 
 resource "juju_model" "cos" {
-  count      = var.cos.deployed == "bundled" ? 1 : 0
+  count      = var.cos.deployed == "bundled" && var.create_model == true ? 1 : 0
   name       = var.cos.model
   credential = var.K8S_CREDENTIAL
   cloud {
