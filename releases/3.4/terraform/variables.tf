@@ -43,9 +43,9 @@ variable "cos" {
         logging    = optional(string, null)
     }), {}),
     tls = optional(object({
-        cert = optional(string, "")
-        key  = optional(string, "")
-        ca   = optional(string, "")
+        cert = optional(string, null)
+        key  = optional(string, null)
+        ca   = optional(string, null)
     }), {})
   })
   default = {model="cos", deployed="bundled", offers={}, tls={}}
