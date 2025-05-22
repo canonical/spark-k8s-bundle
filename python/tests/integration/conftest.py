@@ -405,11 +405,11 @@ def cos(cos_model: str, backend: str):
         yield cos_model
 
     else:
-        # try:
-        #     cos.add_model(COS_ALIAS)
-        # except jubilant.CLIError:
-        #     # already exists
-        #     pass
+        try:
+            cos.add_model(COS_ALIAS)
+        except jubilant.CLIError:
+            # already exists
+            pass
         yield cos_model
 
 
