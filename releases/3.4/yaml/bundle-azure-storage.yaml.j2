@@ -6,9 +6,9 @@ applications:
   kyuubi:
     charm: kyuubi-k8s
     channel: latest/edge
-    revision: 39
+    revision: 60
     resources:
-      kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:9268d19a6eef91914e874734b320fab64908faf0f7adb8856be809bc60ecd1d0 # 3.4.2
+      kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:29c84e1693ce7b5e6cf4fcb84570a79357f9bc1e66bce59d2e0031f1314699e5 # 3.4.4-1.10.1-22.04_edge 2025-05-06
     scale: 3
     options:
       namespace: {{ namespace }}
@@ -67,9 +67,9 @@ applications:
   integration-hub:
     charm: spark-integration-hub-k8s
     channel: latest/edge
-    revision: 46
+    revision: 49
     resources:
-      integration-hub-image: 3
+      integration-hub-image: 5
     scale: 1
     constraints: arch=amd64
     trust: true

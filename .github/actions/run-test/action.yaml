@@ -10,7 +10,7 @@ inputs:
     required: true
   spark-version:
     description: "The version of Spark to run the tests on"
-    default: 3.4.2
+    default: 3.4.4
     required: false
     type: string
   bundle-backend:
@@ -109,7 +109,7 @@ runs:
       shell: bash
       run: |
         # Download image for avoiding time out
-        IMAGE="ghcr.io/canonical/charmed-spark-kyuubi@sha256:3c49dfe71387bd702a30844c80c9a17a8bc8ecb99ebdee37eab4b05e44ac683f"
+        IMAGE="ghcr.io/canonical/charmed-spark-kyuubi@sha256:29c84e1693ce7b5e6cf4fcb84570a79357f9bc1e66bce59d2e0031f1314699e5"
 
         docker pull $IMAGE
         docker save $IMAGE -o image.tar
@@ -125,3 +125,10 @@ runs:
       run: |
         juju list-models
         cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ inputs.bundle-backend }} --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --keep-models
+    - id: collect-logs
+      name: Collect logs if job failed
+      shell: bash
+      if: ${{ failure() }}   
+      run: |
+        juju-crashdump
+        echo "Done"
