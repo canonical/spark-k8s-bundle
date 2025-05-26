@@ -68,7 +68,7 @@ module "s3" {
   s3           = var.s3
 }
 
-module "cos" {
+module "external_cos" {
   depends_on = [juju_model.cos]
   count      = var.cos.deployed == "bundled" ? 1 : 0
   source     = "./external/cos"
@@ -80,12 +80,12 @@ module "cos" {
 
 
 module "observability" {
-  depends_on       = [module.spark, module.cos]
+  depends_on       = [module.spark, module.external_cos]
   count            = var.cos.deployed == "no" ? 0 : 1
   source           = "./modules/observability"
-  dashboards_offer = var.cos.deployed == "external" ? var.cos.offers.dashboard : one(module.cos[*].dashboards_offer)
-  logging_offer    = var.cos.deployed == "external" ? var.cos.offers.logging : one(module.cos[*].logging_offer)
-  metrics_offer    = var.cos.deployed == "external" ? var.cos.offers.metrics : one(module.cos[*].metrics_offer)
+  dashboards_offer = var.cos.deployed == "external" ? var.cos.offers.dashboard : one(module.external_cos[*].dashboards_offer)
+  logging_offer    = var.cos.deployed == "external" ? var.cos.offers.logging : one(module.external_cos[*].logging_offer)
+  metrics_offer    = var.cos.deployed == "external" ? var.cos.offers.metrics : one(module.external_cos[*].metrics_offer)
   spark_model      = var.model
   spark_charms     = module.spark.charms
 }
