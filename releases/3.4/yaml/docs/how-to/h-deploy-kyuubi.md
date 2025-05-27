@@ -1,10 +1,13 @@
 # Deploy Apache Kyuubi
 
 Charmed Apache Spark can work with [Apache Kyuubi](https://kyuubi.apache.org/), which is a distributed and multi-tenant gateway to provide serverless SQL on lakehouses.
+The following guide is to set up Apache Kyuubi for running SQL queries with Charmed Apache Spark.
 
 ## Prerequisites
 
-Follow the [Tutorial](/t/13233) to setup the microk8s environment for running Charmed Apache Spark.
+To continue, make sure that you have a properly set up K8s environment with [Juju](https://documentation.ubuntu.com/juju/3.6/).
+
+See the [How to setup K8s environment](/t/11618) guide for instructions on how to set up with different cloud providers or follow our the [Environment setup](/t/13233) page in our Tutorial to set up a microk8s environment.
 
 Check that the environment is ready by running a built-in SQL client from `spark-client`:
 
@@ -115,7 +118,7 @@ juju run kyuubi-k8s/leader get-jdbc-endpoint
 juju run kyuubi-k8s/leader get-password
 ```
 
-Finally, use the external endpoint address and database password to connect with your JDBC-compliant tool of choice.
+Finally, use the external endpoint address and database password to connect with your JDBC-compliant tool of choice:
 
 ```bash
 beeline -u <ENDPOINT> -n admin -p <PASSWORD>
