@@ -1,21 +1,25 @@
-# Charmed Apache Spark Solution Tutorial
+# 0. Charmed Apache Spark Solution Tutorial
 
-The Charmed Apache Spark solution delivers Apache Spark utility client applications, that allow for simple and seamless usage of Apache Spark on Kubernetes.
+Charmed Apache Spark provides utility client applications and additional components for seamless deployment on Kubernetes. For a detailed overview of its components, see the [Components overview](/t/11685) page.
 
-This tutorial takes you through the journey of setting up necessary environment to run Charmed Apache Spark and teaches you how to run Spark jobs using both interactive shell and batch jobs. You'll also learn how to use Charmed Apache Spark with streaming workloads and how to enable monitoring of the Apache Spark cluster.
+## Prerequisites
 
-This tutorial can be divided into the following sections:
+While this tutorial intends to guide you as you deploy Charmed Apache Spark for the first time, it will be most beneficial if you have:
 
-* [Setting up environment for the tutorial](/t/13233)
-* [Interacting with Apache Spark using interactive shells](/t/13232)
-* [Submitting Jobs with Spark Submit](/t/13231)
-* [Streaming workload with Charmed Apache Spark](/t/13230)
-* [Monitoring the Apache Spark cluster](/t/13225)
-* [Wrapping Up](/t/13224)
+* Experience using a Linux-based CLI
+* General familiarity with Kubernetes commands and concepts (e.g. `kubectl` command)
+* Familiarity with Apache Spark commands and concepts
+* A computer that meets the Minimum system requirements from the [Environment setup]() page
 
-While this tutorial intends to guide and teach you along the way, it will be most beneficial if you already have a familiarity with:
+## Step-by-step learning experience
 
-* Basic terminal commands.
-* General familiarity with Kubernetes commands and concepts (e.g. `kubectl` general usage)
+This tutorial is divided into multiple steps, which we recommend following in the specified order:
 
-Let's proceed to set up the environment needed for this tutorial in the [next section](/t/13233).
+| Step | Description |
+| ------- | ---------- |
+| 1. [Environment setup](/t/13233) | Prepare your tutorial environment using a Multipass VM and deploy Apache Spark with the `spark-client` snap.|
+| 2. [Distributed data processing](/t/13232) | Explore how to process large datasets efficiently across multiple nodes.|
+| 3. [Data stream processing](/t/13230) | Learn how to handle real-time data streams.|
+| 4. [History server](/t/17354) | Integrate with Apache Spark History Server.|
+| 5. [Monitoring with COS](/t/13225) | Set up monitoring and alerting using Canonical's Observability Stack (COS).|
+| 6. [Wrapping up](/t/13224) | Finish the tutorial by decommissioning your Charmed Apache Spark environment to free up system resources.|
