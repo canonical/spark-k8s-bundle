@@ -10,9 +10,6 @@ terraform {
   }
 }
 
-provider "juju" {}
-
-
 resource "juju_model" "spark" {
   count      = var.create_model == true ? 1 : 0
   name       = var.model
@@ -23,8 +20,8 @@ resource "juju_model" "spark" {
 }
 
 resource "juju_model" "cos" {
-  count      = (var.create_model == true && var.cos_model != null) ? 1 : 0
-  name       = var.cos_model
+  count      = var.cos.deployed == "bundled" && var.create_model == true ? 1 : 0
+  name       = var.cos.model
   credential = var.K8S_CREDENTIAL
   cloud {
     name = var.K8S_CLOUD
@@ -71,20 +68,24 @@ module "s3" {
   s3           = var.s3
 }
 
-module "cos" {
+module "external_cos" {
   depends_on = [juju_model.cos]
-  count      = var.cos_model == null ? 0 : 1
+  count      = var.cos.deployed == "bundled" ? 1 : 0
   source     = "./external/cos"
-  model      = var.cos_model
+  model      = var.cos.model
+  cos_tls_ca = var.cos.tls.ca
+  cos_tls_cert = var.cos.tls.cert
+  cos_tls_key = var.cos.tls.key
 }
 
+
 module "observability" {
-  depends_on       = [module.spark, module.cos]
-  count            = var.cos_model == null ? 0 : 1
+  depends_on       = [module.spark, module.external_cos]
+  count            = var.cos.deployed == "no" ? 0 : 1
   source           = "./modules/observability"
-  dashboards_offer = one(module.cos[*].dashboards_offer)
-  metrics_offer    = one(module.cos[*].metrics_offer)
-  logging_offer    = one(module.cos[*].logging_offer)
+  dashboards_offer = var.cos.deployed == "external" ? var.cos.offers.dashboard : one(module.external_cos[*].dashboards_offer)
+  logging_offer    = var.cos.deployed == "external" ? var.cos.offers.logging : one(module.external_cos[*].logging_offer)
+  metrics_offer    = var.cos.deployed == "external" ? var.cos.offers.metrics : one(module.external_cos[*].metrics_offer)
   spark_model      = var.model
   spark_charms     = module.spark.charms
 }
