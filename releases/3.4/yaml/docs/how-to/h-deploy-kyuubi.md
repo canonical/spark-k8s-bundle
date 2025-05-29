@@ -5,23 +5,9 @@ The following guide is to set up Apache Kyuubi for running SQL queries with Char
 
 ## Prerequisites
 
-To continue, make sure that you have a properly set up K8s environment with [Juju](https://documentation.ubuntu.com/juju/3.6/).
+To continue, make sure that you have a properly set up Charmed Apache Spark K8s environment with [Juju](https://documentation.ubuntu.com/juju/3.6/).
 
 See the [How to setup K8s environment](/t/11618) guide for instructions on how to set up with different cloud providers or follow our the [Environment setup](/t/13233) page in our Tutorial to set up a microk8s environment.
-
-Check that the environment is ready by running a built-in SQL client from `spark-client`:
-
-```bash
-spark-client.spark-sql --username spark --namespace spark
-```
-
-Wait for the command to finish initialising and you should see a prompt for SQL queries by `spark-client`:
-
-```bash
-spark-sql (default)> 
-```
-
-Exit the prompt by pushing `Ctrl + C` and continue to the Kyuubi initial setup below.
 
 ## Initial setup
 
