@@ -73,7 +73,7 @@ To set up an object storage backend, deploy S3 integrator:
 juju deploy s3-integrator
 ```
 
-After the integrator is deployed, you need to configure it to use your object storage by setting up endpoint address, bucket, path to folder, and credentials:
+After the S3 integrator is deployed, you need to configure it to use your S3 object storage by setting up endpoint address, bucket, path to folder, and credentials:
 
 ```text
 juju config s3-integrator endpoint=<ADDRESS> bucket=<BUCKET-NAME> path=<FOLDER-NAME>
