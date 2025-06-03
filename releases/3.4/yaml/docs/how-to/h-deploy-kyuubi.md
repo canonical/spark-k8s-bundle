@@ -146,4 +146,12 @@ Beeline version 1.10.1 by Apache Kyuubi
 0: jdbc:hive2://10.41.189.148:10009/> 
 ```
 
-You can run your SQL commands now, for example: `show databases;`.
+You can run your SQL commands now, for example:
+
+```sql
+create database abc;
+use abc;
+create table users (id int);
+insert into users values (1);
+select * from users;
+```
