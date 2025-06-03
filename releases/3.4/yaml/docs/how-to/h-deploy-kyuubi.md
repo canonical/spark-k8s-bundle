@@ -124,8 +124,8 @@ For the Apache Kyuubi to work with Charmed Apache Spark, it needs a `postgresql-
 Deploy and integrate the database charm:
 
 ```bash
-juju deploy postgresql-k8s --channel=14/stable --trust
-juju integrate kyuubi-k8s:auth-db postgresql-k8s
+juju deploy postgresql-k8s --channel=14/stable --trust kyuubi-users
+juju integrate kyuubi-k8s:auth-db kyuubi-users
 ```
 
 Wait for all statuses to become `active`.
@@ -193,4 +193,36 @@ use abc;
 create table users (id int);
 insert into users values (1);
 select * from users;
+```
+
+## Metastore
+
+To make Apache Kyuubi units stateless, we need to set up external storage for metadata, or metastore.
+
+Deploy a `postgresql-k8s` charm for the metastore app:
+
+```bash
+juju deploy postgresql-k8s --trust --channel=14/stable metastore
+```
+
+Now integrate Kyuubi app with the metastore:
+
+```bash
+juju integrate kyuubi-k8s:metastore-db metastore
+```
+
+## High availability
+
+For high availability, add more units for the Kyuubi app:
+
+```bash
+juju scale-application kyuubi-k8s 3
+```
+
+Now the application is blocked, as it requires ZooKeeper to work in a multi-node mode.
+Deploy and relate the ZooKeeper charm:
+
+```bash
+juju deploy zookeeper-k8s --channel=3/edge --trust -n 1
+juju relate kyuubi-k8s zookeeper-k8s
 ```
