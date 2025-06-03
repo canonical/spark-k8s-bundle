@@ -9,13 +9,15 @@ To continue, make sure that you have a properly set up Charmed Apache Spark K8s 
 
 See the [How to setup K8s environment](/t/11618) guide for instructions on how to set up with different cloud providers or follow our the [Environment setup](/t/13233) page in our Tutorial to set up a microk8s environment.
 
-## Initial setup
-
-Check the list of models available:
+To check that environment is ready, run:
 
 ```bash
-juju models
+spark-client.service-account-registry get-config --username spark --namespace spark 
 ```
+
+The resulted output should contain configuration options for the `spark` service account.
+
+## Initial setup
 
 Add a new Juju model:
 
