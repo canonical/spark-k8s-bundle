@@ -1,0 +1,277 @@
+import json
+import logging
+import socket
+import subprocess
+import time
+from typing import cast
+
+import boto3
+import botocore
+import jubilant
+import psycopg2
+import pytest
+
+from spark_test.core.kyuubi import KyuubiClient
+
+
+from .helpers import (
+    get_active_kyuubi_servers_list,
+    get_cos_address,
+    get_kyuubi_credentials,
+    get_kyuubi_ca_cert,
+    get_postgresql_credentials,
+    published_grafana_dashboards,
+    published_loki_logs,
+    published_prometheus_alerts,
+    published_prometheus_data,
+)
+from tests.integration.types import PortForwarder
+
+
+logger = logging.getLogger(__name__)
+
+
+METASTORE_BACKUP_BUCKET = "metastore-backup"
+TEST_DB_NAME = "sparkdb"
+TEST_TABLE_NAME = "sparktable"
+METASTORE_DATABASE_NAME = "hivemetastore"
+METASTORE_APP_NAME = "metastore"
+BACKUP_S3_INTEGRATOR_APP_NAME = "metastore-backup"
+
+
+@pytest.fixture(scope="session")
+def microceph_credentials():
+    """Install, bootstrap and configure Microceph and return credentials."""
+
+    logger.info("Setting up TLS certificates")
+    subprocess.run(["openssl", "genrsa", "-out", "./ca.key", "2048"], check=True)
+    subprocess.run(
+        [
+            "openssl",
+            "req",
+            "-x509",
+            "-new",
+            "-nodes",
+            "-key",
+            "./ca.key",
+            "-days",
+            "1024",
+            "-out",
+            "./ca.crt",
+            "-outform",
+            "PEM",
+            "-subj",
+            "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com",
+        ],
+        check=True,
+    )
+    subprocess.run(["openssl", "genrsa", "-out", "./server.key", "2048"], check=True)
+    subprocess.run(
+        [
+            "openssl",
+            "req",
+            "-new",
+            "-key",
+            "./server.key",
+            "-out",
+            "./server.csr",
+            "-subj",
+            "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com",
+        ],
+        check=True,
+    )
+    host_ip = socket.gethostbyname(socket.gethostname())
+    subprocess.run(
+        f'echo "subjectAltName = IP:{host_ip}" > ./extfile.cnf',
+        shell=True,
+        check=True,
+    )
+    subprocess.run(
+        [
+            "openssl",
+            "x509",
+            "-req",
+            "-in",
+            "./server.csr",
+            "-CA",
+            "./ca.crt",
+            "-CAkey",
+            "./ca.key",
+            "-CAcreateserial",
+            "-out",
+            "./server.crt",
+            "-days",
+            "365",
+            "-extfile",
+            "./extfile.cnf",
+        ]
+    )
+
+    output = subprocess.run(
+        [
+            "sudo",
+            "microceph.radosgw-admin",
+            "user",
+            "create",
+            "--uid",
+            "test",
+            "--display-name",
+            "test",
+        ],
+        capture_output=True,
+        check=True,
+        encoding="utf-8",
+    ).stdout
+    key = json.loads(output)["keys"][0]
+    key_id = key["access_key"]
+    secret_key = key["secret_key"]
+    logger.info("Creating microceph bucket")
+    for attempt in range(3):
+        try:
+            boto3.client(
+                "s3",
+                endpoint_url=f"https://{host_ip}",
+                aws_access_key_id=key_id,
+                aws_secret_access_key=secret_key,
+                verify="./ca.crt",
+            ).create_bucket(Bucket=METASTORE_BACKUP_BUCKET)
+        except botocore.exceptions.EndpointConnectionError:
+            if attempt == 2:
+                raise
+            # microceph is not ready yet
+            logger.info("Unable to connect to microceph via S3. Retrying")
+            time.sleep(1)
+        else:
+            break
+    logger.info("Microceph was setup successfully...")
+
+    ca_crt_b64 = subprocess.run(
+        "sudo base64 -w0 ./ca.crt",
+        shell=True,
+        check=True,
+        stdout=subprocess.PIPE,
+        text=True,
+    ).stdout
+
+    return {
+        "endpoint": f"https://{host_ip}",
+        "access-key": key_id,
+        "secret-key": secret_key,
+        "tls-ca": ca_crt_b64,
+    }
+
+
+def test_deploy_bundle(spark_bundle) -> None:
+    """Test that the bundle deploys fine with charms in active state."""
+    pass
+
+
+def test_active_status(juju: jubilant.Juju) -> None:
+    """Test whether the bundle has deployed successfully."""
+    juju.wait(jubilant.all_active, delay=5)
+
+
+def test_database_operations(juju: jubilant.Juju) -> None:
+    """Test some read / write operations on the database."""
+    credentials = get_kyuubi_credentials(juju, "kyuubi")
+    ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+    kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
+
+    db = kyuubi_client.get_database(TEST_DB_NAME)
+    assert TEST_DB_NAME in kyuubi_client.databases
+
+    table = db.create_table(
+        TEST_TABLE_NAME, [("name", str), ("country", str), ("year_birth", int)]
+    )
+    assert TEST_TABLE_NAME in db.tables
+
+    table.insert(
+        ("messi", "argentina", 1987), ("sinner", "italy", 2002), ("jordan", "usa", 1963)
+    )
+    assert len(list(table.rows())) == 3
+
+
+def test_postgresql_metastore_is_used(
+    juju: jubilant.Juju, port_forward: PortForwarder
+) -> None:
+    "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
+    metastore_credentials = get_postgresql_credentials(juju, METASTORE_APP_NAME)
+
+    with port_forward(
+        pod=f"{METASTORE_APP_NAME}-0", port=5432, namespace=cast(str, juju.model)
+    ):
+        connection = psycopg2.connect(
+            host="127.0.0.1",
+            database=METASTORE_DATABASE_NAME,
+            user=metastore_credentials["username"],
+            password=metastore_credentials["password"],
+        )
+
+        # Fetch number of new db and tables that have been added to metastore
+        num_dbs = num_tables = 0
+        with connection.cursor() as cursor:
+            cursor.execute(f""" SELECT * FROM "DBS" WHERE "NAME" = '{TEST_DB_NAME}' """)
+            num_dbs = cursor.rowcount
+            cursor.execute(
+                f""" SELECT * FROM "TBLS" WHERE "TBL_NAME" = '{TEST_TABLE_NAME}' """
+            )
+            num_tables = cursor.rowcount
+
+        connection.close()
+
+    # Assert that new database and tables have indeed been added to metastore
+    assert num_dbs == 1
+    assert num_tables == 1
+
+
+# Test there are files in S3?
+
+
+def deploy_backup_s3_integrator(juju: jubilant.Juju, microceph_credentials) -> None:
+    juju.deploy("s3-integrator", app=BACKUP_S3_INTEGRATOR_APP_NAME, channel="edge")
+    juju.wait(
+        lambda status: jubilant.all_blocked(status, BACKUP_S3_INTEGRATOR_APP_NAME)
+    )
+
+    s3_endpoint = microceph_credentials["endpoint"]
+    s3_access_key = microceph_credentials["access-key"]
+    s3_secret_key = microceph_credentials["secret-key"]
+    s3_tls_ca = microceph_credentials["tls-ca"]
+
+    juju.config(
+        BACKUP_S3_INTEGRATOR_APP_NAME,
+        {
+            "endpoint": s3_endpoint,
+            "bucket": METASTORE_BACKUP_BUCKET,
+            "region": "",
+            "tls-ca-chain": s3_tls_ca,
+        },
+    )
+    juju.run(
+        f"{BACKUP_S3_INTEGRATOR_APP_NAME}/0",
+        "sync-s3-credentials",
+        {"access-key": s3_access_key, "secret-key": s3_secret_key},
+    )
+
+    juju.wait(
+        lambda status: jubilant.all_active(
+            status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
+        )
+    )
+
+
+def create_metastore_backup(juju: jubilant.Juju) -> None:
+    juju.integrate(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
+    juju.wait(
+        lambda status: jubilant.all_active(
+            status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
+        )
+    )
+
+    task = juju.run(METASTORE_APP_NAME, "create-backup")
+    assert task.return_code == 0
+
+    task = juju.run(METASTORE_APP_NAME, "list-backups")
+    assert task.return_code == 0
+    results = task.results
+    logger.info(f"List of backups: {results}")
