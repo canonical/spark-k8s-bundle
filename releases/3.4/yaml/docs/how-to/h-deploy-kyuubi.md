@@ -55,13 +55,22 @@ You should see the `blocked` status with the `Missing Object Storage backend` me
 
 ## Object storage setup
 
-To set up an object storage backend, deploy S3 integrator:
+Kyuubi currently supports two mutually-exclusive backends for the object storage:
+
+* S3-compatible storage
+* Azure DataLake storage
+
+Please see the following sections for guidance on how to configure each.
+
+### S3
+
+For S3-compliant storage, deploy [S3 integrator](https://charmhub.io/s3-integrator):
 
 ```bash
 juju deploy s3-integrator
 ```
 
-After the S3 integrator is deployed, you need to configure it to use your S3 object storage by setting up endpoint address, bucket, path to folder, and credentials:
+Configure S3 integrator to use your S3 object storage by setting up endpoint address, bucket, path to folder, and credentials:
 
 ```text
 juju config s3-integrator endpoint=<ADDRESS> bucket=<BUCKET-NAME> path=<FOLDER-NAME>
@@ -74,6 +83,36 @@ Now it's time to integrate the `s3-integrator` charm:
 
 ```bash
 juju integrate s3-integrator spark-integration-hub-k8s
+```
+
+After that, `kyuubi-k8s` app becomes blocked with the `Missing authentication database relation` message.
+
+### Azure DataLake
+
+For Azure DataLake storage, deploy [Azure storage integrator](https://charmhub.io/azure-storage-integrator):
+
+```bash
+juju deploy azure-storage-integrator
+```
+
+Create a Juju secret with storage's secret key and grant access to the charm:
+
+```text
+juju add-secret azure-storage-secret secret-key=XXXXXXX
+juju grant-secret azure-storage-secret azure-storage-integrator
+```
+
+Configure the charm to use the newly added secret (secret id is displayed in the `add-secret` command's output) to access your Azure DataLake storage account and container:
+
+```text
+juju config azure-storage-integrator credentials=<secret-id>
+juju config azure-storage-integrator storage-account=XXXX container=XXXX
+```
+
+And finally integrate it with the integration hub:
+
+```bash
+juju integrate spark-integration-hub-k8s azure-storage-integrator
 ```
 
 After that, `kyuubi-k8s` app becomes blocked with the `Missing authentication database relation` message.
