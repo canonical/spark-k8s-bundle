@@ -95,7 +95,7 @@ For Azure DataLake storage, deploy [Azure storage integrator](https://charmhub.i
 juju deploy azure-storage-integrator
 ```
 
-Create a Juju secret with storage's secret key and grant access to the charm:
+Create a Juju secret containing the Azure Storage account secret key, and grant the charm access to this secret.
 
 ```text
 juju add-secret azure-storage-secret secret-key=XXXXXXX
@@ -121,7 +121,7 @@ After that, `kyuubi-k8s` app becomes blocked with the `Missing authentication da
 
 For the Apache Kyuubi to work with Charmed Apache Spark, it needs a `postgresql-k8s` charm deployed and serve as its authentication database.
 
-Deploy and integrate the database charm:
+Deploy and integrate the `postgresql-k8s` charm:
 
 ```bash
 juju deploy postgresql-k8s --channel=14/stable --trust kyuubi-users
@@ -138,7 +138,7 @@ Expose the `kyuubi-k8s` app for external connection:
 juju config kyuubi-k8s expose-external=loadbalancer
 ```
 
-Get database connection details:
+Get Kyuubi connection details:
 
 ```bash
 juju run kyuubi-k8s/leader get-jdbc-endpoint
@@ -164,8 +164,7 @@ Wait for the new app to become `blocked`, but don't integrate it to anything.
 Instead, open its SSH terminal, enter bash, and run the beeline tool from inside:
 
 ```bash
-juju ssh --container=kyuubi beeline/0
-bash
+juju ssh --container=kyuubi beeline/0 bash
 /opt/kyuubi/bin/beeline -u jdbc:hive2://10.41.189.148:10009/ -n admin -p 06yJY5OkhcxVhQ0C
 ```
 
@@ -199,7 +198,7 @@ select * from users;
 
 To make Apache Kyuubi units stateless, we need to set up external storage for metadata, or metastore.
 
-Deploy a `postgresql-k8s` charm for the metastore app:
+Deploy a new instance of `postgresql-k8s` charm for the metastore:
 
 ```bash
 juju deploy postgresql-k8s --trust --channel=14/stable metastore
