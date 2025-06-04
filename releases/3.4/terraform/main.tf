@@ -36,7 +36,7 @@ module "ssc" {
   source      = "git::https://github.com/canonical/self-signed-certificates-operator//terraform"
   model       = var.model
   app_name    = "certificates"
-  channel     = "latest/edge"
+  channel     = "latest/stable"
   revision    = 163
   constraints = "arch=amd64"
   base        = "ubuntu@22.04"

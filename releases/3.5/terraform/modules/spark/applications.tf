@@ -112,7 +112,7 @@ resource "juju_application" "zookeeper" {
 
   charm {
     name     = "zookeeper-k8s"
-    channel  = "3/edge"
+    channel  = "3/stable"
     revision = 75
   }
 
