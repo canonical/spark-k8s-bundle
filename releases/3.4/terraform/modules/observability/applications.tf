@@ -7,7 +7,7 @@ resource "juju_application" "agent" {
   charm {
     name     = "grafana-agent-k8s"
     channel  = "1/stable"
-    revision = 104
+    revision = var.grafana_agent_revision
   }
   units       = 1
   trust       = true
@@ -20,6 +20,7 @@ resource "juju_application" "cos_configuration" {
   charm {
     name    = "cos-configuration-k8s"
     channel = "1/stable"
+    revision = var.cos_configuration_revision
   }
   config = {
     git_branch              = "main"
@@ -37,6 +38,7 @@ resource "juju_application" "pushgateway" {
   charm {
     name    = "prometheus-pushgateway-k8s"
     channel = "1/stable"
+    revision = var.prometheus_pushgateway_revision
   }
   units       = 1
   constraints = "arch=amd64"
@@ -51,7 +53,7 @@ resource "juju_application" "scrape_config" {
   charm {
     name     = "prometheus-scrape-config-k8s"
     channel  = "1/stable"
-    revision = 64
+    revision = var.prometheus_scrape_config_revision
   }
   config = {
     scrape_interval = "10s"

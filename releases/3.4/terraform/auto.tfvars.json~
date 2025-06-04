@@ -1,0 +1,14 @@
+{
+    "cos": {
+	"deployed": "external",
+	"offers": {
+	    "dashboard": null,
+	    "metrics": "",
+	    "logging": ""
+	}
+    },
+    "s3": {
+	"bucket": "spark-test",
+	"endpoint": "http://10.152.183.249:80"
+    }
+}
