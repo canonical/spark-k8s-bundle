@@ -43,3 +43,39 @@ variable "logging_offer" {
   type        = string
   nullable    = false
 }
+
+variable grafana_agent_revision {
+  description = "Charm revision for grafana-agent-k8s"
+  type        = number
+  nullable    = false
+}
+
+# variable grafana_agent_image {
+#   description = "Image for grafana-agent-k8s"
+#   type        = string
+#   nullable    = false
+# }
+
+variable cos_configuration_revision {
+  description = "Charm revision for cos-configuration-k8s"
+  type        = number
+  nullable    = false
+}
+
+variable prometheus_pushgateway_revision {
+  description = "Charm revision for prometheus-pushgateway-k8s"
+  type        = number
+  nullable    = false
+}
+
+# variable pushgateway_image {
+#   description = "Image for prometheus-pushgateway-k8s"
+#   type        = string
+#   nullable    = false
+# }
+
+variable prometheus_scrape_config_revision {
+  description = "Charm revision for prometheus-scrape-config-k8s"
+  type        = number
+  nullable    = false
+}

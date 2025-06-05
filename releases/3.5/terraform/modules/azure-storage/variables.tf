@@ -23,3 +23,9 @@ variable "spark_charms" {
   description = "Names of the Spark applications in the Spark Juju model."
   type        = map(string)
 }
+
+variable azure_storage_integrator_revision {
+  description = "Charm revision for azure-storage-integrator"
+  type        = number
+  nullable    = false
+}
