@@ -197,7 +197,7 @@ variable "azure_storage_integrator_revision" {
   default     = null
 }
 
-variable grafana_agent_revision {
+variable "grafana_agent_revision" {
   description = "Charm revision for grafana-agent-k8s"
   type        = number
   default     = null
@@ -209,13 +209,13 @@ variable grafana_agent_revision {
 #   default     = null
 # }
 
-variable cos_configuration_revision {
+variable "cos_configuration_revision" {
   description = "Charm revision for cos-configuration-k8s"
   type        = number
   default     = null
 }
 
-variable prometheus_pushgateway_revision {
+variable "prometheus_pushgateway_revision" {
   description = "Charm revision for prometheus-pushgateway-k8s"
   type        = number
   default     = null
@@ -227,7 +227,7 @@ variable prometheus_pushgateway_revision {
 #   default     = null
 # }
 
-variable prometheus_scrape_config_revision {
+variable "prometheus_scrape_config_revision" {
   description = "Charm revision for prometheus-scrape-config-k8s"
   type        = number
   default     = null
