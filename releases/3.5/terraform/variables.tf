@@ -30,29 +30,40 @@ variable "create_model" {
   nullable    = false
 }
 
-variable "cos_model" {
-  description = "The name of the model where cos is deployed. If null, don't deploy cos related charms."
-  type        = string
-  nullable    = true
-  default     = null
-}
-
 # cos specifics
 
-variable "COS_TLS_CERT" {
-  type        = string
-  default     = ""
-  description = "COS certificate"
-}
-variable "COS_TLS_KEY" {
-  type        = string
-  default     = ""
-  description = "COS certificate key"
-}
-variable "COS_TLS_CA" {
-  type        = string
-  default     = ""
-  description = "COS CA certificate"
+variable "cos" {
+  description = "Observability settings"
+  type = object({
+    model    = optional(string, "cos")
+    deployed = optional(string, "bundled")
+    offers = optional(object({
+      dashboard = optional(string, null),
+      metrics   = optional(string, null),
+      logging   = optional(string, null)
+    }), {}),
+    tls = optional(object({
+      cert = optional(string, "")
+      key  = optional(string, "")
+      ca   = optional(string, "")
+    }), {})
+  })
+  default = { model = "cos", deployed = "bundled", offers = {}, tls = {} }
+
+  validation {
+    condition     = contains(["external", "bundled", "no"], var.cos.deployed)
+    error_message = "Valid values for var: cos.deployed are (external, bundled, no)"
+  }
+
+  validation {
+    condition = var.cos.deployed != "external" || alltrue([
+      var.cos.offers.dashboard != null,
+      var.cos.offers.metrics != null,
+      var.cos.offers.logging != null,
+    ])
+    error_message = "When using external cos, please define all offers variables"
+  }
+
 }
 
 # Storage
@@ -101,3 +112,124 @@ variable "zookeeper_units" {
   default     = 3
   nullable    = false
 }
+
+variable "spark_history_server_revision" {
+  description = "Charm revision for spark-history-server-k8s"
+  type        = number
+  default     = null
+}
+
+variable "spark_history_server_image" {
+  description = "Image for spark-history-server-k8s"
+  type        = map(string)
+  default     = null
+}
+
+variable "spark_integration_hub_revision" {
+  description = "Charm revision for spark-integration-hub-k8s"
+  type        = number
+  default     = null
+}
+
+variable "spark_integration_hub_image" {
+  description = "Image for spark-integration-hub-k8s"
+  type        = map(string)
+  default     = null
+}
+
+variable "kyuubi_revision" {
+  description = "Charm revision for kyuubi-k8s"
+  type        = number
+  default     = null
+}
+
+variable "kyuubi_image" {
+  description = "Image for kyuubi-k8s"
+  type        = map(string)
+  default     = null
+}
+
+variable "kyuubi_users_revision" {
+  description = "Charm revision for postgresql-k8s (auth-db)"
+  type        = number
+  default     = null
+}
+
+variable "kyuubi_users_image" {
+  description = "Image for postgresql-k8s (auth-db)"
+  type        = map(string)
+  default     = null
+}
+
+variable "metastore_revision" {
+  description = "Charm revision for postgresql-k8s (metastore)"
+  type        = number
+  default     = null
+}
+
+variable "metastore_image" {
+  description = "Image for postgresql-k8s (metastore)"
+  type        = map(string)
+  default     = null
+}
+
+variable "zookeeper_revision" {
+  description = "Charm revision for zookeeper-k8s"
+  type        = number
+  default     = null
+}
+
+variable "zookeeper_image" {
+  description = "Image for zookeeper-k8s"
+  type        = map(string)
+  default     = null
+}
+
+variable "s3_integrator_revision" {
+  description = "Charm revision for s3-integrator"
+  type        = number
+  default     = null
+}
+
+variable "azure_storage_integrator_revision" {
+  description = "Charm revision for azure-storage-integrator"
+  type        = number
+  default     = null
+}
+
+variable "grafana_agent_revision" {
+  description = "Charm revision for grafana-agent-k8s"
+  type        = number
+  default     = null
+}
+
+# variable grafana_agent_image {
+#   description = "Image for grafana-agent-k8s"
+#   type        = string
+#   default     = null
+# }
+
+variable "cos_configuration_revision" {
+  description = "Charm revision for cos-configuration-k8s"
+  type        = number
+  default     = null
+}
+
+variable "prometheus_pushgateway_revision" {
+  description = "Charm revision for prometheus-pushgateway-k8s"
+  type        = number
+  default     = null
+}
+
+# variable pushgateway_image {
+#   description = "Image for prometheus-pushgateway-k8s"
+#   type        = string
+#   default     = null
+# }
+
+variable "prometheus_scrape_config_revision" {
+  description = "Charm revision for prometheus-scrape-config-k8s"
+  type        = number
+  default     = null
+}
+

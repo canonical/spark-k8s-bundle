@@ -70,4 +70,3 @@ resource "juju_integration" "kyuubi_tls" {
     endpoint = var.tls_certificates_endpoint
   }
 }
-
