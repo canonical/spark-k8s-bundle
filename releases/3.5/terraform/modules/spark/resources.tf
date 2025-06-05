@@ -6,4 +6,3 @@
 data "juju_model" "spark" {
   name = var.model
 }
-
