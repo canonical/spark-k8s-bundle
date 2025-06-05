@@ -457,7 +457,7 @@ def spark_bundle_with_s3(juju: jubilant.Juju, credentials, bucket, bundle, cos):
             logger.info("Waiting for COS deployment to settle down")
             cos_model.wait(
                 lambda status: jubilant.all_agents_idle(status, *COS_APPS),
-                timeout=3600,
+                timeout=1800,
                 delay=10,
             )
 
@@ -466,7 +466,7 @@ def spark_bundle_with_s3(juju: jubilant.Juju, credentials, bucket, bundle, cos):
         lambda status: jubilant.all_active(
             status, *list(set(applications) - set(COS_APPS))
         ),
-        timeout=3600,
+        timeout=1800,
         delay=10,
     )
     return applications
@@ -510,7 +510,7 @@ def spark_bundle_with_azure_storage(
             logger.info("Waiting for COS deployment to settle down")
             cos_model.wait(
                 lambda status: jubilant.all_active(status, *COS_APPS),
-                timeout=3600,
+                timeout=1800,
                 delay=10,
             )
 
@@ -519,7 +519,7 @@ def spark_bundle_with_azure_storage(
         lambda status: jubilant.all_active(
             status, *list(set(applications) - set(COS_APPS))
         ),
-        timeout=3600,
+        timeout=1800,
         delay=10,
     )
 
