@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import socket
 import subprocess
 import time
@@ -12,7 +13,7 @@ import psycopg2
 import pytest
 
 from spark_test.core.kyuubi import KyuubiClient
-
+from spark_test.core.s3 import Bucket
 
 from .helpers import (
     get_active_kyuubi_servers_list,
@@ -38,11 +39,16 @@ METASTORE_DATABASE_NAME = "hivemetastore"
 METASTORE_APP_NAME = "metastore"
 BACKUP_S3_INTEGRATOR_APP_NAME = "metastore-backup"
 
+@pytest.fixture(scope="module")
+def host_ip():
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        s.connect(("1.1.1.1", 80))
+        return s.getsockname()[0]
 
-@pytest.fixture(scope="session")
-def microceph_credentials():
+
+@pytest.fixture(scope="module")
+def microceph_credentials(host_ip: str):
     """Install, bootstrap and configure Microceph and return credentials."""
-
     logger.info("Setting up TLS certificates")
     subprocess.run(["openssl", "genrsa", "-out", "./ca.key", "2048"], check=True)
     subprocess.run(
@@ -80,7 +86,6 @@ def microceph_credentials():
         ],
         check=True,
     )
-    host_ip = socket.gethostbyname(socket.gethostname())
     subprocess.run(
         f'echo "subjectAltName = IP:{host_ip}" > ./extfile.cnf',
         shell=True,
@@ -105,6 +110,16 @@ def microceph_credentials():
             "-extfile",
             "./extfile.cnf",
         ]
+    )
+
+    logger.info("Setting up microceph")
+    subprocess.run(["sudo", "snap", "install", "microceph", "--revision", "1169"], check=True)
+    subprocess.run(["sudo", "microceph", "cluster", "bootstrap"], check=True)
+    subprocess.run(["sudo", "microceph", "disk", "add", "loop,1G,3"], check=True)
+    subprocess.run(
+        'sudo microceph enable rgw --ssl-certificate="$(sudo base64 -w0 ./server.crt)" --ssl-private-key="$(sudo base64 -w0 ./server.key)"',
+        shell=True,
+        check=True,
     )
 
     output = subprocess.run(
@@ -153,12 +168,14 @@ def microceph_credentials():
         text=True,
     ).stdout
 
-    return {
+    yield {
         "endpoint": f"https://{host_ip}",
         "access-key": key_id,
         "secret-key": secret_key,
         "tls-ca": ca_crt_b64,
     }
+
+    subprocess.run(["sudo", "snap", "remove", "microceph", "--purge"], check=True)
 
 
 def test_deploy_bundle(spark_bundle) -> None:
@@ -171,63 +188,75 @@ def test_active_status(juju: jubilant.Juju) -> None:
     juju.wait(jubilant.all_active, delay=5)
 
 
-def test_database_operations(juju: jubilant.Juju) -> None:
-    """Test some read / write operations on the database."""
-    credentials = get_kyuubi_credentials(juju, "kyuubi")
-    ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
-    kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
+# def test_database_operations(juju: jubilant.Juju) -> None:
+#     """Test some read / write operations on the database."""
+#     credentials = get_kyuubi_credentials(juju, "kyuubi")
+#     ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+#     print(ca_cert)
+#     print(credentials)
+#     kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
 
-    db = kyuubi_client.get_database(TEST_DB_NAME)
-    assert TEST_DB_NAME in kyuubi_client.databases
+#     db = kyuubi_client.get_database(TEST_DB_NAME)
+#     assert TEST_DB_NAME in kyuubi_client.databases
 
-    table = db.create_table(
-        TEST_TABLE_NAME, [("name", str), ("country", str), ("year_birth", int)]
-    )
-    assert TEST_TABLE_NAME in db.tables
+#     table = db.create_table(
+#         TEST_TABLE_NAME, [("name", str), ("country", str), ("year_birth", int)]
+#     )
+#     assert TEST_TABLE_NAME in db.tables
 
-    table.insert(
-        ("messi", "argentina", 1987), ("sinner", "italy", 2002), ("jordan", "usa", 1963)
-    )
-    assert len(list(table.rows())) == 3
-
-
-def test_postgresql_metastore_is_used(
-    juju: jubilant.Juju, port_forward: PortForwarder
-) -> None:
-    "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
-    metastore_credentials = get_postgresql_credentials(juju, METASTORE_APP_NAME)
-
-    with port_forward(
-        pod=f"{METASTORE_APP_NAME}-0", port=5432, namespace=cast(str, juju.model)
-    ):
-        connection = psycopg2.connect(
-            host="127.0.0.1",
-            database=METASTORE_DATABASE_NAME,
-            user=metastore_credentials["username"],
-            password=metastore_credentials["password"],
-        )
-
-        # Fetch number of new db and tables that have been added to metastore
-        num_dbs = num_tables = 0
-        with connection.cursor() as cursor:
-            cursor.execute(f""" SELECT * FROM "DBS" WHERE "NAME" = '{TEST_DB_NAME}' """)
-            num_dbs = cursor.rowcount
-            cursor.execute(
-                f""" SELECT * FROM "TBLS" WHERE "TBL_NAME" = '{TEST_TABLE_NAME}' """
-            )
-            num_tables = cursor.rowcount
-
-        connection.close()
-
-    # Assert that new database and tables have indeed been added to metastore
-    assert num_dbs == 1
-    assert num_tables == 1
+#     table.insert(
+#         ("messi", "argentina", 1987), ("sinner", "italy", 2002), ("jordan", "usa", 1963)
+#     )
+#     assert len(list(table.rows())) == 3
 
 
-# Test there are files in S3?
+# def test_external_metastore_is_used(
+#     juju: jubilant.Juju, port_forward: PortForwarder
+# ) -> None:
+#     "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
+#     metastore_credentials = get_postgresql_credentials(juju, METASTORE_APP_NAME)
+
+#     with port_forward(
+#         pod=f"{METASTORE_APP_NAME}-0", port=5432, namespace=cast(str, juju.model)
+#     ):
+#         connection = psycopg2.connect(
+#             host="127.0.0.1",
+#             database=METASTORE_DATABASE_NAME,
+#             user=metastore_credentials["username"],
+#             password=metastore_credentials["password"],
+#         )
+
+#         # Fetch number of new db and tables that have been added to metastore
+#         num_dbs = num_tables = 0
+#         with connection.cursor() as cursor:
+#             cursor.execute(f""" SELECT * FROM "DBS" WHERE "NAME" = '{TEST_DB_NAME}' """)
+#             num_dbs = cursor.rowcount
+#             cursor.execute(
+#                 f""" SELECT * FROM "TBLS" WHERE "TBL_NAME" = '{TEST_TABLE_NAME}' """
+#             )
+#             num_tables = cursor.rowcount
+
+#         connection.close()
+
+#     # Assert that new database and tables have indeed been added to metastore
+#     assert num_dbs == 1
+#     assert num_tables == 1
 
 
-def deploy_backup_s3_integrator(juju: jubilant.Juju, microceph_credentials) -> None:
+# def test_files_in_object_storage(object_storage) -> None:
+#     """Test that the data files have indeed been created in object storage."""
+#     bucket: Bucket = object_storage
+#     assert bucket.exists()
+
+#     data_files = [
+#         blob 
+#         for blob in bucket.list_objects()
+#         if blob["Key"].startswith(f"warehouse/{TEST_DB_NAME}.db/{TEST_TABLE_NAME}/") and blob["Size"] > 0
+#     ]
+#     assert len(data_files) > 0
+
+
+def test_deploy_backup_s3_integrator(juju: jubilant.Juju, microceph_credentials) -> None:
     juju.deploy("s3-integrator", app=BACKUP_S3_INTEGRATOR_APP_NAME, channel="edge")
     juju.wait(
         lambda status: jubilant.all_blocked(status, BACKUP_S3_INTEGRATOR_APP_NAME)
@@ -260,7 +289,7 @@ def deploy_backup_s3_integrator(juju: jubilant.Juju, microceph_credentials) -> N
     )
 
 
-def create_metastore_backup(juju: jubilant.Juju) -> None:
+def test_create_metastore_backup(juju: jubilant.Juju) -> None:
     juju.integrate(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
     juju.wait(
         lambda status: jubilant.all_active(

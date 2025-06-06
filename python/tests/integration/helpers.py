@@ -419,7 +419,7 @@ def deploy_bundle_terraform(
         "kyuubi_user": "kyuubi-test-user",
         "model": cast(str, juju.model),
         "storage_backend": storage_backend,
-        "create_model": False,
+        "create_model": True,
         "zookeeper_units": 1,
     } | ({"cos_model": cos} if cos else {})
 

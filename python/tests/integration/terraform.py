@@ -85,7 +85,7 @@ class Terraform(WithLogging):
             shutil.move(self.vars_file, bkp_file)
 
         with tempfile.NamedTemporaryFile(
-            mode="w", dir=self.path, suffix=".tfvars.json"
+            mode="w", dir=self.path, suffix=".tfvars.json", delete=False, delete_on_close=False
         ) as tmp_file:
             if new_vars:
                 json.dump(new_vars, tmp_file)
