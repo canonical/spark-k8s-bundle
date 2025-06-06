@@ -2,6 +2,7 @@
 # See LICENSE file for licensing details.
 from __future__ import annotations
 
+import ast
 import json
 import logging
 import os
@@ -418,7 +419,7 @@ def deploy_bundle_terraform(
         "kyuubi_user": "kyuubi-test-user",
         "model": cast(str, juju.model),
         "storage_backend": storage_backend,
-        "create_model": False,
+        "create_model": True,
         "zookeeper_units": 1,
     } | ({"cos_model": cos} if cos else {})
 
@@ -566,3 +567,19 @@ def assert_logs(loki_address: str) -> None:
     #       there will be no logs.
     logger.info(f"query: {query}")
     assert len(query["data"]["result"]) != 0, "no logs was found"
+
+
+def get_kyuubi_ca_cert(
+    juju: jubilant.Juju, certificates_app_name: str = "certificates"
+) -> str:
+    """Get the CA certificate used by Kyuubi"""
+    status = juju.status()
+    self_signed_certificate_unit = next(
+        iter(status.apps[certificates_app_name].units.keys())
+    )
+    task = juju.run(self_signed_certificate_unit, "get-issued-certificates")
+    assert task.return_code == 0
+    items = ast.literal_eval(task.results["certificates"])
+    certificates = json.loads(items[0])
+    ca_cert = certificates["ca"]
+    return ca_cert
