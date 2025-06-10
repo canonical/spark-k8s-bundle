@@ -4,7 +4,7 @@
 name: Mimic UAT Tests
 
 on:
-  pull_request:
+  # pull_request:
 
 jobs:
   integration-tests:

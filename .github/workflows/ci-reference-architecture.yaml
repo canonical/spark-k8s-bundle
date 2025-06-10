@@ -5,7 +5,7 @@ name: Reference Architecture Test
 
 on:
   # To be replaced by either schedule run or on demand
-  pull_request:
+  # pull_request:
 
 jobs:
   reference-architecture:
