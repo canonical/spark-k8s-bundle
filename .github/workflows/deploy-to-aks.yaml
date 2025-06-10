@@ -87,6 +87,9 @@ jobs:
           source get-vars.sh
           terraform apply -auto-approve
 
+          juju wait-for model cos --query='forEach(units, unit => unit.agent-status=="idle" && unit.workload-status=="active")' --timeout 30m0s
+          juju wait-for model spark --query='forEach(units, unit => unit.agent-status=="idle" && unit.workload-status=="active")' --timeout 30m0s
+
       - name: Get juju status
         run: juju status
         if: failure() || cancelled()
