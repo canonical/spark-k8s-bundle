@@ -31,8 +31,6 @@ class TerraformBackend(BundleBackend):
             mode="w+",
             dir=self.tempdir,
             suffix=".tfvars.json",
-            delete=False,
-            delete_on_close=False,
         ) as tfvars_file:
             tfvars_file = tfvars_file
             json.dump(vars, tfvars_file)
