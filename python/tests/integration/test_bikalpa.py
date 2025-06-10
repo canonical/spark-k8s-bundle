@@ -1,18 +1,19 @@
-from pathlib import Path
-import pytest
 import logging
-import jubilant
+
+import pytest
 
 logger = logging.getLogger(__name__)
 
 
-def test_terraform(spark_bundle):
-    applications = spark_bundle
-    logger.info(f"Deployed these applications: {applications}")
+@pytest.mark.usefixtures("spark_bundle")
+class TestPuranoDeployment:
+    def test_terraform(self, spark_bundle):
+        applications = spark_bundle
+        logger.info(f"Deployed these applications: {applications}")
 
 
-def test_after_destroy():
-    logger.info("The TF bundle has been destroyed")
-    import time
-
-    time.sleep(2 * 60)
+@pytest.mark.usefixtures("spark_bundle")
+class TestNewDeployment:
+    def test_terraform(self, spark_bundle):
+        applications = spark_bundle
+        logger.info(f"Deployed these applications: {applications}")

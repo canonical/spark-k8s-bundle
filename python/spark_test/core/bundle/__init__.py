@@ -1,16 +1,27 @@
-from abc import abstractmethod
+#!/usr/bin/env python3
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+"""The base classes for bundle backend."""
+
 import enum
-from pathlib import Path
 import subprocess
+from abc import abstractmethod
+from pathlib import Path
+
 from spark8t.utils import WithLogging
 
 
 class BundleBackendEnum(str, enum.Enum):
+    """The various backends to deploy the bundle."""
+
     YAML = "yaml"
     TERRAFORM = "terraform"
 
 
 class BundleBackend(WithLogging):
+    """The base class for bundle backend."""
+
     deployed_applications: list = []
 
     def __init__(self, backend: BundleBackendEnum, tempdir: str | Path) -> None:
@@ -18,6 +29,7 @@ class BundleBackend(WithLogging):
         self.tempdir = tempdir if isinstance(tempdir, Path) else Path(tempdir)
 
     def execute(self, *cmds: list[str]) -> list[str]:
+        """Execute the given commands within the temp directory."""
         try:
             result = subprocess.check_output(
                 *cmds, stderr=subprocess.PIPE, cwd=self.tempdir
@@ -35,8 +47,10 @@ class BundleBackend(WithLogging):
 
     @abstractmethod
     def apply(self, vars: dict[str, str] = None) -> None:
+        """Apply the bundle plan."""
         pass
 
     @abstractmethod
     def destroy(self) -> None:
+        """Destroy the bundle."""
         pass

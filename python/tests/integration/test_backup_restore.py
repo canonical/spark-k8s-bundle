@@ -1,34 +1,14 @@
 import json
 import logging
-import os
 import socket
 import subprocess
 import time
-from typing import cast
 
 import boto3
 import botocore
 import jubilant
-import psycopg2
 import pytest
-
-from spark_test.core.kyuubi import KyuubiClient
-from spark_test.core.s3 import Bucket
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
-
-from .helpers import (
-    get_active_kyuubi_servers_list,
-    get_cos_address,
-    get_kyuubi_credentials,
-    get_kyuubi_ca_cert,
-    get_postgresql_credentials,
-    published_grafana_dashboards,
-    published_loki_logs,
-    published_prometheus_alerts,
-    published_prometheus_data,
-)
-from tests.integration.types import PortForwarder
-
 
 logger = logging.getLogger(__name__)
 

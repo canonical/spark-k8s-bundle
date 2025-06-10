@@ -4,16 +4,18 @@
 
 """YAML backend to apply the bundle."""
 
-import jinja2
 import os
 from pathlib import Path
 
+import jinja2
 import yaml
 
 from . import BundleBackend, BundleBackendEnum
 
 
 class YamlBackend(BundleBackend):
+    """The YAML bundle backend."""
+
     bundle_file = None
 
     def __init__(
@@ -31,6 +33,7 @@ class YamlBackend(BundleBackend):
     def render_template(
         self, template_file: str | Path, vars: dict[str, str] | None
     ) -> str:
+        """Render the yaml.j2 template file with given template vars."""
         if vars is None:
             vars = {}
         with open(template_file) as source:
@@ -38,6 +41,7 @@ class YamlBackend(BundleBackend):
             return template.render(**vars)
 
     def apply(self, vars: dict[str, str] | None = None):
+        """Apply the YAML bundle."""
         rendered_bundle_file = self.tempdir / os.path.basename(self.bundle_file)
         deployed_applications = []
         with open(rendered_bundle_file, mode="w") as destination:
@@ -73,6 +77,7 @@ class YamlBackend(BundleBackend):
         return deployed_applications
 
     def destroy(self):
+        """Destroy the bundle."""
         # for app in self.deployed_applications:
         #     command = ["juju", "remove-application", "--force", "--no-prompt", app]
         #     self.execute(command)

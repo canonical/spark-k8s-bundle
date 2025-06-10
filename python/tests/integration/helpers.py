@@ -26,7 +26,6 @@ import yaml
 from spark_test.core.s3 import Credentials
 from tests.integration.types import KyuubiCredentials
 
-
 T = TypeVar("T")
 S = TypeVar("S")
 SECRET_NAME_PREFIX = "integrator-hub-conf-"

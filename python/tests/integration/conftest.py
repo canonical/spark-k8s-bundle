@@ -14,14 +14,18 @@ import uuid
 from contextlib import contextmanager
 from pathlib import Path
 from subprocess import PIPE, Popen, TimeoutExpired, check_output
-from typing import Generator, Iterable, cast
+from typing import Generator, cast
 
 import httpx
 import jubilant
 import pytest
 from spark8t.domain import PropertyFile
 
-from spark_test.core.azure_storage import Credentials as AzureStorageCredentials
+from spark_test.core.azure_storage import Container
+from spark_test.core.bundle import BundleBackendEnum
+from spark_test.core.bundle.terraform import TerraformBackend
+from spark_test.core.bundle.yaml import YamlBackend
+from spark_test.core.s3 import Bucket
 from spark_test.fixtures.azure_storage import azure_credentials, container  # noqa
 from spark_test.fixtures.pod import spark_image  # noqa
 from spark_test.fixtures.s3 import bucket, credentials  # noqa
@@ -35,14 +39,6 @@ from .helpers import (
     local_tmp_folder,
     set_s3_credentials,
 )
-
-
-from spark_test.core.azure_storage import Container
-from spark_test.core.s3 import Bucket
-from spark_test.core.bundle import BundleBackendEnum
-from spark_test.core.bundle.yaml import YamlBackend
-from spark_test.core.bundle.terraform import TerraformBackend
-
 
 COS_APPS = [
     "loki",
@@ -148,7 +144,7 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="class")
 def juju(request: pytest.FixtureRequest):
     keep_models = bool(request.config.getoption("--keep-models"))
     model = request.config.getoption("--model")
@@ -156,29 +152,29 @@ def juju(request: pytest.FixtureRequest):
     if model is None:
         with jubilant.temp_model(keep=keep_models) as juju:
             juju.wait_timeout = 30 * 60
-
-            yield juju  # run the test
-
-            if request.session.testsfailed:
-                log = juju.debug_log(limit=50)
-                print(log, end="")
-                logger.info(juju.cli("status"))
-
+            yield juju
     else:
+        model_name = str(model)
         juju = jubilant.Juju()
-        juju.model = str(model)
+        juju.model = model_name
         juju.wait_timeout = 30 * 60
+        create_model = False
         try:
             juju.status()
         except jubilant.CLIError:
-            juju.add_model(str(model))
+            create_model = True
 
+        if create_model:
+            juju.add_model(model_name)
         yield juju
 
-        if request.session.testsfailed:
-            log = juju.debug_log(limit=50)
-            print(log, end="")
-            logger.info(juju.cli("status"))
+    if request.session.testsfailed:
+        log = juju.debug_log(limit=50)
+        print(log, end="")
+        logger.info(juju.cli("status"))
+
+    if model is not None and not keep_models:
+        juju.destroy_model(model_name, destroy_storage=True, force=True)
 
 
 @pytest.fixture(scope="module")
@@ -262,17 +258,18 @@ def cos(cos_model: str, backend: str):
     """
     Deploy COS bundle depending upon the value of cos_model fixture, and yield its value.
     """
+    if not cos_model:
+        return None
 
     cos = jubilant.Juju()
     cos.model = cos_model
     try:
         cos.status()
+        return cos_model
     except jubilant.CLIError:
-        cos_exists = False
-    else:
-        cos_exists = True
+        cos.add_model(COS_ALIAS)
 
-    if cos_model and not cos_exists and backend == "yaml":
+    if backend == BundleBackendEnum.YAML.value:
         base_url = (
             "https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays"
         )
@@ -303,15 +300,7 @@ def cos(cos_model: str, backend: str):
             cos.offer("traefik", endpoint="ingress")
             cos.wait(lambda status: jubilant.all_active(status, "traefik"))
 
-        yield cos_model
-
-    else:
-        try:
-            cos.add_model(COS_ALIAS)
-        except jubilant.CLIError:
-            # already exists
-            pass
-        yield cos_model
+    return cos_model
 
 
 @contextlib.contextmanager
@@ -560,4 +549,4 @@ def spark_bundle(
 
     yield deployed_applications
 
-    bundle.destroy()
+    # bundle.destroy()
