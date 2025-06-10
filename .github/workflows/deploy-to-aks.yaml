@@ -85,7 +85,7 @@ jobs:
           cd ./python/tests/reference_architecture/azure
           terraform init
           source get-vars.sh
-          terraform apply
+          terraform apply -auto-approve
 
       - name: Get juju status
         run: juju status
