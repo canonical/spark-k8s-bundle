@@ -18,7 +18,6 @@ on:
 
 jobs:
   deploy-ckf-to-aks:
-    needs: preprocess-input
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
