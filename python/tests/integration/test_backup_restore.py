@@ -400,9 +400,121 @@ class TestNewDeployment:
             )
         )
 
-    def test_restore_metastore_backup(self, juju: jubilant.Juju, context) -> None:
+    def test_restore_metastore_backup(
+        self, juju: jubilant.Juju, context, spark_bundle
+    ) -> None:
         juju.integrate(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
         juju.wait(jubilant.all_agents_idle)
-        import time
 
-        time.sleep(10)
+        all_apps = spark_bundle
+        active_apps = set(all_apps)
+        active_apps.remove(METASTORE_APP_NAME)
+
+        juju.wait(lambda status: jubilant.all_active(status, *active_apps))
+        juju.wait(
+            lambda status: jubilant.all_blocked(status, METASTORE_APP_NAME), delay=5
+        )
+
+        task = juju.run(f"{METASTORE_APP_NAME}/0", "list-backups")
+        assert task.return_code == 0
+        results = task.results
+        backup_lines = str(results["backups"]).splitlines()[2:]
+        assert len(backup_lines) == 1
+
+        backup_id = backup_lines[0].split(maxsplit=1)[0]
+        logger.info(f"Found metastore DB backup with ID {backup_id}.")
+
+        expected_backup_id = context["backup_id"]
+        assert backup_id == expected_backup_id
+
+        task = juju.run(f"{METASTORE_APP_NAME}/0", "restore", {"backup-id": backup_id})
+        assert task.return_code == 0
+        juju.wait(
+            lambda status: jubilant.all_active(
+                status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
+            ),
+            delay=5,
+        )
+
+    def test_remove_backup_s3_integrator(self, juju: jubilant.Juju) -> None:
+        juju.remove_relation(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
+        juju.wait(
+            lambda status: jubilant.all_active(
+                status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
+            ),
+        )
+
+        juju.remove_application(
+            BACKUP_S3_INTEGRATOR_APP_NAME, destroy_storage=True, force=True
+        )
+        juju.wait(jubilant.all_active)
+
+    def test_old_tables_are_restored_in_metastore(
+        self, juju: jubilant.Juju, port_forward: PortForwarder
+    ) -> None:
+        "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
+        metastore_credentials = get_postgresql_credentials(juju, METASTORE_APP_NAME)
+
+        with port_forward(
+            pod=f"{METASTORE_APP_NAME}-0", port=5432, namespace=cast(str, juju.model)
+        ):
+            connection = psycopg2.connect(
+                host="127.0.0.1",
+                database=METASTORE_DATABASE_NAME,
+                user=metastore_credentials["username"],
+                password=metastore_credentials["password"],
+            )
+
+            # Fetch number of new db and tables that have been added to metastore
+            num_dbs = num_tables = 0
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    f""" SELECT * FROM "DBS" WHERE "NAME" = '{TEST_DB_NAME}' """
+                )
+                num_dbs = cursor.rowcount
+                cursor.execute(
+                    f""" SELECT * FROM "TBLS" WHERE "TBL_NAME" = '{TEST_TABLE_NAME}' """
+                )
+                num_tables = cursor.rowcount
+
+            connection.close()
+
+        # Assert that the database and table are in the metastore
+        assert num_dbs == 1
+        assert num_tables == 1
+
+    def test_read_previously_written_data(self, juju: jubilant.Juju) -> None:
+        """Test some read / write operations on the database."""
+        credentials = get_kyuubi_credentials(juju, "kyuubi")
+        ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+
+        kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
+
+        assert TEST_DB_NAME in kyuubi_client.databases
+        db = kyuubi_client.get_database(TEST_DB_NAME)
+
+        assert TEST_TABLE_NAME in db.tables
+        table = db.get_table(TEST_TABLE_NAME)
+
+        expected_rows = (
+            ("messi", "argentina", 1987),
+            ("sinner", "italy", 2002),
+            ("jordan", "usa", 1963),
+        )
+        assert all(row in list(table.rows) for row in expected_rows)
+        assert len(list(table.rows())) == 3
+
+    def test_insert_new_rows(self, juju: jubilant.Juju) -> None:
+        credentials = get_kyuubi_credentials(juju, "kyuubi")
+        ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+
+        kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
+
+        db = kyuubi_client.get_database(TEST_DB_NAME)
+        table = db.get_table(TEST_TABLE_NAME)
+
+        table.insert(
+            ("jumanu", "nepal", 1995),
+        )
+        assert len(list(table.rows())) == 4
+        assert ("jumanu", "nepal", 1995) in list(table.rows())
