@@ -153,6 +153,8 @@ def juju(request: pytest.FixtureRequest):
         with jubilant.temp_model(keep=keep_models) as juju:
             juju.wait_timeout = 30 * 60
             yield juju
+            debug_log = juju.debug_log(limit=50)
+            status = juju.cli("status")
     else:
         model_name = str(model)
         juju = jubilant.Juju()
@@ -168,10 +170,12 @@ def juju(request: pytest.FixtureRequest):
             juju.add_model(model_name)
         yield juju
 
+        debug_log = juju.debug_log(limit=50)
+        status = juju.cli("status")
+
     if request.session.testsfailed:
-        log = juju.debug_log(limit=50)
-        print(log, end="")
-        logger.info(juju.cli("status"))
+        print(debug_log, end="")
+        logger.info(status)
 
     if model is not None and not keep_models:
         juju.destroy_model(model_name, destroy_storage=True, force=True)
@@ -231,12 +235,12 @@ def pod_name():
     return "my-testpod"
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="class")
 def namespace_name(juju: jubilant.Juju) -> str:
     return cast(str, juju.model)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="class")
 def namespace(namespace_name):
     return namespace_name
 

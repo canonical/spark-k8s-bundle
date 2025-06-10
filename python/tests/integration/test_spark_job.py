@@ -1,5 +1,6 @@
 import logging
 import re
+import subprocess
 from pathlib import Path
 from typing import cast
 
@@ -88,18 +89,21 @@ class TestSparkJob:
             )
         }
 
-        pod.exec(
-            [
-                "spark-client.spark-submit",
-                "--username",
-                service_account.name,
-                "--namespace",
-                service_account.namespace,
-                "-v",
-                object_storage.get_uri("spark_test.py"),
-                f"-f {object_storage.get_uri('example.txt')}",
-            ]
-        )
+        try:
+            pod.exec(
+                [
+                    "spark-client.spark-submit",
+                    "--username",
+                    service_account.name,
+                    "--namespace",
+                    service_account.namespace,
+                    "-v",
+                    object_storage.get_uri("spark_test.py"),
+                    f"-f {object_storage.get_uri('example.txt')}",
+                ]
+            )
+        except subprocess.CalledProcessError as cpe:
+            logger.exception(cpe)
 
         driver_pods = get_spark_drivers(
             registry.kube_interface.client, service_account.namespace

@@ -25,7 +25,7 @@ def registry(interface):
     # _clearnup_registry(registry)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="class")
 def service_account(registry, namespace):
     """Create service account."""
     service_account_name = f"spark-test-{uuid.uuid4()}"
