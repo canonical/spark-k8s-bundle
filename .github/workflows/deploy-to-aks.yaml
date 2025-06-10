@@ -47,7 +47,10 @@ jobs:
 
       - name: Create resource group and cluster
         run: |
-          RUN_VERSION="spark-${{ env.K8S_VERSION }}_${{ env.CHARMED_SPARK_VERSION }}"
+          _K8S_VERSION=${{ env.K8S_VERSION }}
+          _SPARK_VERSION=${{ env.CHARMED_SPARK_VERSION }}
+          # Renaming of the version to use _ instead of . 
+          RUN_VERSION="spark-${_K8S_VERSION//./_}-${_SPARK_VERSION//./_}"
           RESOURCE_GROUP=${RUN_VERSION}_rg
           NAME=${RUN_VERSION}_aks
           LOCATION=westeurope
