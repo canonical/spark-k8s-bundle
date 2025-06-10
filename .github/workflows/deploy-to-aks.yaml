@@ -39,7 +39,11 @@ jobs:
           pip install tox 
           sudo snap install juju --classic --channel=${{ env.JUJU_VERSION }}/stable
           sudo snap install charmcraft --classic
+          sudo snap install terraform  --channel latest/stable --classic
+
+          # Check versions
           juju version
+          terraform --version
 
       - uses: azure/login@v1
         with:
