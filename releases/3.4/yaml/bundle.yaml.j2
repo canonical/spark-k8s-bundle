@@ -48,8 +48,8 @@ applications:
     trust: true
   s3:
     charm: s3-integrator
-    channel: latest/stable
-    revision: 17
+    channel: 1/stable
+    revision: 146
     scale: 1
     options:
       bucket: {{ bucket }}
@@ -75,7 +75,7 @@ applications:
     trust: true
   certificates:
     charm: self-signed-certificates
-    channel: latest/stable
+    channel: 1/stable
     revision: 163
     scale: 1
     constraints: arch=amd64
