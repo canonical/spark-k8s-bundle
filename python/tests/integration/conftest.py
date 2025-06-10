@@ -26,19 +26,23 @@ from spark_test.fixtures.azure_storage import azure_credentials, container  # no
 from spark_test.fixtures.pod import spark_image  # noqa
 from spark_test.fixtures.s3 import bucket, credentials  # noqa
 from spark_test.fixtures.service_account import service_account  # noqa
-from tests import IE_TEST_DIR
+from tests import RELEASE_DIR
 
 from .helpers import (
     COS_ALIAS,
     Bundle,
     deploy_bundle,
-    deploy_bundle_terraform,
-    deploy_bundle_yaml,
-    deploy_bundle_yaml_azure_storage,
     local_tmp_folder,
     set_s3_credentials,
 )
-from .terraform import Terraform
+
+
+from spark_test.core.azure_storage import Container
+from spark_test.core.s3 import Bucket
+from spark_test.core.bundle import BundleBackendEnum
+from spark_test.core.bundle.yaml import YamlBackend
+from spark_test.core.bundle.terraform import TerraformBackend
+
 
 COS_APPS = [
     "loki",
@@ -241,108 +245,6 @@ def namespace(namespace_name):
     return namespace_name
 
 
-@pytest.fixture(scope="module")
-def bundle(
-    request, cos_model, backend, spark_version, tmp_path_factory
-) -> Iterable[Bundle[Path] | Terraform]:
-    """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
-
-    if file := request.config.getoption("--bundle"):
-        bundle = Path(file)
-    else:
-        release_dir: Path = (
-            Path(file) if (file := request.config.getoption("--release")) else None
-        ) or (
-            Path(
-                IE_TEST_DIR
-                / ".."
-                / ".."
-                / "releases"
-                / ".".join(spark_version.split(".")[:2])
-            )
-        )
-
-        bundle = (
-            release_dir / "terraform"
-            if backend == "terraform"
-            else release_dir / "yaml" / "bundle.yaml.j2"
-        )
-
-    if backend == "terraform":
-        tmp_path = tmp_path_factory.mktemp(uuid.uuid4().hex) / "terraform"
-        shutil.copytree(bundle, tmp_path)
-        client = Terraform(path=tmp_path)
-        yield client
-
-    else:
-        overlays = (
-            [Path(file) for file in files]
-            if (files := request.config.getoption("--overlay"))
-            else (
-                [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
-                if cos_model
-                else []
-            )
-        )
-
-        for file in overlays + [bundle]:
-            if not file.exists():
-                raise FileNotFoundError(file.absolute())
-
-        yield Bundle(main=bundle, overlays=overlays)
-
-
-@pytest.fixture(scope="module")
-def bundle_with_azure_storage(
-    request, spark_version, cos_model, backend, tmp_path_factory
-) -> Iterable[Bundle[Path] | Terraform]:
-    """Prepare and yield Bundle object incapsulating the apps that are to be deployed."""
-
-    if file := request.config.getoption("--bundle"):
-        bundle = Path(file)
-    else:
-        release_dir: Path = (
-            Path(file) if (file := request.config.getoption("--release")) else None
-        ) or (
-            Path(
-                IE_TEST_DIR
-                / ".."
-                / ".."
-                / "releases"
-                / ".".join(spark_version.split(".")[:2])
-            )
-        )
-
-        bundle = (
-            release_dir / "terraform"
-            if backend == "terraform"
-            else release_dir / "yaml" / "bundle-azure-storage.yaml.j2"
-        )
-
-    if backend == "terraform":
-        tmp_path = tmp_path_factory.mktemp(uuid.uuid4().hex) / "terraform"
-        shutil.copytree(bundle, tmp_path)
-        client = Terraform(path=tmp_path)
-        yield client
-
-    else:
-        overlays = (
-            [Path(file) for file in files]
-            if (files := request.config.getoption("--overlay"))
-            else (
-                [bundle.parent / "overlays" / "cos-integration.yaml.j2"]
-                if cos_model
-                else []
-            )
-        )
-
-        for file in overlays + [bundle]:
-            if not file.exists():
-                raise FileNotFoundError(file.absolute())
-
-        yield Bundle(main=bundle, overlays=overlays)
-
-
 @pytest.fixture
 def integration_test(request):
     """Specifies whether integration test is to be run or not."""
@@ -428,121 +330,6 @@ def track_model(model: str) -> Generator[jubilant.Juju]:
     juju = jubilant.Juju()
     juju.model = model
     yield juju
-
-
-def spark_bundle_with_s3(juju: jubilant.Juju, credentials, bucket, bundle, cos):
-    """Deploy all applications in the Kyuubi bundle, wait for all of them to be active,
-    and finally yield a list of the names of the applications that were deployed.
-    """
-
-    if isinstance(bundle, Bundle):
-        applications = deploy_bundle_yaml(bundle, bucket, cos, juju)
-
-    else:
-        applications = deploy_bundle_terraform(
-            bundle,
-            bucket,
-            cos,
-            juju,
-            storage_backend="s3",
-        )
-
-    if "s3" in applications:
-        juju.wait(lambda status: jubilant.all_agents_idle(status, "s3"))
-
-        set_s3_credentials(juju, credentials)
-
-    if cos:
-        with track_model(COS_ALIAS) as cos_model:
-            logger.info("Waiting for COS deployment to settle down")
-            cos_model.wait(
-                lambda status: jubilant.all_agents_idle(status, *COS_APPS),
-                timeout=1800,
-                delay=10,
-            )
-
-    logger.info("Waiting for spark deployment to settle down")
-    juju.wait(
-        lambda status: jubilant.all_active(
-            status, *list(set(applications) - set(COS_APPS))
-        ),
-        timeout=1800,
-        delay=10,
-    )
-    return applications
-
-
-def spark_bundle_with_azure_storage(
-    juju: jubilant.Juju,
-    azure_credentials: AzureStorageCredentials,
-    container,
-    bundle_with_azure_storage,
-    cos,
-):
-    """Deploy all applications in the Spark bundle, wait for all of them to be active,
-    and finally yield a list of the names of the applications that were deployed.
-    For object storage, use azure-storage-integrator.
-    """
-
-    if isinstance(bundle_with_azure_storage, Bundle):
-        applications = deploy_bundle_yaml_azure_storage(
-            bundle_with_azure_storage, container, cos, juju
-        )
-
-    else:
-        applications = deploy_bundle_terraform(
-            bundle_with_azure_storage,
-            container,
-            cos,
-            juju,
-            storage_backend="azure",
-        )
-
-    if "azure-storage" in applications:
-        secret_uri = juju.add_secret(
-            "iamsecret", {"secret-key": azure_credentials.secret_key}
-        )
-        juju.cli("grant-secret", secret_uri, "azure-storage")
-        juju.config("azure-storage", {"credentials": secret_uri})
-
-    if cos:
-        with track_model(COS_ALIAS) as cos_model:
-            logger.info("Waiting for COS deployment to settle down")
-            cos_model.wait(
-                lambda status: jubilant.all_active(status, *COS_APPS),
-                timeout=1800,
-                delay=10,
-            )
-
-    logger.info("Waiting for spark deployment to settle down")
-    juju.wait(
-        lambda status: jubilant.all_active(
-            status, *list(set(applications) - set(COS_APPS))
-        ),
-        timeout=1800,
-        delay=10,
-    )
-
-    return applications
-
-
-@pytest.fixture(scope="module")
-def spark_bundle(request, storage_backend, cos, juju: jubilant.Juju):
-    if storage_backend == "s3":
-        credentials = request.getfixturevalue("credentials")
-        bucket = request.getfixturevalue("bucket")
-        bundle = request.getfixturevalue("bundle")
-        return spark_bundle_with_s3(juju, credentials, bucket, bundle, cos)
-    elif storage_backend == "azure":
-        azure_credentials = request.getfixturevalue("azure_credentials")
-        container = request.getfixturevalue("container")
-        bundle_with_azure_storage = request.getfixturevalue("bundle_with_azure_storage")
-        return spark_bundle_with_azure_storage(
-            juju, azure_credentials, container, bundle_with_azure_storage, cos
-        )
-
-    else:
-        raise ValueError("storage_backend argument not recognized")
 
 
 @pytest.fixture(scope="module")
@@ -644,3 +431,133 @@ def port_forward(kubectl: str):
             logger.info("Stopped port forwarding")
 
     return _forwarder
+
+
+@pytest.fixture(scope="class")
+def tempdir():
+    with local_tmp_folder() as tmp_folder:
+        yield tmp_folder
+
+
+@pytest.fixture(scope="class")
+def spark_bundle(
+    request,
+    backend,
+    tempdir,
+    spark_version,
+    juju,
+    cos,
+    storage_backend,
+    object_storage,
+):
+    short_version = ".".join(spark_version.split(".")[:2])
+    release_path = RELEASE_DIR / short_version / backend
+
+    storage_unit = (
+        cast(Container, object_storage)
+        if storage_backend == "azure-storage"
+        else cast(Bucket, object_storage)
+    )
+
+    if backend == BundleBackendEnum.TERRAFORM:
+        bundle = TerraformBackend(tempdir=tempdir, module_path=release_path)
+        base_vars = {
+            "kyuubi_user": "kyuubi-test-user",
+            "model": cast(str, juju.model),
+            "storage_backend": storage_backend,
+            "create_model": False,
+            "zookeeper_units": 1,
+        }
+        cos_vars = {"cos_model": cos} if cos else {}
+        storage_vars = (
+            {
+                "azure": {
+                    "storage_account": storage_unit.credentials.storage_account,
+                    "container": storage_unit.container_name,
+                    "secret_key": storage_unit.credentials.secret_key,
+                }
+            }
+            if storage_backend == "azure"
+            else {
+                "s3": {
+                    "bucket": storage_unit.bucket_name,
+                    "endpoint": storage_unit.s3.meta.endpoint_url,
+                }
+            }
+        )
+
+    elif backend == BundleBackendEnum.YAML:
+        bundle_file = release_path / "bundle.yaml.j2"
+        overlays = (
+            [release_path / "overlays" / "cos-integration.yaml.j2"] if cos else []
+        )
+        bundle = YamlBackend(
+            model=juju.model,
+            tempdir=tempdir,
+            bundle_file=bundle_file,
+            overlays=overlays,
+        )
+
+        base_vars = {
+            "namespace": cast(str, juju.model),
+            "service_account": "kyuubi-test-user",
+            "zookeeper_units": 1,
+        }
+        cos_vars = (
+            {"cos_controller": juju.status().model.controller, "cos_model": cos}
+            if cos
+            else {}
+        )
+        storage_vars = (
+            {
+                "storage_account": storage_unit.credentials.storage_account,
+                "container": storage_unit.container_name,
+            }
+            if storage_backend == "azure"
+            else {
+                "s3_endpoint": storage_unit.s3.meta.endpoint_url,
+                "bucket": storage_unit.bucket_name,
+            }
+        )
+
+    else:
+        raise NotImplementedError(
+            f"The backend {backend} is not supported for deploying bundle."
+        )
+
+    vars = base_vars | cos_vars | storage_vars
+
+    deployed_applications = bundle.apply(vars=vars)
+    if storage_backend == "azure":
+        credentials = request.getfixturevalue("azure_credentials")
+        secret_uri = juju.add_secret(
+            "iamsecret", {"secret-key": azure_credentials.secret_key}
+        )
+        juju.cli("grant-secret", secret_uri, "azure-storage")
+        juju.config("azure-storage", {"credentials": secret_uri})
+    else:
+        credentials = request.getfixturevalue("credentials")
+        juju.wait(lambda status: jubilant.all_agents_idle(status, "s3"))
+        set_s3_credentials(juju, credentials=credentials)
+
+    if cos:
+        with track_model(COS_ALIAS) as cos_model:
+            logger.info("Waiting for COS deployment to settle down")
+            cos_model.wait(
+                lambda status: jubilant.all_agents_idle(status, *COS_APPS),
+                timeout=1800,
+                delay=10,
+            )
+
+    logger.info("Waiting for spark deployment to settle down")
+    juju.wait(
+        lambda status: jubilant.all_active(
+            status, *list(set(deployed_applications) - set(COS_APPS))
+        ),
+        timeout=1800,
+        delay=10,
+    )
+
+    yield deployed_applications
+
+    bundle.destroy()
