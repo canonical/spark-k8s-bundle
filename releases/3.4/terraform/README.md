@@ -113,7 +113,7 @@ This means that using this structure, a new optional module just takes care of d
 | spark         | postgresql-k8s               | 14/stable   | 281      |
 | spark         | postgresql-k8s               | 14/stable   | 281      |
 | spark         | zookeeper-k8s                | 3/edge      | 75       |
-| s3            | s3-integrator                | 1/stable    | 146      |
+| s3            | s3-integrator                | 1/stable    | 145      |
 
 ### Updating the version table
 

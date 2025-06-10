@@ -7,7 +7,7 @@ resource "juju_application" "s3" {
   charm {
     name     = "s3-integrator"
     channel  = "1/stable"
-    revision = 146
+    revision = 145
   }
   config = {
     path     = "spark-events"
