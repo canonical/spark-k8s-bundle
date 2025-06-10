@@ -1,0 +1,116 @@
+name: Create AKS cluster, deploy CKF and run bundle test
+on:
+  pull_request:
+#   workflow_dispatch:
+#     inputs:
+#       k8s_version:
+#         description: 'Kubernetes version to be used for the AKS cluster'
+#         required: false
+#         default: "1.32"
+#       charmed_spark_version:
+#         description: 'Charmed Spark version to be tested'
+#         required: false
+#         default: "3.4"
+#       juju_version:
+#         description: 'Charmed Spark version to be tested'
+#         required: false
+#         default: "3.6"
+
+jobs:
+  deploy-ckf-to-aks:
+    needs: preprocess-input
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update ENV variables from inputs if available
+        run: |
+          K8S_VERSION="1.32" 
+          # ${{ inputs.k8s_version }}
+          echo "K8S_VERSION=${K8S_VERSION}" >> $GITHUB_ENV
+          CHARMED_SPARK_VERSION="3.4" 
+          # ${{ inputs.charmed_spark_version }}
+          echo "CHARMED_SPARK_VERSION=${CHARMED_SPARK_VERSION}" >> $GITHUB_ENV
+          JUJU_VERSION="3.6"
+          echo "JUJU_VERSION=${JUJU_VERSION}" >> $GITHUB_ENV
+
+      - name: Install CLI tools
+        run: |
+          pip install tox 
+          sudo snap install juju --classic --channel=${{ env.JUJU_VERSION }}/stable
+          sudo snap install charmcraft --classic
+          juju version
+
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AKS_SERVICE_PRINCIPAL }}
+
+      - name: Create resource group and cluster
+        run: |
+          RUN_VERSION="spark-${{ env.K8S_VERSION }}_${{ env.CHARMED_SPARK_VERSION }}"
+          RESOURCE_GROUP=${RUN_VERSION}_rg
+          NAME=${RUN_VERSION}_aks
+          LOCATION=westeurope
+          echo "RESOURCE_GROUP=${RESOURCE_GROUP}" >> $GITHUB_ENV
+          echo "NAME=${NAME}" >> $GITHUB_ENV
+          echo "LOCATION=${LOCATION}" >> $GITHUB_ENV
+          az group create --name ${RESOURCE_GROUP} --location ${LOCATION}
+          az aks create \
+            --resource-group ${RESOURCE_GROUP} \
+            --name ${NAME} \
+            --kubernetes-version ${{ env.K8S_VERSION }} \
+            --node-count 2 \
+            --node-vm-size Standard_D8s_v3 \
+            --node-osdisk-size 100 \
+            --node-osdisk-type Managed \
+            --os-sku Ubuntu \
+            --no-ssh-key
+
+      - name: Add AKS cloud to juju and bootstrap controller
+        run: |
+          az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.NAME }} --admin
+          juju add-k8s aks --client
+          juju bootstrap aks aks-controller
+          juju add-model kubeflow
+
+      - name: Test bundle deployment
+        run: |
+          cd ./python/tests/reference_architecture/azure
+          terraform init
+          source get-vars.sh
+          terraform apply
+
+      # On failure, capture debugging resources
+      - name: Save debug artifacts
+        uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
+        if: always()
+        with:
+          artifact-prefix: ${{ matrix.bundle_version }}
+
+      - name: Get juju status
+        run: juju status
+        if: failure() || cancelled()
+
+      - name: Get juju debug logs
+        run: juju debug-log --replay --no-tail
+        if: failure() || cancelled()
+
+      - name: Delete AKS cluster
+        if: always()
+        run: az aks delete --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.NAME }} --yes
+
+      - name: Delete resource groups
+        if: always()
+        run: |
+          az group delete --name ${{ env.RESOURCE_GROUP }} --yes
+          if [ "$(az group exists --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }})" = "true" ]; then
+            az group delete --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }} --yes
+          fi
+
+      - name: Check that resource groups have been deleted, else fail
+        if: always()
+        run: |
+          if [ "$(az group exists --name ${{ env.RESOURCE_GROUP }} )" = "true" ] || [ "$(az group exists --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }})" = "true" ]; then
+            exit 1
+          fi
