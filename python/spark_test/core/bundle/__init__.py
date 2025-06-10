@@ -5,7 +5,7 @@ import subprocess
 from spark8t.utils import WithLogging
 
 
-class BundleBackendEnum(enum.StrEnum):
+class BundleBackendEnum(str, enum.Enum):
     YAML = "yaml"
     TERRAFORM = "terraform"
 

@@ -23,7 +23,7 @@ class YamlBackend(BundleBackend):
         bundle_file: str | Path,
         overlays: list[str | Path] = None,
     ):
-        super().__init__(backend=BundleBackendEnum.YAML, tempdir=tempdir)
+        super().__init__(backend=BundleBackendEnum.YAML.value, tempdir=tempdir)
         self.model = model
         self.bundle_file = bundle_file
         self.overlays = overlays

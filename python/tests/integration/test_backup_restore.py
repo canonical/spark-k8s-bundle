@@ -78,9 +78,11 @@ def microceph_credentials(host_ip: str, tmp_path):
             f"/C=US/ST=Denial/L=Springfield/O=Dis/CN={host_ip}",
         ],
         check=True,
-        cwd=tmp_path
+        cwd=tmp_path,
     )
-    subprocess.run(["openssl", "genrsa", "-out", "./server.key", "2048"], check=True, cwd=tmp_path)
+    subprocess.run(
+        ["openssl", "genrsa", "-out", "./server.key", "2048"], check=True, cwd=tmp_path
+    )
     subprocess.run(
         [
             "openssl",
@@ -94,13 +96,13 @@ def microceph_credentials(host_ip: str, tmp_path):
             f"/C=US/ST=Denial/L=Springfield/O=Dis/CN={host_ip}",
         ],
         check=True,
-        cwd=tmp_path
+        cwd=tmp_path,
     )
     subprocess.run(
         f'echo "subjectAltName = DNS:{host_ip}, IP:{host_ip}" > ./extfile.cnf',
         shell=True,
         check=True,
-        cwd=tmp_path
+        cwd=tmp_path,
     )
     subprocess.run(
         [
@@ -121,20 +123,26 @@ def microceph_credentials(host_ip: str, tmp_path):
             "-extfile",
             "./extfile.cnf",
         ],
-        cwd=tmp_path
+        cwd=tmp_path,
     )
 
     logger.info("Setting up microceph")
     subprocess.run(
-        ["sudo", "snap", "install", "microceph", "--revision", "1169"], check=True, cwd=tmp_path
+        ["sudo", "snap", "install", "microceph", "--revision", "1169"],
+        check=True,
+        cwd=tmp_path,
     )
-    subprocess.run(["sudo", "microceph", "cluster", "bootstrap"], check=True, cwd=tmp_path)
-    subprocess.run(["sudo", "microceph", "disk", "add", "loop,1G,3"], check=True, cwd=tmp_path)
+    subprocess.run(
+        ["sudo", "microceph", "cluster", "bootstrap"], check=True, cwd=tmp_path
+    )
+    subprocess.run(
+        ["sudo", "microceph", "disk", "add", "loop,1G,3"], check=True, cwd=tmp_path
+    )
     subprocess.run(
         'sudo microceph enable rgw --ssl-certificate="$(sudo base64 -w0 ./server.crt)" --ssl-private-key="$(sudo base64 -w0 ./server.key)"',
         shell=True,
         check=True,
-        cwd=tmp_path
+        cwd=tmp_path,
     )
 
     output = subprocess.run(
@@ -151,7 +159,7 @@ def microceph_credentials(host_ip: str, tmp_path):
         capture_output=True,
         check=True,
         encoding="utf-8",
-        cwd=tmp_path
+        cwd=tmp_path,
     ).stdout
     key = json.loads(output)["keys"][0]
     key_id = key["access_key"]
@@ -182,7 +190,7 @@ def microceph_credentials(host_ip: str, tmp_path):
         check=True,
         stdout=subprocess.PIPE,
         text=True,
-        cwd=tmp_path
+        cwd=tmp_path,
     ).stdout
 
     yield {
@@ -332,7 +340,6 @@ class TestFirstDeployment:
     #     context["backup_id"] = backup_id
 
 
-
 @retry(
     wait=wait_fixed(5),
     stop=stop_after_attempt(120),
@@ -346,8 +353,8 @@ def test_first_deployment_destroyed(juju: jubilant.Juju) -> None:
         logger.info(status)
     except jubilant.CLIError:
         # CLIError being raised means the model has been destroyed
-        return 
-    
+        return
+
     raise AssertionError
 
 

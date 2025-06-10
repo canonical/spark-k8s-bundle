@@ -459,7 +459,7 @@ def spark_bundle(
         else cast(Bucket, object_storage)
     )
 
-    if backend == BundleBackendEnum.TERRAFORM:
+    if backend == BundleBackendEnum.TERRAFORM.value:
         bundle = TerraformBackend(tempdir=tempdir, module_path=release_path)
         base_vars = {
             "kyuubi_user": "kyuubi-test-user",
@@ -486,7 +486,7 @@ def spark_bundle(
             }
         )
 
-    elif backend == BundleBackendEnum.YAML:
+    elif backend == BundleBackendEnum.YAML.value:
         bundle_file = release_path / "bundle.yaml.j2"
         overlays = (
             [release_path / "overlays" / "cos-integration.yaml.j2"] if cos else []
