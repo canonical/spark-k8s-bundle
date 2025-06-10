@@ -524,7 +524,7 @@ def spark_bundle(
     if storage_backend == "azure":
         credentials = request.getfixturevalue("azure_credentials")
         secret_uri = juju.add_secret(
-            "iamsecret", {"secret-key": azure_credentials.secret_key}
+            "iamsecret", {"secret-key": credentials.secret_key}
         )
         juju.cli("grant-secret", secret_uri, "azure-storage")
         juju.config("azure-storage", {"credentials": secret_uri})
