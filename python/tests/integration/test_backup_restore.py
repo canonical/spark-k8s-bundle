@@ -3,12 +3,24 @@ import logging
 import socket
 import subprocess
 import time
+from typing import cast
 
 import boto3
 import botocore
 import jubilant
+import psycopg2
 import pytest
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
+
+from spark_test.core.kyuubi import KyuubiClient
+from spark_test.core.s3 import Bucket
+
+from .helpers import (
+    get_kyuubi_ca_cert,
+    get_kyuubi_credentials,
+    get_postgresql_credentials,
+)
+from .types import PortForwarder
 
 logger = logging.getLogger(__name__)
 
@@ -193,131 +205,139 @@ class TestFirstDeployment:
         """Test whether the bundle has deployed successfully."""
         juju.wait(jubilant.all_active, delay=5)
 
-    # def test_database_operations(self, juju: jubilant.Juju) -> None:
-    #     """Test some read / write operations on the database."""
-    #     credentials = get_kyuubi_credentials(juju, "kyuubi")
-    #     ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
-    #     print(ca_cert)
-    #     print(credentials)
-    #     kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
+    def test_database_operations(self, juju: jubilant.Juju) -> None:
+        """Test some read / write operations on the database."""
+        credentials = get_kyuubi_credentials(juju, "kyuubi")
+        ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+        print(ca_cert)
+        print(credentials)
+        kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
 
-    #     db = kyuubi_client.get_database(TEST_DB_NAME)
-    #     assert TEST_DB_NAME in kyuubi_client.databases
+        db = kyuubi_client.get_database(TEST_DB_NAME)
+        assert TEST_DB_NAME in kyuubi_client.databases
 
-    #     table = db.create_table(
-    #         TEST_TABLE_NAME, [("name", str), ("country", str), ("year_birth", int)]
-    #     )
-    #     assert TEST_TABLE_NAME in db.tables
+        table = db.create_table(
+            TEST_TABLE_NAME, [("name", str), ("country", str), ("year_birth", int)]
+        )
+        assert TEST_TABLE_NAME in db.tables
 
-    #     table.insert(
-    #         ("messi", "argentina", 1987), ("sinner", "italy", 2002), ("jordan", "usa", 1963)
-    #     )
-    #     assert len(list(table.rows())) == 3
+        table.insert(
+            ("messi", "argentina", 1987),
+            ("sinner", "italy", 2002),
+            ("jordan", "usa", 1963),
+        )
+        assert len(list(table.rows())) == 3
 
-    # def test_external_metastore_is_used(
-    #     self, juju: jubilant.Juju, port_forward: PortForwarder
-    # ) -> None:
-    #     "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
-    #     metastore_credentials = get_postgresql_credentials(juju, METASTORE_APP_NAME)
+    def test_external_metastore_is_used(
+        self, juju: jubilant.Juju, port_forward: PortForwarder
+    ) -> None:
+        "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
+        metastore_credentials = get_postgresql_credentials(juju, METASTORE_APP_NAME)
 
-    #     with port_forward(
-    #         pod=f"{METASTORE_APP_NAME}-0", port=5432, namespace=cast(str, juju.model)
-    #     ):
-    #         connection = psycopg2.connect(
-    #             host="127.0.0.1",
-    #             database=METASTORE_DATABASE_NAME,
-    #             user=metastore_credentials["username"],
-    #             password=metastore_credentials["password"],
-    #         )
+        with port_forward(
+            pod=f"{METASTORE_APP_NAME}-0", port=5432, namespace=cast(str, juju.model)
+        ):
+            connection = psycopg2.connect(
+                host="127.0.0.1",
+                database=METASTORE_DATABASE_NAME,
+                user=metastore_credentials["username"],
+                password=metastore_credentials["password"],
+            )
 
-    #         # Fetch number of new db and tables that have been added to metastore
-    #         num_dbs = num_tables = 0
-    #         with connection.cursor() as cursor:
-    #             cursor.execute(f""" SELECT * FROM "DBS" WHERE "NAME" = '{TEST_DB_NAME}' """)
-    #             num_dbs = cursor.rowcount
-    #             cursor.execute(
-    #                 f""" SELECT * FROM "TBLS" WHERE "TBL_NAME" = '{TEST_TABLE_NAME}' """
-    #             )
-    #             num_tables = cursor.rowcount
+            # Fetch number of new db and tables that have been added to metastore
+            num_dbs = num_tables = 0
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    f""" SELECT * FROM "DBS" WHERE "NAME" = '{TEST_DB_NAME}' """
+                )
+                num_dbs = cursor.rowcount
+                cursor.execute(
+                    f""" SELECT * FROM "TBLS" WHERE "TBL_NAME" = '{TEST_TABLE_NAME}' """
+                )
+                num_tables = cursor.rowcount
 
-    #         connection.close()
+            connection.close()
 
-    #     # Assert that new database and tables have indeed been added to metastore
-    #     assert num_dbs == 1
-    #     assert num_tables == 1
+        # Assert that new database and tables have indeed been added to metastore
+        assert num_dbs == 1
+        assert num_tables == 1
 
-    # def test_files_in_object_storage(self, object_storage) -> None:
-    #     """Test that the data files have indeed been created in object storage."""
-    #     bucket: Bucket = object_storage
-    #     assert bucket.exists()
+    def test_files_in_object_storage(self, object_storage) -> None:
+        """Test that the data files have indeed been created in object storage."""
+        bucket: Bucket = object_storage
+        assert bucket.exists()
 
-    #     data_files = [
-    #         blob
-    #         for blob in bucket.list_objects()
-    #         if blob["Key"].startswith(f"warehouse/{TEST_DB_NAME}.db/{TEST_TABLE_NAME}/") and blob["Size"] > 0
-    #     ]
-    #     assert len(data_files) > 0
+        data_files = [
+            blob
+            for blob in bucket.list_objects()
+            if blob["Key"].startswith(f"warehouse/{TEST_DB_NAME}.db/{TEST_TABLE_NAME}/")
+            and blob["Size"] > 0
+        ]
+        assert len(data_files) > 0
 
-    # def test_deploy_backup_s3_integrator(self, juju: jubilant.Juju, microceph_credentials) -> None:
-    #     juju.deploy("s3-integrator", app=BACKUP_S3_INTEGRATOR_APP_NAME, channel="edge")
-    #     juju.wait(
-    #         lambda status: jubilant.all_blocked(status, BACKUP_S3_INTEGRATOR_APP_NAME)
-    #     )
+    def test_deploy_backup_s3_integrator(
+        self, juju: jubilant.Juju, microceph_credentials
+    ) -> None:
+        juju.deploy("s3-integrator", app=BACKUP_S3_INTEGRATOR_APP_NAME, channel="edge")
+        juju.wait(
+            lambda status: jubilant.all_blocked(status, BACKUP_S3_INTEGRATOR_APP_NAME)
+        )
 
-    #     s3_endpoint = microceph_credentials["endpoint"]
-    #     s3_access_key = microceph_credentials["access-key"]
-    #     s3_secret_key = microceph_credentials["secret-key"]
-    #     s3_tls_ca = microceph_credentials["tls-ca"]
+        s3_endpoint = microceph_credentials["endpoint"]
+        s3_access_key = microceph_credentials["access-key"]
+        s3_secret_key = microceph_credentials["secret-key"]
+        s3_tls_ca = microceph_credentials["tls-ca"]
 
-    #     juju.config(
-    #         BACKUP_S3_INTEGRATOR_APP_NAME,
-    #         {
-    #             "endpoint": s3_endpoint,
-    #             "bucket": METASTORE_BACKUP_BUCKET,
-    #             "region": "",
-    #             "s3-uri-style": "path",
-    #             "tls-ca-chain": s3_tls_ca,
-    #         },
-    #     )
-    #     juju.run(
-    #         f"{BACKUP_S3_INTEGRATOR_APP_NAME}/0",
-    #         "sync-s3-credentials",
-    #         {"access-key": s3_access_key, "secret-key": s3_secret_key},
-    #     )
+        juju.config(
+            BACKUP_S3_INTEGRATOR_APP_NAME,
+            {
+                "endpoint": s3_endpoint,
+                "bucket": METASTORE_BACKUP_BUCKET,
+                "region": "",
+                "s3-uri-style": "path",
+                "tls-ca-chain": s3_tls_ca,
+            },
+        )
+        juju.run(
+            f"{BACKUP_S3_INTEGRATOR_APP_NAME}/0",
+            "sync-s3-credentials",
+            {"access-key": s3_access_key, "secret-key": s3_secret_key},
+        )
 
-    #     juju.wait(
-    #         lambda status: jubilant.all_active(
-    #             status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
-    #         )
-    #     )
+        juju.wait(
+            lambda status: jubilant.all_active(
+                status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
+            )
+        )
 
-    # def test_create_metastore_backup(self, juju: jubilant.Juju, context) -> None:
-    #     juju.integrate(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
-    #     juju.wait(
-    #         lambda status: jubilant.all_active(
-    #             status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
-    #         ),
-    #         delay=10
-    #     )
+    def test_create_metastore_backup(self, juju: jubilant.Juju, context) -> None:
+        juju.integrate(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
+        juju.wait(
+            lambda status: jubilant.all_active(
+                status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
+            ),
+            delay=10,
+        )
 
-    #     task = juju.run(f"{METASTORE_APP_NAME}/0", "create-backup")
-    #     assert task.return_code == 0
-    #     juju.wait(
-    #         lambda status: jubilant.all_active(
-    #             status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
-    #         ),
-    #     )
+        task = juju.run(f"{METASTORE_APP_NAME}/0", "create-backup")
+        assert task.return_code == 0
+        juju.wait(
+            lambda status: jubilant.all_active(
+                status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
+            ),
+        )
 
-    #     task = juju.run(f"{METASTORE_APP_NAME}/0", "list-backups")
-    #     assert task.return_code == 0
-    #     results = task.results
-    #     backup_lines = str(results["backups"]).splitlines()[2:]
-    #     assert len(backup_lines) == 1
+        task = juju.run(f"{METASTORE_APP_NAME}/0", "list-backups")
+        assert task.return_code == 0
+        results = task.results
+        backup_lines = str(results["backups"]).splitlines()[2:]
+        assert len(backup_lines) == 1
 
-    #     backup_id = backup_lines[0].split(maxsplit=1)[0]
-    #     logger.info(f"Found metastore DB backup with ID {backup_id}.")
+        backup_id = backup_lines[0].split(maxsplit=1)[0]
+        logger.info(f"Found metastore DB backup with ID {backup_id}.")
 
-    #     context["backup_id"] = backup_id
+        context["backup_id"] = backup_id
+        context["old_model"] = juju.model
 
 
 @retry(
@@ -326,13 +346,14 @@ class TestFirstDeployment:
     retry=retry_if_exception_type(AssertionError),
     reraise=True,
 )
-def test_first_deployment_destroyed(juju: jubilant.Juju) -> None:
+def test_first_deployment_destroyed(context) -> None:
     try:
-        status = juju.status()
-        logger.info("Juju status: ")
-        logger.info(status)
-    except jubilant.CLIError:
-        # CLIError being raised means the model has been destroyed
+        model_name = context["old_model"]
+        subprocess.run(["juju", "status", "--model", model_name], check=True)
+    except subprocess.CalledProcessError:
+        # CalledProcessError being raised means the old deployment has been destroyed
+        # Wait some time and return from here, since now we are ready to test new deployment
+        time.sleep(10)
         return
 
     raise AssertionError
@@ -340,49 +361,48 @@ def test_first_deployment_destroyed(juju: jubilant.Juju) -> None:
 
 @pytest.mark.usefixtures("spark_bundle")
 class TestNewDeployment:
-    def test_deploy_bundle(self, spark_bundle) -> None:
-        """Test that the bundle deploys fine with charms in active state."""
-        pass
-
     def test_active_status(self, juju: jubilant.Juju) -> None:
         """Test whether the bundle has deployed successfully."""
         juju.wait(jubilant.all_active, delay=5)
 
-    # def test_deploy_backup_s3_integrator(self, juju: jubilant.Juju, microceph_credentials) -> None:
-    #     juju.deploy("s3-integrator", app=BACKUP_S3_INTEGRATOR_APP_NAME, channel="edge")
-    #     juju.wait(
-    #         lambda status: jubilant.all_blocked(status, BACKUP_S3_INTEGRATOR_APP_NAME)
-    #     )
+    def test_deploy_backup_s3_integrator(
+        self, juju: jubilant.Juju, microceph_credentials
+    ) -> None:
+        juju.deploy("s3-integrator", app=BACKUP_S3_INTEGRATOR_APP_NAME, channel="edge")
+        juju.wait(
+            lambda status: jubilant.all_blocked(status, BACKUP_S3_INTEGRATOR_APP_NAME)
+        )
 
-    #     s3_endpoint = microceph_credentials["endpoint"]
-    #     s3_access_key = microceph_credentials["access-key"]
-    #     s3_secret_key = microceph_credentials["secret-key"]
-    #     s3_tls_ca = microceph_credentials["tls-ca"]
+        s3_endpoint = microceph_credentials["endpoint"]
+        s3_access_key = microceph_credentials["access-key"]
+        s3_secret_key = microceph_credentials["secret-key"]
+        s3_tls_ca = microceph_credentials["tls-ca"]
 
-    #     juju.config(
-    #         BACKUP_S3_INTEGRATOR_APP_NAME,
-    #         {
-    #             "endpoint": s3_endpoint,
-    #             "bucket": METASTORE_BACKUP_BUCKET,
-    #             "region": "",
-    #             "s3-uri-style": "path",
-    #             "tls-ca-chain": s3_tls_ca,
-    #         },
-    #     )
-    #     juju.run(
-    #         f"{BACKUP_S3_INTEGRATOR_APP_NAME}/0",
-    #         "sync-s3-credentials",
-    #         {"access-key": s3_access_key, "secret-key": s3_secret_key},
-    #     )
+        juju.config(
+            BACKUP_S3_INTEGRATOR_APP_NAME,
+            {
+                "endpoint": s3_endpoint,
+                "bucket": METASTORE_BACKUP_BUCKET,
+                "region": "",
+                "s3-uri-style": "path",
+                "tls-ca-chain": s3_tls_ca,
+            },
+        )
+        juju.run(
+            f"{BACKUP_S3_INTEGRATOR_APP_NAME}/0",
+            "sync-s3-credentials",
+            {"access-key": s3_access_key, "secret-key": s3_secret_key},
+        )
 
-    #     juju.wait(
-    #         lambda status: jubilant.all_active(
-    #             status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
-    #         )
-    #     )
+        juju.wait(
+            lambda status: jubilant.all_active(
+                status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
+            )
+        )
 
-    # def test_restore_metastore_backup(self, juju: jubilant.Juju, context) -> None:
-    #     juju.integrate(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
-    #     juju.wait(jubilant.all_agents_idle)
-    #     import time
-    #     time.sleep(10)
+    def test_restore_metastore_backup(self, juju: jubilant.Juju, context) -> None:
+        juju.integrate(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
+        juju.wait(jubilant.all_agents_idle)
+        import time
+
+        time.sleep(10)

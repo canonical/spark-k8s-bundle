@@ -57,8 +57,13 @@ def tmp_folder(tmp_path_factory):
     return tmp_path_factory.mktemp("data")
 
 
-@pytest.mark.usefixtures("spark_bundle")
 class TestSparkJob:
+    @pytest.mark.skip_if_deployed
+    def test_deploy_bundle(self, spark_bundle):
+        """Deploy bundle."""
+        deployed_applications = spark_bundle
+        logger.info(f"Deployed applications: {deployed_applications}")
+
     def test_active_status(self, juju: jubilant.Juju) -> None:
         """Test whether the bundle has deployed successfully."""
         juju.wait(jubilant.all_active)
