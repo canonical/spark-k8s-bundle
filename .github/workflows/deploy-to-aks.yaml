@@ -91,7 +91,9 @@ jobs:
           juju wait-for model spark --query='forEach(units, unit => unit.agent-status=="idle" && unit.workload-status=="active")' --timeout 30m0s
 
       - name: Get juju status
-        run: juju status
+        run: |
+          juju status --model cos
+          juju status --model spark
         if: failure() || cancelled()
 
       - name: Get juju debug logs
