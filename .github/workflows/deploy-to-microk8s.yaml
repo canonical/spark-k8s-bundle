@@ -54,6 +54,10 @@ jobs:
           microk8s-group: snap_microk8s
           microk8s-addons: "rbac dns minio metallb:10.64.140.43-10.64.140.49"
 
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AKS_SERVICE_PRINCIPAL }}
+
       - name: Deploy Kyuubi Reference Architecture
         working-directory: ./python/tests/reference_architecture/azure
         run: |
