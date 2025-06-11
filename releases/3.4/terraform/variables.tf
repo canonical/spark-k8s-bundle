@@ -73,8 +73,8 @@ variable "storage_backend" {
   description = "Storage backend to be used"
 
   validation {
-    condition     = contains(["azure", "s3"], var.storage_backend)
-    error_message = "Valid values for var: test_variable are (s3, azure)."
+    condition     = contains(["azure_storage", "s3"], var.storage_backend)
+    error_message = "Valid values for var: test_variable are (s3, azure_storage)."
   }
 
   default = "s3"
@@ -89,7 +89,7 @@ variable "s3" {
   default = {}
 }
 
-variable "azure" {
+variable "azure_storage" {
   description = "Azure Object storage information"
   type = object({
     container       = optional(string, "azurecontainer")
