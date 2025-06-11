@@ -54,9 +54,9 @@ module "spark" {
   zookeeper_image          = var.zookeeper_image != null ? var.zookeeper_image : local.images.zookeeper
 }
 
-module "azure" {
+module "azure_storage" {
   depends_on    = [module.spark]
-  count         = var.storage_backend == "azure" ? 1 : 0
+  count         = var.storage_backend == "azure_storage" ? 1 : 0
   source        = "./modules/azure-storage"
   model         = var.model
   spark_charms  = module.spark.charms

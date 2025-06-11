@@ -12,18 +12,18 @@ terraform {
 
 locals {
   revisions = {
-    spark_history_server     = 40
-    spark_integration_hub    = 49
-    kyuubi                   = 60
-    kyuubi_users             = 281
-    metastore                = 281
-    zookeeper                = 75
-    s3_integrator            = 77
-    azure_storage_integrator = 12
-    grafana_agent            = 104
-    cos_configuration        = 67
-    prometheus_pushgateway   = 16
-    prometheus_scrape_config = 64
+    spark_history_server  = 40
+    spark_integration_hub = 49
+    kyuubi                = 60
+    kyuubi_users          = 281
+    metastore             = 281
+    zookeeper             = 75
+    s3                    = 77
+    azure_storage         = 12
+    grafana_agent         = 104
+    cos_configuration     = 67
+    pushgateway           = 16
+    scrape_config         = 64
   }
   images = {
     spark_history_server = {
