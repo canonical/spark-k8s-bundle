@@ -16,6 +16,10 @@ on:
 #         required: false
 #         default: "3.6"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   microk8s-deployment:
     runs-on: ubuntu-24.04
@@ -63,12 +67,15 @@ jobs:
         run: |
           terraform init
           source get-vars.sh
+          export TF_VAR_AZURE_RESOURCE_GROUP="test_microk8s_${{ env.RESOURCE_GROUP }}"
+          export TF_VAR_AZURE_STORAGE_ACCOUNT="sparkstorage_microk8s_${{ env.RESOURCE_GROUP }}"
           terraform apply -auto-approve
 
           juju wait-for model cos --query='forEach(units, unit => unit.agent-status=="idle" && unit.workload-status=="active")' --timeout 30m0s
           juju wait-for model spark --query='forEach(units, unit => unit.agent-status=="idle" && unit.workload-status=="active")' --timeout 30m0s
 
       - name: Get juju status
+        if: always()
         run: |
           juju status --model cos
           juju status --model spark
@@ -87,4 +94,6 @@ jobs:
         working-directory: ./python/tests/reference_architecture/azure
         run: |
           source get-vars.sh
+          export TF_VAR_AZURE_RESOURCE_GROUP="test_microk8s_${{ env.RESOURCE_GROUP }}"
+          export TF_VAR_AZURE_STORAGE_ACCOUNT="sparkstorage_microk8s_${{ env.RESOURCE_GROUP }}"
           terraform destroy -auto-approve
