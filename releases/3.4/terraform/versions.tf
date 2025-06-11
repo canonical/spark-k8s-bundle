@@ -12,30 +12,30 @@ terraform {
 
 locals {
   revisions = {
-    spark_history_server     = 40
-    spark_integration_hub    = 49
-    kyuubi                   = 60
-    kyuubi_users             = 281
-    metastore                = 281
-    zookeeper                = 75
-    s3_integrator            = 77
-    azure_storage_integrator = 12
-    grafana_agent            = 104
-    cos_configuration        = 67
-    prometheus_pushgateway   = 16
-    prometheus_scrape_config = 64
+    history_server    = 40
+    integration_hub   = 49
+    kyuubi            = 60
+    kyuubi_users      = 281
+    metastore         = 281
+    zookeeper         = 75
+    s3                = 77
+    azure_storage     = 12
+    grafana_agent     = 104
+    cos_configuration = 67
+    pushgateway       = 16
+    scrape_config     = 64
   }
   images = {
-    spark_history_server = {
+    history_server = {
       spark-history-server-image = "ghcr.io/canonical/charmed-spark@sha256:1d9949dc7266d814e6483f8d9ffafeff32f66bb9939e0ab29ccfd9d5003a583a"
     } # 3.4.2
-    spark_integration_hub = {
+    integration_hub = {
       integration-hub-image = 5
     }
-    kyuubi                = {
+    kyuubi = {
       kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:29c84e1693ce7b5e6cf4fcb84570a79357f9bc1e66bce59d2e0031f1314699e5"
     } # 3.4.4-1.10.1-22.04_edge 2025-05-06
-    kyuubi_users          = {
+    kyuubi_users = {
       postgresql-image = 159
     }
     metastore = {

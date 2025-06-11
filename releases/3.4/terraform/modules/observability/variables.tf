@@ -62,7 +62,7 @@ variable cos_configuration_revision {
   nullable    = false
 }
 
-variable prometheus_pushgateway_revision {
+variable pushgateway_revision {
   description = "Charm revision for prometheus-pushgateway-k8s"
   type        = number
   nullable    = false
@@ -74,7 +74,7 @@ variable prometheus_pushgateway_revision {
 #   nullable    = false
 # }
 
-variable prometheus_scrape_config_revision {
+variable scrape_config_revision {
   description = "Charm revision for prometheus-scrape-config-k8s"
   type        = number
   nullable    = false

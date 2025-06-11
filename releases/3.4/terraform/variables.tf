@@ -113,25 +113,25 @@ variable "zookeeper_units" {
   nullable    = false
 }
 
-variable "spark_history_server_revision" {
+variable "history_server_revision" {
   description = "Charm revision for spark-history-server-k8s"
   type        = number
   default     = null
 }
 
-variable "spark_history_server_image" {
+variable "history_server_image" {
   description = "Image for spark-history-server-k8s"
   type        = map(string)
   default     = null
 }
 
-variable "spark_integration_hub_revision" {
+variable "integration_hub_revision" {
   description = "Charm revision for spark-integration-hub-k8s"
   type        = number
   default     = null
 }
 
-variable "spark_integration_hub_image" {
+variable "integration_hub_image" {
   description = "Image for spark-integration-hub-k8s"
   type        = map(string)
   default     = null
@@ -185,13 +185,13 @@ variable "zookeeper_image" {
   default     = null
 }
 
-variable "s3_integrator_revision" {
+variable "s3_revision" {
   description = "Charm revision for s3-integrator"
   type        = number
   default     = null
 }
 
-variable "azure_storage_integrator_revision" {
+variable "azure_storage_revision" {
   description = "Charm revision for azure-storage-integrator"
   type        = number
   default     = null
@@ -215,7 +215,7 @@ variable "cos_configuration_revision" {
   default     = null
 }
 
-variable "prometheus_pushgateway_revision" {
+variable "pushgateway_revision" {
   description = "Charm revision for prometheus-pushgateway-k8s"
   type        = number
   default     = null
@@ -227,7 +227,7 @@ variable "prometheus_pushgateway_revision" {
 #   default     = null
 # }
 
-variable "prometheus_scrape_config_revision" {
+variable "scrape_config_revision" {
   description = "Charm revision for prometheus-scrape-config-k8s"
   type        = number
   default     = null
