@@ -8,12 +8,12 @@ resource "juju_application" "history_server" {
   charm {
     name     = "spark-history-server-k8s"
     channel  = "3.4/edge"
-    revision = var.spark_history_server_revision
+    revision = var.history_server_revision
   }
 
-  resources = var.spark_history_server_image
+  resources = var.history_server_image
   #{
-  #  spark-history-server-image = var.spark_history_server_image
+  #  spark-history-server-image = var.history_server_image
   #}
 
   units = 1
@@ -90,19 +90,19 @@ resource "juju_application" "metastore" {
   constraints = "arch=amd64"
 }
 
-resource "juju_application" "hub" {
+resource "juju_application" "integration_hub" {
   name  = "integration-hub"
   model = data.juju_model.spark.name
 
   charm {
     name     = "spark-integration-hub-k8s"
     channel  = "latest/edge"
-    revision = var.spark_integration_hub_revision
+    revision = var.integration_hub_revision
   }
 
-  resources = var.spark_integration_hub_image
+  resources = var.integration_hub_image
   #{
-  #  integration-hub-image = var.spark_integration_hub_image
+  #  integration-hub-image = var.integration_hub_image
   #}
 
   units = 1
