@@ -32,10 +32,10 @@ locals {
     spark_integration_hub = {
       integration-hub-image = 5
     }
-    kyuubi                = {
+    kyuubi = {
       kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:b91f24a14889bc4953560c5d54d1cb7c00d5bf238607dde70b02e5ce17190b5f"
     } # 3.5.4-1.9.0-22.04_edge 2025-05-02
-    kyuubi_users          = {
+    kyuubi_users = {
       postgresql-image = 159
     }
     metastore = {
