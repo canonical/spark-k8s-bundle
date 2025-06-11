@@ -81,8 +81,8 @@ jobs:
           juju add-model kubeflow
 
       - name: Test bundle deployment
+        working-directory: ./python/tests/reference_architecture/azure
         run: |
-          cd ./python/tests/reference_architecture/azure
           terraform init
           source get-vars.sh
           terraform apply -auto-approve
@@ -99,6 +99,11 @@ jobs:
       - name: Get juju debug logs
         run: juju debug-log --replay --no-tail
         if: failure() || cancelled()
+
+      - name: Tear down deployment
+        if: always()
+        working-directory: ./python/tests/reference_architecture/azure
+        run: terraform destroy -auto-approve
 
       - name: Delete AKS cluster
         if: always()
