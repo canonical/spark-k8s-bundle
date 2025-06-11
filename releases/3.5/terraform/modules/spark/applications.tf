@@ -135,6 +135,10 @@ resource "juju_application" "data_integrator" {
     revision = 161
   }
 
+  config = {
+    database-name = "integrator"
+  }
+
   units       = 1
   constraints = "arch=amd64"
 }
