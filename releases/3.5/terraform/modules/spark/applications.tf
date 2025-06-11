@@ -125,7 +125,7 @@ resource "juju_application" "zookeeper" {
   constraints = "arch=amd64"
 }
 
-resource "juju_application" "data-integrator" {
+resource "juju_application" "data_integrator" {
   name  = "data-integrator"
   model = data.juju_model.spark.name
 
@@ -136,5 +136,5 @@ resource "juju_application" "data-integrator" {
   }
 
   units       = 1
-  constraints = "arch-amd64"
+  constraints = "arch=amd64"
 }
