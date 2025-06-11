@@ -5,16 +5,18 @@ import logging
 import time
 from collections import defaultdict
 from datetime import date
+from subprocess import check_output
+from typing import cast
 
 import jubilant
 import polars as pl
 import pytest
 from great_tables import GT, loc, md, style
-from pyhive.hive import Cursor
+from impala.hiveserver2 import Cursor
 
 from spark_test.core.kyuubi import KyuubiClient
 
-from ..helpers import get_kyuubi_credentials, get_leader_unit
+from ..helpers import get_kyuubi_credentials
 
 KYUUBI = "kyuubi"
 HUB = "integration-hub"
@@ -51,7 +53,7 @@ def test_active_status(juju: jubilant.Juju) -> None:
     juju.wait(jubilant.all_active)
 
 
-def test_setup_env(juju: jubilant.Juju, sf: str) -> None:
+def test_setup_env(juju: jubilant.Juju, sf: str, spark_client: str) -> None:
     """Setup benchmark environment.
 
     - Persist benchmark data from the connector that generates them on the fly.
@@ -60,29 +62,36 @@ def test_setup_env(juju: jubilant.Juju, sf: str) -> None:
 
     logger.info("Setup TPC-H connector")
 
-    leader_unit = get_leader_unit(juju, HUB)
-    logger.info(f"Leader unit: {leader_unit}")
-    task = juju.run(
-        leader_unit,
-        "add-config",
-        {
-            "conf": "spark.sql.catalog.tpch=org.apache.kyuubi.spark.connector.tpch.TPCHCatalog"
-        },
+    username = str(juju.config("kyuubi")["service-account"])
+    check_output(
+        [
+            f"{spark_client}.service-account-registry",
+            "add-config",
+            "--username",
+            username,
+            "--namespace",
+            cast(str, juju.model),
+            "--conf",
+            "spark.sql.catalog.tpch=org.apache.kyuubi.spark.connector.tpch.TPCHCatalog",
+        ]
     )
-    assert task.return_code == 0
-    task = juju.run(
-        leader_unit,
-        "add-config",
-        {
-            "conf": "spark.jars.packages=org.apache.kyuubi:kyuubi-spark-connector-tpch_2.12:1.9.3"
-        },
+    check_output(
+        [
+            f"{spark_client}.service-account-registry",
+            "add-config",
+            "--username",
+            username,
+            "--namespace",
+            cast(str, juju.model),
+            "--conf",
+            "spark.jars.packages=org.apache.kyuubi:kyuubi-spark-connector-tpch_2.12:1.10.1",
+        ]
     )
-    assert task.return_code == 0
 
-    juju.wait(jubilant.all_active)
+    juju.wait(jubilant.all_active, delay=5)
 
     logger.info("Persist TPC-H data from generator")
-    credentials = get_kyuubi_credentials(juju, "kyuubi")
+    credentials = get_kyuubi_credentials(juju)
     client = KyuubiClient(**credentials)
 
     cursor: Cursor
@@ -109,7 +118,7 @@ def test_run_benchmark_queries(
 ) -> None:
     """Run benchmark queries and generate report."""
     logger.info("Running benchmark queries")
-    credentials = get_kyuubi_credentials(juju, "kyuubi")
+    credentials = get_kyuubi_credentials(juju)
     client = KyuubiClient(**credentials)
 
     cursor: Cursor
@@ -163,30 +172,42 @@ def test_run_benchmark_queries(
     logger.info("Report written to 'report.html'")
 
 
-def cleanup(juju: jubilant.Juju) -> None:
+def cleanup(juju: jubilant.Juju, spark_client: str) -> None:
     """Cleanup deployment.
 
     - Remove persisted data
     - Remove benchmark configuration from integration hub
     """
     logger.info("Cleaning bench data")
-    credentials = get_kyuubi_credentials(juju, "kyuubi")
+    credentials = get_kyuubi_credentials(juju)
     client = KyuubiClient(**credentials)
 
     with client.connection as conn, conn.cursor() as cursor:
         cursor.execute("DROP DATABASE bench;")
 
     logger.info("Cleaning bench config")
-    leader_unit = get_leader_unit(juju, HUB)
-    task = juju.run(
-        leader_unit,
-        "remove-config",
-        {"key": "spark.sql.catalog.tpch"},
+    username = str(juju.config("kyuubi")["service-account"])
+    check_output(
+        [
+            f"{spark_client}.service-account-registry",
+            "remove-config",
+            "--username",
+            username,
+            "--namespace",
+            cast(str, juju.model),
+            "--conf",
+            "spark.sql.catalog.tpch",
+        ]
     )
-    assert task.return_code == 0
-    task = juju.run(
-        leader_unit,
-        "remove-config",
-        {"key": "spark.jars.packages"},
+    check_output(
+        [
+            f"{spark_client}.service-account-registry",
+            "remove-config",
+            "--username",
+            username,
+            "--namespace",
+            cast(str, juju.model),
+            "--conf",
+            "spark.jars.packages",
+        ]
     )
-    assert task.return_code == 0
