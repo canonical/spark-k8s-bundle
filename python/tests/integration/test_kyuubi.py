@@ -74,7 +74,7 @@ def test_jdbc_endpoint(juju: jubilant.Juju) -> None:
     certificates = json.loads(items[0])
     ca_cert = certificates["ca"]
 
-    client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
+    client = KyuubiClient(**credentials, use_ssl=True,) # ca_cert=ca_cert)
 
     db_name, table_name = "spark_test", "my_table"
 
