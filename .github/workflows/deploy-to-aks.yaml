@@ -36,7 +36,11 @@ jobs:
 
       - name: Install CLI tools
         run: |
-          pip install tox 
+          # Install python tooling
+          pipx install tox
+          pipx install poetry
+
+          # Install general tools via snaps
           sudo snap install juju --classic --channel=${{ env.JUJU_VERSION }}/stable
           sudo snap install charmcraft --classic
           sudo snap install terraform  --channel latest/stable --classic
@@ -78,9 +82,8 @@ jobs:
           az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.NAME }} --admin
           juju add-k8s aks --client
           juju bootstrap aks aks-controller
-          juju add-model kubeflow
 
-      - name: Test bundle deployment
+      - name: Deploy Kyuubi Reference Architecture
         working-directory: ./python/tests/reference_architecture/azure
         run: |
           terraform init
@@ -94,7 +97,11 @@ jobs:
         run: |
           juju status --model cos
           juju status --model spark
-        if: failure() || cancelled()
+
+      - name: Run Kyuubi UATs
+        working-directory: ./python
+        run: |
+          tox -e integration-kyuubi -- --no-deploy --keep-models --model spark --cos-model cos
 
       - name: Get juju debug logs
         run: juju debug-log --replay --no-tail
