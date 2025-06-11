@@ -110,3 +110,17 @@ resource "juju_application" "zookeeper" {
   units       = var.zookeeper_units
   constraints = "arch=amd64"
 }
+
+resource "juju_application" "data-integrator" {
+  name  = "data-integrator"
+  model = data.juju_model.spark.name
+
+  charm {
+    name     = "data-integrator"
+    channel  = "latest/stable"
+    revision = 161
+  }
+
+  units       = 1
+  constraints = "arch-amd64"
+}

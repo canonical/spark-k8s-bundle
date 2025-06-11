@@ -70,3 +70,18 @@ resource "juju_integration" "kyuubi_tls" {
     endpoint = var.tls_certificates_endpoint
   }
 }
+
+resource "juju_integration" "kyuubi_data_integrator" {
+  model = data.juju_model.spark.name
+
+  application {
+    name     = juju_application.kyuubi.name
+    endpoint = "jdbc"
+  }
+
+  application {
+    name     = juju_application.data_integrator.name
+    endpoint = "kyuubi"
+  }
+}
+

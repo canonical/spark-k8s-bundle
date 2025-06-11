@@ -50,7 +50,7 @@ def test_authentication_is_enforced(juju: jubilant.Juju) -> None:
     """Test that the authentication has been enabled in the bundle by default
     and thus Kyuubi accept connections with invalid credentials.
     """
-    credentials = get_kyuubi_credentials(juju, "kyuubi")
+    credentials = get_kyuubi_credentials(juju)
     credentials["password"] = "something-random"
 
     with pytest.raises(Exception) as e:
@@ -63,7 +63,7 @@ def test_authentication_is_enforced(juju: jubilant.Juju) -> None:
 def test_jdbc_endpoint(juju: jubilant.Juju) -> None:
     """Test that JDBC connection in Kyuubi works out of the box in bundle."""
 
-    credentials = get_kyuubi_credentials(juju, "kyuubi")
+    credentials = get_kyuubi_credentials(juju)
 
     logger.info("Get certificate from self-signed-certificates operator")
     status = juju.status()
@@ -201,7 +201,7 @@ def test_kyuubi_metrics_in_cos(juju: jubilant.Juju, cos) -> None:
 
 
 def test_drop_table_if_exists(juju: jubilant.Juju) -> None:
-    credentials = get_kyuubi_credentials(juju, "kyuubi")
+    credentials = get_kyuubi_credentials(juju)
     client = KyuubiClient(**credentials, use_ssl=True)
 
     db_name, table_name = "spark_test", "my_table"
