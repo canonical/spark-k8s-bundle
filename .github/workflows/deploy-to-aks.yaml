@@ -103,7 +103,9 @@ jobs:
       - name: Tear down deployment
         if: always()
         working-directory: ./python/tests/reference_architecture/azure
-        run: terraform destroy -auto-approve
+        run: |
+          source get-vars.sh
+          terraform destroy -auto-approve
 
       - name: Delete AKS cluster
         if: always()
