@@ -1,4 +1,4 @@
-name: Create AKS cluster, deploy Kyuubi and run bundle test
+name: Reference Architecture Testing (AKS)
 on:
   pull_request:
 #   workflow_dispatch:

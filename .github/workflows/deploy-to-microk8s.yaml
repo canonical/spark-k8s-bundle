@@ -1,4 +1,4 @@
-name: Create AKS cluster, deploy Kyuubi and run bundle test
+name: Reference Architecture Testing (MicroK8s)
 on:
   pull_request:
 #   workflow_dispatch:
@@ -17,7 +17,7 @@ on:
 #         default: "3.6"
 
 jobs:
-  aks-deployment:
+  microk8s-deployment:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
