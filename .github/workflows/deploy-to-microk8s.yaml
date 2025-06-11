@@ -39,46 +39,24 @@ jobs:
           pipx install poetry
 
           # Install general tools via snaps
-          sudo snap install juju --classic --channel=${{ env.JUJU_VERSION }}/stable
           sudo snap install charmcraft --classic
           sudo snap install terraform  --channel latest/stable --classic
 
           # Check versions
-          juju version
           terraform --version
 
-      - uses: azure/login@v1
+      - name: Setup operator environment
+        uses: charmed-kubernetes/actions-operator@main
         with:
-          creds: ${{ secrets.AKS_SERVICE_PRINCIPAL }}
+          juju-channel: ${{ env.JUJU_VERSION }}/stable
+          provider: microk8s
+          channel: ${{ env.K8S_VERSION }}-strict/stable
+          microk8s-group: snap_microk8s
+          microk8s-addons: "rbac dns minio metallb:10.64.140.43-10.64.140.49"
 
-      - name: Create resource group and cluster
+      - name: Bootstrap controller
         run: |
-          _K8S_VERSION=${{ env.K8S_VERSION }}
-          # Renaming of the version to use _ instead of . 
-          RUN_VERSION="spark-${_K8S_VERSION//./_}"
-          RESOURCE_GROUP=${RUN_VERSION}_rg
-          NAME=${RUN_VERSION}_aks
-          LOCATION=westeurope
-          echo "RESOURCE_GROUP=${RESOURCE_GROUP}" >> $GITHUB_ENV
-          echo "NAME=${NAME}" >> $GITHUB_ENV
-          echo "LOCATION=${LOCATION}" >> $GITHUB_ENV
-          az group create --name ${RESOURCE_GROUP} --location ${LOCATION}
-          az aks create \
-            --resource-group ${RESOURCE_GROUP} \
-            --name ${NAME} \
-            --kubernetes-version ${{ env.K8S_VERSION }} \
-            --node-count 2 \
-            --node-vm-size Standard_D8s_v3 \
-            --node-osdisk-size 100 \
-            --node-osdisk-type Managed \
-            --os-sku Ubuntu \
-            --no-ssh-key
-
-      - name: Add AKS cloud to juju and bootstrap controller
-        run: |
-          az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.NAME }} --admin
-          juju add-k8s aks --client
-          juju bootstrap aks aks-controller
+          juju bootstrap microk8s micro
 
       - name: Deploy Kyuubi Reference Architecture
         working-directory: ./python/tests/reference_architecture/azure
@@ -110,22 +88,3 @@ jobs:
         run: |
           source get-vars.sh
           terraform destroy -auto-approve
-
-      - name: Delete AKS cluster
-        if: always()
-        run: az aks delete --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.NAME }} --yes
-
-      - name: Delete resource groups
-        if: always()
-        run: |
-          az group delete --name ${{ env.RESOURCE_GROUP }} --yes
-          if [ "$(az group exists --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }})" = "true" ]; then
-            az group delete --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }} --yes
-          fi
-
-      - name: Check that resource groups have been deleted, else fail
-        if: always()
-        run: |
-          if [ "$(az group exists --name ${{ env.RESOURCE_GROUP }} )" = "true" ] || [ "$(az group exists --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }})" = "true" ]; then
-            exit 1
-          fi
