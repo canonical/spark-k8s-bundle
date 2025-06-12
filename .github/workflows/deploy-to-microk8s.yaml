@@ -36,6 +36,12 @@ jobs:
           JUJU_VERSION="3.6"
           echo "JUJU_VERSION=${JUJU_VERSION}" >> $GITHUB_ENV
 
+          RUN_VERSION="spark-${_K8S_VERSION//./_}"
+
+          RESOURCE_GROUP=${RUN_VERSION}_rg
+          echo "RESOURCE_GROUP=${RESOURCE_GROUP}" >> $GITHUB_ENV
+
+
       - name: Install CLI tools
         run: |
           # Install python tooling

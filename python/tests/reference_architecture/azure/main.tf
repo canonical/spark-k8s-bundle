@@ -67,5 +67,5 @@ module "spark" {
       logging=module.cos.logging_offer
     }
   }
-  kyuubi_revision = 73
+  kyuubi_revision = 72
 }
