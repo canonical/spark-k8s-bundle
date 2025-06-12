@@ -6,6 +6,9 @@ name: Nightly CI tests
 on:
   schedule:
     - cron: "53 0 * * *" # Daily at 00:53 UTC
+  push:
+    branches:
+      - run-full-test-suite
   workflow_call:
 
 jobs:
@@ -24,6 +27,7 @@ jobs:
           - integration-sparkjob
           - integration-bundle
           - integration-kyuubi
+          - integration-backup-restore
         bundle-backend: ["yaml", "terraform"]
         spark-version: ["3.4.4", "3.5.4"]
         storage-backend: ["s3", "azure"]
@@ -41,6 +45,11 @@ jobs:
           # COS bundle is mandatory for Kyuubi test.
           - tox-env: integration-kyuubi
             cos-model:
+
+          # Backup / Restore tests only supported on Terraform
+          - tox-env: integration-backup-restore
+            bundle-backend: yaml
+
         include:
           - tox-env: integration-basic
             spark-version: 3.4.4
@@ -70,3 +79,4 @@ jobs:
           juju-agent-version: ${{ matrix.juju.agent || '3.6.0' }}
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
+          pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}

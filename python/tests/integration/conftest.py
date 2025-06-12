@@ -173,11 +173,13 @@ def juju(request: pytest.FixtureRequest):
         debug_log = juju.debug_log(limit=50)
         status = juju.cli("status")
 
+    test_passed = True
     if request.session.testsfailed:
         print(debug_log, end="")
         logger.info(status)
+        test_passed = False
 
-    if model is not None and not keep_models:
+    if model is not None and not keep_models and test_passed:
         juju.destroy_model(model_name, destroy_storage=True, force=True)
 
 
