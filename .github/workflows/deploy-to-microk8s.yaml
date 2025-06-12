@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   microk8s-deployment:
-    runs-on: ubuntu-24.04
+    runs-on: ["self-hosted", "linux", "X64", "jammy", "xlarge"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
