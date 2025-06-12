@@ -90,7 +90,8 @@ jobs:
           terraform init
           source get-vars.sh
           export TF_VAR_AZURE_RESOURCE_GROUP="test_aks_${{ env.RESOURCE_GROUP }}"
-          export TF_VAR_AZURE_STORAGE_ACCOUNT="sparkstorage_aks_${{ env.RESOURCE_GROUP }}"
+          _NAME="sparkstorage_aks_${{ env.RESOURCE_GROUP }}"
+          export TF_VAR_AZURE_STORAGE_ACCOUNT=${_NAME//_/}
           terraform apply -auto-approve
 
           juju wait-for model cos --query='forEach(units, unit => unit.agent-status=="idle" && unit.workload-status=="active")' --timeout 30m0s
@@ -117,7 +118,8 @@ jobs:
         run: |
           source get-vars.sh
           export TF_VAR_AZURE_RESOURCE_GROUP="test_aks_${{ env.RESOURCE_GROUP }}"
-          export TF_VAR_AZURE_STORAGE_ACCOUNT="sparkstorage_aks_${{ env.RESOURCE_GROUP }}"
+          _NAME="sparkstorage_aks_${{ env.RESOURCE_GROUP }}"
+          export TF_VAR_AZURE_STORAGE_ACCOUNT=${_NAME//_/}
           terraform destroy -auto-approve
 
       - name: Delete AKS cluster
