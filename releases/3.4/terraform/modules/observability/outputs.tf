@@ -4,7 +4,7 @@
 output "charms" {
   description = "The name of the charms which are part of the deployment."
   value = {
-    agent             = juju_application.agent.name
+    grafana_agent     = juju_application.grafana_agent.name
     cos_configuration = juju_application.cos_configuration.name
     pushgateway       = juju_application.pushgateway.name
     scrape_config     = juju_application.scrape_config.name

@@ -20,7 +20,7 @@ jobs:
           - --backend terraform
         storage-backend:
           - --storage-backend s3
-          - --storage-backend azure
+          - --storage-backend azure_storage
         juju:
           - snap_channel: "3.6/stable"
             agent: "3.6.2"

@@ -13,7 +13,7 @@ data "juju_offer" "loki_logging" {
   url = var.logging_offer
 }
 
-resource "juju_integration" "cos_configuration_agent" {
+resource "juju_integration" "cos_configuration_grafana_agent" {
   model = data.juju_model.spark.name
 
   application {
@@ -22,7 +22,7 @@ resource "juju_integration" "cos_configuration_agent" {
   }
 
   application {
-    name     = juju_application.agent.name
+    name     = juju_application.grafana_agent.name
     endpoint = "grafana-dashboards-consumer"
   }
 }
@@ -41,7 +41,7 @@ resource "juju_integration" "pushgateway_scrape_config" {
   }
 }
 
-resource "juju_integration" "scrape_config_agent" {
+resource "juju_integration" "scrape_config_grafana_agent" {
   model = data.juju_model.spark.name
 
   application {
@@ -50,16 +50,16 @@ resource "juju_integration" "scrape_config_agent" {
   }
 
   application {
-    name     = juju_application.agent.name
+    name     = juju_application.grafana_agent.name
     endpoint = "metrics-endpoint"
   }
 }
 
-resource "juju_integration" "agent_grafana_dashboards" {
+resource "juju_integration" "grafana_agent_grafana_dashboards" {
   model = data.juju_model.spark.name
 
   application {
-    name     = juju_application.agent.name
+    name     = juju_application.grafana_agent.name
     endpoint = "grafana-dashboards-provider"
   }
 
@@ -69,20 +69,20 @@ resource "juju_integration" "agent_grafana_dashboards" {
 
   lifecycle {
     replace_triggered_by = [
-      juju_application.agent.name,
-      juju_application.agent.model,
-      juju_application.agent.constraints,
-      juju_application.agent.placement,
-      juju_application.agent.charm.name,
+      juju_application.grafana_agent.name,
+      juju_application.grafana_agent.model,
+      juju_application.grafana_agent.constraints,
+      juju_application.grafana_agent.placement,
+      juju_application.grafana_agent.charm.name,
     ]
   }
 }
 
-resource "juju_integration" "agent_prometheus" {
+resource "juju_integration" "grafana_agent_prometheus" {
   model = data.juju_model.spark.name
 
   application {
-    name     = juju_application.agent.name
+    name     = juju_application.grafana_agent.name
     endpoint = "send-remote-write"
   }
 
@@ -92,20 +92,20 @@ resource "juju_integration" "agent_prometheus" {
 
   lifecycle {
     replace_triggered_by = [
-      juju_application.agent.name,
-      juju_application.agent.model,
-      juju_application.agent.constraints,
-      juju_application.agent.placement,
-      juju_application.agent.charm.name,
+      juju_application.grafana_agent.name,
+      juju_application.grafana_agent.model,
+      juju_application.grafana_agent.constraints,
+      juju_application.grafana_agent.placement,
+      juju_application.grafana_agent.charm.name,
     ]
   }
 }
 
-resource "juju_integration" "agent_loki" {
+resource "juju_integration" "grafana_agent_loki" {
   model = data.juju_model.spark.name
 
   application {
-    name     = juju_application.agent.name
+    name     = juju_application.grafana_agent.name
     endpoint = "logging-consumer"
   }
 
@@ -115,11 +115,11 @@ resource "juju_integration" "agent_loki" {
 
   lifecycle {
     replace_triggered_by = [
-      juju_application.agent.name,
-      juju_application.agent.model,
-      juju_application.agent.constraints,
-      juju_application.agent.placement,
-      juju_application.agent.charm.name,
+      juju_application.grafana_agent.name,
+      juju_application.grafana_agent.model,
+      juju_application.grafana_agent.constraints,
+      juju_application.grafana_agent.placement,
+      juju_application.grafana_agent.charm.name,
     ]
   }
 }
@@ -132,12 +132,12 @@ resource "juju_integration" "pushgateway_integration_hub" {
   }
 
   application {
-    name     = var.spark_charms.hub
+    name     = var.spark_charms.integration_hub
     endpoint = "cos"
   }
 }
 
-resource "juju_integration" "history_server_agent_dashboard" {
+resource "juju_integration" "history_server_grafana_agent_dashboard" {
   model = data.juju_model.spark.name
 
   application {
@@ -146,12 +146,12 @@ resource "juju_integration" "history_server_agent_dashboard" {
   }
 
   application {
-    name     = juju_application.agent.name
+    name     = juju_application.grafana_agent.name
     endpoint = "grafana-dashboards-consumer"
   }
 }
 
-resource "juju_integration" "history_server_agent_logging" {
+resource "juju_integration" "history_server_grafana_agent_logging" {
   model = data.juju_model.spark.name
 
   application {
@@ -160,12 +160,12 @@ resource "juju_integration" "history_server_agent_logging" {
   }
 
   application {
-    name     = juju_application.agent.name
+    name     = juju_application.grafana_agent.name
     endpoint = "logging-provider"
   }
 }
 
-resource "juju_integration" "history_server_agent_metrics" {
+resource "juju_integration" "history_server_grafana_agent_metrics" {
   model = data.juju_model.spark.name
 
   application {
@@ -174,12 +174,12 @@ resource "juju_integration" "history_server_agent_metrics" {
   }
 
   application {
-    name     = juju_application.agent.name
+    name     = juju_application.grafana_agent.name
     endpoint = "metrics-endpoint"
   }
 }
 
-resource "juju_integration" "kyuubi_agent_metrics" {
+resource "juju_integration" "kyuubi_grafana_agent_metrics" {
   model = data.juju_model.spark.name
 
   application {
@@ -188,12 +188,12 @@ resource "juju_integration" "kyuubi_agent_metrics" {
   }
 
   application {
-    name     = juju_application.agent.name
+    name     = juju_application.grafana_agent.name
     endpoint = "metrics-endpoint"
   }
 }
 
-resource "juju_integration" "kyuubi_agent_dashboards" {
+resource "juju_integration" "kyuubi_grafana_agent_dashboards" {
   model = data.juju_model.spark.name
 
   application {
@@ -202,12 +202,12 @@ resource "juju_integration" "kyuubi_agent_dashboards" {
   }
 
   application {
-    name     = juju_application.agent.name
+    name     = juju_application.grafana_agent.name
     endpoint = "grafana-dashboards-consumer"
   }
 }
 
-resource "juju_integration" "kyuubi_agent_logging" {
+resource "juju_integration" "kyuubi_grafana_agent_logging" {
   model = data.juju_model.spark.name
 
   application {
@@ -216,21 +216,21 @@ resource "juju_integration" "kyuubi_agent_logging" {
   }
 
   application {
-    name     = juju_application.agent.name
+    name     = juju_application.grafana_agent.name
     endpoint = "logging-provider"
   }
 }
 
-resource "juju_integration" "hub_agent_logging" {
+resource "juju_integration" "integration_hub_grafana_agent_logging" {
   model = data.juju_model.spark.name
 
   application {
-    name     = var.spark_charms.hub
+    name     = var.spark_charms.integration_hub
     endpoint = "logging"
   }
 
   application {
-    name     = juju_application.agent.name
+    name     = juju_application.grafana_agent.name
     endpoint = "logging-provider"
   }
 }

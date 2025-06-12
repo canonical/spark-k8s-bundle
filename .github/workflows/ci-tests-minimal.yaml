@@ -24,7 +24,7 @@ jobs:
           - integration-kyuubi
         bundle-backend: ["terraform"]
         spark-version: ["3.4.4"]
-        storage-backend: ["s3", "azure"]
+        storage-backend: ["s3", "azure_storage"]
         cos-model: ["cos"]
         juju:
           - snap_channel: "3.5/stable"

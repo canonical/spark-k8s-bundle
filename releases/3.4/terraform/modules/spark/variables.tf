@@ -35,25 +35,25 @@ variable "tls_certificates_endpoint" {
   nullable    = false
 }
 
-variable spark_history_server_revision {
+variable history_server_revision {
   description = "Charm revision for spark-history-server-k8s"
   type        = number
   nullable    = false
 }
 
-variable spark_history_server_image {
+variable history_server_image {
   description = "Image for spark-history-server-k8s"
   type        = map(string)
   nullable    = false
 }
 
-variable spark_integration_hub_revision {
+variable integration_hub_revision {
   description = "Charm revision for spark-integration-hub-k8s"
   type        = number
   nullable    = false
 }
 
-variable spark_integration_hub_image {
+variable integration_hub_image {
   description = "Image for spark-integration-hub-k8s"
   type        = map(string)
   nullable    = false

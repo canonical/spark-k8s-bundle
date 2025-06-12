@@ -42,7 +42,7 @@ def spark_properties(
 ):
     if storage_backend == "s3":
         storage_properties = request.getfixturevalue("s3_properties")
-    elif storage_backend == "azure":
+    elif storage_backend == "azure_storage":
         storage_properties = request.getfixturevalue("azure_properties")
     else:
         return ValueError("storage_backend argument not recognized")

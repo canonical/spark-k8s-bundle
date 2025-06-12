@@ -40,29 +40,29 @@ module "spark" {
   tls_app_name              = module.ssc.app_name
   tls_certificates_endpoint = module.ssc.provides.certificates
 
-  spark_history_server_revision  = var.spark_history_server_revision != null ? var.spark_history_server_revision : local.revisions.spark_history_server
-  spark_history_server_image     = var.spark_history_server_image != null ? var.spark_history_server_image : local.images.spark_history_server
-  spark_integration_hub_revision = var.spark_integration_hub_revision != null ? var.spark_integration_hub_revision : local.revisions.spark_integration_hub
-  spark_integration_hub_image    = var.spark_integration_hub_image != null ? var.spark_integration_hub_image : local.images.spark_integration_hub
-  kyuubi_revision                = var.kyuubi_revision != null ? var.kyuubi_revision : local.revisions.kyuubi
-  kyuubi_image                   = var.kyuubi_image != null ? var.kyuubi_image : local.images.kyuubi
-  kyuubi_users_revision          = var.kyuubi_users_revision != null ? var.kyuubi_users_revision : local.revisions.kyuubi_users
-  kyuubi_users_image             = var.kyuubi_users_image != null ? var.kyuubi_users_image : local.images.kyuubi_users
-  metastore_revision             = var.metastore_revision != null ? var.metastore_revision : local.revisions.metastore
-  metastore_image                = var.metastore_image != null ? var.metastore_image : local.images.metastore
-  zookeeper_revision             = var.zookeeper_revision != null ? var.zookeeper_revision : local.revisions.zookeeper
-  zookeeper_image                = var.zookeeper_image != null ? var.zookeeper_image : local.images.zookeeper
+  history_server_revision  = var.history_server_revision != null ? var.history_server_revision : local.revisions.history_server
+  history_server_image     = var.history_server_image != null ? var.history_server_image : local.images.history_server
+  integration_hub_revision = var.integration_hub_revision != null ? var.integration_hub_revision : local.revisions.integration_hub
+  integration_hub_image    = var.integration_hub_image != null ? var.integration_hub_image : local.images.integration_hub
+  kyuubi_revision          = var.kyuubi_revision != null ? var.kyuubi_revision : local.revisions.kyuubi
+  kyuubi_image             = var.kyuubi_image != null ? var.kyuubi_image : local.images.kyuubi
+  kyuubi_users_revision    = var.kyuubi_users_revision != null ? var.kyuubi_users_revision : local.revisions.kyuubi_users
+  kyuubi_users_image       = var.kyuubi_users_image != null ? var.kyuubi_users_image : local.images.kyuubi_users
+  metastore_revision       = var.metastore_revision != null ? var.metastore_revision : local.revisions.metastore
+  metastore_image          = var.metastore_image != null ? var.metastore_image : local.images.metastore
+  zookeeper_revision       = var.zookeeper_revision != null ? var.zookeeper_revision : local.revisions.zookeeper
+  zookeeper_image          = var.zookeeper_image != null ? var.zookeeper_image : local.images.zookeeper
 }
 
-module "azure" {
-  depends_on   = [module.spark]
-  count        = var.storage_backend == "azure" ? 1 : 0
-  source       = "./modules/azure-storage"
-  model        = var.model
-  spark_charms = module.spark.charms
-  azure        = var.azure
+module "azure_storage" {
+  depends_on    = [module.spark]
+  count         = var.storage_backend == "azure_storage" ? 1 : 0
+  source        = "./modules/azure-storage"
+  model         = var.model
+  spark_charms  = module.spark.charms
+  azure_storage = var.azure_storage
 
-  azure_storage_integrator_revision = var.azure_storage_integrator_revision != null ? var.azure_storage_integrator_revision : local.revisions.azure_storage_integrator
+  azure_storage_revision = var.azure_storage_revision != null ? var.azure_storage_revision : local.revisions.azure_storage
 }
 
 module "s3" {
@@ -73,7 +73,7 @@ module "s3" {
   spark_charms = module.spark.charms
   s3           = var.s3
 
-  s3_integrator_revision = var.s3_integrator_revision != null ? var.s3_integrator_revision : local.revisions.s3_integrator
+  s3_revision = var.s3_revision != null ? var.s3_revision : local.revisions.s3
 }
 
 module "external_cos" {
@@ -99,8 +99,8 @@ module "observability" {
 
   grafana_agent_revision = var.grafana_agent_revision != null ? var.grafana_agent_revision : local.revisions.grafana_agent
   # grafana_agent_image = var.grafana_agent_image != null ? var.grafana_agent_image : local.images.grafana_agent
-  cos_configuration_revision      = var.cos_configuration_revision != null ? var.cos_configuration_revision : local.revisions.cos_configuration
-  prometheus_pushgateway_revision = var.prometheus_pushgateway_revision != null ? var.prometheus_pushgateway_revision : local.revisions.prometheus_pushgateway
-  # prometheus_pushgateway_image = var.prometheus_pushgateway_image != null ? var.prometheus_pushgateway_image : local.images.prometheus_pushgateway
-  prometheus_scrape_config_revision = var.prometheus_scrape_config_revision != null ? var.prometheus_scrape_config_revision : local.revisions.prometheus_scrape_config
+  cos_configuration_revision = var.cos_configuration_revision != null ? var.cos_configuration_revision : local.revisions.cos_configuration
+  pushgateway_revision       = var.pushgateway_revision != null ? var.pushgateway_revision : local.revisions.pushgateway
+  # prometheus_pushgateway_image = var.pushgateway_image != null ? var.pushgateway_image : local.images.prometheus_pushgateway
+  scrape_config_revision = var.scrape_config_revision != null ? var.scrape_config_revision : local.revisions.scrape_config
 }

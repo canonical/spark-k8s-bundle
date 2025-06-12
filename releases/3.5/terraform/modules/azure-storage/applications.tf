@@ -7,13 +7,13 @@ resource "juju_application" "azure_storage" {
   charm {
     name     = "azure-storage-integrator"
     channel  = "latest/edge"
-    revision = var.azure_storage_integrator_revision
+    revision = var.azure_storage_revision
   }
   config = {
-    container           = var.azure.container
-    storage-account     = var.azure.storage_account
-    path                = var.azure.path
-    connection-protocol = var.azure.protocol
+    container           = var.azure_storage.container
+    storage-account     = var.azure_storage.storage_account
+    path                = var.azure_storage.path
+    connection-protocol = var.azure_storage.protocol
     credentials         = "secret:${juju_secret.azure_blob_storage_secret.secret_id}"
   }
   units       = 1

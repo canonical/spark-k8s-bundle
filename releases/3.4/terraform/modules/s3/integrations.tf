@@ -15,7 +15,7 @@ resource "juju_integration" "s3_history_server" {
   }
 }
 
-resource "juju_integration" "s3_hub" {
+resource "juju_integration" "s3_integration_hub" {
   model = data.juju_model.spark.name
 
   application {
@@ -24,7 +24,7 @@ resource "juju_integration" "s3_hub" {
   }
 
   application {
-    name     = var.spark_charms.hub
+    name     = var.spark_charms.integration_hub
     endpoint = "s3-credentials"
   }
 }

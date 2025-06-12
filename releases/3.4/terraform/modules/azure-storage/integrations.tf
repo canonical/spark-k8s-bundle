@@ -1,7 +1,7 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-resource "juju_integration" "history_server_azure" {
+resource "juju_integration" "history_server_azure_storage" {
   model = data.juju_model.spark.name
 
   application {
@@ -15,7 +15,7 @@ resource "juju_integration" "history_server_azure" {
   }
 }
 
-resource "juju_integration" "azure_hub" {
+resource "juju_integration" "azure_storage_integration_hub" {
   model = data.juju_model.spark.name
 
   application {
@@ -24,7 +24,7 @@ resource "juju_integration" "azure_hub" {
   }
 
   application {
-    name     = var.spark_charms.hub
+    name     = var.spark_charms.integration_hub
     endpoint = "azure-storage-credentials"
   }
 }
