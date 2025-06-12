@@ -45,8 +45,8 @@ jobs:
       - name: Install CLI tools
         run: |
           # Install python tooling
-          pipx install tox
-          pipx install poetry
+          pip install tox
+          pip install poetry
 
           # Install general tools via snaps
           sudo snap install charmcraft --classic
