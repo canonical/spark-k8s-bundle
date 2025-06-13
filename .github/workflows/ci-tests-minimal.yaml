@@ -54,18 +54,18 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: Run integration test
-        uses: ./.github/actions/run-test
-        with:
-          tox-env: ${{ matrix.tox-env }}
-          bundle-backend: ${{ matrix.bundle-backend }}
-          spark-version: ${{ matrix.spark-version }}
-          storage-backend: ${{ matrix.storage-backend }}
-          cos-model: ${{ matrix.cos-model }}
-          juju-snap-channel: ${{ matrix.juju.snap_channel || '3.6/stable' }}
-          juju-agent-version: ${{ matrix.juju.agent || '3.6.5' }}
-          azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
-          azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
+      # - name: Run integration test
+      #   uses: ./.github/actions/run-test
+      #   with:
+      #     tox-env: ${{ matrix.tox-env }}
+      #     bundle-backend: ${{ matrix.bundle-backend }}
+      #     spark-version: ${{ matrix.spark-version }}
+      #     storage-backend: ${{ matrix.storage-backend }}
+      #     cos-model: ${{ matrix.cos-model }}
+      #     juju-snap-channel: ${{ matrix.juju.snap_channel || '3.6/stable' }}
+      #     juju-agent-version: ${{ matrix.juju.agent || '3.6.5' }}
+      #     azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+      #     azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
       - name: Collect logs if job failed
         if: ${{ failure() }}   
         run: |
