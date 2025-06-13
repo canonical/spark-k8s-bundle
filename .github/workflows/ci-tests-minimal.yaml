@@ -74,13 +74,13 @@ jobs:
       - name: Write matrix result
         if: always()
         run: |
-          echo '{"tox-env": "${{ matrix.tox-env }}", "spark-version": "${{ matrix.spark-version }}", "bundle-backend": "${{ matrix.bundle-backend }}", "storage-backend": "${{ matrix.storage-backend }}", "cos": "${{ matrix.cos-model != '' }}", "juju-version": "${{ matrix.juju.agent }}", "status": "${{ job.status }}"}' > result-${{ matrix.tox-env }}-${{ matrix.spark-version }}-${{ matrix.bundle-backend }}-${{ matrix.storage-backend }}-${{ matrix.cos-model }}-${{ matrix.juju.agent }}.json
+          echo '{"tox-env": "${{ matrix.tox-env }}", "spark-version": "${{ matrix.spark-version }}", "bundle-backend": "${{ matrix.bundle-backend }}", "storage-backend": "${{ matrix.storage-backend }}", "cos": "${{ matrix.cos-model != '' }}", "juju-version": "${{ matrix.juju.agent }}", "status": "${{ job.status }}"}' > matrix-result.json
       - name: Upload result artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: "matrix-results"
-          path: result-*.json
+          name: integration-results-${{ matrix.tox-env }}-${{ matrix.spark-version }}-${{ matrix.bundle-backend }}-${{ matrix.storage-backend || 'none' }}-${{ matrix.cos-model || 'none' }}-${{ matrix.juju.agent || 'none' }}
+          path: matrix-result.json
   
   aggregate-results:
     name: Aggregate Results
@@ -93,7 +93,6 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: matrix-results
           path: results
       - id: setup-python
         name: Setup Python
@@ -107,7 +106,7 @@ jobs:
           pipx install tabulate
 
       - name: Run result aggregation script
-        run: python3 .github/scripts/aggregate_results.py results/
+        run: python3 .github/scripts/aggregate_results.py results/integration-results-*
 
       - name: Upload summary
         uses: actions/upload-artifact@v4
