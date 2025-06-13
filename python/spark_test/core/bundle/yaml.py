@@ -78,8 +78,6 @@ class YamlBackend(BundleBackend):
 
     def destroy(self):
         """Destroy the bundle."""
-        # for app in self.deployed_applications:
-        #     command = ["juju", "remove-application", "--force", "--no-prompt", app]
-        #     self.execute(command)
-        """Destroy the bundle."""
-        pass
+        for app in self.deployed_applications:
+            command = ["juju", "remove-application", "--force", "--no-prompt", app]
+            self.execute(command)

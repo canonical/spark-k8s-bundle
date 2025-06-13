@@ -10,16 +10,28 @@ import botocore
 import jubilant
 import psycopg2
 import pytest
-from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
+from tenacity import (
+    Retrying,
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_fixed,
+)
 
+from spark_test.core import ObjectStorageUnit
 from spark_test.core.kyuubi import KyuubiClient
-from spark_test.core.s3 import Bucket
 
 from .helpers import (
+    get_active_kyuubi_servers_list,
+    get_cos_address,
     get_kyuubi_ca_cert,
     get_kyuubi_credentials,
     get_postgresql_credentials,
     local_tmp_folder,
+    published_grafana_dashboards,
+    published_loki_logs,
+    published_prometheus_alerts,
+    published_prometheus_data,
 )
 from .types import PortForwarder
 
@@ -37,12 +49,14 @@ BACKUP_S3_INTEGRATOR_APP_NAME = "metastore-backup"
 
 @pytest.fixture(scope="module")
 def context():
+    """A common data store read+writeable by all tests."""
     context = {}
     return context
 
 
 @pytest.fixture(scope="module")
 def host_ip():
+    """The IP address of the host running these tests."""
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
         s.connect(("1.1.1.1", 80))
         return s.getsockname()[0]
@@ -221,15 +235,14 @@ def microceph_credentials(host_ip: str, certs_path):
 
 @pytest.mark.usefixtures("spark_bundle")
 class TestFirstDeployment:
-    @pytest.mark.skip_if_deployed
-    def test_deploy_bundle(self, spark_bundle):
-        """Deploy bundle."""
-        deployed_applications = spark_bundle
-        logger.info(f"Deployed applications: {deployed_applications}")
-
     def test_active_status(self, juju: jubilant.Juju) -> None:
         """Test whether the bundle has deployed successfully."""
         juju.wait(jubilant.all_active, delay=5)
+
+    def test_ha_enabled(self, juju: jubilant.Juju) -> None:
+        """Test the bundle has HA enabled, and there are exactly 3 units of Kyuubi active."""
+        active_servers = get_active_kyuubi_servers_list(juju)
+        assert len(active_servers) == 3
 
     def test_database_operations(self, juju: jubilant.Juju, context) -> None:
         """Test some read / write operations on the database."""
@@ -253,6 +266,9 @@ class TestFirstDeployment:
             ("jordan", "usa", 1963),
         )
         assert len(list(table.rows())) == 3
+
+        # Store the old admin password into context, we need this later to restore
+        # this same password in the new deployment.
         context["old_admin_password"] = credentials["password"]
 
     def test_external_metastore_is_used(
@@ -291,20 +307,20 @@ class TestFirstDeployment:
 
     def test_files_in_object_storage(self, object_storage) -> None:
         """Test that the data files have indeed been created in object storage."""
-        bucket: Bucket = object_storage
+        bucket: ObjectStorageUnit = object_storage
         assert bucket.exists()
 
         data_files = [
             blob
-            for blob in bucket.list_objects()
-            if blob["Key"].startswith(f"warehouse/{TEST_DB_NAME}.db/{TEST_TABLE_NAME}/")
-            and blob["Size"] > 0
+            for blob in bucket.list_content()
+            if blob.startswith(f"warehouse/{TEST_DB_NAME}.db/{TEST_TABLE_NAME}/")
         ]
         assert len(data_files) > 0
 
     def test_deploy_backup_s3_integrator(
         self, juju: jubilant.Juju, microceph_credentials
     ) -> None:
+        """Deploy an extra instance of s3-integrator, this time for creating Postgresql (metastore) backup."""
         juju.deploy("s3-integrator", app=BACKUP_S3_INTEGRATOR_APP_NAME, channel="edge")
         juju.wait(
             lambda status: jubilant.all_blocked(status, BACKUP_S3_INTEGRATOR_APP_NAME)
@@ -338,6 +354,7 @@ class TestFirstDeployment:
         )
 
     def test_create_metastore_backup(self, juju: jubilant.Juju, context) -> None:
+        """Create Postgres (metastore) backup."""
         juju.integrate(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
         juju.wait(
             lambda status: jubilant.all_active(
@@ -374,6 +391,7 @@ class TestFirstDeployment:
     reraise=True,
 )
 def test_first_deployment_destroyed(context) -> None:
+    """Ensure that the first deployment has destroyed completely."""
     try:
         model_name = context["old_model"]
         subprocess.run(["juju", "status", "--model", model_name], check=True)
@@ -392,9 +410,15 @@ class TestNewDeployment:
         """Test whether the bundle has deployed successfully."""
         juju.wait(jubilant.all_active, delay=5)
 
+    def test_ha_enabled(self, juju: jubilant.Juju) -> None:
+        """Test the bundle has HA enabled, and there are exactly 3 units of Kyuubi active."""
+        active_servers = get_active_kyuubi_servers_list(juju)
+        assert len(active_servers) == 3
+
     def test_deploy_backup_s3_integrator(
         self, juju: jubilant.Juju, microceph_credentials
     ) -> None:
+        """Deploy an extra instance of s3-integrator, this time for restoring Postgresql (metastore) backup."""
         juju.deploy("s3-integrator", app=BACKUP_S3_INTEGRATOR_APP_NAME, channel="edge")
         juju.wait(
             lambda status: jubilant.all_blocked(status, BACKUP_S3_INTEGRATOR_APP_NAME)
@@ -428,7 +452,9 @@ class TestNewDeployment:
         )
 
     def test_remove_kyuubi_and_metastore_relation(self, juju: jubilant.Juju):
-        # It is necessary to break and recreate kyuubi <> metastore relation for metastore restore to work
+        """Remove kyuubi <> metastore relation to prepare metastore for restoration of backup."""
+        # It is necessary to break kyuubi <> metastore relation
+        # and recreate it later for metastore restore to work
         juju.remove_relation(METASTORE_APP_NAME, f"{KYUUBI_APP_NAME}:metastore-db")
         juju.wait(
             lambda status: jubilant.all_active(
@@ -440,6 +466,7 @@ class TestNewDeployment:
         )
 
     def test_restore_metastore_backup(self, juju: jubilant.Juju, context) -> None:
+        """Restore the backup from previous deployment on Postgres (metastore)."""
         juju.integrate(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
         juju.wait(jubilant.all_agents_idle)
         juju.wait(
@@ -484,6 +511,7 @@ class TestNewDeployment:
         )
 
     def test_remove_backup_s3_integrator(self, juju: jubilant.Juju):
+        """Remove the extra instance of S3 integrator after the metastore restoration is complete."""
         juju.remove_relation(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
         juju.wait(
             lambda status: jubilant.all_active(
@@ -501,6 +529,7 @@ class TestNewDeployment:
         )
 
     def test_reintegrate_kyuubi_with_metastore(self, juju: jubilant.Juju):
+        """Add backup kyuubi <> metastore relation after the metastore restoration is complete."""
         # Now re-integrate the metastore back to kyuubi
         juju.integrate(METASTORE_APP_NAME, f"{KYUUBI_APP_NAME}:metastore-db")
         juju.wait(jubilant.all_active, delay=5)
@@ -512,6 +541,14 @@ class TestNewDeployment:
             container="kyuubi",
         )
         assert "Done with metastore validation: [SUCCESS]" in output
+
+    def test_restore_admin_password(self, juju: jubilant.Juju, context):
+        """Restore the admin password from the previous deployment"""
+        # TODO: Implement logic to restore admin password
+        # old_admin_password = context["old_admin_password"]
+        # resore_admin_password(old_admin_password)
+        # new_admin_password = fetch_admin_password()
+        # assert old_admin_password == new_admin_password
 
     def test_old_tables_are_restored_in_metastore(
         self, juju: jubilant.Juju, port_forward: PortForwarder
@@ -553,8 +590,8 @@ class TestNewDeployment:
         credentials = get_kyuubi_credentials(juju, "kyuubi")
         ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
 
-        # TODO: Re-enable this once password restore mechanism is implemented
-        # assert context["old_admin_password"] == credentials["password"]
+        # TODO: Implement this once password restore mechanism is implemented
+        # credentials.update({"password": context["old_admin_password"]})
 
         kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
 
@@ -576,6 +613,7 @@ class TestNewDeployment:
         assert len(table_rows) == 3
 
     def test_insert_new_rows(self, juju: jubilant.Juju) -> None:
+        """Test that the new rows of data are being inserted on top of what's already there."""
         credentials = get_kyuubi_credentials(juju, "kyuubi")
         ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
 
@@ -591,3 +629,61 @@ class TestNewDeployment:
         assert {"name": "jumanu", "country": "nepal", "year_birth": 1995} in list(
             table.rows()
         )
+
+    def test_kyuubi_metrics_in_cos(self, cos) -> None:
+        """Test that the Kyuubi metrics are visible in COS after the restoration has completed."""
+        if not cos:
+            pytest.skip("Not possible to test without cos")
+
+        # We should leave time for Prometheus data to be published
+        for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
+            with attempt:
+                cos_address = get_cos_address(cos_model_name=cos)
+                assert published_prometheus_data(cos, cos_address, "kyuubi_jvm_uptime")
+
+                # Alerts got published to Prometheus
+                alerts_data = published_prometheus_alerts(cos, cos_address)
+                assert alerts_data is not None
+                logger.info(f"Alerts data: {alerts_data}")
+
+                logger.info("Rules: ")
+                for group in alerts_data["data"]["groups"]:
+                    for rule in group["rules"]:
+                        logger.info(f"Rule: {rule['name']}")
+                logger.info("End of rules.")
+
+                for alert in [
+                    "KyuubiBufferPoolCapacityLow",
+                    "KyuubiJVMUptime",
+                ]:
+                    assert any(
+                        rule["name"] == alert
+                        for group in alerts_data["data"]["groups"]
+                        for rule in group["rules"]
+                    )
+
+                # Grafana dashboard got published
+                dashboards_info = published_grafana_dashboards(cos)
+                assert dashboards_info is not None
+                logger.info(f"Dashboard info {dashboards_info}")
+                assert any(board["title"] == "Kyuubi" for board in dashboards_info)
+
+                # Loki logs are ingested
+                logs = published_loki_logs(
+                    cos,
+                    cos_address,
+                    "juju_application",
+                    KYUUBI_APP_NAME,
+                    5000,
+                )
+                assert logs
+                logger.debug(f"Retrieved logs: {logs}")
+
+                # check for non empty logs
+                assert len(logs) > 0
+
+                # check if Kyuubi related logs are there...
+                assert any(
+                    "org.apache.kyuubi.session.KyuubiSessionImpl:" in message
+                    for _, message in logs.items()
+                )

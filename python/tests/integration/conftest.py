@@ -259,54 +259,67 @@ def integration_test(request):
         )
 
 
-@pytest.fixture(scope="module")
-def cos(cos_model: str, backend: str):
+@pytest.fixture(scope="class")
+def cos(cos_model: str, backend: str, request: pytest.FixtureRequest):
     """
     Deploy COS bundle depending upon the value of cos_model fixture, and yield its value.
     """
     if not cos_model:
-        return None
+        yield None
+        return
 
     cos = jubilant.Juju()
     cos.model = cos_model
     try:
         cos.status()
-        return cos_model
+        yield cos_model
     except jubilant.CLIError:
         cos.add_model(COS_ALIAS)
+        cos.model = COS_ALIAS
 
-    if backend == BundleBackendEnum.YAML.value:
-        base_url = (
-            "https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays"
-        )
+        if backend == BundleBackendEnum.YAML.value:
+            base_url = "https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays"
 
-        overlays = ["offers-overlay.yaml", "testing-overlay.yaml"]
+            overlays = ["offers-overlay.yaml", "testing-overlay.yaml"]
 
-        def create_file(path: Path, response: httpx.Response):
-            path.write_text(response.content.decode("utf-8"))
-            return path
+            def create_file(path: Path, response: httpx.Response):
+                path.write_text(response.content.decode("utf-8"))
+                return path
 
-        with local_tmp_folder("tmp-cos") as tmp_folder:
-            logger.info(tmp_folder)
+            with local_tmp_folder("tmp-cos") as tmp_folder:
+                logger.info(tmp_folder)
 
-            cos_bundle = Bundle[str | Path](
-                main="cos-lite",
-                overlays=[
-                    create_file(tmp_folder / overlay, response)
-                    for overlay in overlays
-                    if (response := httpx.get(f"{base_url}/{overlay}"))
-                    if response.status_code == 200
-                ],
-            )
+                cos_bundle = Bundle[str | Path](
+                    main="cos-lite",
+                    overlays=[
+                        create_file(tmp_folder / overlay, response)
+                        for overlay in overlays
+                        if (response := httpx.get(f"{base_url}/{overlay}"))
+                        if response.status_code == 200
+                    ],
+                )
 
-            cos.add_model(COS_ALIAS)
+                # cos.add_model(COS_ALIAS)
 
-            deploy_bundle(cos, cos_bundle)
+                deploy_bundle(cos, cos_bundle)
 
-            cos.offer("traefik", endpoint="ingress")
-            cos.wait(lambda status: jubilant.all_active(status, "traefik"))
+                cos.offer("traefik", endpoint="ingress")
+                cos.wait(lambda status: jubilant.all_active(status, "traefik"))
 
-    return cos_model
+        yield cos_model
+    finally:
+        debug_log = cos.debug_log(limit=50)
+        status = cos.cli("status")
+
+        test_passed = True
+        if request.session.testsfailed:
+            print(debug_log, end="")
+            logger.info(status)
+            test_passed = False
+
+        keep_models = bool(request.config.getoption("--keep-models"))
+        if not keep_models and test_passed:
+            cos.destroy_model(cos.model, destroy_storage=True, force=True)
 
 
 @contextlib.contextmanager
@@ -329,6 +342,7 @@ def track_model(model: str) -> Generator[jubilant.Juju]:
 
 @pytest.fixture(scope="module")
 def object_storage(request, storage_backend):
+    """Object storage to be used for tests."""
     if storage_backend == "s3":
         return request.getfixturevalue("bucket")
     elif storage_backend == "azure":
@@ -430,6 +444,7 @@ def port_forward(kubectl: str):
 
 @pytest.fixture(scope="class")
 def tempdir():
+    """A temporary directory to be used for tests."""
     with local_tmp_folder() as tmp_folder:
         yield tmp_folder
 
@@ -445,6 +460,7 @@ def spark_bundle(
     storage_backend,
     object_storage,
 ):
+    """Deploy the Spark K8s bundle, with appropriate backend and object storage."""
     short_version = ".".join(spark_version.split(".")[:2])
     release_path = RELEASE_DIR / short_version / backend
 
@@ -482,7 +498,12 @@ def spark_bundle(
         )
 
     elif backend == BundleBackendEnum.YAML.value:
-        bundle_file = release_path / "bundle.yaml.j2"
+        bundle_yaml_filename = (
+            "bundle-azure-storage.yaml.j2"
+            if storage_backend == "azure"
+            else "bundle.yaml.j2"
+        )
+        bundle_file = release_path / bundle_yaml_filename
         overlays = (
             [release_path / "overlays" / "cos-integration.yaml.j2"] if cos else []
         )
@@ -555,4 +576,6 @@ def spark_bundle(
 
     yield deployed_applications
 
-    # bundle.destroy()
+    # In our tests, we leave the teardown responsibility to the Juju model fixture
+    # and thus do not explicitly call bundle.destroy() here. When the test passes,
+    # The juju model is destroyed, which will effectively remove apps and units.
