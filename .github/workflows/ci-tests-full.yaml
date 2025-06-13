@@ -6,6 +6,11 @@ name: Nightly CI tests
 on:
   schedule:
     - cron: "53 0 * * *" # Daily at 00:53 UTC
+  push:
+    tags:
+      # Force pushing this tag will trigger full set of tests
+      - test-run-full-test-suite 
+
   workflow_call:
 
 jobs:
@@ -24,6 +29,7 @@ jobs:
           - integration-sparkjob
           - integration-bundle
           - integration-kyuubi
+          - integration-backup-restore
         bundle-backend: ["yaml", "terraform"]
         spark-version: ["3.4.4", "3.5.4"]
         storage-backend: ["s3", "azure"]
@@ -32,7 +38,7 @@ jobs:
           - snap_channel: "3.5/stable"
             agent: "3.5.6"
           - snap_channel: "3.6/stable"
-            agent: "3.6.0"
+            agent: "3.6.5"
         exclude:
           # COS bundle is mandatory for sparkjob test.
           - tox-env: integration-sparkjob
@@ -41,17 +47,22 @@ jobs:
           # COS bundle is mandatory for Kyuubi test.
           - tox-env: integration-kyuubi
             cos-model:
+
+          # Backup / Restore tests only supported on Terraform
+          - tox-env: integration-backup-restore
+            bundle-backend: yaml
+
         include:
           - tox-env: integration-basic
             spark-version: 3.4.4
             juju:
               - snap_channel: "3.6/stable"
-                agent: "3.6.0"
+                agent: "3.6.5"
           - tox-env: integration-basic
             spark-version: 3.5.4
             juju:
               - snap_channel: "3.6/stable"
-                agent: "3.6.0"
+                agent: "3.6.5"
     needs:
       - checks
     steps:
@@ -67,6 +78,52 @@ jobs:
           storage-backend: ${{ matrix.storage-backend }}
           cos-model: ${{ matrix.cos-model }}
           juju-snap-channel: ${{ matrix.juju.snap_channel || '3.6/stable' }}
-          juju-agent-version: ${{ matrix.juju.agent || '3.6.0' }}
+          juju-agent-version: ${{ matrix.juju.agent || '3.6.5' }}
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
+          pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
+      - name: Write test result
+        if: always()
+        run: |
+          echo '{"tox-env": "${{ matrix.tox-env }}", "spark-version": "${{ matrix.spark-version }}", "bundle-backend": "${{ matrix.bundle-backend || 'yaml'}}", "storage-backend": "${{ matrix.storage-backend || 's3'}}", "cos": "${{ matrix.cos-model != '' }}", "juju-version": "${{ matrix.juju.agent || '3.6.5' }}", "status": "${{ job.status }}"}' > matrix-result.json
+      - name: Upload result artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-results-${{ matrix.tox-env }}-${{ matrix.spark-version }}-${{ matrix.bundle-backend }}-${{ matrix.storage-backend || 's3' }}-${{ matrix.cos-model }}-${{ matrix.juju.agent || '3.6.5' }}
+          path: matrix-result.json
+
+
+  aggregate-results:
+    name: Aggregate Results
+    runs-on: ubuntu-22.04
+    needs: integration-tests
+    if: always()  
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: results
+      - id: setup-python
+        name: Setup Python
+        uses: actions/setup-python@v5.0.0
+        with:
+          python-version: 3.12
+          architecture: x64
+      - name: Install pandas & tabulate
+        run: |
+          pip install pandas
+          pip install tabulate
+      - name: Run result aggregation script
+        run: python3 .github/scripts/aggregate_results.py results/integration-results-*/matrix-result.json
+
+      - name: Upload summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: matrix-summary
+          path: matrix-summary.md
+
+      - name: Add to GitHub Summary
+        run: cat matrix-summary.md >> $GITHUB_STEP_SUMMARY

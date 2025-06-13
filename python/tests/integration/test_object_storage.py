@@ -55,9 +55,7 @@ def spark_properties(
     )
 
 
-def test_cleanup_object_storage(
-    pod, service_account, registry, object_storage, spark_properties
-):
+def test_cleanup_object_storage(object_storage):
     if object_storage.list_content():
         logger.info("Cleaning up object storage")
         object_storage.cleanup()
