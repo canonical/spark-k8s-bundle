@@ -51,6 +51,9 @@ jobs:
           # Install general tools via snaps
           sudo snap install charmcraft --classic
           sudo snap install terraform  --channel latest/stable --classic
+          
+          # Installing az cli 
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
           # Check versions
           terraform --version
