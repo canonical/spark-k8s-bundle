@@ -70,3 +70,50 @@ jobs:
           juju-agent-version: ${{ matrix.juju.agent || '3.6.0' }}
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
+      - name: Write test result
+        if: always()
+        run: |
+          echo '{"tox-env": "${{ matrix.tox-env }}", "spark-version": "${{ matrix.spark-version }}", "bundle-backend": "${{ matrix.bundle-backend || 'yaml'}}", "storage-backend": "${{ matrix.storage-backend || 's3'}}", "cos": "${{ matrix.cos-model != '' }}", "juju-version": "${{ matrix.juju.agent || '3.6.5' }}", "status": "${{ job.status }}"}' > matrix-result.json
+      - name: Upload result artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-results-${{ matrix.tox-env }}-${{ matrix.spark-version }}-${{ matrix.bundle-backend }}-${{ matrix.storage-backend || 's3' }}-${{ matrix.cos-model }}-${{ matrix.juju.agent || '3.6.5' }}
+          path: matrix-result.json
+
+  
+  aggregate-results:
+    name: Aggregate Results
+    runs-on: ubuntu-22.04
+    needs: integration-tests
+    if: always()  
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: results
+      - id: setup-python
+        name: Setup Python
+        uses: actions/setup-python@v5.0.0
+        with:
+          python-version: 3.12
+          architecture: x64
+      - name: Install pandas & tabulate
+        run: |
+          pip install pandas
+          pip install tabulate
+
+      - name: Run result aggregation script
+        run: python3 .github/scripts/aggregate_results.py results/integration-results-*/matrix-result.json
+
+      - name: Upload summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: matrix-summary
+          path: matrix-summary.md
+
+      - name: Add to GitHub Summary
+        run: cat matrix-summary.md >> $GITHUB_STEP_SUMMARY
+
