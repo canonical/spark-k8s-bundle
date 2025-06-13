@@ -38,7 +38,7 @@ jobs:
           - snap_channel: "3.5/stable"
             agent: "3.5.6"
           - snap_channel: "3.6/stable"
-            agent: "3.6.0"
+            agent: "3.6.5"
         exclude:
           # COS bundle is mandatory for sparkjob test.
           - tox-env: integration-sparkjob
@@ -57,12 +57,12 @@ jobs:
             spark-version: 3.4.4
             juju:
               - snap_channel: "3.6/stable"
-                agent: "3.6.0"
+                agent: "3.6.5"
           - tox-env: integration-basic
             spark-version: 3.5.4
             juju:
               - snap_channel: "3.6/stable"
-                agent: "3.6.0"
+                agent: "3.6.5"
     needs:
       - checks
     steps:
@@ -78,7 +78,7 @@ jobs:
           storage-backend: ${{ matrix.storage-backend }}
           cos-model: ${{ matrix.cos-model }}
           juju-snap-channel: ${{ matrix.juju.snap_channel || '3.6/stable' }}
-          juju-agent-version: ${{ matrix.juju.agent || '3.6.0' }}
+          juju-agent-version: ${{ matrix.juju.agent || '3.6.5' }}
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
           pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}

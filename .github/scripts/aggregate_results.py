@@ -63,7 +63,7 @@ def main():
                 subset = df[(df[dim] == val) & (df["tox-env"] == test)]
                 if subset.empty:
                     cell = ""  # No runs with this combination
-                elif (subset["status"] == "fail").any():
+                elif (subset["status"] == "failure").any():
                     cell = "❌"  # One or more failures for this combination
                 else:
                     cell = "✅"  # All runs passed for this combination

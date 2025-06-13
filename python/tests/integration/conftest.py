@@ -267,8 +267,8 @@ def cos(cos_model: str, backend: str, request: pytest.FixtureRequest):
         return
 
     cos = jubilant.Juju()
-    cos.model = cos_model
     try:
+        cos.model = cos_model
         cos.status()
         yield cos_model
     except jubilant.CLIError:
