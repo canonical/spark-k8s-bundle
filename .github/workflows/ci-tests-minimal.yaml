@@ -49,8 +49,8 @@ jobs:
               - snap_channel: "3.6/stable"
                 agent: "3.6.5"
 
-    needs:
-      - checks
+    # needs:
+    #   - checks
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
