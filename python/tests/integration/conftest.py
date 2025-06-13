@@ -267,12 +267,13 @@ def cos(cos_model: str, backend: str, request: pytest.FixtureRequest):
         return
 
     cos = jubilant.Juju()
+    cos.model = cos_model
     try:
-        cos.model = cos_model
         cos.status()
         yield cos_model
     except jubilant.CLIError:
         cos.add_model(COS_ALIAS)
+        cos.model = COS_ALIAS
 
         if backend == BundleBackendEnum.YAML.value:
             base_url = "https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays"
@@ -301,7 +302,6 @@ def cos(cos_model: str, backend: str, request: pytest.FixtureRequest):
                 cos.offer("traefik", endpoint="ingress")
                 cos.wait(lambda status: jubilant.all_active(status, "traefik"))
 
-        cos.model = COS_ALIAS
         yield cos_model
     finally:
         debug_log = cos.debug_log(limit=50)
