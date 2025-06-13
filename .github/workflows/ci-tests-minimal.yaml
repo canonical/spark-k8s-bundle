@@ -102,8 +102,8 @@ jobs:
           architecture: x64
       - name: Install pandas & tabulate
         run: |
-          pipx install pandas
-          pipx install tabulate
+          pip install pandas
+          pip install tabulate
 
       - name: Run result aggregation script
         run: python3 .github/scripts/aggregate_results.py results/integration-results-*
