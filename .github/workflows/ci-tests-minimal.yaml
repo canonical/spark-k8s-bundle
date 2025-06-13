@@ -54,13 +54,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: Add Markdown to GitHub Summary
-        if: always()
-        run: |
-          echo "## Integration Test Matrix Results" >> $GITHUB_STEP_SUMMARY
-          echo "| tox-env | spark-version | bundle-backend | storage-backend | cos-model | juju-agent | result |" >> $GITHUB_STEP_SUMMARY
-          echo "|---------|---------------|----------------|-----------------|-----------|------------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| ${{ matrix.tox-env }} | ${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | ${{ matrix.cos-model }} | ${{ matrix.juju.agent }} | ${{ job.status }} |" >> $GITHUB_STEP_SUMMARY
       # - name: Run integration test
       #   uses: ./.github/actions/run-test
       #   with:
@@ -78,4 +71,40 @@ jobs:
       #   run: |
       #     juju-crashdump
       #     echo "Done"
+  
+  aggregate-results:
+    name: Aggregate Results
+    runs-on: ubuntu-22.04
+    needs: integration-tests
+    if: always()  # Run even if some matrix jobs failed
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: matrix-results
+          path: results
+      - id: setup-python
+        name: Setup Python
+        uses: actions/setup-python@v5.0.0
+        with:
+          python-version: 3.12
+          architecture: x64
+      - name: Install pandas & tabulate
+        run: |
+          pipx install pandas
+          pipx install tabulate
+
+      - name: Run result aggregation script
+        run: python3 .github/scripts/aggregate_results.py results/
+
+      - name: Upload summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: matrix-summary
+          path: matrix-summary.md
+
+      - name: Add to GitHub Summary
+        run: cat matrix-summary.md >> $GITHUB_STEP_SUMMARY
 

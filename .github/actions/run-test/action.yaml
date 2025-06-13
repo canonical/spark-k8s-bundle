@@ -132,3 +132,14 @@ runs:
       run: |
         juju-crashdump
         echo "Done"
+    - name: Write matrix result
+      if: always()
+      run: |
+        echo '{"tox-env": "${{ matrix.tox-env }}", "spark-version": "${{ matrix.spark-version }}", "bundle-backend": "${{ matrix.bundle-backend }}", "storage-backend": "${{ matrix.storage-backend }}", "cos": "${{ matrix.cos-model != '' }}", "juju-version": "${{ matrix.juju.agent }}", "status": "${{ job.status }}"}' > result.json
+    - name: Upload result artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: "matrix-results"
+        path: matrix-result.json
+        # path: result-${{ inputs.tox-env }}-${{ inputs.bundle-backend }}-${{ inputs.spark-version }}-${{ inputs.storage-backend }}-${{ inputs.cos-model }}.json
