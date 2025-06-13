@@ -4,11 +4,11 @@
 
 from __future__ import annotations
 
-import ast
-import json
 import logging
 from typing import cast
 
+# import ast
+# import json
 import jubilant
 import psycopg2
 import pytest
@@ -70,8 +70,9 @@ def test_jdbc_endpoint(juju: jubilant.Juju) -> None:
     self_signed_certificate_unit = next(iter(status.apps["certificates"].units.keys()))
     task = juju.run(self_signed_certificate_unit, "get-issued-certificates")
     assert task.return_code == 0
-    items = ast.literal_eval(task.results["certificates"])
-    certificates = json.loads(items[0])
+
+    # items = ast.literal_eval(task.results["certificates"])
+    # certificates = json.loads(items[0])
     # ca_cert = certificates["ca"]
 
     client = KyuubiClient(
