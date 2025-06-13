@@ -8,20 +8,18 @@ from pathlib import Path
 import sys
 import pandas as pd
 
-def read_data(results_dir: str | Path) -> list[dict]:
-    result_files = Path(results_dir).glob("*.json")
+def read_data(result_files: list[str]) -> list[dict]:
     rows = []
-    print(list(result_files))
-    print(list(sys.argv))
     for file in result_files:
         with open(file) as f:
             rows.append(json.load(f))
     return rows
 
 def main():
-    results_dir = sys.argv[1]
-    data = read_data(results_dir=results_dir)
+    result_files = sys.argv[1:]
+    data = read_data(result_files=result_files)
     df = pd.DataFrame(data)
+    print(df)
     tests = df['tox-env'].unique()
     dimensions = [col for col in df.columns if col not in ('tox-env', 'status')]
 

@@ -106,7 +106,7 @@ jobs:
           pip install tabulate
 
       - name: Run result aggregation script
-        run: python3 .github/scripts/aggregate_results.py results/integration-results-*
+        run: python3 .github/scripts/aggregate_results.py results/integration-results-*/*.json
 
       - name: Upload summary
         uses: actions/upload-artifact@v4
