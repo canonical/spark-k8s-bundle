@@ -11,6 +11,7 @@ import pandas as pd
 def read_data(results_dir: str | Path) -> list[dict]:
     result_files = Path(results_dir).glob("*.json")
     rows = []
+    print(result_files)
     for file in result_files:
         with open(file) as f:
             rows.append(json.load(f))
