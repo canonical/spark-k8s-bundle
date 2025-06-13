@@ -72,9 +72,12 @@ def test_jdbc_endpoint(juju: jubilant.Juju) -> None:
     assert task.return_code == 0
     items = ast.literal_eval(task.results["certificates"])
     certificates = json.loads(items[0])
-    ca_cert = certificates["ca"]
+    # ca_cert = certificates["ca"]
 
-    client = KyuubiClient(**credentials, use_ssl=True,) # ca_cert=ca_cert)
+    client = KyuubiClient(
+        **credentials,
+        use_ssl=True,
+    )  # ca_cert=ca_cert)
 
     db_name, table_name = "spark_test", "my_table"
 

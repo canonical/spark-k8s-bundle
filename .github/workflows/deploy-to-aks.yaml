@@ -47,6 +47,8 @@ jobs:
           sudo snap install charmcraft --classic
           sudo snap install terraform  --channel latest/stable --classic
 
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
           # Check versions
           juju version
           terraform --version
