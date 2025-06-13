@@ -7,8 +7,10 @@ on:
   schedule:
     - cron: "53 0 * * *" # Daily at 00:53 UTC
   push:
-    branches:
-      - run-full-test-suite
+    tags:
+      # Force pushing this tag will trigger full set of tests
+      - test-run-full-test-suite 
+
   workflow_call:
 
 jobs:
