@@ -27,7 +27,7 @@ resource "juju_application" "kyuubi" {
   charm {
     name     = "kyuubi-k8s"
     channel  = "latest/edge"
-    revision = 60
+    revision = 72
   }
 
   resources = {
@@ -112,7 +112,7 @@ resource "juju_application" "zookeeper" {
 
   charm {
     name     = "zookeeper-k8s"
-    channel  = "3/edge"
+    channel  = "3/stable"
     revision = 75
   }
 

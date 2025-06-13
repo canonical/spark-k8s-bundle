@@ -6,7 +6,7 @@ applications:
   kyuubi:
     charm: kyuubi-k8s
     channel: latest/edge
-    revision: 60
+    revision: 72
     resources:
       kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:29c84e1693ce7b5e6cf4fcb84570a79357f9bc1e66bce59d2e0031f1314699e5 # 3.4.4-1.10.1-22.04_edge 2025-05-06
     scale: 3
@@ -29,7 +29,7 @@ applications:
     trust: true 
   zookeeper:  
     charm: zookeeper-k8s
-    channel: 3/edge
+    channel: 3/stable
     revision: 70
     scale: {{ zookeeper_units or 3}}
     constraints: arch=amd64
@@ -48,8 +48,8 @@ applications:
     trust: true
   s3:
     charm: s3-integrator
-    channel: latest/edge
-    revision: 17
+    channel: 1/stable
+    revision: 145
     scale: 1
     options:
       bucket: {{ bucket }}
@@ -75,7 +75,7 @@ applications:
     trust: true
   certificates:
     charm: self-signed-certificates
-    channel: latest/edge
+    channel: latest/stable
     revision: 163
     scale: 1
     constraints: arch=amd64

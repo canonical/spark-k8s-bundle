@@ -6,7 +6,7 @@ resource "juju_application" "agent" {
   model = data.juju_model.spark.name
   charm {
     name    = "grafana-agent-k8s"
-    channel = "latest/stable"
+    channel = "1/stable"
   }
   units       = 1
   trust       = true
@@ -18,7 +18,7 @@ resource "juju_application" "cos_configuration" {
   model = data.juju_model.spark.name
   charm {
     name    = "cos-configuration-k8s"
-    channel = "latest/stable"
+    channel = "1/stable"
   }
   config = {
     git_branch              = "main"
@@ -35,7 +35,7 @@ resource "juju_application" "pushgateway" {
   model = data.juju_model.spark.name
   charm {
     name    = "prometheus-pushgateway-k8s"
-    channel = "latest/stable"
+    channel = "1/stable"
   }
   units       = 1
   constraints = "arch=amd64"
@@ -49,7 +49,7 @@ resource "juju_application" "scrape_config" {
   model = data.juju_model.spark.name
   charm {
     name     = "prometheus-scrape-config-k8s"
-    channel  = "latest/stable"
+    channel  = "1/stable"
     revision = 64
   }
   config = {
