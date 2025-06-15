@@ -3,20 +3,23 @@
 
 # See LICENSE file for licensing details.
 
-"""Aggregate results from test matrix into a tabular form"""
+"""Aggregate results from test matrix into a tabular form."""
 
 import json
 import sys
+
 import pandas as pd
 
 FOOTNOTES = """
 
 Legend:
 ✅: All tests passed for this dimension and this tox environment
-❌: Some tests are failing for this dimension and this tox environment
+⚠️: Some tests failed while some passed for this dimension and this tox environment
+❌: All tests failed for this dimension and this tox environment
 empty: No test was run for this dimension and this tox environment
 
 """
+
 
 def read_results(result_files: list[str]) -> list[dict]:
     """
@@ -36,6 +39,7 @@ def read_results(result_files: list[str]) -> list[dict]:
 
 
 def main():
+    """Provide an entrypoint to run as module."""
     # Get the list of result file paths from command-line arguments
     result_files = sys.argv[1:]
 
@@ -63,8 +67,10 @@ def main():
                 subset = df[(df[dim] == val) & (df["tox-env"] == test)]
                 if subset.empty:
                     cell = ""  # No runs with this combination
+                elif (subset["status"] == "failure").all():
+                    cell = "❌"  # All runs failed for this combination
                 elif (subset["status"] == "failure").any():
-                    cell = "❌"  # One or more failures for this combination
+                    cell = "⚠️"  # Some runs have failed for this combination
                 else:
                     cell = "✅"  # All runs passed for this combination
                 row[test] = cell

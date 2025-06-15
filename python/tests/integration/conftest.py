@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import contextlib
+import json
 import logging
 import os
 import shutil
@@ -33,7 +34,6 @@ from spark_test.fixtures.service_account import service_account  # noqa
 from tests import RELEASE_DIR
 
 from .helpers import (
-    COS_ALIAS,
     Bundle,
     deploy_bundle,
     local_tmp_folder,
@@ -257,6 +257,51 @@ def integration_test(request):
         )
 
 
+@contextlib.contextmanager
+def track_model(model: str) -> Generator[jubilant.Juju]:
+    """Context manager to create a temporary model for running tests in.
+
+    This creates a new model with a random name in the format ``jubilant-abcd1234``, and destroys
+    it and its storage when the context manager exits.
+
+    Provides a :class:`Juju` instance to operate on.
+
+    Args:
+        keep: If true, keep the created model around when the context manager exits.
+        controller: Name of controller where the temporary model will be added.
+    """
+    juju = jubilant.Juju()
+    juju.model = model
+    yield juju
+
+
+@contextlib.contextmanager
+def switch_model(juju: jubilant.Juju, model: str) -> Generator[jubilant.Juju]:
+    """Context manager to create a temporary model for running tests in.
+
+    This creates a new model with a random name in the format ``jubilant-abcd1234``, and destroys
+    it and its storage when the context manager exits.
+
+    Provides a :class:`Juju` instance to operate on.
+
+    Args:
+        keep: If true, keep the created model around when the context manager exits.
+        controller: Name of controller where the temporary model will be added.
+    """
+    try:
+        status = juju.cli("status", "--format", "json", include_model=False)
+        old_model = json.loads(status)["model"]["name"]
+    except jubilant.CLIError:
+        old_model = None
+
+    juju.cli("switch", model, include_model=False)
+
+    yield juju
+
+    if old_model:
+        juju.cli("switch", old_model, include_model=False)
+
+
 @pytest.fixture(scope="class")
 def cos(cos_model: str, backend: str, request: pytest.FixtureRequest):
     """
@@ -272,8 +317,7 @@ def cos(cos_model: str, backend: str, request: pytest.FixtureRequest):
         cos.status()
         yield cos_model
     except jubilant.CLIError:
-        cos.add_model(COS_ALIAS)
-        cos.model = COS_ALIAS
+        cos.add_model(cos_model)
 
         if backend == BundleBackendEnum.YAML.value:
             base_url = "https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays"
@@ -299,7 +343,8 @@ def cos(cos_model: str, backend: str, request: pytest.FixtureRequest):
 
                 deploy_bundle(cos, cos_bundle)
 
-                cos.offer("traefik", endpoint="ingress")
+                with switch_model(cos, cos_model) as switched_cos:
+                    switched_cos.offer("traefik", endpoint="ingress")
                 cos.wait(lambda status: jubilant.all_active(status, "traefik"))
 
         yield cos_model
@@ -316,24 +361,6 @@ def cos(cos_model: str, backend: str, request: pytest.FixtureRequest):
         keep_models = bool(request.config.getoption("--keep-models"))
         if not keep_models and test_passed:
             cos.destroy_model(cos.model, destroy_storage=True, force=True)
-
-
-@contextlib.contextmanager
-def track_model(model: str) -> Generator[jubilant.Juju]:
-    """Context manager to create a temporary model for running tests in.
-
-    This creates a new model with a random name in the format ``jubilant-abcd1234``, and destroys
-    it and its storage when the context manager exits.
-
-    Provides a :class:`Juju` instance to operate on.
-
-    Args:
-        keep: If true, keep the created model around when the context manager exits.
-        controller: Name of controller where the temporary model will be added.
-    """
-    juju = jubilant.Juju()
-    juju.model = model
-    yield juju
 
 
 @pytest.fixture(scope="module")
@@ -553,9 +580,9 @@ def spark_bundle(
         set_s3_credentials(juju, credentials=credentials)
 
     if cos:
-        with track_model(COS_ALIAS) as cos_model:
+        with track_model(cos) as tracked_cos_model:
             logger.info("Waiting for COS deployment to settle down")
-            cos_model.wait(
+            tracked_cos_model.wait(
                 lambda status: jubilant.all_agents_idle(status, *COS_APPS),
                 timeout=1800,
                 delay=10,
