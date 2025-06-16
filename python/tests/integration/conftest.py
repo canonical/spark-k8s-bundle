@@ -277,16 +277,18 @@ def track_model(model: str) -> Generator[jubilant.Juju]:
 
 @contextlib.contextmanager
 def switch_model(juju: jubilant.Juju, model: str) -> Generator[jubilant.Juju]:
-    """Context manager to create a temporary model for running tests in.
+    """Context manager to switch to a specific Juju model temporarily.
 
-    This creates a new model with a random name in the format ``jubilant-abcd1234``, and destroys
-    it and its storage when the context manager exits.
+    When the context manager exists, juju is switched back to the old model (if there was any).
 
     Provides a :class:`Juju` instance to operate on.
 
     Args:
-        keep: If true, keep the created model around when the context manager exits.
-        controller: Name of controller where the temporary model will be added.
+        juju: The instance of `jubilant.Juju` class to operate on.
+        model: Name of the model that juju needs to be switched to.
+
+    Returns:
+        The same `juju` instance that was passed to it.
     """
     try:
         status = juju.cli("status", "--format", "json", include_model=False)
@@ -312,6 +314,7 @@ def cos(cos_model: str, backend: str, request: pytest.FixtureRequest):
         return
 
     cos = jubilant.Juju()
+    cos.wait_timeout = 15 * 60
     cos.model = cos_model
     try:
         cos.status()

@@ -74,16 +74,7 @@ jobs:
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
           pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
-      - name: Write matrix result
-        if: always()
-        run: |
-          echo '{"tox-env": "${{ matrix.tox-env }}", "spark-version": "${{ matrix.spark-version }}", "bundle-backend": "${{ matrix.bundle-backend || 'yaml'}}", "storage-backend": "${{ matrix.storage-backend || 's3'}}", "cos": "${{ matrix.cos-model != '' }}", "juju-version": "${{ matrix.juju.agent || '3.6.5' }}", "status": "${{ job.status }}"}' > matrix-result.json
-      - name: Upload result artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: integration-results-${{ matrix.tox-env }}-${{ matrix.spark-version }}-${{ matrix.bundle-backend }}-${{ matrix.storage-backend || 's3' }}-${{ matrix.cos-model }}-${{ matrix.juju.agent || '3.6.5' }}
-          path: matrix-result.json
+
   
   aggregate-results:
     name: Aggregate Results
@@ -109,7 +100,7 @@ jobs:
           pip install tabulate
 
       - name: Run result aggregation script
-        run: python3 .github/scripts/aggregate_results.py results/integration-results-*/matrix-result.json
+        run: python3 .github/scripts/aggregate_results.py results/integration-results-*/test-result.json
 
       - name: Upload summary
         uses: actions/upload-artifact@v4
