@@ -131,6 +131,8 @@ runs:
         juju add-model spark-bundle-test
         juju list-models
         cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ inputs.bundle-backend }} --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }}
+        echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
+
     - id: collect-logs
       name: Collect logs if job failed
       shell: bash
@@ -145,7 +147,11 @@ runs:
       shell: bash
       if: always()
       run: |
-        echo '{"tox-env": "${{ inputs.tox-env }}", "spark-version": "${{ inputs.spark-version }}", "bundle-backend": "${{ inputs.bundle-backend }}", "storage-backend": "${{ inputs.storage-backend }}", "cos": "${{ inputs.cos-model != '' }}", "juju-version": "${{ inputs.juju-agent-version }}", "status": "${{ job.status }}"}' > test-result.json
+        STATUS="success"
+        if [ "${TEST_EXIT_CODE}" != "0" ]; then
+          STATUS="failure"
+        fi
+        echo '{"tox-env": "${{ inputs.tox-env }}", "spark-version": "${{ inputs.spark-version }}", "bundle-backend": "${{ inputs.bundle-backend }}", "storage-backend": "${{ inputs.storage-backend }}", "cos": "${{ inputs.cos-model != '' }}", "juju-version": "${{ inputs.juju-agent-version }}", "status": "'"$STATUS"'"}' > test-result.json
     - name: Upload the test result as artifact
       if: always()
       uses: actions/upload-artifact@v4

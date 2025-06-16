@@ -27,34 +27,33 @@ jobs:
         spark-version: ["3.4.4"]
         storage-backend: ["s3", "azure"]
         cos-model: ["cos"]
-        juju:
-          - snap_channel: "3.5/stable"
-            agent: "3.5.6"
-          - snap_channel: "3.6/stable"
-            agent: "3.6.5"
-        exclude:
-          # Run backup / restore tests only for Juju 3.6 on PR
-          - tox-env: integration-backup-restore
-            juju:
-              - snap_channel: "3.5/stable"
-              - agent: "3.5.6"
         include:
+          # Add juju snap channel and agent version to all matrix combinations
+          - juju-snap-channel: "3.5/stable"
+            juju-agent-version: "3.5.6"
+          - juju-snap-channel: "3.6/stable"
+            juju-agent-version: "3.6.5"
+
+          # Test integration-basic, with Spark 3.4
           - tox-env: integration-basic
             spark-version: 3.4.4
-            juju:
-              - snap_channel: "3.6/stable"
-                agent: "3.6.5"
+            juju-snap-channel: "3.6/stable"
+            juju-agent-version: "3.6.5"
+      
+          # Test integration-basic, with Spark 3.5
           - tox-env: integration-basic
             spark-version: 3.5.4
-            juju:
-              - snap_channel: "3.6/stable"
-                agent: "3.6.5"
+            juju-snap-channel: "3.6/stable"
+            juju-agent-version: "3.6.5"
+
+          # Test bundle with YAML backend just once
           - tox-env: integration-bundle
             bundle-backend: yaml
+            cos-model: cos
+            storage-backend: s3
             spark-version: 3.4.4
-            juju:
-              - snap_channel: "3.6/stable"
-                agent: "3.6.5"
+            juju-snap-channel: "3.6/stable"
+            juju-agent-version: "3.6.5"
 
     needs:
       - checks
@@ -69,8 +68,8 @@ jobs:
           spark-version: ${{ matrix.spark-version }}
           storage-backend: ${{ matrix.storage-backend }}
           cos-model: ${{ matrix.cos-model }}
-          juju-snap-channel: ${{ matrix.juju.snap_channel || '3.6/stable' }}
-          juju-agent-version: ${{ matrix.juju.agent || '3.6.5' }}
+          juju-snap-channel: ${{ matrix.juju-snap-channel }}
+          juju-agent-version: ${{ matrix.juju-agent-version }}
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
           pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
