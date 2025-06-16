@@ -150,7 +150,7 @@ class TestKyuubi:
             pytest.skip("Not possible to test without cos")
 
         # We should leave time for Prometheus data to be published
-        for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
+        for attempt in Retrying(stop=stop_after_attempt(10), wait=wait_fixed(30)):
             with attempt:
                 cos_address = get_cos_address(cos_model_name=cos)
                 assert published_prometheus_data(cos, cos_address, "kyuubi_jvm_uptime")
