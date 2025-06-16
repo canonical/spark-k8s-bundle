@@ -34,6 +34,7 @@ jobs:
         spark-version: ["3.4.4", "3.5.4"]
         storage-backend: ["s3", "azure"]
         cos-model: ["", "cos"]
+        juju-snap-channel: ["3.5/stable", "3.6/stable"]
         include:
           # Add juju snap channel and agent version to all matrix combinations
           - juju-snap-channel: "3.5/stable"
