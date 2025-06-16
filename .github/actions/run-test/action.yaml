@@ -142,6 +142,7 @@ runs:
         fi
         echo "Done"
     - name: Write test result in JSON format
+      shell: bash
       if: always()
       run: |
         echo '{"tox-env": "${{ inputs.tox-env }}", "spark-version": "${{ inputs.spark-version }}", "bundle-backend": "${{ inputs.bundle-backend }}", "storage-backend": "${{ inputs.storage-backend }}", "cos": "${{ inputs.cos-model != '' }}", "juju-version": "${{ inputs.juju-agent-version }}", "status": "${{ job.status }}"}' > test-result.json
