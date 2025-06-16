@@ -314,7 +314,7 @@ def cos(cos_model: str, backend: str, request: pytest.FixtureRequest):
         return
 
     cos = jubilant.Juju()
-    cos.wait_timeout = 15 * 60
+    cos.wait_timeout = 30 * 60
     cos.model = cos_model
     try:
         cos.status()
