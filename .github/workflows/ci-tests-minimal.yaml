@@ -65,9 +65,9 @@ jobs:
         uses: ./.github/actions/run-test
         with:
           tox-env: ${{ matrix.tox-env }}
-          bundle-backend: ${{ matrix.bundle-backend }}
+          bundle-backend: ${{ matrix.bundle-backend || 'yaml'}}
           spark-version: ${{ matrix.spark-version }}
-          storage-backend: ${{ matrix.storage-backend }}
+          storage-backend: ${{ matrix.storage-backend || 's3'}}
           cos-model: ${{ matrix.cos-model }}
           juju-snap-channel: ${{ matrix.juju-snap-channel }}
           juju-agent-version: ${{ matrix.juju-agent-version }}
@@ -80,7 +80,7 @@ jobs:
     name: Aggregate Results
     runs-on: ubuntu-22.04
     needs: integration-tests
-    if: always()
+    if:  ${{ success() || failure() }} 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
