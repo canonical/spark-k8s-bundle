@@ -24,7 +24,7 @@ variable "spark_charms" {
   type        = map(string)
 }
 
-variable azure_storage_revision {
+variable "azure_storage_revision" {
   description = "Charm revision for azure-storage-integrator"
   type        = number
   nullable    = false

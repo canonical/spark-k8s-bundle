@@ -76,7 +76,7 @@ module "s3" {
   s3_revision = var.s3_revision != null ? var.s3_revision : local.revisions.s3
 }
 
-module "external_cos" {
+module "bundled_cos" {
   depends_on   = [juju_model.cos]
   count        = var.cos.deployed == "bundled" ? 1 : 0
   source       = "./external/cos"
@@ -88,19 +88,17 @@ module "external_cos" {
 
 
 module "observability" {
-  depends_on       = [module.spark, module.external_cos]
+  depends_on       = [module.spark, module.bundled_cos]
   count            = var.cos.deployed == "no" ? 0 : 1
   source           = "./modules/observability"
-  dashboards_offer = var.cos.deployed == "external" ? var.cos.offers.dashboard : one(module.external_cos[*].dashboards_offer)
-  logging_offer    = var.cos.deployed == "external" ? var.cos.offers.logging : one(module.external_cos[*].logging_offer)
-  metrics_offer    = var.cos.deployed == "external" ? var.cos.offers.metrics : one(module.external_cos[*].metrics_offer)
+  dashboards_offer = var.cos.deployed == "external" ? var.cos.offers.dashboard : one(module.bundled_cos[*].dashboards_offer)
+  logging_offer    = var.cos.deployed == "external" ? var.cos.offers.logging : one(module.bundled_cos[*].logging_offer)
+  metrics_offer    = var.cos.deployed == "external" ? var.cos.offers.metrics : one(module.bundled_cos[*].metrics_offer)
   spark_model      = var.model
   spark_charms     = module.spark.charms
 
-  grafana_agent_revision = var.grafana_agent_revision != null ? var.grafana_agent_revision : local.revisions.grafana_agent
-  # grafana_agent_image = var.grafana_agent_image != null ? var.grafana_agent_image : local.images.grafana_agent
+  grafana_agent_revision     = var.grafana_agent_revision != null ? var.grafana_agent_revision : local.revisions.grafana_agent
   cos_configuration_revision = var.cos_configuration_revision != null ? var.cos_configuration_revision : local.revisions.cos_configuration
   pushgateway_revision       = var.pushgateway_revision != null ? var.pushgateway_revision : local.revisions.pushgateway
-  # prometheus_pushgateway_image = var.pushgateway_image != null ? var.pushgateway_image : local.images.prometheus_pushgateway
-  scrape_config_revision = var.scrape_config_revision != null ? var.scrape_config_revision : local.revisions.scrape_config
+  scrape_config_revision     = var.scrape_config_revision != null ? var.scrape_config_revision : local.revisions.scrape_config
 }

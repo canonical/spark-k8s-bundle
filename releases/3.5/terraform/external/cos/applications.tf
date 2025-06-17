@@ -22,7 +22,7 @@ resource "juju_application" "catalogue" {
   model = data.juju_model.cos.name
   charm {
     name    = "catalogue-k8s"
-    channel = "latest/stable"
+    channel = "1/stable"
   }
   units       = 1
   constraints = "arch=amd64"
@@ -52,7 +52,7 @@ resource "juju_application" "loki" {
   model = data.juju_model.cos.name
   charm {
     name    = "loki-k8s"
-    channel = "latest/stable"
+    channel = "1/stable"
   }
   units       = 1
   constraints = "arch=amd64"

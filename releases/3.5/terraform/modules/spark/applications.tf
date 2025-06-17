@@ -12,11 +12,7 @@ resource "juju_application" "history_server" {
   }
 
   resources = var.history_server_image
-  #{
-  #  spark-history-server-image = var.history_server_image
-  #}
-
-  units = 1
+  units     = 1
 
   constraints = "arch=amd64"
 }
@@ -32,9 +28,6 @@ resource "juju_application" "kyuubi" {
   }
 
   resources = var.kyuubi_image
-  #{
-  #  kyuubi-image = var.kyuubi_image
-  #}
 
   config = {
     namespace       = data.juju_model.spark.name
@@ -59,9 +52,6 @@ resource "juju_application" "kyuubi_users" {
   }
 
   resources = var.kyuubi_users_image
-  #{
-  #  postgresql-image = var.kyuubi_users_image
-  #}
 
   units = 1
   trust = true
@@ -80,9 +70,6 @@ resource "juju_application" "metastore" {
   }
 
   resources = var.metastore_image
-  #{
-  #  postgresql-image = var.metastore_image
-  #}
 
   units = 1
   trust = true
@@ -101,9 +88,6 @@ resource "juju_application" "integration_hub" {
   }
 
   resources = var.integration_hub_image
-  #{
-  #  integration-hub-image = var.integration_hub_image
-  #}
 
   units = 1
   trust = true
@@ -122,9 +106,6 @@ resource "juju_application" "zookeeper" {
   }
 
   resources = var.zookeeper_image
-  #{
-  #  zookeeper-image = var.zookeeper_image
-  #}
 
   units       = var.zookeeper_units
   constraints = "arch=amd64"

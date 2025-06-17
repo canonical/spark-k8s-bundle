@@ -24,7 +24,7 @@ variable "spark_charms" {
   type        = map(string)
 }
 
-variable s3_revision {
+variable "s3_revision" {
   description = "Charm revision for s3-integrator"
   type        = number
   nullable    = false

@@ -35,73 +35,73 @@ variable "tls_certificates_endpoint" {
   nullable    = false
 }
 
-variable history_server_revision {
+variable "history_server_revision" {
   description = "Charm revision for spark-history-server-k8s"
   type        = number
   nullable    = false
 }
 
-variable history_server_image {
+variable "history_server_image" {
   description = "Image for spark-history-server-k8s"
   type        = map(string)
   nullable    = false
 }
 
-variable integration_hub_revision {
+variable "integration_hub_revision" {
   description = "Charm revision for spark-integration-hub-k8s"
   type        = number
   nullable    = false
 }
 
-variable integration_hub_image {
+variable "integration_hub_image" {
   description = "Image for spark-integration-hub-k8s"
   type        = map(string)
   nullable    = false
 }
 
-variable kyuubi_revision {
+variable "kyuubi_revision" {
   description = "Charm revision for kyuubi-k8s"
   type        = number
   nullable    = false
 }
 
-variable kyuubi_image {
+variable "kyuubi_image" {
   description = "Image for kyuubi-k8s"
   type        = map(string)
   nullable    = false
 }
 
-variable kyuubi_users_revision {
+variable "kyuubi_users_revision" {
   description = "Charm revision for postgresql-k8s (auth-db)"
   type        = number
   nullable    = false
 }
 
-variable kyuubi_users_image {
+variable "kyuubi_users_image" {
   description = "Image for postgresql-k8s (auth-db)"
   type        = map(string)
   nullable    = false
 }
 
-variable metastore_revision {
+variable "metastore_revision" {
   description = "Charm revision for postgresql-k8s (metastore)"
   type        = number
   nullable    = false
 }
 
-variable metastore_image {
+variable "metastore_image" {
   description = "Image for postgresql-k8s (metastore)"
   type        = map(string)
   nullable    = false
 }
 
-variable zookeeper_revision {
+variable "zookeeper_revision" {
   description = "Charm revision for zookeeper-k8s"
   type        = number
   nullable    = false
 }
 
-variable zookeeper_image {
+variable "zookeeper_image" {
   description = "Image for zookeeper-k8s"
   type        = map(string)
   nullable    = false

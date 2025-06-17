@@ -203,12 +203,6 @@ variable "grafana_agent_revision" {
   default     = null
 }
 
-# variable grafana_agent_image {
-#   description = "Image for grafana-agent-k8s"
-#   type        = string
-#   default     = null
-# }
-
 variable "cos_configuration_revision" {
   description = "Charm revision for cos-configuration-k8s"
   type        = number
@@ -220,12 +214,6 @@ variable "pushgateway_revision" {
   type        = number
   default     = null
 }
-
-# variable pushgateway_image {
-#   description = "Image for prometheus-pushgateway-k8s"
-#   type        = string
-#   default     = null
-# }
 
 variable "scrape_config_revision" {
   description = "Charm revision for prometheus-scrape-config-k8s"
