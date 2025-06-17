@@ -1,8 +1,8 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-resource "juju_application" "agent" {
-  name  = "agent"
+resource "juju_application" "grafana_agent" {
+  name  = "grafana-agent"
   model = data.juju_model.spark.name
   charm {
     name     = "grafana-agent-k8s"
@@ -36,9 +36,9 @@ resource "juju_application" "pushgateway" {
   name  = "pushgateway"
   model = data.juju_model.spark.name
   charm {
-    name    = "prometheus-pushgateway-k8s"
-    channel = "1/stable"
-    revision = var.prometheus_pushgateway_revision
+    name     = "prometheus-pushgateway-k8s"
+    channel  = "1/stable"
+    revision = var.pushgateway_revision
   }
   units       = 1
   constraints = "arch=amd64"
@@ -53,7 +53,7 @@ resource "juju_application" "scrape_config" {
   charm {
     name     = "prometheus-scrape-config-k8s"
     channel  = "1/stable"
-    revision = var.prometheus_scrape_config_revision
+    revision = var.scrape_config_revision
   }
   config = {
     scrape_interval = "10s"

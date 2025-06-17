@@ -38,7 +38,7 @@ resource "juju_integration" "kyuubi_service_account" {
   }
 
   application {
-    name     = juju_application.hub.name
+    name     = juju_application.integration_hub.name
     endpoint = "spark-service-account"
   }
 }

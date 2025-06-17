@@ -395,10 +395,10 @@ def deploy_bundle_terraform(
     juju: jubilant.Juju,
     storage_backend: str,
 ) -> list[str]:
-    if storage_backend == "azure":
+    if storage_backend == "azure_storage":
         storage_unit = cast(Container, storage_unit)
         storage_vars = {
-            "azure": {
+            "azure_storage": {
                 "storage_account": storage_unit.credentials.storage_account,
                 "container": storage_unit.container_name,
                 "secret_key": storage_unit.credentials.secret_key,
