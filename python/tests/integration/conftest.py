@@ -111,13 +111,13 @@ def pytest_addoption(parser):
     )
     parser.addoption(
         "--storage-backend",
-        choices=["s3", "azure"],
+        choices=["s3", "azure_storage"],
         nargs="?",
         const="s3",
         default="s3",
         type=str,
         help="Which storage backend to be used. Supported values are either "
-        "s3 (default) or azure.",
+        "s3 (default) or azure_storage.",
     )
     parser.addoption(
         "--uuid",
@@ -496,7 +496,7 @@ def spark_bundle_with_azure_storage(
             container,
             cos,
             juju,
-            storage_backend="azure",
+            storage_backend="azure_storage",
         )
 
     if "azure-storage" in applications:
@@ -534,7 +534,7 @@ def spark_bundle(request, storage_backend, cos, juju: jubilant.Juju):
         bucket = request.getfixturevalue("bucket")
         bundle = request.getfixturevalue("bundle")
         return spark_bundle_with_s3(juju, credentials, bucket, bundle, cos)
-    elif storage_backend == "azure":
+    elif storage_backend == "azure_storage":
         azure_credentials = request.getfixturevalue("azure_credentials")
         container = request.getfixturevalue("container")
         bundle_with_azure_storage = request.getfixturevalue("bundle_with_azure_storage")
@@ -550,7 +550,7 @@ def spark_bundle(request, storage_backend, cos, juju: jubilant.Juju):
 def object_storage(request, storage_backend):
     if storage_backend == "s3":
         return request.getfixturevalue("bucket")
-    elif storage_backend == "azure":
+    elif storage_backend == "azure_storage":
         return request.getfixturevalue("container")
     else:
         return ValueError("storage_backend argument not recognized")

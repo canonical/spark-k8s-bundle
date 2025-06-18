@@ -38,7 +38,7 @@ resource "juju_integration" "kyuubi_service_account" {
   }
 
   application {
-    name     = juju_application.hub.name
+    name     = juju_application.integration_hub.name
     endpoint = "spark-service-account"
   }
 }
@@ -70,4 +70,3 @@ resource "juju_integration" "kyuubi_tls" {
     endpoint = var.tls_certificates_endpoint
   }
 }
-

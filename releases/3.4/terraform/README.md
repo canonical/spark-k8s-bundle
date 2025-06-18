@@ -40,7 +40,7 @@ module "ssc" {
 
 module "spark" {
   depends_on                = [juju_model.spark]
-  source                    = "./releases/3.5/terraform/modules/spark"
+  source                    = "git::https://github.com/canonical/spark-k8s-bundle//releases/3.4/terraform/modules/spark"
   model                     = juju_model.spark.name
   tls_app_name              = module.ssc.app_name
   tls_certificates_endpoint = module.ssc.provides.certificates
@@ -48,7 +48,7 @@ module "spark" {
 
 module "azure" {
   depends_on   = [juju_model.spark]
-  source       = "./releases/3.5/terraform/modules/azure-storage"
+  source       = "git::https://github.com/canonical/spark-k8s-bundle//releases/3.4/terraform/modules/azure-storage"
   model        = juju_model.spark.name
   spark_charms = module.spark.charms
   azure = {

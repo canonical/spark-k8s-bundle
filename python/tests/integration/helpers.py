@@ -395,10 +395,10 @@ def deploy_bundle_terraform(
     juju: jubilant.Juju,
     storage_backend: str,
 ) -> list[str]:
-    if storage_backend == "azure":
+    if storage_backend == "azure_storage":
         storage_unit = cast(Container, storage_unit)
         storage_vars = {
-            "azure": {
+            "azure_storage": {
                 "storage_account": storage_unit.credentials.storage_account,
                 "container": storage_unit.container_name,
                 "secret_key": storage_unit.credentials.secret_key,
@@ -414,13 +414,24 @@ def deploy_bundle_terraform(
             },
         }
 
+    cos_vars = (
+        {
+            "cos": {
+                "model": cos,
+                "deployed": "bundled",
+            }
+        }
+        if cos
+        else {"cos": {"deployed": "no"}}
+    )
+
     tf_vars = {
         "kyuubi_user": "kyuubi-test-user",
         "model": cast(str, juju.model),
         "storage_backend": storage_backend,
         "create_model": False,
         "zookeeper_units": 1,
-    } | ({"cos_model": cos} if cos else {})
+    } | cos_vars
 
     # NOTE: avoid logging secret key
     logger.info(f"tf_vars: {tf_vars} + {storage_backend} information")
