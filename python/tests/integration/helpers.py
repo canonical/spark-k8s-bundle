@@ -64,9 +64,11 @@ def set_s3_credentials(
     assert task.return_code == 0
 
 
-def get_kyuubi_credentials(juju: jubilant.Juju) -> KyuubiCredentials:
+def get_kyuubi_credentials(
+    juju: jubilant.Juju, data_integrator_unit: str = "data-integrator/0"
+) -> KyuubiCredentials:
     """Use the charm action to start a password rotation."""
-    task = juju.run("data-integrator/0", "get-credentials")
+    task = juju.run(data_integrator_unit, "get-credentials")
     assert task.return_code == 0
     kyuubi_info = task.results["kyuubi"]
     endpoint = kyuubi_info["uris"]
