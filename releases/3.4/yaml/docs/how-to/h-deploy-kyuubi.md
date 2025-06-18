@@ -130,17 +130,23 @@ Expose the `kyuubi-k8s` app for external connection:
 juju config kyuubi-k8s expose-external=loadbalancer
 ```
 
+Integrate with `data-integrator` to create a new user:
+
+```bash
+juju deploy data-integrator --channel=latest/edge --config database-name=clientdb
+juju integrate kyuubi-k8s data-integrator
+```
+
 Get Apache Kyuubi connection details:
 
 ```bash
-juju run kyuubi-k8s/leader get-jdbc-endpoint
-juju run kyuubi-k8s/leader get-password
+juju run data-integrator/leader get-credentials
 ```
 
-Finally, use the external endpoint address and database password to connect with your JDBC-compliant tool of choice:
+Finally, use the external endpoint address and database credentials from the previous step to connect with your JDBC-compliant tool of choice:
 
 ```bash
-beeline -u <ENDPOINT> -n admin -p <PASSWORD>
+beeline -u "<ENDPOINT>" -n <USERNAME> -p <PASSWORD>
 ```
 
 ### Connection example
@@ -157,7 +163,7 @@ Instead, open its SSH terminal, enter bash, and run the beeline tool from inside
 
 ```bash
 juju ssh --container=kyuubi beeline/0 bash
-/opt/kyuubi/bin/beeline -u jdbc:hive2://10.41.189.148:10009/ -n admin -p 06yJY5OkhcxVhQ0C
+/opt/kyuubi/bin/beeline -u jdbc:hive2://10.41.189.148:10009/ -n relation_id_11 -p 06yJY5OkhcxVhQ0C
 ```
 
 Wait a few minutes for the Apache Kyuubi to start.
