@@ -106,3 +106,9 @@ variable "zookeeper_image" {
   type        = map(string)
   nullable    = false
 }
+
+variable "data_integrator_revision" {
+  description = "Charm revision for data-integrator"
+  type        = number
+  nullable    = false
+}
