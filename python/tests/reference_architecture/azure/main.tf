@@ -52,8 +52,8 @@ module "spark" {
   create_model              = true
   K8S_CLOUD                 = var.K8S_CLOUD
   K8S_CREDENTIAL            = var.K8S_CREDENTIAL
-  storage_backend           = "azure"
-  azure                     = {
+  storage_backend           = "azure_storage"
+  azure_storage             = {
     container       = azurerm_storage_container.storagecontainer.name
     storage_account = azurerm_storage_account.storageaccount.name
     secret_key      = azurerm_storage_account.storageaccount.primary_access_key
