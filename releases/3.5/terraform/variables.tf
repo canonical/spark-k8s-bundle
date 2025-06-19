@@ -185,6 +185,12 @@ variable "zookeeper_image" {
   default     = null
 }
 
+variable "data_integrator_revision" {
+  description = "Charm revision for data-integrator"
+  type        = number
+  default     = null
+}
+
 variable "s3_revision" {
   description = "Charm revision for s3-integrator"
   type        = number

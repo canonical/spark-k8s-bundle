@@ -118,7 +118,7 @@ resource "juju_application" "data_integrator" {
   charm {
     name     = "data-integrator"
     channel  = "latest/stable"
-    revision = 161
+    revision = var.data_integrator_revision
   }
 
   config = {

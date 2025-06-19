@@ -109,7 +109,7 @@ This means that using this structure, a new optional module just takes care of d
 | observability | prometheus-scrape-config-k8s | 1/stable      | 64       |
 | spark         | spark-history-server-k8s     | 3.4/edge      | 40       |
 | spark         | spark-integration-hub-k8s    | latest/edge   | 49       |
-| spark         | kyuubi-k8s                   | latest/edge   | 85       |
+| spark         | kyuubi-k8s                   | latest/edge   | 87       |
 | spark         | postgresql-k8s               | 14/stable     | 281      |
 | spark         | postgresql-k8s               | 14/stable     | 281      |
 | spark         | zookeeper-k8s                | 3/stable      | 75       |
