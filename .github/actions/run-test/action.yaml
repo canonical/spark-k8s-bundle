@@ -48,6 +48,11 @@ inputs:
     required: false
     default: "dummy-key"
     type: string
+  pytest-args:
+    description: "Extra arguments to be passed to pytest command"
+    required: false
+    default: ""
+    type: string
 
 runs:
   using: "composite"
@@ -79,11 +84,10 @@ runs:
         bootstrap-options: "--agent-version ${{ inputs.juju-agent-version }}"
         microk8s-group: snap_microk8s
         microk8s-addons: "rbac dns minio metallb:10.64.140.43-10.64.140.49"
-    - name: Install tox & poetry
+    - name: Install tox
       shell: bash
       run: |
         pip install tox
-        pip install poetry
     - name: Select tests
       id: select-tests
       shell: bash
@@ -123,12 +127,33 @@ runs:
         AZURE_STORAGE_ACCOUNT: ${{ inputs.azure-storage-account }}
         AZURE_STORAGE_KEY: ${{ inputs.azure-storage-key }}
       run: |
+        juju add-model spark-bundle-test
         juju list-models
-        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ inputs.bundle-backend }} --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --keep-models
+        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ inputs.bundle-backend }} --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }}
+        echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
+
     - id: collect-logs
       name: Collect logs if job failed
       shell: bash
       if: ${{ failure() }}   
       run: |
-        juju-crashdump
+        juju-crashdump --model spark-bundle-test
+        if [[ -n "${{ inputs.cos-model }}" ]]; then
+          juju-crashdump --model "${{ inputs.cos-model }}"
+        fi
         echo "Done"
+    - name: Write test result in JSON format
+      shell: bash
+      if: always()
+      run: |
+        STATUS="success"
+        if [ "${TEST_EXIT_CODE}" != "0" ]; then
+          STATUS="failure"
+        fi
+        echo '{"tox-env": "${{ inputs.tox-env }}", "spark-version": "${{ inputs.spark-version }}", "bundle-backend": "${{ inputs.bundle-backend }}", "storage-backend": "${{ inputs.storage-backend }}", "cos": "${{ inputs.cos-model != '' }}", "juju-version": "${{ inputs.juju-agent-version }}", "status": "'"$STATUS"'"}' > test-result.json
+    - name: Upload the test result as artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: integration-results-${{ inputs.tox-env }}-${{ inputs.spark-version }}-${{ inputs.bundle-backend }}-${{ inputs.storage-backend }}-${{ inputs.cos-model }}-${{ inputs.juju-agent-version }}
+        path: test-result.json

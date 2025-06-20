@@ -4,6 +4,7 @@
 name: Mimic UAT Tests
 
 on:
+  workflow_dispatch:
   pull_request:
 
 jobs:
