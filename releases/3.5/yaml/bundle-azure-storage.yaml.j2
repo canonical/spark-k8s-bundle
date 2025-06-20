@@ -6,7 +6,7 @@ applications:
   kyuubi:
     charm: kyuubi-k8s
     channel: latest/edge
-    revision: 72
+    revision: 85
     resources:
       kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:29c84e1693ce7b5e6cf4fcb84570a79357f9bc1e66bce59d2e0031f1314699e5 # 3.4.4-1.10.1-22.04_edge 2025-05-06
     scale: 3
@@ -73,6 +73,14 @@ applications:
     scale: 1
     constraints: arch=amd64
     trust: true
+  data-integrator:
+    charm: data-integrator
+    channel: latest/stable
+    revision: 161
+    scale: 1
+    constraints: arch=amd64
+    options:
+      database-name: integrator
 relations:
 - - integration-hub:azure-storage-credentials
   - azure-storage:azure-storage-credentials
@@ -86,3 +94,5 @@ relations:
   - integration-hub:spark-service-account
 - - kyuubi:zookeeper
   - zookeeper:zookeeper
+- - kyuubi:jdbc
+  - data-integrator:kyuubi

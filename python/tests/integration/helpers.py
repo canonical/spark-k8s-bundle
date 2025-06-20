@@ -64,26 +64,14 @@ def set_s3_credentials(
     assert task.return_code == 0
 
 
-def get_leader_unit(juju: jubilant.Juju, app: str) -> str:
-    status = juju.status()
-    leader_unit = None
-    for name, unit in status.apps[app].units.items():
-        if unit.leader:
-            leader_unit = name
-    assert leader_unit
-    return leader_unit
-
-
 def get_kyuubi_credentials(
-    juju: jubilant.Juju, application_name="kyuubi"
+    juju: jubilant.Juju, data_integrator_unit: str = "data-integrator/0"
 ) -> KyuubiCredentials:
     """Use the charm action to start a password rotation."""
-    leader_unit = get_leader_unit(juju, application_name)
-    task = juju.run(leader_unit, "get-password")
+    task = juju.run(data_integrator_unit, "get-credentials")
     assert task.return_code == 0
-    results = task.results
-
-    endpoint = fetch_jdbc_endpoint(juju)
+    kyuubi_info = task.results["kyuubi"]
+    endpoint = kyuubi_info["uris"]
     logger.info(endpoint)
 
     if (
@@ -100,22 +88,11 @@ def get_kyuubi_credentials(
                 address = unit.address
         assert address
 
-    return {"username": "admin", "password": results["password"], "host": address}
-
-
-def fetch_jdbc_endpoint(juju: jubilant.Juju) -> str:
-    """Return the JDBC endpoint for clients to connect to Kyuubi server."""
-    logger.info("Running action 'get-jdbc-endpoint' on kyuubi-k8s unit...")
-    leader_unit = get_leader_unit(juju, "kyuubi")
-    task = juju.run(leader_unit, "get-jdbc-endpoint")
-    assert task.return_code == 0
-    logger.info(f"result: {task.results}")
-
-    jdbc_endpoint = task.results["endpoint"]
-    assert jdbc_endpoint
-    logger.info(f"JDBC endpoint: {jdbc_endpoint}")
-
-    return jdbc_endpoint
+    return {
+        "username": kyuubi_info["username"],
+        "password": kyuubi_info["password"],
+        "host": address,
+    }
 
 
 def get_zookeeper_quorum(juju: jubilant.Juju, zookeeper_name: str) -> str:
