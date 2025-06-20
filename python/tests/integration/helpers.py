@@ -2,6 +2,7 @@
 # See LICENSE file for licensing details.
 from __future__ import annotations
 
+import ast
 import json
 import logging
 import os
@@ -22,12 +23,8 @@ import jinja2
 import jubilant
 import yaml
 
-from spark_test.core import ObjectStorageUnit
-from spark_test.core.azure_storage import Container
-from spark_test.core.s3 import Bucket, Credentials
+from spark_test.core.s3 import Credentials
 from tests.integration.types import KyuubiCredentials
-
-from .terraform import Terraform
 
 T = TypeVar("T")
 S = TypeVar("S")
@@ -271,154 +268,6 @@ def get_secret_data(namespace: str, service_account: str):
         return e.stdout.decode(), e.stderr.decode(), e.returncode
 
 
-def deploy_bundle_yaml(
-    bundle: Bundle,
-    bucket: Bucket,
-    cos: str | None,
-    juju: jubilant.Juju,
-) -> list[str]:
-    """Deploy the Bundle in YAML format.
-
-    Args:
-        bundle: Bundle object
-        service_account: Kyuubi service account to be used
-        bucket: S3 bucket to be used in the deployment
-        juju: jubilant.Juju class
-
-    Returns:
-        list of charms deployed
-    """
-
-    status = juju.status()
-    controller = status.model.controller
-    data = {
-        "namespace": cast(str, juju.model),  # service_account.namespace,
-        "service_account": "kyuubi-test-user",
-        "bucket": bucket.bucket_name,
-        "s3_endpoint": bucket.s3.meta.endpoint_url,
-        "zookeeper_units": 1,
-    } | ({"cos_controller": controller, "cos_model": cos} if cos else {})
-
-    bundle_content = bundle.map(lambda path: render_yaml(path, data))
-
-    with local_tmp_folder("tmp") as tmp_folder:
-        logger.info(tmp_folder)
-
-        bundle_tmp = bundle_content.map(
-            lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
-        )
-
-        logger.info(f"bundle_tmp: {bundle_tmp}")
-        deploy_bundle(juju, bundle_tmp)
-
-    charms: Bundle[list[str]] = bundle_content.map(
-        lambda bundle_data: list(bundle_data["applications"].keys())
-    )
-
-    return charms.main + sum(charms.overlays, [])
-
-
-def deploy_bundle_yaml_azure_storage(
-    bundle: Bundle,
-    container: Container,
-    cos: str | None,
-    juju: jubilant.Juju,
-) -> list[str]:
-    """Deploy the Bundle in YAML format.
-
-    Args:
-        bundle: Bundle object
-        service_account: Kyuubi service account to be used
-        container: Azure Storage container to be used in the deployment
-        juju: jubilant.Juju class
-
-    Returns:
-        list of charms deployed
-    """
-
-    status = juju.status()
-    controller = status.model.controller
-    data = {
-        "namespace": cast(str, juju.model),
-        "service_account": "kyuubi-test-user",
-        "container": container.container_name,
-        "storage_account": container.credentials.storage_account,
-        "zookeeper_units": 1,
-    } | ({"cos_controller": controller, "cos_model": cos} if cos else {})
-
-    bundle_content = bundle.map(lambda path: render_yaml(path, data))
-
-    with local_tmp_folder("tmp") as tmp_folder:
-        logger.info(tmp_folder)
-
-        bundle_tmp = bundle_content.map(
-            lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
-        )
-        stdout = deploy_bundle(juju, bundle_tmp)
-
-        logger.info(stdout)
-
-    charms: Bundle[list[str]] = bundle_content.map(
-        lambda bundle_data: list(bundle_data["applications"].keys())
-    )
-
-    return charms.main + sum(charms.overlays, [])
-
-
-def deploy_bundle_terraform(
-    bundle: Terraform,
-    storage_unit: ObjectStorageUnit,
-    cos: str | None,
-    juju: jubilant.Juju,
-    storage_backend: str,
-) -> list[str]:
-    if storage_backend == "azure_storage":
-        storage_unit = cast(Container, storage_unit)
-        storage_vars = {
-            "azure_storage": {
-                "storage_account": storage_unit.credentials.storage_account,
-                "container": storage_unit.container_name,
-                "secret_key": storage_unit.credentials.secret_key,
-            }
-        }
-
-    else:
-        storage_unit = cast(Bucket, storage_unit)
-        storage_vars = {
-            "s3": {
-                "bucket": storage_unit.bucket_name,
-                "endpoint": storage_unit.s3.meta.endpoint_url,
-            },
-        }
-
-    cos_vars = (
-        {
-            "cos": {
-                "model": cos,
-                "deployed": "bundled",
-            }
-        }
-        if cos
-        else {"cos": {"deployed": "no"}}
-    )
-
-    tf_vars = {
-        "kyuubi_user": "kyuubi-test-user",
-        "model": cast(str, juju.model),
-        "storage_backend": storage_backend,
-        "create_model": False,
-        "zookeeper_units": 1,
-    } | cos_vars
-
-    # NOTE: avoid logging secret key
-    logger.info(f"tf_vars: {tf_vars} + {storage_backend} information")
-
-    tf_vars = tf_vars | storage_vars
-    outputs = bundle.apply(tf_vars=tf_vars)
-
-    return list(outputs["charms"]["value"].values())
-
-
 def get_cos_address(cos_model_name: str) -> str:
     """Retrieve the URL where COS services are available."""
     # FIXME: once jubilant allows to change models, adapt this
@@ -554,3 +403,19 @@ def assert_logs(loki_address: str) -> None:
     #       there will be no logs.
     logger.info(f"query: {query}")
     assert len(query["data"]["result"]) != 0, "no logs was found"
+
+
+def get_kyuubi_ca_cert(
+    juju: jubilant.Juju, certificates_app_name: str = "certificates"
+) -> str:
+    """Get the CA certificate used by Kyuubi"""
+    status = juju.status()
+    self_signed_certificate_unit = next(
+        iter(status.apps[certificates_app_name].units.keys())
+    )
+    task = juju.run(self_signed_certificate_unit, "get-issued-certificates")
+    assert task.return_code == 0
+    items = ast.literal_eval(task.results["certificates"])
+    certificates = json.loads(items[0])
+    ca_cert = certificates["ca"]
+    return ca_cert

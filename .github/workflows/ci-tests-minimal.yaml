@@ -22,6 +22,7 @@ jobs:
           - integration-sparkjob
           - integration-bundle
           - integration-kyuubi
+          - integration-backup-restore
         bundle-backend: ["terraform"]
         spark-version: ["3.4.4"]
         storage-backend: ["s3", "azure_storage"]

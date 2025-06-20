@@ -16,6 +16,15 @@ def _clearnup_registry(registry):
     [registry.delete(account.id) for account in registry.all()]
 
 
+def determine_scope(fixture_name, config):
+    """Deternmine the scope of fixtures dynamically."""
+    test_paths = config.invocation_params.args
+    for path in test_paths:
+        if "test_backup_restore" in str(path):
+            return "class"
+    return "module"
+
+
 @pytest.fixture(scope="session")
 def registry(interface):
     """K8s registry."""
@@ -25,7 +34,7 @@ def registry(interface):
     # _clearnup_registry(registry)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope=determine_scope)
 def service_account(registry, namespace):
     """Create service account."""
     service_account_name = f"spark-test-{uuid.uuid4()}"

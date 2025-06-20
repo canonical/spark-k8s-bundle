@@ -38,7 +38,9 @@ KYUUBI_APP_NAME = "kyuubi"
 
 @pytest.mark.skip_if_deployed
 def test_deploy_bundle(spark_bundle) -> None:
-    pass
+    """Deploy bundle."""
+    deployed_applications = spark_bundle
+    logger.info(f"Deployed applications: {deployed_applications}")
 
 
 def test_active_status(juju: jubilant.Juju) -> None:
@@ -91,7 +93,9 @@ def test_jdbc_endpoint(juju: jubilant.Juju) -> None:
     assert table_name in db.tables
 
     table.insert(
-        ("messi", "argentina", 1987), ("sinner", "italy", 2002), ("jordan", "usa", 1963)
+        ("messi", "argentina", 1987),
+        ("sinner", "italy", 2002),
+        ("jordan", "usa", 1963),
     )
     assert len(list(table.rows())) == 3
 
@@ -142,12 +146,12 @@ def test_ha_deployment(juju: jubilant.Juju) -> None:
     assert set(active_servers) == set(expected_servers)
 
 
-def test_kyuubi_metrics_in_cos(juju: jubilant.Juju, cos) -> None:
+def test_kyuubi_metrics_in_cos(cos) -> None:
     if not cos:
         pytest.skip("Not possible to test without cos")
 
     # We should leave time for Prometheus data to be published
-    for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
+    for attempt in Retrying(stop=stop_after_attempt(10), wait=wait_fixed(30)):
         with attempt:
             cos_address = get_cos_address(cos_model_name=cos)
             assert published_prometheus_data(cos, cos_address, "kyuubi_jvm_uptime")
