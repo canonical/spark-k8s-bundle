@@ -8,16 +8,14 @@ import logging
 import jubilant
 import pytest
 
-from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace  # noqa
-from spark_test.fixtures.s3 import bucket, credentials  # noqa
-from spark_test.fixtures.service_account import registry, service_account  # noqa
-
 logger = logging.getLogger(__name__)
 
 
 @pytest.mark.skip_if_deployed
 def test_deploy_bundle(spark_bundle):
-    pass
+    """Deploy bundle."""
+    deployed_applications = spark_bundle
+    logger.info(f"Deployed applications: {deployed_applications}")
 
 
 def test_active_status(juju: jubilant.Juju):

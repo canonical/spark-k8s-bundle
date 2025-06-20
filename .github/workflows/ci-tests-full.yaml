@@ -25,6 +25,7 @@ jobs:
           - integration-sparkjob
           - integration-bundle
           - integration-kyuubi
+          - integration-backup-restore
         bundle-backend: ["yaml", "terraform"]
         spark-version: ["3.4.4", "3.5.4"]
         storage-backend: ["s3", "azure_storage"]
@@ -57,17 +58,11 @@ jobs:
           # COS bundle is mandatory for Kyuubi test.
           - tox-env: integration-kyuubi
             cos-model:
-        include:
-          - tox-env: integration-basic
-            spark-version: 3.4.4
-            juju:
-              - snap_channel: "3.6/stable"
-                agent: "3.6.0"
-          - tox-env: integration-basic
-            spark-version: 3.5.4
-            juju:
-              - snap_channel: "3.6/stable"
-                agent: "3.6.0"
+
+          # Backup / Restore tests only supported on Terraform
+          - tox-env: integration-backup-restore
+            bundle-backend: yaml
+
     needs:
       - checks
     steps:
