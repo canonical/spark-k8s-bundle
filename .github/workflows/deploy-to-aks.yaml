@@ -25,10 +25,10 @@ jobs:
 
       - name: Update ENV variables from inputs if available
         run: |
-          K8S_VERSION=${{ inputs.k8s_version | "1.32" }}
+          K8S_VERSION=${{ inputs.k8s_version || "1.32" }}
           echo "K8S_VERSION=${K8S_VERSION}" >> $GITHUB_ENV
 
-          JUJU_VERSION=${{ inputs.juju_version | "3.6" }}
+          JUJU_VERSION=${{ inputs.juju_version || "3.6" }}
           echo "JUJU_VERSION=${JUJU_VERSION}" >> $GITHUB_ENV
 
       - name: Install CLI tools
