@@ -1,20 +1,16 @@
 name: Reference Architecture Testing (AKS)
 on:
   pull_request:
-#   workflow_dispatch:
-#     inputs:
-#       k8s_version:
-#         description: 'Kubernetes version to be used for the AKS cluster'
-#         required: false
-#         default: "1.32"
-#       charmed_spark_version:
-#         description: 'Charmed Spark version to be tested'
-#         required: false
-#         default: "3.4"
-#       juju_version:
-#         description: 'Charmed Spark version to be tested'
-#         required: false
-#         default: "3.6"
+  workflow_dispatch:
+    inputs:
+      k8s_version:
+        description: 'Kubernetes version to be used for the AKS cluster'
+        required: false
+        default: "1.32"
+      juju_version:
+        description: 'Charmed Spark version to be tested'
+        required: false
+        default: "3.6"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -29,11 +25,10 @@ jobs:
 
       - name: Update ENV variables from inputs if available
         run: |
-          K8S_VERSION="1.32" 
-          # ${{ inputs.k8s_version }}
+          K8S_VERSION=${{ inputs.k8s_version | "1.32" }}
           echo "K8S_VERSION=${K8S_VERSION}" >> $GITHUB_ENV
 
-          JUJU_VERSION="3.6"
+          JUJU_VERSION=${{ inputs.juju_version | "3.6" }}
           echo "JUJU_VERSION=${JUJU_VERSION}" >> $GITHUB_ENV
 
       - name: Install CLI tools
