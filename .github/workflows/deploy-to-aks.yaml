@@ -23,12 +23,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set default envs
+        run: |
+          echo "K8S_VERSION=1.32" >> $GITHUB_ENV
+          echo "JUJU_VERSION=3.6" >> $GITHUB_ENV
+
+
       - name: Update ENV variables from inputs if available
         run: |
-          K8S_VERSION=${{ inputs.k8s_version || "1.32" }}
+          K8S_VERSION=${{ inputs.k8s_version || env.K8S_VERSION }}
           echo "K8S_VERSION=${K8S_VERSION}" >> $GITHUB_ENV
 
-          JUJU_VERSION=${{ inputs.juju_version || "3.6" }}
+          JUJU_VERSION=${{ inputs.juju_version || env.JUJU_VERSION }}
           echo "JUJU_VERSION=${JUJU_VERSION}" >> $GITHUB_ENV
 
       - name: Install CLI tools
