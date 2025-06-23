@@ -46,8 +46,8 @@ module "cos" {
 
 
 module "spark" {
-  # source                	= "git::https://github.com/canonical/spark-k8s-bundle//releases/3.4/terraform?ref=dpe-7336-enable-cos-deployment-configuration"
-  source                	= "../../../../releases/3.4/terraform"
+  source                	= "git::https://github.com/canonical/spark-k8s-bundle//releases/3.4/terraform"
+  # source                	= "../../../../releases/3.4/terraform"
   model                 	= "spark"
   create_model              = true
   K8S_CLOUD                 = var.K8S_CLOUD
@@ -67,5 +67,4 @@ module "spark" {
       logging=module.cos.logging_offer
     }
   }
-  kyuubi_revision = 72
 }
