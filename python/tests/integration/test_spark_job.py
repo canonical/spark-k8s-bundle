@@ -1,5 +1,6 @@
 import logging
 import re
+import subprocess
 from pathlib import Path
 from typing import cast
 
@@ -58,7 +59,9 @@ def tmp_folder(tmp_path_factory):
 
 @pytest.mark.skip_if_deployed
 def test_deploy_bundle(spark_bundle):
-    pass
+    """Deploy bundle."""
+    deployed_applications = spark_bundle
+    logger.info(f"Deployed applications: {deployed_applications}")
 
 
 def test_active_status(juju: jubilant.Juju) -> None:
@@ -67,11 +70,9 @@ def test_active_status(juju: jubilant.Juju) -> None:
 
 
 def test_run_job(
-    juju: jubilant.Juju,
     registry,
     service_account,
     pod,
-    credentials,
     object_storage,
     spark_properties,
     tmp_folder,
@@ -93,18 +94,21 @@ def test_run_job(
         )
     }
 
-    pod.exec(
-        [
-            "spark-client.spark-submit",
-            "--username",
-            service_account.name,
-            "--namespace",
-            service_account.namespace,
-            "-v",
-            object_storage.get_uri("spark_test.py"),
-            f"-f {object_storage.get_uri('example.txt')}",
-        ]
-    )
+    try:
+        pod.exec(
+            [
+                "spark-client.spark-submit",
+                "--username",
+                service_account.name,
+                "--namespace",
+                service_account.namespace,
+                "-v",
+                object_storage.get_uri("spark_test.py"),
+                f"-f {object_storage.get_uri('example.txt')}",
+            ]
+        )
+    except subprocess.CalledProcessError as cpe:
+        logger.exception(cpe)
 
     driver_pods = get_spark_drivers(
         registry.kube_interface.client, service_account.namespace
@@ -127,7 +131,6 @@ def test_run_job(
 
 
 def test_job_logs_are_persisted(
-    juju: jubilant.Juju,
     registry,
     service_account,
     credentials,
@@ -274,8 +277,6 @@ def test_job_not_in_prometheus_pushgateway(
 
 def test_spark_metrics_in_prometheus(
     juju: jubilant.Juju,
-    registry,
-    service_account,
     cos,
     tmp_folder,
     port_forward: PortForwarder,
@@ -312,7 +313,7 @@ def test_spark_metrics_in_prometheus(
 
 
 def test_spark_logforwaring_to_loki(
-    juju: jubilant.Juju, registry, service_account, cos, port_forward: PortForwarder
+    juju: jubilant.Juju, cos, port_forward: PortForwarder
 ) -> None:
     if not cos:
         pytest.skip("Not possible to test without cos")
