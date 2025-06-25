@@ -39,6 +39,7 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
 1. [How To](how-to)
   1. [Setup the Environment](how-to/h-setup-k8s.md)
   1. [Deploy Charmed Apache Spark](how-to/h-deploy.md)
+  1. [Deploy Charmed Apache Kyuubi](how-to/h-deploy-kyuubi.md)
   1. [Manage Service Accounts using the snap](how-to/h-manage-service-accounts.md)
   1. [Manage Service Accounts using Python](how-to/h-use-spark-client-from-python.md)
   1. [Manage Service Accounts using Integration Hub](how-to/h-use-integration-hub.md)
