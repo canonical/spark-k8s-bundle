@@ -1,3 +1,5 @@
+import shutil
+
 import pytest
 
 
@@ -73,3 +75,12 @@ def kyuubi(request):
 @pytest.fixture(scope="module")
 def hub(request):
     return request.config.getoption("--hub-app")
+
+
+@pytest.fixture(scope="session")
+def spark_client() -> str:
+    """Check that spark-client is in path."""
+    if (spark_client_path := shutil.which("spark-client")) is None:
+        raise FileNotFoundError("Could not find 'spark-client' in PATH.")
+
+    return spark_client_path

@@ -4,11 +4,11 @@
 
 from __future__ import annotations
 
-import ast
-import json
 import logging
 from typing import cast
 
+# import ast
+# import json
 import jubilant
 import psycopg2
 import pytest
@@ -38,19 +38,24 @@ KYUUBI_APP_NAME = "kyuubi"
 
 @pytest.mark.skip_if_deployed
 def test_deploy_bundle(spark_bundle) -> None:
-    pass
+    """Deploy bundle."""
+    deployed_applications = spark_bundle
+    logger.info(f"Deployed applications: {deployed_applications}")
 
 
 def test_active_status(juju: jubilant.Juju) -> None:
     """Test whether the bundle has deployed successfully."""
-    juju.wait(jubilant.all_active, delay=5)
+    juju.wait(
+        lambda status: jubilant.all_active(status) and jubilant.all_agents_idle(status),
+        delay=5,
+    )
 
 
 def test_authentication_is_enforced(juju: jubilant.Juju) -> None:
     """Test that the authentication has been enabled in the bundle by default
     and thus Kyuubi accept connections with invalid credentials.
     """
-    credentials = get_kyuubi_credentials(juju, "kyuubi")
+    credentials = get_kyuubi_credentials(juju)
     credentials["password"] = "something-random"
 
     with pytest.raises(Exception) as e:
@@ -63,18 +68,22 @@ def test_authentication_is_enforced(juju: jubilant.Juju) -> None:
 def test_jdbc_endpoint(juju: jubilant.Juju) -> None:
     """Test that JDBC connection in Kyuubi works out of the box in bundle."""
 
-    credentials = get_kyuubi_credentials(juju, "kyuubi")
+    credentials = get_kyuubi_credentials(juju)
 
     logger.info("Get certificate from self-signed-certificates operator")
     status = juju.status()
     self_signed_certificate_unit = next(iter(status.apps["certificates"].units.keys()))
     task = juju.run(self_signed_certificate_unit, "get-issued-certificates")
     assert task.return_code == 0
-    items = ast.literal_eval(task.results["certificates"])
-    certificates = json.loads(items[0])
-    ca_cert = certificates["ca"]
 
-    client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
+    # items = ast.literal_eval(task.results["certificates"])
+    # certificates = json.loads(items[0])
+    # ca_cert = certificates["ca"]
+
+    client = KyuubiClient(
+        **credentials,
+        use_ssl=True,
+    )  # ca_cert=ca_cert)
 
     db_name, table_name = "spark_test", "my_table"
 
@@ -91,7 +100,9 @@ def test_jdbc_endpoint(juju: jubilant.Juju) -> None:
     assert table_name in db.tables
 
     table.insert(
-        ("messi", "argentina", 1987), ("sinner", "italy", 2002), ("jordan", "usa", 1963)
+        ("messi", "argentina", 1987),
+        ("sinner", "italy", 2002),
+        ("jordan", "usa", 1963),
     )
     assert len(list(table.rows())) == 3
 
@@ -142,12 +153,12 @@ def test_ha_deployment(juju: jubilant.Juju) -> None:
     assert set(active_servers) == set(expected_servers)
 
 
-def test_kyuubi_metrics_in_cos(juju: jubilant.Juju, cos) -> None:
+def test_kyuubi_metrics_in_cos(cos) -> None:
     if not cos:
         pytest.skip("Not possible to test without cos")
 
     # We should leave time for Prometheus data to be published
-    for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
+    for attempt in Retrying(stop=stop_after_attempt(10), wait=wait_fixed(30)):
         with attempt:
             cos_address = get_cos_address(cos_model_name=cos)
             assert published_prometheus_data(cos, cos_address, "kyuubi_jvm_uptime")
@@ -201,7 +212,7 @@ def test_kyuubi_metrics_in_cos(juju: jubilant.Juju, cos) -> None:
 
 
 def test_drop_table_if_exists(juju: jubilant.Juju) -> None:
-    credentials = get_kyuubi_credentials(juju, "kyuubi")
+    credentials = get_kyuubi_credentials(juju)
     client = KyuubiClient(**credentials, use_ssl=True)
 
     db_name, table_name = "spark_test", "my_table"

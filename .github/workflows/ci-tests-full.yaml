@@ -6,6 +6,7 @@ name: Nightly CI tests
 on:
   schedule:
     - cron: "53 0 * * *" # Daily at 00:53 UTC
+  workflow_dispatch:
   workflow_call:
 
 jobs:
@@ -24,15 +25,31 @@ jobs:
           - integration-sparkjob
           - integration-bundle
           - integration-kyuubi
+          - integration-backup-restore
         bundle-backend: ["yaml", "terraform"]
         spark-version: ["3.4.4", "3.5.4"]
-        storage-backend: ["s3", "azure"]
+        storage-backend: ["s3", "azure_storage"]
         cos-model: ["", "cos"]
-        juju:
-          - snap_channel: "3.5/stable"
-            agent: "3.5.6"
-          - snap_channel: "3.6/stable"
-            agent: "3.6.0"
+        juju-snap-channel: ["3.5/stable", "3.6/stable"]
+        include:
+          # Add juju snap channel and agent version to all matrix combinations
+          - juju-snap-channel: "3.5/stable"
+            juju-agent-version: "3.5.6"
+          - juju-snap-channel: "3.6/stable"
+            juju-agent-version: "3.6.5"
+
+          # Test integration-basic, with Spark 3.4
+          - tox-env: integration-basic
+            spark-version: 3.4.4
+            juju-snap-channel: "3.6/stable"
+            juju-agent-version: "3.6.5"
+      
+          # Test integration-basic, with Spark 3.5
+          - tox-env: integration-basic
+            spark-version: 3.5.4
+            juju-snap-channel: "3.6/stable"
+            juju-agent-version: "3.6.5"
+
         exclude:
           # COS bundle is mandatory for sparkjob test.
           - tox-env: integration-sparkjob
@@ -41,17 +58,11 @@ jobs:
           # COS bundle is mandatory for Kyuubi test.
           - tox-env: integration-kyuubi
             cos-model:
-        include:
-          - tox-env: integration-basic
-            spark-version: 3.4.4
-            juju:
-              - snap_channel: "3.6/stable"
-                agent: "3.6.0"
-          - tox-env: integration-basic
-            spark-version: 3.5.4
-            juju:
-              - snap_channel: "3.6/stable"
-                agent: "3.6.0"
+
+          # Backup / Restore tests only supported on Terraform
+          - tox-env: integration-backup-restore
+            bundle-backend: yaml
+
     needs:
       - checks
     steps:
@@ -66,7 +77,43 @@ jobs:
           spark-version: ${{ matrix.spark-version }}
           storage-backend: ${{ matrix.storage-backend }}
           cos-model: ${{ matrix.cos-model }}
-          juju-snap-channel: ${{ matrix.juju.snap_channel || '3.6/stable' }}
-          juju-agent-version: ${{ matrix.juju.agent || '3.6.0' }}
+          juju-snap-channel: ${{ matrix.juju-snap-channel }}
+          juju-agent-version: ${{ matrix.juju-agent-version }}
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
+          pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
+
+
+  aggregate-results:
+    name: Aggregate Results
+    runs-on: ubuntu-22.04
+    needs: integration-tests
+    if: always()  
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: results
+      - id: setup-python
+        name: Setup Python
+        uses: actions/setup-python@v5.0.0
+        with:
+          python-version: 3.12
+          architecture: x64
+      - name: Install pandas & tabulate
+        run: |
+          pip install pandas
+          pip install tabulate
+      - name: Run result aggregation script
+        run: python3 .github/scripts/aggregate_results.py results/integration-results-*/matrix-result.json
+
+      - name: Upload summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: matrix-summary
+          path: matrix-summary.md
+
+      - name: Add to GitHub Summary
+        run: cat matrix-summary.md >> $GITHUB_STEP_SUMMARY

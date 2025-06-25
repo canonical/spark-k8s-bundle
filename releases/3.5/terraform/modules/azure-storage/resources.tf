@@ -11,7 +11,7 @@ resource "juju_secret" "azure_blob_storage_secret" {
   model = var.model
   name  = "azure_blob_storage_secret"
   value = {
-    secret-key = var.azure.secret_key
+    secret-key = var.azure_storage.secret_key
   }
   info = "This is the secret key for the Azure storage account"
 }

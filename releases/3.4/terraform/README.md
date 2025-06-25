@@ -40,7 +40,7 @@ module "ssc" {
 
 module "spark" {
   depends_on                = [juju_model.spark]
-  source                    = "./releases/3.5/terraform/modules/spark"
+  source                    = "git::https://github.com/canonical/spark-k8s-bundle//releases/3.4/terraform/modules/spark"
   model                     = juju_model.spark.name
   tls_app_name              = module.ssc.app_name
   tls_certificates_endpoint = module.ssc.provides.certificates
@@ -48,7 +48,7 @@ module "spark" {
 
 module "azure" {
   depends_on   = [juju_model.spark]
-  source       = "./releases/3.5/terraform/modules/azure-storage"
+  source       = "git::https://github.com/canonical/spark-k8s-bundle//releases/3.4/terraform/modules/azure-storage"
   model        = juju_model.spark.name
   spark_charms = module.spark.charms
   azure = {
@@ -100,20 +100,21 @@ This means that using this structure, a new optional module just takes care of d
 
 ## Versions
 
-| Module        | Charm                        | Channel     | revision |
-| ------------- | ---------------------------- | ----------- | -------- |
-| azure         | azure-storage-integrator     | latest/edge | 12       |
-| observability | grafana-agent-k8s            | 1/stable    | 104      |
-| observability | cos-configuration-k8s        | 1/stable    | 67       |
-| observability | prometheus-pushgateway-k8s   | 1/stable    | 16       |
-| observability | prometheus-scrape-config-k8s | 1/stable    | 64       |
-| spark         | spark-history-server-k8s     | 3.4/edge    | 40       |
-| spark         | spark-integration-hub-k8s    | latest/edge | 49       |
-| spark         | kyuubi-k8s                   | latest/edge | 72       |
-| spark         | postgresql-k8s               | 14/stable   | 281      |
-| spark         | postgresql-k8s               | 14/stable   | 281      |
-| spark         | zookeeper-k8s                | 3/edge      | 75       |
-| s3            | s3-integrator                | 1/stable    | 145      |
+| Module        | Charm                        | Channel       | revision |
+| ------------- | ---------------------------- | ------------- | -------- |
+| azure         | azure-storage-integrator     | latest/edge   | 12       |
+| observability | grafana-agent-k8s            | 1/stable      | 104      |
+| observability | cos-configuration-k8s        | 1/stable      | 67       |
+| observability | prometheus-pushgateway-k8s   | 1/stable      | 16       |
+| observability | prometheus-scrape-config-k8s | 1/stable      | 64       |
+| spark         | spark-history-server-k8s     | 3.4/edge      | 40       |
+| spark         | spark-integration-hub-k8s    | latest/edge   | 49       |
+| spark         | kyuubi-k8s                   | latest/edge   | 87       |
+| spark         | postgresql-k8s               | 14/stable     | 281      |
+| spark         | postgresql-k8s               | 14/stable     | 281      |
+| spark         | zookeeper-k8s                | 3/stable      | 75       |
+| spark         | data-integrator              | latest/stable | 161      |
+| s3            | s3-integrator                | 1/stable      | 145      |
 
 ### Updating the version table
 

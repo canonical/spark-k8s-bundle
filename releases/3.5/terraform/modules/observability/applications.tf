@@ -1,12 +1,13 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-resource "juju_application" "agent" {
-  name  = "agent"
+resource "juju_application" "grafana_agent" {
+  name  = "grafana-agent"
   model = data.juju_model.spark.name
   charm {
-    name    = "grafana-agent-k8s"
-    channel = "1/stable"
+    name     = "grafana-agent-k8s"
+    channel  = "1/stable"
+    revision = var.grafana_agent_revision
   }
   units       = 1
   trust       = true
@@ -17,8 +18,9 @@ resource "juju_application" "cos_configuration" {
   name  = "cos-configuration"
   model = data.juju_model.spark.name
   charm {
-    name    = "cos-configuration-k8s"
-    channel = "1/stable"
+    name     = "cos-configuration-k8s"
+    channel  = "1/stable"
+    revision = var.cos_configuration_revision
   }
   config = {
     git_branch              = "main"
@@ -34,8 +36,9 @@ resource "juju_application" "pushgateway" {
   name  = "pushgateway"
   model = data.juju_model.spark.name
   charm {
-    name    = "prometheus-pushgateway-k8s"
-    channel = "1/stable"
+    name     = "prometheus-pushgateway-k8s"
+    channel  = "1/stable"
+    revision = var.pushgateway_revision
   }
   units       = 1
   constraints = "arch=amd64"
@@ -50,7 +53,7 @@ resource "juju_application" "scrape_config" {
   charm {
     name     = "prometheus-scrape-config-k8s"
     channel  = "1/stable"
-    revision = 64
+    revision = var.scrape_config_revision
   }
   config = {
     scrape_interval = "10s"
