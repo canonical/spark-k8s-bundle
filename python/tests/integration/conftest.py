@@ -7,11 +7,9 @@ import contextlib
 import json
 import logging
 import os
-import secrets
 import shutil
 import signal
 import socket
-import string
 import time
 import uuid
 from contextlib import contextmanager
@@ -473,6 +471,7 @@ def admin_password():
     """The password to be used for admin user in the tests."""
     return "adminpassword"
 
+
 @pytest.fixture(scope=determine_scope)
 def spark_bundle(
     request,
@@ -503,7 +502,7 @@ def spark_bundle(
             "storage_backend": storage_backend,
             "create_model": False,
             "zookeeper_units": 1,
-            "admin_password": admin_password
+            "admin_password": admin_password,
         }
         cos_vars = (
             {
