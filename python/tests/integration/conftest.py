@@ -7,9 +7,11 @@ import contextlib
 import json
 import logging
 import os
+import secrets
 import shutil
 import signal
 import socket
+import string
 import time
 import uuid
 from contextlib import contextmanager
@@ -467,6 +469,11 @@ def tempdir():
 
 
 @pytest.fixture(scope=determine_scope)
+def admin_password():
+    """The password to be used for admin user in the tests."""
+    return "adminpassword"
+
+@pytest.fixture(scope=determine_scope)
 def spark_bundle(
     request,
     backend,
@@ -476,6 +483,7 @@ def spark_bundle(
     cos,
     storage_backend,
     object_storage,
+    admin_password,
 ):
     """Deploy the Spark K8s bundle, with appropriate backend and object storage."""
     short_version = ".".join(spark_version.split(".")[:2])
@@ -495,6 +503,7 @@ def spark_bundle(
             "storage_backend": storage_backend,
             "create_model": False,
             "zookeeper_units": 1,
+            "admin_password": admin_password
         }
         cos_vars = (
             {
