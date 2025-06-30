@@ -100,6 +100,13 @@ variable "azure_storage" {
   default = {}
 }
 
+variable "admin_password" {
+  description = "The password for the admin user."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
 variable "kyuubi_user" {
   description = "Define the user to be used for running Kyuubi enginers"
   type        = string

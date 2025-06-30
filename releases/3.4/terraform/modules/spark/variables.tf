@@ -9,6 +9,21 @@ variable "model" {
   nullable    = false
 }
 
+variable "admin_password" {
+  description = "The password for the admin user."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
+
+variable "tls_private_key" {
+  description = "The file path of the private key to use for TLS certificates."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
 variable "kyuubi_user" {
   description = "User name to be used for running Kyuubi engines."
   type        = string
