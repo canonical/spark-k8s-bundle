@@ -503,6 +503,7 @@ def spark_bundle(
             "create_model": False,
             "zookeeper_units": 1,
             "admin_password": admin_password,
+            "kyuubi_revision": 90,
         }
         cos_vars = (
             {
