@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import base64
 import contextlib
 import json
 import logging
@@ -10,6 +11,7 @@ import os
 import shutil
 import signal
 import socket
+import subprocess
 import time
 import uuid
 from contextlib import contextmanager
@@ -471,6 +473,16 @@ def admin_password():
     """The password to be used for admin user in the tests."""
     return "adminpassword"
 
+@pytest.fixture(scope=determine_scope)
+def private_key(tempdir: Path) -> str:
+    """A fixture that returns a base64 encoded RSA private key."""
+    key_file = tempdir / "private.key"
+    subprocess.run(["openssl", "genrsa", "-out", key_file, "2048"], check=True)
+   
+    with open(key_file, "rb") as f:
+        content = f.read()
+        return base64.b64encode(content).decode()
+
 
 @pytest.fixture(scope=determine_scope)
 def spark_bundle(
@@ -483,6 +495,7 @@ def spark_bundle(
     storage_backend,
     object_storage,
     admin_password,
+    private_key
 ):
     """Deploy the Spark K8s bundle, with appropriate backend and object storage."""
     short_version = ".".join(spark_version.split(".")[:2])
@@ -503,7 +516,7 @@ def spark_bundle(
             "create_model": False,
             "zookeeper_units": 1,
             "admin_password": admin_password,
-            "kyuubi_revision": 90,
+            "tls_private_key": private_key
         }
         cos_vars = (
             {

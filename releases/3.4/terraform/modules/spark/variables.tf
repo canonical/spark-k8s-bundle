@@ -16,9 +16,8 @@ variable "admin_password" {
   default     = null
 }
 
-
 variable "tls_private_key" {
-  description = "The file path of the private key to use for TLS certificates."
+  description = "The private key to be used for TLS certificates."
   type        = string
   sensitive   = true
   default     = null

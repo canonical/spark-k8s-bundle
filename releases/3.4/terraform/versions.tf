@@ -14,7 +14,7 @@ locals {
   revisions = {
     history_server    = 40
     integration_hub   = 49
-    kyuubi            = 87
+    kyuubi            = 93
     kyuubi_users      = 281
     metastore         = 281
     zookeeper         = 75

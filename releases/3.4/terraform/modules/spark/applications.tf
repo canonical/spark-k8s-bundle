@@ -29,12 +29,17 @@ resource "juju_application" "kyuubi" {
 
   resources = var.kyuubi_image
 
-  config = {
-    namespace              = data.juju_model.spark.name
-    service-account        = var.kyuubi_user
-    expose-external        = "loadbalancer"
-    system-users           = "secret:${juju_secret.system_users_secret.secret_id}"
-  }
+  config = merge(
+    {
+      namespace              = data.juju_model.spark.name
+      service-account        = var.kyuubi_user
+      expose-external        = "loadbalancer"
+      system-users           = "secret:${juju_secret.system_users_secret.secret_id}"
+    },
+    var.tls_private_key == null ? {} : {
+      tls-client-private-key = "secret:${juju_secret.tls_private_key_secret[0].secret_id}"
+    }
+  )
 
   units = 3
   trust = true

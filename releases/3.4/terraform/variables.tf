@@ -107,6 +107,13 @@ variable "admin_password" {
   default     = null
 }
 
+variable "tls_private_key" {
+  description = "The private key to be used for TLS certificates."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
 variable "kyuubi_user" {
   description = "Define the user to be used for running Kyuubi enginers"
   type        = string
