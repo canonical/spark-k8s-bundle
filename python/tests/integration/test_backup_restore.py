@@ -247,6 +247,21 @@ class TestFirstDeployment:
         active_servers = get_active_kyuubi_servers_list(juju)
         assert len(active_servers) == 3
 
+    def test_admin_user_connection(
+        self, juju: jubilant.Juju, admin_password, context
+    ) -> None:
+        """Test that the admin user is able to connect."""
+        credentials = get_kyuubi_credentials(juju)
+        credentials.update({"username": "admin", "password": admin_password})
+        ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+        kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
+
+        assert "default" in kyuubi_client.databases
+
+        # Store the old admin password into context, later we test whether
+        # the same password got restored for the admin user or not
+        context["old_admin_password"] = admin_password
+
     def test_database_operations(self, juju: jubilant.Juju, context) -> None:
         """Test some read / write operations on the database."""
         credentials = get_kyuubi_credentials(juju)
@@ -538,18 +553,22 @@ class TestNewDeployment:
         juju.integrate(METASTORE_APP_NAME, f"{KYUUBI_APP_NAME}:metastore-db")
         juju.wait(jubilant.all_active, delay=5)
 
-    def test_restore_admin_password(self, juju: jubilant.Juju, context):
-        """Restore the admin password from the previous deployment"""
-        # TODO: Implement logic to restore admin password
-        # old_admin_password = context["old_admin_password"]
-        # resore_admin_password(old_admin_password)
-        # new_admin_password = fetch_admin_password()
-        # assert old_admin_password == new_admin_password
+    def test_old_admin_password_restored(self, juju: jubilant.Juju, context):
+        """Check if the admin password from the previous deployment was restored."""
+        juju.wait(jubilant.all_active, delay=3)
+        old_admin_password = context.pop("old_admin_password")
+        credentials = get_kyuubi_credentials(juju)
+        credentials.update({"username": "admin", "password": old_admin_password})
+        ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+        kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
+
+        assert "default" in kyuubi_client.databases
 
     def test_old_tables_are_restored_in_metastore(
         self, juju: jubilant.Juju, port_forward: PortForwarder
     ) -> None:
         "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
+        juju.wait(jubilant.all_active, delay=3)
         metastore_credentials = get_postgresql_credentials(juju, METASTORE_APP_NAME)
 
         with port_forward(
@@ -580,15 +599,11 @@ class TestNewDeployment:
         assert num_dbs == 1
         assert num_tables == 1
 
-    def test_read_previously_written_data(self, juju: jubilant.Juju, context) -> None:
+    def test_read_previously_written_data(self, juju: jubilant.Juju) -> None:
         """Test some read / write operations on the database."""
-
+        juju.wait(jubilant.all_active, delay=3)
         credentials = get_kyuubi_credentials(juju)
         ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
-
-        # TODO: Implement this once password restore mechanism is implemented
-        # credentials.update({"password": context["old_admin_password"]})
-
         kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
 
         assert TEST_DB_NAME in kyuubi_client.databases
@@ -610,6 +625,7 @@ class TestNewDeployment:
 
     def test_insert_new_rows(self, juju: jubilant.Juju) -> None:
         """Test that the new rows of data are being inserted on top of what's already there."""
+        juju.wait(jubilant.all_active, delay=3)
         credentials = get_kyuubi_credentials(juju)
         ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
 
