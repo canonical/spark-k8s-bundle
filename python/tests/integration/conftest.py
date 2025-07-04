@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import base64
 import contextlib
 import json
 import logging
@@ -10,6 +11,7 @@ import os
 import shutil
 import signal
 import socket
+import subprocess
 import time
 import uuid
 from contextlib import contextmanager
@@ -50,6 +52,7 @@ COS_APPS = [
 ]
 FORWARD_TIMEOUT_SECONDS = 10
 logger = logging.getLogger(__name__)
+logging.getLogger("jubilant.wait").setLevel(logging.WARNING)
 
 
 def pytest_runtest_setup(item):
@@ -156,13 +159,14 @@ def determine_scope(fixture_name, config):
 def juju(request: pytest.FixtureRequest):
     keep_models = bool(request.config.getoption("--keep-models"))
     model = request.config.getoption("--model")
+    debug_log_limit = 50
 
     if model is None:
         with jubilant.temp_model(keep=keep_models) as juju:
             juju.wait_timeout = 30 * 60
             juju.model_config({"update-status-hook-interval": "60s"})
             yield juju
-            debug_log = juju.debug_log(limit=50)
+            debug_log = juju.debug_log(limit=debug_log_limit)
             status = juju.cli("status")
     else:
         model_name = str(model)
@@ -177,12 +181,14 @@ def juju(request: pytest.FixtureRequest):
         juju.model_config({"update-status-hook-interval": "60s"})
         yield juju
 
-        debug_log = juju.debug_log(limit=50)
+        debug_log = juju.debug_log(limit=debug_log_limit)
         status = juju.cli("status")
 
     test_passed = True
     if request.session.testsfailed:
-        print(debug_log, end="")
+        print(f"Last {debug_log_limit} lines of debug logs...")
+        print(debug_log)
+        logger.info("Juju status after the test failure:")
         logger.info(status)
         test_passed = False
 
@@ -467,6 +473,23 @@ def tempdir():
 
 
 @pytest.fixture(scope=determine_scope)
+def admin_password():
+    """The password to be used for admin user in the tests."""
+    return "adminpassword"
+
+
+@pytest.fixture(scope=determine_scope)
+def private_key(tempdir: Path) -> str:
+    """A fixture that returns a base64 encoded RSA private key."""
+    key_file = tempdir / "private.key"
+    subprocess.run(["openssl", "genrsa", "-out", key_file, "2048"], check=True)
+
+    with open(key_file, "rb") as f:
+        content = f.read()
+        return base64.b64encode(content).decode()
+
+
+@pytest.fixture(scope=determine_scope)
 def spark_bundle(
     request,
     backend,
@@ -476,6 +499,8 @@ def spark_bundle(
     cos,
     storage_backend,
     object_storage,
+    admin_password,
+    private_key,
 ):
     """Deploy the Spark K8s bundle, with appropriate backend and object storage."""
     short_version = ".".join(spark_version.split(".")[:2])
@@ -495,6 +520,8 @@ def spark_bundle(
             "storage_backend": storage_backend,
             "create_model": False,
             "zookeeper_units": 1,
+            "admin_password": admin_password,
+            "tls_private_key": private_key,
         }
         cos_vars = (
             {
