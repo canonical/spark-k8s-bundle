@@ -159,13 +159,14 @@ def determine_scope(fixture_name, config):
 def juju(request: pytest.FixtureRequest):
     keep_models = bool(request.config.getoption("--keep-models"))
     model = request.config.getoption("--model")
+    debug_log_limit = 50
 
     if model is None:
         with jubilant.temp_model(keep=keep_models) as juju:
             juju.wait_timeout = 30 * 60
             juju.model_config({"update-status-hook-interval": "60s"})
             yield juju
-            debug_log = juju.debug_log(limit=50)
+            debug_log = juju.debug_log(limit=debug_log_limit)
             status = juju.cli("status")
     else:
         model_name = str(model)
@@ -180,12 +181,14 @@ def juju(request: pytest.FixtureRequest):
         juju.model_config({"update-status-hook-interval": "60s"})
         yield juju
 
-        debug_log = juju.debug_log(limit=50)
+        debug_log = juju.debug_log(limit=debug_log_limit)
         status = juju.cli("status")
 
     test_passed = True
     if request.session.testsfailed:
-        print(debug_log, end="")
+        print(f"Last {debug_log_limit} lines of debug logs...")
+        print(debug_log)
+        logger.info("Juju status after the test failure:")
         logger.info(status)
         test_passed = False
 
