@@ -34,10 +34,12 @@ resource "juju_application" "kyuubi" {
       namespace              = data.juju_model.spark.name
       service-account        = var.kyuubi_user
       expose-external        = "loadbalancer"
-      system-users           = "secret:${juju_secret.system_users_secret.secret_id}"
     },
     var.tls_private_key == null ? {} : {
-      tls-client-private-key = "secret:${juju_secret.tls_private_key_secret[0].secret_id}"
+      tls-client-private-key = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
+    },
+    var.admin_password == null ? {} : {
+      system-users           = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
     }
   )
 
