@@ -120,6 +120,8 @@ runs:
         sudo microk8s ctr images import --base-name $IMAGE image.tar
         docker rmi $IMAGE
         rm image.tar
+    - name: Setup upterm session
+      uses: lhotari/action-upterm@v1
     - id: tests-integration
       name: Run Integration Tests
       shell: bash
@@ -131,7 +133,6 @@ runs:
         juju list-models
         cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ inputs.bundle-backend }} --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }}
         echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
-
     - id: collect-logs
       name: Collect logs if job failed
       shell: bash
