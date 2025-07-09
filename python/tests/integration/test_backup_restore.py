@@ -283,10 +283,6 @@ class TestFirstDeployment:
         )
         assert len(list(table.rows())) == 3
 
-        # Store the old admin password into context, we need this later to restore
-        # this same password in the new deployment.
-        context["old_admin_password"] = credentials["password"]
-
     def test_external_metastore_is_used(
         self, juju: jubilant.Juju, port_forward: PortForwarder
     ) -> None:
