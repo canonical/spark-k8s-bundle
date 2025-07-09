@@ -120,8 +120,8 @@ runs:
         sudo microk8s ctr images import --base-name $IMAGE image.tar
         docker rmi $IMAGE
         rm image.tar
-    - name: Setup upterm session
-      uses: lhotari/action-upterm@v1
+    # - name: Setup upterm session
+    #   uses: lhotari/action-upterm@v1
     - id: tests-integration
       name: Run Integration Tests
       shell: bash
