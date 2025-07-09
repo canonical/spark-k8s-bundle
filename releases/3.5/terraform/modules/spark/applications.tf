@@ -33,6 +33,7 @@ resource "juju_application" "kyuubi" {
     namespace       = data.juju_model.spark.name
     service-account = var.kyuubi_user
     expose-external = "loadbalancer"
+    profile = var.kyuubi_profile
   }
 
   units = 3

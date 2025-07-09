@@ -106,6 +106,12 @@ variable "kyuubi_user" {
   default     = "kyuubi-spark-engine"
 }
 
+variable "kyuubi_profile" {
+  description = "Define the profile for the Kyuubi charm"
+  type        = string
+  default     = "testing"
+}
+
 variable "zookeeper_units" {
   description = "Define the number of zookeeper units. 3 units are recommended for high availability."
   type        = number
