@@ -23,6 +23,13 @@ variable "tls_private_key" {
   default     = null
 }
 
+variable "kyuubi_profile" {
+  description = "The profile to be used for Kyuubi; should be one of 'testing', 'staging' and 'production'."
+  type        = string
+  nullable    = false
+  default     = "production"
+}
+
 variable "kyuubi_user" {
   description = "User name to be used for running Kyuubi engines."
   type        = string

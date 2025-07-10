@@ -516,6 +516,7 @@ def spark_bundle(
         bundle = TerraformBackend(tempdir=tempdir, module_path=release_path)
         base_vars = {
             "kyuubi_user": "kyuubi-test-user",
+            "kyuubi_profile": "testing",
             "model": cast(str, juju.model),
             "storage_backend": storage_backend,
             "create_model": False,
@@ -571,6 +572,7 @@ def spark_bundle(
             "namespace": cast(str, juju.model),
             "service_account": "kyuubi-test-user",
             "zookeeper_units": 1,
+            "kyuubi_profile": "testing",
         }
         cos_vars = (
             {"cos_controller": juju.status().model.controller, "cos_model": cos}

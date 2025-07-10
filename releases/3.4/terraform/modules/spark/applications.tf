@@ -34,7 +34,7 @@ resource "juju_application" "kyuubi" {
       namespace              = data.juju_model.spark.name
       service-account        = var.kyuubi_user
       expose-external        = "loadbalancer"
-      profile                = "testing"
+      profile                = var.kyuubi_profile
     },
     var.tls_private_key == null ? {} : {
       tls-client-private-key = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
