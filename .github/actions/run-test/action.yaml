@@ -113,7 +113,7 @@ runs:
       shell: bash
       run: |
         # Download image for avoiding time out
-        IMAGE="ghcr.io/canonical/charmed-spark-kyuubi@sha256:29c84e1693ce7b5e6cf4fcb84570a79357f9bc1e66bce59d2e0031f1314699e5"
+        IMAGE="ghcr.io/canonical/charmed-spark-kyuubi@sha256:153eaf8be341dcea2c91277cbc2a69a1c9c48d3f7847151898ab2e5a81753ec5"
 
         docker pull $IMAGE
         docker save $IMAGE -o image.tar
@@ -140,10 +140,14 @@ runs:
         if [[ -n "${{ inputs.cos-model }}" ]]; then
           juju-crashdump --model "${{ inputs.cos-model }}"
         fi
+        juju status --model spark-bundle-test
         # get pods 
         kubectl get pods -A
         # events
         kubectl events -A
+        # disk space
+        printf '\nDisk usage after tests\n'
+        df --human-readable
         echo "Done"
     - name: Write test result in JSON format
       shell: bash
