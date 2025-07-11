@@ -36,6 +36,7 @@ module "spark" {
   source                    = "./modules/spark"
   model                     = var.model
   kyuubi_user               = var.kyuubi_user
+  kyuubi_profile            = var.kyuubi_profile
   admin_password            = var.admin_password
   tls_private_key           = var.tls_private_key
   zookeeper_units           = var.zookeeper_units
