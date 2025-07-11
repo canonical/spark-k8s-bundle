@@ -14,12 +14,12 @@ locals {
   revisions = {
     history_server    = 40
     integration_hub   = 49
-    kyuubi            = 99
+    kyuubi            = 100
     kyuubi_users      = 281
     metastore         = 281
-    zookeeper         = 75
+    zookeeper         = 78
     data_integrator   = 161
-    s3                = 77
+    s3                = 145
     azure_storage     = 12
     grafana_agent     = 104
     cos_configuration = 67
