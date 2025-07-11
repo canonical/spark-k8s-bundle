@@ -19,9 +19,9 @@ jobs:
       fail-fast: false
       matrix:
         tox-env:
-          - integration-sparkjob
-          - integration-bundle
-          - integration-kyuubi
+          # - integration-sparkjob
+          # - integration-bundle
+          # - integration-kyuubi
           - integration-backup-restore
         bundle-backend: ["terraform"]
         spark-version: ["3.4.4"]

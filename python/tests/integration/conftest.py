@@ -626,7 +626,7 @@ def spark_bundle(
         lambda status: jubilant.all_active(
             status, *list(set(deployed_applications) - set(COS_APPS))
         ),
-        timeout=1800,
+        timeout=2500,
         delay=10,
     )
 

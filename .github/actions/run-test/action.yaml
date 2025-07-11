@@ -140,6 +140,7 @@ runs:
         if [[ -n "${{ inputs.cos-model }}" ]]; then
           juju-crashdump --model "${{ inputs.cos-model }}"
         fi
+        juju status --model spark-bundle-test
         # get pods 
         kubectl get pods -A
         # events
