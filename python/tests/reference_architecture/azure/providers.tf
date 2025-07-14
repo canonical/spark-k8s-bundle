@@ -18,11 +18,10 @@ terraform {
       source  = "hashicorp/time"
       version = "0.9.1"
     }
-	juju = {
+    juju = {
       source  = "juju/juju"
-  	  version = ">=0.16.0,<0.20.0"
-	}
-
+      version = ">=0.20.0"
+    }
   }
 }
 
