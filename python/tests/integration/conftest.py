@@ -164,7 +164,7 @@ def juju(request: pytest.FixtureRequest):
     if model is None:
         with jubilant.temp_model(keep=keep_models) as juju:
             juju.wait_timeout = 30 * 60
-            juju.model_config({"update-status-hook-interval": "60s"})
+            # juju.model_config({"update-status-hook-interval": "60s"})
             yield juju
             debug_log = juju.debug_log(limit=debug_log_limit)
             status = juju.cli("status")
@@ -178,7 +178,7 @@ def juju(request: pytest.FixtureRequest):
         except jubilant.CLIError:
             juju.add_model(model_name)
 
-        juju.model_config({"update-status-hook-interval": "60s"})
+        # juju.model_config({"update-status-hook-interval": "60s"})
         yield juju
 
         debug_log = juju.debug_log(limit=debug_log_limit)
@@ -616,14 +616,18 @@ def spark_bundle(
         cos_juju_model.model = cos
         logger.info("Waiting for COS deployment to settle down")
         cos_juju_model.wait(
-            lambda status: jubilant.all_agents_idle(status, *COS_APPS),
+            ready=lambda status: jubilant.all_agents_idle(status, *COS_APPS),
+            error=lambda status: jubilant.any_error(status, *COS_APPS),
             timeout=1800,
             delay=10,
         )
 
     logger.info("Waiting for spark deployment to settle down")
     juju.wait(
-        lambda status: jubilant.all_active(
+        ready=lambda status: jubilant.all_active(
+            status, *list(set(deployed_applications) - set(COS_APPS))
+        ),
+        error=lambda status: jubilant.any_error(
             status, *list(set(deployed_applications) - set(COS_APPS))
         ),
         timeout=2500,
