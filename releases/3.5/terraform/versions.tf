@@ -9,6 +9,7 @@ terraform {
       # See: https://github.com/juju/terraform-provider-juju/issues/780
       version = ">=0.16.0, <0.20"
       source  = "juju/juju"
+      version = ">=0.20.0"
     }
   }
 }
