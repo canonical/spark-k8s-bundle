@@ -16,7 +16,7 @@ terraform {
 locals {
   revisions = {
     history_server    = 40
-    integration_hub   = 58
+    integration_hub   = 49
     kyuubi            = 100
     kyuubi_users      = 281
     metastore         = 281
