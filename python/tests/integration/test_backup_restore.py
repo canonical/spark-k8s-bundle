@@ -547,11 +547,19 @@ class TestNewDeployment:
         """Add backup kyuubi <> metastore relation after the metastore restoration is complete."""
         # Now re-integrate the metastore back to kyuubi
         juju.integrate(METASTORE_APP_NAME, f"{KYUUBI_APP_NAME}:metastore-db")
-        juju.wait(jubilant.all_active, delay=5)
+        juju.wait(
+            lambda status: jubilant.all_active(status)
+            and jubilant.all_agents_idle(status),
+            delay=5,
+        )
 
     def test_old_admin_password_restored(self, juju: jubilant.Juju, context):
         """Check if the admin password from the previous deployment was restored."""
-        juju.wait(jubilant.all_active, delay=3)
+        juju.wait(
+            lambda status: jubilant.all_active(status)
+            and jubilant.all_agents_idle(status),
+            delay=5,
+        )
         old_admin_password = context.pop("old_admin_password")
         credentials = get_kyuubi_credentials(juju)
         credentials.update({"username": "admin", "password": old_admin_password})
