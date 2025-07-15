@@ -45,6 +45,7 @@ METASTORE_DATABASE_NAME = "hivemetastore"
 METASTORE_APP_NAME = "metastore"
 KYUUBI_APP_NAME = "kyuubi"
 BACKUP_S3_INTEGRATOR_APP_NAME = "metastore-backup"
+MICROCEPH_REVISION = 1169
 
 
 @pytest.fixture(scope="module")
@@ -141,13 +142,18 @@ def microceph_credentials(host_ip: str, certs_path):
 
     logger.info("Setting up microceph")
     subprocess.run(
-        ["sudo", "snap", "install", "microceph", "--revision", "1169"],
+        ["sudo", "snap", "install", "microceph", "--revision", str(MICROCEPH_REVISION)],
         check=True,
     )
-    subprocess.run(
-        ["sudo", "microceph", "cluster", "bootstrap"],
-        check=True,
-    )
+    try:
+        subprocess.run(
+            ["sudo", "microceph", "cluster", "bootstrap"],
+            check=True,
+            stderr=subprocess.PIPE,
+        )
+    except subprocess.CalledProcessError as ex:
+        logger.error(ex.stderr.decode())
+
     subprocess.run(
         ["sudo", "microceph", "disk", "add", "loop,1G,3"],
         check=True,
