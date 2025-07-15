@@ -100,6 +100,27 @@ variable "azure_storage" {
   default = {}
 }
 
+variable "admin_password" {
+  description = "The password for the admin user."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
+variable "tls_private_key" {
+  description = "The private key to be used for TLS certificates."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
+variable "kyuubi_profile" {
+  description = "The profile to be used for Kyuubi; should be one of 'testing', 'staging' and 'production'."
+  type        = string
+  nullable    = false
+  default     = "production"
+}
+
 variable "kyuubi_user" {
   description = "Define the user to be used for running Kyuubi enginers"
   type        = string

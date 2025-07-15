@@ -21,7 +21,7 @@ resource "juju_model" "cos" {
 
 module "ssc" {
   depends_on  = [juju_model.spark]
-  source      = "git::https://github.com/canonical/self-signed-certificates-operator//terraform"
+  source      = "git::https://github.com/canonical/self-signed-certificates-operator//terraform?ref=rev324"
   model       = var.model
   app_name    = "certificates"
   channel     = "latest/stable"
@@ -36,6 +36,9 @@ module "spark" {
   source                    = "./modules/spark"
   model                     = var.model
   kyuubi_user               = var.kyuubi_user
+  kyuubi_profile            = var.kyuubi_profile
+  admin_password            = var.admin_password
+  tls_private_key           = var.tls_private_key
   zookeeper_units           = var.zookeeper_units
   tls_app_name              = module.ssc.app_name
   tls_certificates_endpoint = module.ssc.provides.certificates

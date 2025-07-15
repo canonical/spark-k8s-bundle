@@ -4,8 +4,11 @@
 terraform {
   required_providers {
     juju = {
+      # Pin the version to <0.20 because 0.20.0 introduces some breaking changes
+      # in `juju_offer` resource.
+      # See: https://github.com/juju/terraform-provider-juju/issues/780
+      version = ">=0.16.0, <0.20"
       source  = "juju/juju"
-      version = ">=0.16.0"
     }
   }
 }
@@ -14,12 +17,12 @@ locals {
   revisions = {
     history_server    = 40
     integration_hub   = 49
-    kyuubi            = 87
+    kyuubi            = 100
     kyuubi_users      = 281
     metastore         = 281
-    zookeeper         = 75
+    zookeeper         = 78
     data_integrator   = 161
-    s3                = 77
+    s3                = 145
     azure_storage     = 12
     grafana_agent     = 104
     cos_configuration = 67

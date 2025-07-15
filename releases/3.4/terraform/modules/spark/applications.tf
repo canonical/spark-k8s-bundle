@@ -29,11 +29,20 @@ resource "juju_application" "kyuubi" {
 
   resources = var.kyuubi_image
 
-  config = {
-    namespace       = data.juju_model.spark.name
-    service-account = var.kyuubi_user
-    expose-external = "loadbalancer"
-  }
+  config = merge(
+    {
+      namespace              = data.juju_model.spark.name
+      service-account        = var.kyuubi_user
+      expose-external        = "loadbalancer"
+      profile                = var.kyuubi_profile
+    },
+    var.tls_private_key == null ? {} : {
+      tls-client-private-key = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
+    },
+    var.admin_password == null ? {} : {
+      system-users           = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
+    }
+  )
 
   units = 3
   trust = true
