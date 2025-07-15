@@ -134,21 +134,35 @@ runs:
     - id: collect-logs
       name: Collect logs if job failed
       shell: bash
-      if: ${{ failure() }}   
+      if: ${{ failure() }}
       run: |
         juju-crashdump --model spark-bundle-test
         if [[ -n "${{ inputs.cos-model }}" ]]; then
           juju-crashdump --model "${{ inputs.cos-model }}"
         fi
-        juju status --model spark-bundle-test
-        # get pods 
-        kubectl get pods -A
-        # events
-        kubectl events -A
-        # disk space
+    - id: debug-info
+      name: Debug info
+      shell: bash
+      if: ${{ failure() }}
+      run: |
         printf '\nDisk usage after tests\n'
         df --human-readable
-        echo "Done"
+
+        printf '\nJuju status(es)\n'
+        juju status -m spark-bundle-test
+        if [[ -n "${{ inputs.cos-model }}" ]]; then
+          juju status -m cos
+        fi
+
+        printf '\nK8s pods\n'
+        kubectl get pods -n spark-bundle-test -o wide
+        if [[ -n "${{ inputs.cos-model }}" ]]; then
+          kubectl get pods -n cos -o wide
+        fi
+
+        printf '\nDebug logs\n'
+        juju debug-log -m spark-bundle-test --replay | tail -n 1000
+
     - name: Write test result in JSON format
       shell: bash
       if: always()
