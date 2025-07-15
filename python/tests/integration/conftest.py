@@ -616,8 +616,7 @@ def spark_bundle(
         cos_juju_model.model = cos
         logger.info("Waiting for COS deployment to settle down")
         cos_juju_model.wait(
-            ready=lambda status: jubilant.all_agents_idle(status, *COS_APPS),
-            error=lambda status: jubilant.any_error(status, *COS_APPS),
+            lambda status: jubilant.all_agents_idle(status, *COS_APPS),
             timeout=1800,
             delay=10,
         )

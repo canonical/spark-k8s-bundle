@@ -151,17 +151,23 @@ runs:
         printf '\nJuju status(es)\n'
         juju status -m spark-bundle-test
         if [[ -n "${{ inputs.cos-model }}" ]]; then
+          printf '\nCos status\n'
           juju status -m cos
         fi
 
         printf '\nK8s pods\n'
         kubectl get pods -n spark-bundle-test -o wide
         if [[ -n "${{ inputs.cos-model }}" ]]; then
+          printf '\nCos pods\n'
           kubectl get pods -n cos -o wide
         fi
 
         printf '\nDebug logs\n'
-        juju debug-log -m spark-bundle-test --replay | tail -n 1000
+        juju debug-log -m spark-bundle-test --replay -l INFO | tail -n 500
+        if [[ -n "${{ inputs.cos-model }}" ]]; then
+          printf '\nCos logs\n'
+          juju debug-log -m cos --replay -l INFO | tail -n 500
+        fi
 
     - name: Write test result in JSON format
       shell: bash
