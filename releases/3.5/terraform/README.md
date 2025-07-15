@@ -102,18 +102,18 @@ This means that using this structure, a new optional module just takes care of d
 
 | Module        | Charm                        | Channel       | revision |
 | ------------- | ---------------------------- | ------------- | -------- |
-| azure         | azure-storage-integrator     | latest/edge   | 12       |
-| observability | grafana-agent-k8s            | 1/stable      | 104      |
-| observability | cos-configuration-k8s        | 1/stable      | 67       |
-| observability | prometheus-pushgateway-k8s   | 1/stable      | 16       |
-| observability | prometheus-scrape-config-k8s | 1/stable      | 64       |
-| spark         | spark-history-server-k8s     | 3.4/edge      | 40       |
-| spark         | spark-integration-hub-k8s    | latest/edge   | 58       |
-| spark         | kyuubi-k8s                   | latest/edge   | 100      |
-| spark         | postgresql-k8s               | 14/stable     | 281      |
-| spark         | postgresql-k8s               | 14/stable     | 281      |
+| azure         | azure-storage-integrator     | latest/edge   | 15       |
+| observability | grafana-agent-k8s            | 1/stable      | 122      |
+| observability | cos-configuration-k8s        | 1/stable      | 71       |
+| observability | prometheus-pushgateway-k8s   | 1/stable      | 27       |
+| observability | prometheus-scrape-config-k8s | 1/stable      | 67       |
+| spark         | spark-history-server-k8s     | 3.4/edge      | 44       |
+| spark         | spark-integration-hub-k8s    | latest/edge   | 59       |
+| spark         | kyuubi-k8s                   | latest/edge   | 102      |
+| spark         | postgresql-k8s               | 14/stable     | 495      |
+| spark         | postgresql-k8s               | 14/stable     | 495      |
 | spark         | zookeeper-k8s                | 3/stable      | 78       |
-| spark         | data-integrator              | latest/stable | 161      |
+| spark         | data-integrator              | latest/stable | 181      |
 | s3            | s3-integrator                | 1/stable      | 145      |
 
 ### Updating the version table
