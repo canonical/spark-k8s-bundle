@@ -6,9 +6,9 @@ applications:
   kyuubi:
     charm: kyuubi-k8s
     channel: latest/edge
-    revision: 100
+    revision: 104
     resources:
-      kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:29c84e1693ce7b5e6cf4fcb84570a79357f9bc1e66bce59d2e0031f1314699e5 # 3.4.4-1.10.1-22.04_edge 2025-05-06
+      kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:153eaf8be341dcea2c91277cbc2a69a1c9c48d3f7847151898ab2e5a81753ec5 # rev20 3.4 -- 30 Jan 2025
     scale: 3
     options:
       namespace: {{ namespace }}
@@ -20,9 +20,9 @@ applications:
   kyuubi-users:
     charm: postgresql-k8s
     channel: 14/stable
-    revision: 281
+    revision: 495
     resources:
-      postgresql-image: 159
+      postgresql-image: 165
     scale: 1
     constraints: arch=amd64
     storage:
@@ -35,13 +35,13 @@ applications:
     scale: {{ zookeeper_units or 3}}
     constraints: arch=amd64
     resources:
-      zookeeper-image: 31
+      zookeeper-image: 34
   metastore:
     charm: postgresql-k8s
     channel: 14/stable
-    revision: 281
+    revision: 495
     resources:
-      postgresql-image: 159
+      postgresql-image: 165
     scale: 1
     constraints: arch=amd64
     storage:
@@ -60,9 +60,9 @@ applications:
   history-server:
     charm: spark-history-server-k8s
     channel: 3.4/edge
-    revision: 40
+    revision: 44
     resources:
-      spark-history-server-image: ghcr.io/canonical/charmed-spark@sha256:1d9949dc7266d814e6483f8d9ffafeff32f66bb9939e0ab29ccfd9d5003a583a # 3.4.2
+      spark-history-server-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:153eaf8be341dcea2c91277cbc2a69a1c9c48d3f7847151898ab2e5a81753ec5 # rev8 3.4 -- 16 Jun 2025 
     scale: 1
     constraints: arch=amd64
   integration-hub:
@@ -76,15 +76,15 @@ applications:
     trust: true
   certificates:
     charm: self-signed-certificates
-    channel: latest/stable
-    revision: 163
+    channel: 1/stable
+    revision: 317
     scale: 1
     constraints: arch=amd64
     trust: true
   data-integrator:
     charm: data-integrator
     channel: latest/stable
-    revision: 161
+    revision: 181
     scale: 1
     constraints: arch=amd64
     options:

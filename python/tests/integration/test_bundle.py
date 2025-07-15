@@ -22,5 +22,5 @@ def test_active_status(juju: jubilant.Juju) -> None:
     """Test whether the bundle has deployed successfully."""
     juju.wait(
         lambda status: jubilant.all_active(status) and jubilant.all_agents_idle(status),
-        delay=5,
+        delay=10,
     )
