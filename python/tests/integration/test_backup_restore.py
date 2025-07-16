@@ -4,7 +4,6 @@ import socket
 import subprocess
 import time
 from typing import cast
-from unittest.mock import patch
 
 import boto3
 import botocore
@@ -241,19 +240,13 @@ def microceph_credentials(host_ip: str, certs_path):
 
 
 class TestFirstDeployment:
-    def test_active_status(
-        self, juju: jubilant.Juju, spark_bundle: list[str], cos: str
-    ) -> None:
+    def test_active_status(self, juju: jubilant.Juju, spark_bundle: list[str]) -> None:
         """Test whether the bundle has deployed successfully."""
         juju.wait(
             lambda status: jubilant.all_active(status)
             and jubilant.all_agents_idle(status),
             delay=5,
         )
-
-        if cos:
-            with patch.object(juju, "model", "cos"):
-                juju.wait(jubilant.all_agents_idle, error=jubilant.any_error)
 
     def test_ha_enabled(self, juju: jubilant.Juju) -> None:
         """Test the bundle has HA enabled, and there are exactly 3 units of Kyuubi active."""

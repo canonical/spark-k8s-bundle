@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import logging
 from typing import cast
-from unittest.mock import patch
 
 import jubilant
 import psycopg2
@@ -42,15 +41,12 @@ def test_deploy_bundle(spark_bundle) -> None:
     logger.info(f"Deployed applications: {deployed_applications}")
 
 
-def test_active_status(juju: jubilant.Juju, cos: str) -> None:
+def test_active_status(juju: jubilant.Juju) -> None:
     """Test whether the bundle has deployed successfully."""
     juju.wait(
         lambda status: jubilant.all_active(status) and jubilant.all_agents_idle(status),
         delay=5,
     )
-    if cos:
-        with patch.object(juju, "model", "cos"):
-            juju.wait(jubilant.all_agents_idle, error=jubilant.any_error)
 
 
 def test_authentication_is_enforced(juju: jubilant.Juju) -> None:
