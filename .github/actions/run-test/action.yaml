@@ -119,14 +119,14 @@ runs:
             "ghcr.io/canonical/charmed-spark@sha256:857f69f583fd8ee6238d1e556f749e29847ec83010c5d53f4a66388b00940da5"        # 3.5.4 2025-05-02
 
             "ghcr.io/canonical/charmed-spark@sha256:7056db56cad6b23927706af3de9d47c47ca61eee1b0a03ec7ed7f43f29503a21"        # 3.4.4 2025-05-06, used by Kyuubi executors
+            "ghcr.io/canonical/charmed-spark:3.4.4-22.04_edge"                                                               # 3.4.4, used in integration-basic
+            "ghcr.io/canonical/charmed-spark:3.5.4-22.04_edge"                                                               # 3.5.4, used in integration-basic
         )
 
         for image in "${IMAGES[@]}"; do
             echo "Pulling $image"
             sudo microk8s ctr image pull "$image"
         done
-    - name: Setup upterm session
-      uses: lhotari/action-upterm@v1
     - id: tests-integration
       name: Run Integration Tests
       shell: bash
