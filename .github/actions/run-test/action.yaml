@@ -123,7 +123,7 @@ runs:
 
         for image in "${IMAGES[@]}"; do
             echo "Pulling $image"
-            microk8s ctr image pull "$image"
+            sudo microk8s ctr image pull "$image"
         done
     - name: Setup upterm session
       uses: lhotari/action-upterm@v1
