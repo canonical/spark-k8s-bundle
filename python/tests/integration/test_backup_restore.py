@@ -170,6 +170,7 @@ def microceph_credentials(host_ip: str, certs_path):
         text=True,
         capture_output=True,
     ).stdout.strip()
+    logger.info("Enabling rest gateway")
     subprocess.run(
         [
             "sudo",
