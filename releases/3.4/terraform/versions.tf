@@ -13,7 +13,7 @@ terraform {
 locals {
   revisions = {
     history_server    = 44
-    integration_hub   = 59
+    integration_hub   = 62 # TODO: bump to latest/edge
     kyuubi            = 102
     kyuubi_users      = 495
     metastore         = 495
@@ -22,7 +22,9 @@ locals {
     s3                = 145
     azure_storage     = 15
     grafana_agent     = 122
-    cos_configuration = 71
+    # TODO: bump the revision to 1/stable when the following issue gets fixed:
+    # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 
+    cos_configuration = 69
     pushgateway       = 27
     scrape_config     = 67
   }
