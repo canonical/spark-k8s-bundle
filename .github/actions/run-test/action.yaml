@@ -125,8 +125,11 @@ runs:
 
         for image in "${IMAGES[@]}"; do
             echo "Pulling $image"
-            sudo microk8s ctr image pull "$image"
+            sudo microk8s ctr image pull "$image" > /dev/null 2>&1
         done
+    - name: Setup upterm session
+      uses: lhotari/action-upterm@v1
+      if: ${{ inputs.bundle-backend == 'yaml' }}
     - id: tests-integration
       name: Run Integration Tests
       shell: bash
