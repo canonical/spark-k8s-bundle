@@ -239,7 +239,7 @@ class TestFirstDeployment:
         juju.wait(
             lambda status: jubilant.all_active(status)
             and jubilant.all_agents_idle(status),
-            delay=5,
+            delay=10,
         )
 
     def test_ha_enabled(self, juju: jubilant.Juju) -> None:
@@ -422,7 +422,7 @@ class TestNewDeployment:
         juju.wait(
             lambda status: jubilant.all_active(status)
             and jubilant.all_agents_idle(status),
-            delay=5,
+            delay=10,
         )
 
     def test_ha_enabled(self, juju: jubilant.Juju) -> None:
