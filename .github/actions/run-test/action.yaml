@@ -63,8 +63,28 @@ runs:
         printf '\nDisk usage before cleanup\n'
         df --human-readable
         # Based on https://github.com/actions/runner-images/issues/2840#issuecomment-790492173
-        rm -r /usr/share/dotnet
-        rm -r /opt/hostedtoolcache/
+        # Remove software and languages we are not using
+        sudo rm -rf \
+          /opt/google \
+          /opt/hostedtoolcache \
+          /opt/microsoft/powershell \
+          /opt/microsoft/msedge \
+          "$AGENT_TOOLSDIRECTORY" \
+          /usr/lib/firefox \
+          /usr/lib/mono \
+          /usr/local/julia* \
+          /usr/local/lib/android \
+          /usr/local/share/chromium \
+          /usr/local/share/powershell \
+          /usr/share/dotnet \
+          /usr/share/gradle* \
+          /usr/share/miniconda \
+          /usr/share/sbt \
+          /usr/share/swift \
+          /home/linuxbrew
+
+        pipx uninstall-all
+
         printf '\nDisk usage after cleanup\n'
         df --human-readable
     - name: Checkout repo
@@ -116,8 +136,8 @@ runs:
         IMAGE="ghcr.io/canonical/charmed-spark-kyuubi@sha256:153eaf8be341dcea2c91277cbc2a69a1c9c48d3f7847151898ab2e5a81753ec5"
 
         docker pull $IMAGE
-        docker save $IMAGE -o image.tar
-        sudo microk8s ctr images import --base-name $IMAGE image.tar
+        docker save $IMAGE -o /mnt/image.tar
+        sudo microk8s ctr images import --base-name $IMAGE /mnt/image.tar
         docker rmi $IMAGE
         rm image.tar
     - id: tests-integration
