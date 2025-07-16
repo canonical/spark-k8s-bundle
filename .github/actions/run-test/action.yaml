@@ -36,7 +36,7 @@ inputs:
   juju-agent-version:
     description: "The version of the Juju agent to be used"
     required: false
-    default: 3.6.0
+    default: 3.6.8
     type: string
   azure-storage-account:
     description: "The Azure Storage account name to be used for test"
