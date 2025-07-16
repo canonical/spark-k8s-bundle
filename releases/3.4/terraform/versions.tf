@@ -22,7 +22,7 @@ locals {
     s3                = 145
     azure_storage     = 15
     # TODO bump the revision to 1/stable when the following issue gets fixed:
-    https://github.com/canonical/grafana-agent-k8s-operator/issues/390
+    # https://github.com/canonical/grafana-agent-k8s-operator/issues/390
     grafana_agent     = 121
     # TODO: bump the revision to 1/stable when the following issue gets fixed:
     # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 
