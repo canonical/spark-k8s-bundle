@@ -84,13 +84,6 @@ runs:
         bootstrap-options: "--agent-version ${{ inputs.juju-agent-version }}"
         microk8s-group: snap_microk8s
         microk8s-addons: "rbac dns minio metallb:10.64.140.43-10.64.140.49"
-    - name: Configure microk8s to store image layers in /mnt
-      shell: bash
-      run: |
-        sudo microk8s stop
-        sudo mv /var/snap/microk8s/common/var/lib/containerd /mnt/containerd
-        sudo ln -s /mnt/containerd /var/snap/microk8s/common/var/lib/containerd
-        sudo microk8s start
     - name: Install tox
       shell: bash
       run: |
