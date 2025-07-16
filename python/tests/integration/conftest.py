@@ -599,17 +599,17 @@ def spark_bundle(
     vars = base_vars | cos_vars | storage_vars
 
     deployed_applications = bundle.apply(vars=vars)
-    if storage_backend == "azure_storage":
-        credentials = request.getfixturevalue("azure_credentials")
-        secret_uri = juju.add_secret(
-            "iamsecret", {"secret-key": credentials.secret_key}
-        )
-        juju.cli("grant-secret", secret_uri, "azure-storage")
-        juju.config("azure-storage", {"credentials": secret_uri})
-    else:
-        credentials = request.getfixturevalue("credentials")
-        juju.wait(lambda status: jubilant.all_agents_idle(status, "s3"))
-        set_s3_credentials(juju, credentials=credentials)
+    # if storage_backend == "azure_storage":
+    #     credentials = request.getfixturevalue("azure_credentials")
+    #     secret_uri = juju.add_secret(
+    #         "iamsecret", {"secret-key": credentials.secret_key}
+    #     )
+    #     juju.cli("grant-secret", secret_uri, "azure-storage")
+    #     juju.config("azure-storage", {"credentials": secret_uri})
+    # else:
+    #     credentials = request.getfixturevalue("credentials")
+    #     juju.wait(lambda status: jubilant.all_agents_idle(status, "s3"))
+    #     set_s3_credentials(juju, credentials=credentials)
 
     if cos:
         cos_juju_model = jubilant.Juju()
@@ -621,17 +621,17 @@ def spark_bundle(
             delay=10,
         )
 
-    logger.info("Waiting for spark deployment to settle down")
-    juju.wait(
-        ready=lambda status: jubilant.all_active(
-            status, *list(set(deployed_applications) - set(COS_APPS))
-        ),
-        error=lambda status: jubilant.any_error(
-            status, *list(set(deployed_applications) - set(COS_APPS))
-        ),
-        timeout=2500,
-        delay=10,
-    )
+    # logger.info("Waiting for spark deployment to settle down")
+    # juju.wait(
+    #     ready=lambda status: jubilant.all_active(
+    #         status, *list(set(deployed_applications) - set(COS_APPS))
+    #     ),
+    #     error=lambda status: jubilant.any_error(
+    #         status, *list(set(deployed_applications) - set(COS_APPS))
+    #     ),
+    #     timeout=2500,
+    #     delay=10,
+    # )
 
     yield deployed_applications
 

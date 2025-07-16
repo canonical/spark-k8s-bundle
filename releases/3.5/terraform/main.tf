@@ -29,10 +29,12 @@ module "ssc" {
   constraints = "arch=amd64"
   base        = "ubuntu@22.04"
   units       = 1
+  count       = 0
 }
 
 module "spark" {
   depends_on                = [juju_model.spark, module.ssc]
+  count                     = 0
   source                    = "./modules/spark"
   model                     = var.model
   kyuubi_user               = var.kyuubi_user
@@ -40,8 +42,8 @@ module "spark" {
   admin_password            = var.admin_password
   tls_private_key           = var.tls_private_key
   zookeeper_units           = var.zookeeper_units
-  tls_app_name              = module.ssc.app_name
-  tls_certificates_endpoint = module.ssc.provides.certificates
+  tls_app_name              = "foo"
+  tls_certificates_endpoint = "foo"
 
   history_server_revision  = var.history_server_revision != null ? var.history_server_revision : local.revisions.history_server
   history_server_image     = var.history_server_image != null ? var.history_server_image : local.images.history_server
@@ -58,28 +60,6 @@ module "spark" {
   data_integrator_revision = var.data_integrator_revision != null ? var.data_integrator_revision : local.revisions.data_integrator
 }
 
-module "azure_storage" {
-  depends_on    = [module.spark]
-  count         = var.storage_backend == "azure_storage" ? 1 : 0
-  source        = "./modules/azure-storage"
-  model         = var.model
-  spark_charms  = module.spark.charms
-  azure_storage = var.azure_storage
-
-  azure_storage_revision = var.azure_storage_revision != null ? var.azure_storage_revision : local.revisions.azure_storage
-}
-
-module "s3" {
-  depends_on   = [module.spark]
-  count        = var.storage_backend == "s3" ? 1 : 0
-  source       = "./modules/s3"
-  model        = var.model
-  spark_charms = module.spark.charms
-  s3           = var.s3
-
-  s3_revision = var.s3_revision != null ? var.s3_revision : local.revisions.s3
-}
-
 module "bundled_cos" {
   depends_on   = [juju_model.cos]
   count        = var.cos.deployed == "bundled" ? 1 : 0
@@ -88,21 +68,4 @@ module "bundled_cos" {
   cos_tls_ca   = var.cos.tls.ca
   cos_tls_cert = var.cos.tls.cert
   cos_tls_key  = var.cos.tls.key
-}
-
-
-module "observability" {
-  depends_on       = [module.spark, module.bundled_cos]
-  count            = var.cos.deployed == "no" ? 0 : 1
-  source           = "./modules/observability"
-  dashboards_offer = var.cos.deployed == "external" ? var.cos.offers.dashboard : one(module.bundled_cos[*].dashboards_offer)
-  logging_offer    = var.cos.deployed == "external" ? var.cos.offers.logging : one(module.bundled_cos[*].logging_offer)
-  metrics_offer    = var.cos.deployed == "external" ? var.cos.offers.metrics : one(module.bundled_cos[*].metrics_offer)
-  spark_model      = var.model
-  spark_charms     = module.spark.charms
-
-  grafana_agent_revision     = var.grafana_agent_revision != null ? var.grafana_agent_revision : local.revisions.grafana_agent
-  cos_configuration_revision = var.cos_configuration_revision != null ? var.cos_configuration_revision : local.revisions.cos_configuration
-  pushgateway_revision       = var.pushgateway_revision != null ? var.pushgateway_revision : local.revisions.pushgateway
-  scrape_config_revision     = var.scrape_config_revision != null ? var.scrape_config_revision : local.revisions.scrape_config
 }

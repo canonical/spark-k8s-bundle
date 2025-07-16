@@ -67,6 +67,8 @@ runs:
         rm -r /opt/hostedtoolcache/
         printf '\nDisk usage after cleanup\n'
         df --human-readable
+
+        free -mh
     - name: Checkout repo
       uses: actions/checkout@v4
     - id: setup-python
