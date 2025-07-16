@@ -47,7 +47,7 @@ locals {
       postgresql-image = 165
     }
     zookeeper = {
-      zookeeper-image = 29
+      zookeeper-image = 34
     }
     # grafana_agent       = ...
     # prometheus_pushgateway = ...

@@ -63,26 +63,8 @@ runs:
         printf '\nDisk usage before cleanup\n'
         df --human-readable
         # Based on https://github.com/actions/runner-images/issues/2840#issuecomment-790492173
-        # Remove software and languages we are not using
-        sudo rm -rf \
-          /opt/google \
-          /opt/hostedtoolcache \
-          /opt/microsoft/powershell \
-          /opt/microsoft/msedge \
-          "$AGENT_TOOLSDIRECTORY" \
-          /usr/lib/firefox \
-          /usr/lib/mono \
-          /usr/local/julia* \
-          /usr/local/lib/android \
-          /usr/local/share/chromium \
-          /usr/local/share/powershell \
-          /usr/share/dotnet \
-          /usr/share/gradle* \
-          /usr/share/miniconda \
-          /usr/share/sbt \
-          /usr/share/swift \
-          /home/linuxbrew
-
+        rm -r /usr/share/dotnet
+        rm -r /opt/hostedtoolcache/
         printf '\nDisk usage after cleanup\n'
         df --human-readable
     - name: Checkout repo
@@ -145,9 +127,6 @@ runs:
             echo "Pulling $image"
             sudo microk8s ctr image pull "$image" > /dev/null 2>&1
         done
-    - name: Setup upterm session
-      uses: lhotari/action-upterm@v1
-      if: ${{ inputs.bundle-backend == 'yaml' }}
     - id: tests-integration
       name: Run Integration Tests
       shell: bash
@@ -159,6 +138,9 @@ runs:
         juju list-models
         cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ inputs.bundle-backend }} --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }}
         echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
+    - name: Setup upterm session
+      uses: lhotari/action-upterm@v1
+      if: ${{ failure() }}
     - id: collect-logs
       name: Collect logs if job failed
       shell: bash
