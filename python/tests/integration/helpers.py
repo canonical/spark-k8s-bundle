@@ -132,16 +132,16 @@ def get_active_kyuubi_servers_list(
     process = subprocess.run(kubectl_command, capture_output=True, check=True)
     assert process.returncode == 0
 
-    output_lines = process.stdout.decode().splitlines()  
-    
+    output_lines = process.stdout.decode().splitlines()
+
     # Pattern that matches lines of the output of kyuubi-ctl list command
     pattern = r"\?\s+/kyuubi\s+\?\s+(?P<node>[\w\-.]+)\s+\?\s+(?P<port>\d+)\s+\?\s+(?P<version>[\w\-.]+)\s+\?"
 
     # A sample output line is of the following format:
     # ? /kyuubi   ? kyuubi-0.kyuubi-endpoints.spark-bundle-test.svc.cluster.local ? 10009 ? 1.10.2-ubuntu1 ?
     #
-    # Regex Explanation: 
-    # \?\s+                     mathes a '?' character followed by white spaces
+    # Regex Explanation:
+    # \?\s+                     matches a '?' character followed by white spaces
     # /kyuubi                   matches literal "/kyuubi"
     # \s+\?\s+                  matches a '?' character surrounded by white spaces
     # (?P<node>[\w\-.]+)        matches a group of alphanumeric characters including '.' and '-', in this case kyuubi node
