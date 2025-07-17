@@ -138,9 +138,6 @@ runs:
         juju list-models
         cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ inputs.bundle-backend }} --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }}
         echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
-    - name: Setup upterm session
-      uses: lhotari/action-upterm@v1
-      if: ${{ failure() }}
     - id: collect-logs
       name: Collect logs if job failed
       shell: bash
