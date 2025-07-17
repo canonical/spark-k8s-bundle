@@ -132,8 +132,22 @@ def get_active_kyuubi_servers_list(
     process = subprocess.run(kubectl_command, capture_output=True, check=True)
     assert process.returncode == 0
 
-    output_lines = process.stdout.decode().splitlines()
-    pattern = r"\?\s+/kyuubi\s+\?\s+(?P<node>[\w\-.]+)\s+\?\s+(?P<port>\d+)\s+\?\s+(?P<version>[\d.]+)\s+\?"
+    output_lines = process.stdout.decode().splitlines()  
+    
+    # Pattern that matches lines of the output of kyuubi-ctl list command
+    pattern = r"\?\s+/kyuubi\s+\?\s+(?P<node>[\w\-.]+)\s+\?\s+(?P<port>\d+)\s+\?\s+(?P<version>[\w\-.]+)\s+\?"
+
+    # A sample output line is of the following format:
+    # ? /kyuubi   ? kyuubi-0.kyuubi-endpoints.spark-bundle-test.svc.cluster.local ? 10009 ? 1.10.2-ubuntu1 ?
+    #
+    # Regex Explanation: 
+    # \?\s+                     mathes a '?' character followed by white spaces
+    # /kyuubi                   matches literal "/kyuubi"
+    # \s+\?\s+                  matches a '?' character surrounded by white spaces
+    # (?P<node>[\w\-.]+)        matches a group of alphanumeric characters including '.' and '-', in this case kyuubi node
+    # (?P<port>\d+)             matches one or more digits, in this case kyuubi port
+    # (?P<version>[\d.\w\-]+)   matches a group of alphanumeric characters including '.' and '-', in this case kyuubi version
+    # \s+\?                     matches a '?' preceded by white spaces
     servers = []
 
     for line in output_lines:
