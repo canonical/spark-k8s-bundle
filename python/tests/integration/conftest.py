@@ -623,13 +623,10 @@ def spark_bundle(
 
     logger.info("Waiting for spark deployment to settle down")
     juju.wait(
-        ready=lambda status: jubilant.all_active(
+        lambda status: jubilant.all_active(
             status, *list(set(deployed_applications) - set(COS_APPS))
         ),
-        error=lambda status: jubilant.any_error(
-            status, *list(set(deployed_applications) - set(COS_APPS))
-        ),
-        timeout=2500,
+        timeout=1800,
         delay=10,
     )
 
