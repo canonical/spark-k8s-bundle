@@ -102,6 +102,37 @@ jobs:
           # We re-run the last tests to make sure that the tests are idempotent
           tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
           tox run -e integration-sparkjob -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --no-deploy --model test-uat --cos-model cos --uuid $UUID
-          
+
           # Run backup / restore tests separately without --no-deploy and --keep-models
           tox run -e integration-backup-restore -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --model test-uat --cos-model cos --uuid $UUID
+      - id: collect-logs
+        name: Collect logs if job failed
+        shell: bash
+        if: ${{ failure() }}
+        run: |
+          juju-crashdump --model test-uat
+          if [[ -n "${{ inputs.cos-model }}" ]]; then
+            juju-crashdump --model "${{ inputs.cos-model }}"
+          fi
+      - id: debug-info
+        name: Debug info
+        shell: bash
+        if: ${{ failure() }}
+        run: |
+          printf '\nDisk usage after tests\n'
+          df --human-readable
+
+          printf '\nJuju status(es)\n'
+          juju status -m test-uat
+          printf '\nCos status\n'
+          juju status -m cos
+
+          printf '\nK8s pods\n'
+          kubectl get pods -n test-uat -o wide
+          printf '\nCos pods\n'
+          kubectl get pods -n cos -o wide
+
+          printf '\nDebug logs\n'
+          juju debug-log -m test-uat --replay -l INFO | tail -n 500
+          printf '\nCos logs\n'
+          juju debug-log -m cos --replay -l INFO | tail -n 500
