@@ -13,7 +13,9 @@ output "charms" {
 output "offers" {
   description = "The name and url of the various offers being exposed"
   value = merge(
-    module.spark[*].offers
+    concat(
+      module.spark[*].offers
+    )
   )
 }
 
