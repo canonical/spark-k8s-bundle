@@ -13,7 +13,7 @@ terraform {
 locals {
   revisions = {
     history_server    = 44
-    integration_hub   = 62 # TODO: bump to latest/edge
+    integration_hub   = 64
     kyuubi            = 102
     kyuubi_users      = 495
     metastore         = 495
