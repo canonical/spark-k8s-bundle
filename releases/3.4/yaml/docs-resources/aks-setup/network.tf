@@ -1,6 +1,6 @@
 resource "azurerm_virtual_network" "vn" {
   name                = "TestSparkAKSVN"
-  address_space       = ["10.0.0.0/16"]  # Define the address space for the VNet
+  address_space       = ["10.0.0.0/16"] # Define the address space for the VNet
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 }
@@ -18,7 +18,7 @@ resource "azurerm_nat_gateway" "natgw" {
   location            = azurerm_resource_group.rg.location
   name                = "testsparkaks-nat-gateway"
   resource_group_name = azurerm_resource_group.rg.name
-  sku_name                = "Standard"
+  sku_name            = "Standard"
 
 }
 
