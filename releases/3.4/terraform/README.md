@@ -108,7 +108,7 @@ This means that using this structure, a new optional module just takes care of d
 | observability | prometheus-pushgateway-k8s   | 1/stable      | 16       |
 | observability | prometheus-scrape-config-k8s | 1/stable      | 64       |
 | spark         | spark-history-server-k8s     | 3.4/edge      | 40       |
-| spark         | spark-integration-hub-k8s    | latest/edge   | 58       |
+| spark         | spark-integration-hub-k8s    | 3/edge        | 64       |
 | spark         | kyuubi-k8s                   | latest/edge   | 100      |
 | spark         | postgresql-k8s               | 14/stable     | 281      |
 | spark         | postgresql-k8s               | 14/stable     | 281      |
