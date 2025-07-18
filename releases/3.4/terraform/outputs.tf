@@ -15,7 +15,7 @@ output "offers" {
   value = merge(
     concat(
       module.spark[*].offers
-    )
+    )...
   )
 }
 
