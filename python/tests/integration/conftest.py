@@ -617,7 +617,7 @@ def spark_bundle(
         logger.info("Waiting for COS deployment to settle down")
         cos_juju_model.wait(
             lambda status: jubilant.all_active(status, *COS_APPS),
-            timeout=1800,
+            timeout=2400,  # 40 min
             delay=10,
         )
 
@@ -626,7 +626,7 @@ def spark_bundle(
         lambda status: jubilant.all_active(
             status, *list(set(deployed_applications) - set(COS_APPS))
         ),
-        timeout=1800,
+        timeout=2400,
         delay=10,
     )
 
