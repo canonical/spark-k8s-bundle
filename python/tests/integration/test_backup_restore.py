@@ -375,7 +375,7 @@ class TestFirstDeployment:
             delay=10,
         )
 
-        # The `wait` param specfied here due to a bug in `jubilant/juju`:
+        # The `wait` param specified here due to a bug in `jubilant/juju`:
         # https://github.com/canonical/jubilant/issues/159
         task = juju.run(f"{METASTORE_APP_NAME}/0", "create-backup", wait=5 * 60)
         assert task.return_code == 0
@@ -385,7 +385,7 @@ class TestFirstDeployment:
             ),
         )
 
-        # The `wait` param specfied here due to a bug in `jubilant/juju`:
+        # The `wait` param specified here due to a bug in `jubilant/juju`:
         # https://github.com/canonical/jubilant/issues/159
         task = juju.run(f"{METASTORE_APP_NAME}/0", "list-backups", wait=5 * 60)
         assert task.return_code == 0
@@ -508,7 +508,7 @@ class TestNewDeployment:
             delay=5,
         )
 
-        # The `wait` param specfied here due to a bug in `jubilant/juju`:
+        # The `wait` param specified here due to a bug in `jubilant/juju`:
         # https://github.com/canonical/jubilant/issues/159
         task = juju.run(f"{METASTORE_APP_NAME}/0", "list-backups", wait=5 * 60)
         assert task.return_code == 0
@@ -522,7 +522,7 @@ class TestNewDeployment:
         expected_backup_id = context["backup_id"]
         assert backup_id == expected_backup_id
 
-        # The `wait` param specfied here due to a bug in `jubilant/juju`:
+        # The `wait` param specified here due to a bug in `jubilant/juju`:
         # https://github.com/canonical/jubilant/issues/159
         task = juju.run(
             f"{METASTORE_APP_NAME}/0", "restore", {"backup-id": backup_id}, wait=5 * 60
