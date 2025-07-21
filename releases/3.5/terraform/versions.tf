@@ -14,15 +14,13 @@ locals {
   revisions = {
     history_server    = 44
     integration_hub   = 64
-    kyuubi            = 102
+    kyuubi            = 103
     kyuubi_users      = 495
     metastore         = 495
     zookeeper         = 78
     data_integrator   = 181
     s3                = 145
     azure_storage     = 15
-    # TODO bump the revision to 1/stable when the following issue gets fixed:
-    # https://github.com/canonical/grafana-agent-k8s-operator/issues/390
     grafana_agent     = 121
     # TODO: bump the revision to 1/stable when the following issue gets fixed:
     # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 
