@@ -200,6 +200,13 @@ variable "kyuubi_image" {
   default     = null
 }
 
+variable "kyuubi_units" {
+  description = "Number of Kyuubi units. 3 units are recommended for high availability."
+  type        = number
+  default     = 3
+  nullable    = false
+}
+
 variable "kyuubi_users_revision" {
   description = "Charm revision for postgresql-k8s (auth-db)"
   type        = number
