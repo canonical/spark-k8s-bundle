@@ -27,7 +27,7 @@ module "ssc" {
   channel     = "1/stable"
   revision    = 317
   constraints = "arch=amd64"
-  base        = "ubuntu@22.04"
+  base        = "ubuntu@24.04"
   units       = 1
 }
 
