@@ -390,7 +390,11 @@ class TestFirstDeployment:
         task = juju.run(f"{METASTORE_APP_NAME}/0", "list-backups", wait=5 * 60)
         assert task.return_code == 0
         results = task.results
-        backup_lines = str(results["backups"]).splitlines()[2:]
+        backup_lines = [
+            line.strip()
+            for line in str(results["backups"]).splitlines()[5:]
+            if line.strip() != ""
+        ]
         assert len(backup_lines) == 1
 
         backup_id = backup_lines[0].split(maxsplit=1)[0]
@@ -513,7 +517,11 @@ class TestNewDeployment:
         task = juju.run(f"{METASTORE_APP_NAME}/0", "list-backups", wait=5 * 60)
         assert task.return_code == 0
         results = task.results
-        backup_lines = str(results["backups"]).splitlines()[2:]
+        backup_lines = [
+            line.strip()
+            for line in str(results["backups"]).splitlines()[5:]
+            if line.strip() != ""
+        ]
         assert len(backup_lines) == 1
 
         backup_id = backup_lines[0].split(maxsplit=1)[0]
