@@ -537,9 +537,9 @@ class TestNewDeployment:
         )
         assert task.return_code == 0
         juju.wait(
-            lambda status: jubilant.all_active(
-                status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
-            ),
+            lambda status: jubilant.all_agents_idle(status)
+            and jubilant.all_active(status, BACKUP_S3_INTEGRATOR_APP_NAME)
+            and jubilant.all_blocked(status, METASTORE_APP_NAME),
             delay=5,
         )
 
