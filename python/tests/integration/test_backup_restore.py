@@ -536,10 +536,21 @@ class TestNewDeployment:
             f"{METASTORE_APP_NAME}/0", "restore", {"backup-id": backup_id}, wait=5 * 60
         )
         assert task.return_code == 0
+
+        # The postgresql instance will be in Blocked state with a message that the backup
+        # detected in the S3 is from some other cluster (which in our case, is true).
         juju.wait(
-            lambda status: jubilant.all_agents_idle(status)
-            and jubilant.all_active(status, BACKUP_S3_INTEGRATOR_APP_NAME)
-            and jubilant.all_blocked(status, METASTORE_APP_NAME),
+            lambda status: (
+                status.apps[METASTORE_APP_NAME]
+                .units[f"{METASTORE_APP_NAME}/0"]
+                .workload_status.current
+                == "blocked"
+                and status.apps[METASTORE_APP_NAME]
+                .units[f"{METASTORE_APP_NAME}/0"]
+                .workload_status.message.strip()
+                == "the S3 repository has backups from another cluster"
+            ),
+            timeout=5 * 60,
             delay=5,
         )
 
