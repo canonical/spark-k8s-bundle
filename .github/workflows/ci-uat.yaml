@@ -10,7 +10,7 @@ on:
 jobs:
   integration-tests:
     name: Integration Tests
-    runs-on: ["self-hosted", "linux", "X64", "jammy", "large"]
+    runs-on: ["self-hosted", "linux", "X64", "jammy", "xlarge"]
     timeout-minutes: 120
     strategy:
       fail-fast: false
