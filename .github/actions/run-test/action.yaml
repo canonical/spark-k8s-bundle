@@ -63,8 +63,24 @@ runs:
         printf '\nDisk usage before cleanup\n'
         df --human-readable
         # Based on https://github.com/actions/runner-images/issues/2840#issuecomment-790492173
-        rm -r /usr/share/dotnet
-        rm -r /opt/hostedtoolcache/
+        sudo rm -rf \
+          /opt/google \
+          /opt/hostedtoolcache \
+          /opt/microsoft/powershell \
+          /opt/microsoft/msedge \
+          "$AGENT_TOOLSDIRECTORY" \
+          /usr/lib/firefox \
+          /usr/lib/mono \
+          /usr/local/julia* \
+          /usr/local/lib/android \
+          /usr/local/share/chromium \
+          /usr/local/share/powershell \
+          /usr/share/dotnet \
+          /usr/share/gradle* \
+          /usr/share/miniconda \
+          /usr/share/sbt \
+          /usr/share/swift \
+          /home/linuxbrew
         printf '\nDisk usage after cleanup\n'
         df --human-readable
     - name: Checkout repo
