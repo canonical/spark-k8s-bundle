@@ -12,7 +12,7 @@ jobs:
 
   integration-tests:
     name: "${{ matrix.tox-env }}: spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju-agent-version }} | ${{ matrix.cos-model }}"
-    runs-on: ubuntu-22.04
+    runs-on: ["self-hosted", "linux", "X64", "jammy", "xlarge"]
     timeout-minutes: 120
     strategy:
       max-parallel: 15
@@ -33,19 +33,19 @@ jobs:
           - juju-snap-channel: "3.5/stable"
             juju-agent-version: "3.5.6"
           - juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.5"
+            juju-agent-version: "3.6.8"
 
           # Test integration-basic, with Spark 3.4
           - tox-env: integration-basic
             spark-version: 3.4.4
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.5"
-      
+            juju-agent-version: "3.6.8"
+
           # Test integration-basic, with Spark 3.5
           - tox-env: integration-basic
             spark-version: 3.5.4
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.5"
+            juju-agent-version: "3.6.8"
 
           # Test bundle with YAML backend just once
           - tox-env: integration-bundle
@@ -54,7 +54,7 @@ jobs:
             storage-backend: s3
             spark-version: 3.4.4
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.5"
+            juju-agent-version: "3.6.8"
 
     needs:
       - checks
@@ -75,12 +75,11 @@ jobs:
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
           pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
 
-  
   aggregate-results:
     name: Aggregate Results
     runs-on: ubuntu-22.04
     needs: integration-tests
-    if:  ${{ success() || failure() }} 
+    if: ${{ success() || failure() }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4

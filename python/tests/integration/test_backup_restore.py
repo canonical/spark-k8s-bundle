@@ -3,7 +3,8 @@ import logging
 import socket
 import subprocess
 import time
-from typing import cast
+from pathlib import Path
+from typing import Any, Iterable, cast
 
 import boto3
 import botocore
@@ -45,17 +46,18 @@ METASTORE_DATABASE_NAME = "hivemetastore"
 METASTORE_APP_NAME = "metastore"
 KYUUBI_APP_NAME = "kyuubi"
 BACKUP_S3_INTEGRATOR_APP_NAME = "metastore-backup"
+MICROCEPH_REVISION = 1169
 
 
 @pytest.fixture(scope="module")
-def context():
+def context() -> dict[Any, Any]:
     """A common data store read+writeable by all tests."""
     context = {}
     return context
 
 
 @pytest.fixture(scope="module")
-def host_ip():
+def host_ip() -> str:
     """The IP address of the host running these tests."""
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
         s.connect(("1.1.1.1", 80))
@@ -63,14 +65,14 @@ def host_ip():
 
 
 @pytest.fixture(scope="module")
-def certs_path():
+def certs_path() -> Iterable[Path]:
     """A temporary directory to store certificates and keys."""
     with local_tmp_folder("temp-certs") as tmp_folder:
         yield tmp_folder
 
 
 @pytest.fixture(scope="module")
-def microceph_credentials(host_ip: str, certs_path):
+def microceph_credentials(host_ip: str, certs_path: Path) -> Iterable[dict[str, str]]:
     """Install, bootstrap and configure Microceph and return credentials."""
     logger.info("Setting up TLS certificates")
     subprocess.run(
@@ -141,13 +143,18 @@ def microceph_credentials(host_ip: str, certs_path):
 
     logger.info("Setting up microceph")
     subprocess.run(
-        ["sudo", "snap", "install", "microceph", "--revision", "1169"],
+        ["sudo", "snap", "install", "microceph", "--revision", str(MICROCEPH_REVISION)],
         check=True,
     )
-    subprocess.run(
-        ["sudo", "microceph", "cluster", "bootstrap"],
-        check=True,
-    )
+    try:
+        subprocess.run(
+            ["sudo", "microceph", "cluster", "bootstrap"],
+            check=True,
+            stderr=subprocess.PIPE,
+        )
+    except subprocess.CalledProcessError as ex:
+        logger.error(ex.stderr.decode())
+
     subprocess.run(
         ["sudo", "microceph", "disk", "add", "loop,1G,3"],
         check=True,
@@ -164,6 +171,7 @@ def microceph_credentials(host_ip: str, certs_path):
         text=True,
         capture_output=True,
     ).stdout.strip()
+    logger.info("Enabling rest gateway")
     subprocess.run(
         [
             "sudo",
@@ -234,7 +242,7 @@ def microceph_credentials(host_ip: str, certs_path):
 
 
 class TestFirstDeployment:
-    def test_active_status(self, juju: jubilant.Juju, spark_bundle) -> None:
+    def test_active_status(self, juju: jubilant.Juju, spark_bundle: list[str]) -> None:
         """Test whether the bundle has deployed successfully."""
         juju.wait(
             lambda status: jubilant.all_active(status)
@@ -248,7 +256,7 @@ class TestFirstDeployment:
         assert len(active_servers) == 3
 
     def test_admin_user_connection(
-        self, juju: jubilant.Juju, admin_password, context
+        self, juju: jubilant.Juju, admin_password: str, context: dict[Any, Any]
     ) -> None:
         """Test that the admin user is able to connect."""
         credentials = get_kyuubi_credentials(juju)
@@ -262,7 +270,7 @@ class TestFirstDeployment:
         # the same password got restored for the admin user or not
         context["old_admin_password"] = admin_password
 
-    def test_database_operations(self, juju: jubilant.Juju, context) -> None:
+    def test_database_operations(self, juju: jubilant.Juju) -> None:
         """Test some read / write operations on the database."""
         credentials = get_kyuubi_credentials(juju)
         ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
@@ -317,9 +325,9 @@ class TestFirstDeployment:
         assert num_dbs == 1
         assert num_tables == 1
 
-    def test_files_in_object_storage(self, object_storage) -> None:
+    def test_files_in_object_storage(self, object_storage: ObjectStorageUnit) -> None:
         """Test that the data files have indeed been created in object storage."""
-        bucket: ObjectStorageUnit = object_storage
+        bucket = object_storage
         assert bucket.exists()
 
         data_files = [
@@ -330,7 +338,7 @@ class TestFirstDeployment:
         assert len(data_files) > 0
 
     def test_deploy_backup_s3_integrator(
-        self, juju: jubilant.Juju, microceph_credentials
+        self, juju: jubilant.Juju, microceph_credentials: dict[str, str]
     ) -> None:
         """Deploy an extra instance of s3-integrator, this time for creating Postgresql (metastore) backup."""
         juju.deploy("s3-integrator", app=BACKUP_S3_INTEGRATOR_APP_NAME, channel="edge")
@@ -365,7 +373,9 @@ class TestFirstDeployment:
             )
         )
 
-    def test_create_metastore_backup(self, juju: jubilant.Juju, context) -> None:
+    def test_create_metastore_backup(
+        self, juju: jubilant.Juju, context: dict[Any, Any]
+    ) -> None:
         """Create Postgres (metastore) backup."""
         juju.integrate(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
         juju.wait(
@@ -402,7 +412,7 @@ class TestFirstDeployment:
     retry=retry_if_exception_type(AssertionError),
     reraise=True,
 )
-def test_first_deployment_destroyed(context) -> None:
+def test_first_deployment_destroyed(context: dict[Any, Any]) -> None:
     """Ensure that the first deployment has destroyed completely."""
     try:
         model_name = context["old_model"]
@@ -417,7 +427,7 @@ def test_first_deployment_destroyed(context) -> None:
 
 
 class TestNewDeployment:
-    def test_active_status(self, juju: jubilant.Juju, spark_bundle) -> None:
+    def test_active_status(self, juju: jubilant.Juju, spark_bundle: list[str]) -> None:
         """Test whether the bundle has deployed successfully."""
         juju.wait(
             lambda status: jubilant.all_active(status)
@@ -431,7 +441,7 @@ class TestNewDeployment:
         assert len(active_servers) == 3
 
     def test_deploy_backup_s3_integrator(
-        self, juju: jubilant.Juju, microceph_credentials
+        self, juju: jubilant.Juju, microceph_credentials: dict[str, str]
     ) -> None:
         """Deploy an extra instance of s3-integrator, this time for restoring Postgresql (metastore) backup."""
         juju.deploy("s3-integrator", app=BACKUP_S3_INTEGRATOR_APP_NAME, channel="edge")
@@ -466,7 +476,7 @@ class TestNewDeployment:
             )
         )
 
-    def test_remove_kyuubi_and_metastore_relation(self, juju: jubilant.Juju):
+    def test_remove_kyuubi_and_metastore_relation(self, juju: jubilant.Juju) -> None:
         """Remove kyuubi <> metastore relation to prepare metastore for restoration of backup."""
         # It is necessary to break kyuubi <> metastore relation
         # and recreate it later for metastore restore to work
@@ -480,7 +490,9 @@ class TestNewDeployment:
             )
         )
 
-    def test_restore_metastore_backup(self, juju: jubilant.Juju, context) -> None:
+    def test_restore_metastore_backup(
+        self, juju: jubilant.Juju, context: dict[str, str]
+    ) -> None:
         """Restore the backup from previous deployment on Postgres (metastore)."""
         juju.integrate(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
         juju.wait(jubilant.all_agents_idle)
@@ -525,7 +537,7 @@ class TestNewDeployment:
             delay=5,
         )
 
-    def test_remove_backup_s3_integrator(self, juju: jubilant.Juju):
+    def test_remove_backup_s3_integrator(self, juju: jubilant.Juju) -> None:
         """Remove the extra instance of S3 integrator after the metastore restoration is complete."""
         juju.remove_relation(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
         juju.wait(
@@ -543,7 +555,7 @@ class TestNewDeployment:
             ),
         )
 
-    def test_reintegrate_kyuubi_with_metastore(self, juju: jubilant.Juju):
+    def test_reintegrate_kyuubi_with_metastore(self, juju: jubilant.Juju) -> None:
         """Add backup kyuubi <> metastore relation after the metastore restoration is complete."""
         # Now re-integrate the metastore back to kyuubi
         juju.integrate(METASTORE_APP_NAME, f"{KYUUBI_APP_NAME}:metastore-db")
@@ -553,7 +565,9 @@ class TestNewDeployment:
             delay=5,
         )
 
-    def test_old_admin_password_restored(self, juju: jubilant.Juju, context):
+    def test_old_admin_password_restored(
+        self, juju: jubilant.Juju, context: dict[Any, Any]
+    ) -> None:
         """Check if the admin password from the previous deployment was restored."""
         juju.wait(
             lambda status: jubilant.all_active(status)
@@ -646,7 +660,7 @@ class TestNewDeployment:
             table.rows()
         )
 
-    def test_kyuubi_metrics_in_cos(self, cos) -> None:
+    def test_kyuubi_metrics_in_cos(self, cos: str) -> None:
         """Test that the Kyuubi metrics are visible in COS after the restoration has completed."""
         if not cos:
             pytest.skip("Not possible to test without cos")

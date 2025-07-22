@@ -10,18 +10,18 @@ data "juju_model" "cos" {
 resource "juju_offer" "prometheus_receive_remote_write" {
   model            = data.juju_model.cos.name
   application_name = juju_application.prometheus.name
-  endpoint         = "receive-remote-write"
+  endpoints        = ["receive-remote-write"]
 }
 
 resource "juju_offer" "grafana_dashboards" {
   model            = data.juju_model.cos.name
   application_name = juju_application.grafana.name
-  endpoint         = "grafana-dashboard"
+  endpoints        = ["grafana-dashboard"]
 }
 
 resource "juju_offer" "loki_logging" {
   model            = data.juju_model.cos.name
   application_name = juju_application.loki.name
-  endpoint         = "logging"
+  endpoints        = ["logging"]
 }
 

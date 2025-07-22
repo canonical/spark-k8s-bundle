@@ -616,21 +616,17 @@ def spark_bundle(
         cos_juju_model.model = cos
         logger.info("Waiting for COS deployment to settle down")
         cos_juju_model.wait(
-            ready=lambda status: jubilant.all_agents_idle(status, *COS_APPS),
-            error=lambda status: jubilant.any_error(status, *COS_APPS),
-            timeout=1800,
+            lambda status: jubilant.all_active(status, *COS_APPS),
+            timeout=2400,  # 40 min
             delay=10,
         )
 
     logger.info("Waiting for spark deployment to settle down")
     juju.wait(
-        ready=lambda status: jubilant.all_active(
+        lambda status: jubilant.all_active(
             status, *list(set(deployed_applications) - set(COS_APPS))
         ),
-        error=lambda status: jubilant.any_error(
-            status, *list(set(deployed_applications) - set(COS_APPS))
-        ),
-        timeout=2500,
+        timeout=2400,
         delay=10,
     )
 

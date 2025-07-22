@@ -7,8 +7,6 @@ from __future__ import annotations
 import logging
 from typing import cast
 
-# import ast
-# import json
 import jubilant
 import psycopg2
 import pytest
@@ -153,7 +151,7 @@ def test_ha_deployment(juju: jubilant.Juju) -> None:
     assert set(active_servers) == set(expected_servers)
 
 
-def test_kyuubi_metrics_in_cos(cos) -> None:
+def test_kyuubi_metrics_in_cos(cos: str) -> None:
     if not cos:
         pytest.skip("Not possible to test without cos")
 

@@ -36,7 +36,7 @@ inputs:
   juju-agent-version:
     description: "The version of the Juju agent to be used"
     required: false
-    default: 3.6.0
+    default: 3.6.8
     type: string
   azure-storage-account:
     description: "The Azure Storage account name to be used for test"
@@ -57,15 +57,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: (GitHub hosted) Free up disk space
+    - name: Disk usage
       shell: bash
       run: |
-        printf '\nDisk usage before cleanup\n'
-        df --human-readable
-        # Based on https://github.com/actions/runner-images/issues/2840#issuecomment-790492173
-        rm -r /usr/share/dotnet
-        rm -r /opt/hostedtoolcache/
-        printf '\nDisk usage after cleanup\n'
+        printf '\nDisk usage\n'
         df --human-readable
     - name: Checkout repo
       uses: actions/checkout@v4
@@ -84,10 +79,11 @@ runs:
         bootstrap-options: "--agent-version ${{ inputs.juju-agent-version }}"
         microk8s-group: snap_microk8s
         microk8s-addons: "rbac dns minio metallb:10.64.140.43-10.64.140.49"
-    - name: Install tox
+    - name: Install tools
       shell: bash
       run: |
-        pip install tox
+        sudo apt update && sudo apt install pipx -y
+        pipx install tox
     - name: Select tests
       id: select-tests
       shell: bash
@@ -134,21 +130,41 @@ runs:
     - id: collect-logs
       name: Collect logs if job failed
       shell: bash
-      if: ${{ failure() }}   
+      if: ${{ failure() }}
       run: |
         juju-crashdump --model spark-bundle-test
         if [[ -n "${{ inputs.cos-model }}" ]]; then
           juju-crashdump --model "${{ inputs.cos-model }}"
         fi
-        juju status --model spark-bundle-test
-        # get pods 
-        kubectl get pods -A
-        # events
-        kubectl events -A
-        # disk space
+    - id: debug-info
+      name: Debug info
+      shell: bash
+      if: ${{ failure() }}
+      run: |
         printf '\nDisk usage after tests\n'
         df --human-readable
-        echo "Done"
+
+        printf '\nJuju status(es)\n'
+        juju status -m spark-bundle-test
+        if [[ -n "${{ inputs.cos-model }}" ]]; then
+          printf '\nCos status\n'
+          juju status -m cos
+        fi
+
+        printf '\nK8s pods\n'
+        kubectl get pods -n spark-bundle-test -o wide
+        if [[ -n "${{ inputs.cos-model }}" ]]; then
+          printf '\nCos pods\n'
+          kubectl get pods -n cos -o wide
+        fi
+
+        printf '\nDebug logs\n'
+        juju debug-log -m spark-bundle-test --replay -l INFO | tail -n 500
+        if [[ -n "${{ inputs.cos-model }}" ]]; then
+          printf '\nCos logs\n'
+          juju debug-log -m cos --replay -l INFO | tail -n 500
+        fi
+
     - name: Write test result in JSON format
       shell: bash
       if: always()

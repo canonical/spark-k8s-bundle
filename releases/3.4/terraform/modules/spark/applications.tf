@@ -31,16 +31,16 @@ resource "juju_application" "kyuubi" {
 
   config = merge(
     {
-      namespace              = data.juju_model.spark.name
-      service-account        = var.kyuubi_user
-      expose-external        = "loadbalancer"
-      profile                = var.kyuubi_profile
+      namespace       = data.juju_model.spark.name
+      service-account = var.kyuubi_user
+      expose-external = "loadbalancer"
+      profile         = var.kyuubi_profile
     },
     var.tls_private_key == null ? {} : {
       tls-client-private-key = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
     },
     var.admin_password == null ? {} : {
-      system-users           = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
+      system-users = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
     }
   )
 
@@ -92,7 +92,7 @@ resource "juju_application" "integration_hub" {
 
   charm {
     name     = "spark-integration-hub-k8s"
-    channel  = "latest/edge"
+    channel  = "3/edge"
     revision = var.integration_hub_revision
   }
 
