@@ -14,7 +14,7 @@ locals {
   revisions = {
     history_server    = 44
     integration_hub   = 64
-    kyuubi            = 103
+    kyuubi            = 104
     kyuubi_users      = 495
     metastore         = 495
     zookeeper         = 78
@@ -30,14 +30,14 @@ locals {
   }
   images = {
     history_server = {
-      spark-history-server-image = "ghcr.io/canonical/charmed-spark@sha256:aaf56fbae830756295e9547593adedae20091107497d00a10f902bb22b5c88f5"
-    } # 3.4.4-22.04_edge 2025-06-30
+      spark-history-server-image = "ghcr.io/canonical/charmed-spark@sha256:99e8494070af297e9cfb6965e5216abef33539ae36fde34cbcbd2d7acb433e60"
+    } # rev20 3.4 -- 30 Jan 2025
     integration_hub = {
       integration-hub-image = 5
     }
     kyuubi = {
-      kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:96492ac6d3e1b5a43d10dcefc1e92e32585b9158256e4720e98bc827f9773133"
-    } # 3.4.4-1.10.2-22.04_edge 2025-06-30
+      kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:153eaf8be341dcea2c91277cbc2a69a1c9c48d3f7847151898ab2e5a81753ec5"
+    } # rev8 3.4 -- 16 Jun 2025 
     kyuubi_users = {
       postgresql-image = 165
     }
@@ -47,8 +47,6 @@ locals {
     zookeeper = {
       zookeeper-image = 34
     }
-    # grafana_agent       = ...
-    # prometheus_pushgateway = ...
   }
 }
 

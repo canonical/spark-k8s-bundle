@@ -14,7 +14,7 @@ locals {
   revisions = {
     history_server    = 44
     integration_hub   = 64
-    kyuubi            = 103
+    kyuubi            = 104
     kyuubi_users      = 495
     metastore         = 495
     zookeeper         = 78
@@ -47,8 +47,6 @@ locals {
     zookeeper = {
       zookeeper-image = 34
     }
-    # grafana_agent       = ...
-    # prometheus_pushgateway = ...
   }
 }
 
