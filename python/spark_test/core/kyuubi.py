@@ -4,7 +4,6 @@
 
 import tempfile
 from contextlib import closing, contextmanager
-from io import StringIO
 from pathlib import Path
 from typing import Generator, Type, TypeAlias
 
@@ -66,19 +65,20 @@ class KyuubiClient:
         if self.password:
             params.update({"password": self.password, "auth_mechanism": "PLAIN"})
 
-        f = StringIO()
         if self.use_ssl and self.ca_cert is not None:
             if isinstance(self.ca_cert, Path):
                 params.update(ca_cert=str(self.ca_cert))
+
+                with closing(connect(**params)) as conn:
+                    yield conn
             else:
-                f.close()
                 f = tempfile.NamedTemporaryFile("r+")
                 f.write(self.ca_cert)
                 f.seek(0)
                 params.update(ca_cert=f.name)
 
-        with closing(connect(**params)) as conn, closing(f):
-            yield conn
+                with closing(connect(**params)) as conn, closing(f):
+                    yield conn
 
     @property
     def databases(self):

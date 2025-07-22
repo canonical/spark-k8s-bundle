@@ -28,11 +28,11 @@ class BundleBackend(WithLogging):
         self.backend = backend
         self.tempdir = tempdir if isinstance(tempdir, Path) else Path(tempdir)
 
-    def execute(self, *cmds: list[str]) -> list[str]:
+    def execute(self, cmds: list[str]) -> list[str]:
         """Execute the given commands within the temp directory."""
         try:
             result = subprocess.check_output(
-                *cmds, stderr=subprocess.PIPE, cwd=self.tempdir
+                cmds, stderr=subprocess.PIPE, cwd=self.tempdir
             )
             for line in (lines := result.decode("utf-8").split("\n")):
                 self.logger.info(line)
@@ -46,7 +46,7 @@ class BundleBackend(WithLogging):
             raise e
 
     @abstractmethod
-    def apply(self, vars: dict[str, str] = None) -> None:
+    def apply(self, vars: dict[str, str] | None) -> list[str]:
         """Apply the bundle plan."""
         pass
 
