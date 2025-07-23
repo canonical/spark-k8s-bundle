@@ -165,6 +165,9 @@ runs:
           juju debug-log -m cos --replay -l INFO | tail -n 500
         fi
 
+        printf '\nEvents\n'
+        kubectl events -n spark-bundle-test
+
     - name: Write test result in JSON format
       shell: bash
       if: always()
