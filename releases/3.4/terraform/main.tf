@@ -29,6 +29,9 @@ module "ssc" {
   constraints = "arch=amd64"
   base        = "ubuntu@22.04"
   units       = 1
+  config = {
+    ca-common-name = var.certificate_common_name
+  }
 }
 
 module "spark" {

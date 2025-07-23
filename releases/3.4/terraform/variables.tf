@@ -254,3 +254,9 @@ variable "scrape_config_revision" {
   default     = null
 }
 
+variable "certificate_common_name" {
+  description = "Common name for the certificate to be used in self-signed"
+  type        = string
+  default     = null
+}
+
