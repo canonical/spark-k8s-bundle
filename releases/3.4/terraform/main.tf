@@ -59,6 +59,8 @@ module "spark" {
   zookeeper_revision       = var.zookeeper_revision != null ? var.zookeeper_revision : local.revisions.zookeeper
   zookeeper_image          = var.zookeeper_image != null ? var.zookeeper_image : local.images.zookeeper
   data_integrator_revision = var.data_integrator_revision != null ? var.data_integrator_revision : local.revisions.data_integrator
+
+  kyuubi_k8s_node_selectors = var.kyuubi_k8s_node_selectors
 }
 
 module "azure_storage" {
