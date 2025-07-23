@@ -107,7 +107,7 @@ variable "kyuubi_users_image" {
 variable "kyuubi_k8s_node_selectors" {
   description = "Worker pool specification for Kyuubi"
   type        = string
-  default     = null
+  default     = ""
 }
 
 variable "metastore_revision" {
