@@ -35,6 +35,7 @@ resource "juju_application" "kyuubi" {
       service-account = var.kyuubi_user
       expose-external = "loadbalancer"
       profile         = var.kyuubi_profile
+      k8s-node-selectors = var.kyuubi_k8s_node_selectors
     },
     var.tls_private_key == null ? {} : {
       tls-client-private-key = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"

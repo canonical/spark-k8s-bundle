@@ -104,6 +104,12 @@ variable "kyuubi_users_image" {
   nullable    = false
 }
 
+variable "kyuubi_k8s_node_selectors" {
+  description = "Worker pool specification for Kyuubi"
+  type        = string
+  default     = null
+}
+
 variable "metastore_revision" {
   description = "Charm revision for postgresql-k8s (metastore)"
   type        = number
