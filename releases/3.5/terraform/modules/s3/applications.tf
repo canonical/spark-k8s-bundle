@@ -6,8 +6,8 @@ resource "juju_application" "s3" {
   model = data.juju_model.spark.name
   charm {
     name     = "s3-integrator"
-    channel  = "latest/stable"
-    revision = 77
+    channel  = "1/stable"
+    revision = var.s3_revision
   }
   config = {
     path     = "spark-events"

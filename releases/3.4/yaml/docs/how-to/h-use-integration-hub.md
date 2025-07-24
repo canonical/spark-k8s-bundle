@@ -22,7 +22,7 @@ Integration Hub for Apache Spark can consume:
 
 * `s3-credentials` relation provided by the [S3-integrator](https://charmhub.io/s3-integrator) to enable integration with an S3-compatible 
 object storage system
-* `azure-credentials` relation provided by the [Azure Storage Integrator](https://charmhub.io/azure-storage-integrator) to enable integration with Azure Storages, such as Azure Blob Storage (WASB) and Azure DataLake Gen2 Storage (ABFS).
+* `azure-storage-credentials` relation provided by the [Azure Storage Integrator](https://charmhub.io/azure-storage-integrator) to enable integration with Azure Storages, such as Azure Blob Storage (WASB) and Azure DataLake Gen2 Storage (ABFS).
 
 #### S3-compatible object storage
 
@@ -179,37 +179,19 @@ spark.metrics.conf.executor.sink.prometheus.metrics-name-capture-regex=([a-z0-9]
 spark.metrics.conf.executor.sink.prometheus.metrics-name-replacement=\$2
 ```
 
-### Overriding values and adding other configurations
+### Additional configurations
 
-Besides the configurations enabled by relations, custom configurations can also 
-be added directly using actions. 
+Besides the configurations enabled by relations, a set of additional configurations can also 
+be added directly using configuration options. 
 
-To add a new custom configuration property:
-
-```shell
-juju run integration-hub/leader add-config conf="<property>=<value>"
-```
-
-Configuration properties can be removed using:
+To enable executor pods auto-scaling, use:
 
 ```shell
-juju run integration-hub/leader clear-config
+juju config integration-hub enable-dynamic-allocation=true
 ```
 
-or they can be removed one by one using:
+To list all configuration properties and how they translate to Charmed Apache Spark configuration, use:
 
 ```shell
-juju run integration-hub/leader remove-config key="<property>"
+juju config integration-hub
 ```
-
-Finally, to list all custom configuration properties, use:
-
-```shell
-juju run integration-hub/leader list-config
-```
-
-[note]
-Since the configurations provided using actions take the precedence,
-the configuration items already provided by the integration may be overridden, 
-thus allowing some customisation of what is automatically configured by default.
-[/note]

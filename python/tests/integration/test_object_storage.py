@@ -42,7 +42,7 @@ def spark_properties(
 ):
     if storage_backend == "s3":
         storage_properties = request.getfixturevalue("s3_properties")
-    elif storage_backend == "azure":
+    elif storage_backend == "azure_storage":
         storage_properties = request.getfixturevalue("azure_properties")
     else:
         return ValueError("storage_backend argument not recognized")
@@ -55,9 +55,7 @@ def spark_properties(
     )
 
 
-def test_cleanup_object_storage(
-    pod, service_account, registry, object_storage, spark_properties
-):
+def test_cleanup_object_storage(object_storage):
     if object_storage.list_content():
         logger.info("Cleaning up object storage")
         object_storage.cleanup()

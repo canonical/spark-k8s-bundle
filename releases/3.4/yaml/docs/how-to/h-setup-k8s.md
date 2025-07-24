@@ -16,7 +16,7 @@ There are multiple ways that a K8s cluster can be deployed. We provide full comp
 
 * MicroK8s
 * AWS EKS
-* Azure AKS (**Coming Soon**)
+* Azure AKS
 
 The how-to guide below shows you how to set up these to be used with Charmed Apache Spark. 
 
@@ -148,6 +148,118 @@ users:
 ```
 
 The EKS cluster is now ready to be used. 
+
+
+#### Azure AKS
+
+To deploy an Azure Kubernetes Service (AKS) cluster, you'd need to make sure you have Azure CLI properly installed and authenticated.
+
+[The Azure CLI](https://learn.microsoft.com/en-us/cli/azure/) is the official cross-platform command-line tool to connect to Azure Cloud and execute administrative commands on Azure resources.
+
+Install Azure CLI with snap:
+
+```bash
+sudo snap install azcli
+```
+
+Alias the command `azcli.az` as `az`, since most of the online resources -- including the Azure Docs -- refer to the CLI as `az`:
+
+```bash
+sudo snap alias azcli.az az
+```
+
+Authenticate with an Azure account.
+The easiest way to do so is by using the device login workflow as follows:
+
+```bash
+az login --use-device-code
+```
+
+Once you run the login command, you should see an output similar to the following in the console:
+
+```txt
+To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code XXXXXXX to authenticate.
+```
+
+Browse to the page https://microsoft.com/devicelogin, enter the code displayed in the console earlier, and finally login with your Azure account credentials.
+When prompted for confirmation, click "Yes".
+Once the authentication is successful, you should see authentication success message in the browser.
+If you have multiple subscriptions associated with your Azure account, you may be asked to choose the subscription by the CLI.
+Once that is complete, the Azure CLI is ready.
+
+To confirm that the authentication went well, try listing storage accounts in your Azure Cloud:
+
+```bash
+az storage account list
+echo $?
+```
+
+The command should list the storage accounts in your Azure cloud (if any) and the return code printed by `echo $?` should be `0` if the command was successful.
+
+##### Creating a cluster
+
+Now that the Azure Cloud and CLI are working, start creating the AKS cluster resources.
+This can be done in multiple ways -- using the browser console, using `az` CLI directly, or by using Azure Terraform provider.
+In this guide, we're going to use Terraform to create the AKS cluster.
+
+[Terraform](https://developer.hashicorp.com/terraform) is an infrastructure as code (IaC) tool that lets you create, change and version the infrastructure (in our case, Azure cloud resources) safely and efficiently. Start by installing `terraform` as a snap.
+
+```bash
+sudo snap install terraform --classic
+```
+
+Once terraform is installed, we're ready to write the Terraform plan for our new AKS cluster.
+
+The terraform scripts for the creation of a simple AKS cluster for Charmed Spark is already available in the [GitHub repository](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/yaml/docs-resources/aks-setup).
+If you inspect the contents there, you will see that there are different Terraform configuration files.
+These configuration files contain the specification for the resource group, virtual network and AKS cluster we're going to create.
+
+We can use the aforementioned Terraform module by referencing it as a module in a local Terraform file.
+Create a file named `setup.tf` locally and reference the Terraform module:
+
+```terraform
+# file: setup.tf
+
+module "aks_cluster" {
+  source     = "git::https://github.com/canonical/spark-k8s-bundle//releases/3.4/yaml/docs-resources/aks-setup"
+}
+
+```
+
+Now, initialize Terraform and view the plan by running the following command from the same directory that contains the `setup.tf` file:
+
+```bash
+terraform init
+terraform plan
+```
+
+Under the plan, you should see that an AKS cluster, along with resource group, virtual network, subnet, NAT gateway, etc. are on the "to-add" list.
+
+Apply the plan and wait for the resources to be created:
+
+```bash
+terraform apply -auto-approve
+```
+
+Once the resource creation completes, check the resource group name and AKS cluster name:
+
+```bash
+terraform output
+
+# aks_cluster_name = "TestAKSCluster"
+# resource_group_name = "TestSparkAKSRG"
+```
+
+##### Generating Kubeconfig file
+
+To generate the Kubeconfig file for connecting the client to the newly created cluster:
+
+```bash
+az aks get-credentials --resource-group <resource_group_name> --name <aks_cluster_name> --file ~/.kube/config
+```
+
+The AKS cluster is now ready to be used.
+
 
 ### Object storage
 
@@ -350,4 +462,4 @@ You may now enter the PySpark shell and import the package:
 
 ```python
 import numpy as np
-``
+```

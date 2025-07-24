@@ -7,7 +7,7 @@ resource "juju_application" "alertmanager" {
   model = data.juju_model.cos.name
   charm {
     name    = "alertmanager-k8s"
-    channel = "latest/stable"
+    channel = "1/stable"
   }
   units       = 1
   constraints = "arch=amd64"
@@ -22,7 +22,7 @@ resource "juju_application" "catalogue" {
   model = data.juju_model.cos.name
   charm {
     name    = "catalogue-k8s"
-    channel = "latest/stable"
+    channel = "1/stable"
   }
   units       = 1
   constraints = "arch=amd64"
@@ -37,7 +37,7 @@ resource "juju_application" "grafana" {
   model = data.juju_model.cos.name
   charm {
     name    = "grafana-k8s"
-    channel = "latest/stable"
+    channel = "1/stable"
   }
   units       = 1
   constraints = "arch=amd64"
@@ -52,7 +52,7 @@ resource "juju_application" "loki" {
   model = data.juju_model.cos.name
   charm {
     name    = "loki-k8s"
-    channel = "latest/stable"
+    channel = "1/stable"
   }
   units       = 1
   constraints = "arch=amd64"
@@ -68,7 +68,7 @@ resource "juju_application" "prometheus" {
   model = data.juju_model.cos.name
   charm {
     name    = "prometheus-k8s"
-    channel = "latest/stable"
+    channel = "1/stable"
   }
   config = {
     "metrics_retention_time" : "90d"
@@ -85,7 +85,8 @@ resource "juju_application" "traefik" {
   trust = true
   model = data.juju_model.cos.name
   charm {
-    name    = "traefik-k8s"
+    name = "traefik-k8s"
+    # FIXME(stable): Use different track when available
     channel = "latest/stable"
   }
   config = {

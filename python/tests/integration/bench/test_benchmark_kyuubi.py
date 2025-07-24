@@ -1,73 +1,97 @@
 #!/usr/bin/env python3
 # Copyright 2025 Canonical Ltd.
 # See LICENSE file for licensing details.
-import asyncio
 import logging
 import time
 from collections import defaultdict
 from datetime import date
+from subprocess import check_output
+from typing import cast
 
+import jubilant
 import polars as pl
 import pytest
 from great_tables import GT, loc, md, style
-from pyhive.hive import Cursor
-from pytest_operator.plugin import OpsTest
+from impala.hiveserver2 import Cursor
 
 from spark_test.core.kyuubi import KyuubiClient
-from tests.integration.helpers import get_kyuubi_credentials, get_leader_unit_number
+
+from ..helpers import get_kyuubi_credentials
+
+KYUUBI = "kyuubi"
+HUB = "integration-hub"
 
 logger = logging.getLogger(__name__)
 
 
+@pytest.fixture(scope="module")
+def sf(request) -> str:
+    """Get benchmark size factor."""
+    return request.config.getoption("--bench-sf")
+
+
+@pytest.fixture(scope="module")
+def bench_iterations(request) -> int:
+    """Get benchmark number of iterations."""
+    return request.config.getoption("--bench-iterations")
+
+
+@pytest.fixture(scope="module")
+def report_name(request) -> str:
+    """Get benchmark number of iterations."""
+    return request.config.getoption("--report-name")
+
+
 @pytest.mark.skip_if_deployed
-@pytest.mark.abort_on_fail
-async def test_deploy_bundle(ops_test: OpsTest, spark_bundle) -> None:
+def test_deploy_bundle(juju: jubilant.Juju, spark_bundle) -> None:
     """Initial deployment, ignored if we pass an existing model."""
-    await spark_bundle
-    await asyncio.sleep(0)  # do nothing, await deploy_cluster
+    pass
 
 
-@pytest.mark.abort_on_fail
-async def test_active_status(ops_test: OpsTest) -> None:
+def test_active_status(juju: jubilant.Juju) -> None:
     """Test whether the bundle has deployed successfully."""
-    for app_name in ops_test.model.applications:
-        assert ops_test.model.applications[app_name].status == "active"
+    juju.wait(jubilant.all_active)
 
 
-@pytest.mark.abort_on_fail
-async def test_setup_env(ops_test: OpsTest, sf: str, kyuubi: str, hub: str) -> None:
+def test_setup_env(juju: jubilant.Juju, sf: str, spark_client: str) -> None:
     """Setup benchmark environment.
 
     - Persist benchmark data from the connector that generates them on the fly.
     - Add benchmark configuration to integration hub
     """
-    assert ops_test.model is not None
 
     logger.info("Setup TPC-H connector")
 
-    leader_unit_id = await get_leader_unit_number(ops_test, hub)
-    logger.info(f"Leader unit: {hub}/{leader_unit_id}")
-    action = await ops_test.model.units.get(f"{hub}/{leader_unit_id}").run_action(
-        "add-config",
-        conf="spark.sql.catalog.tpch=org.apache.kyuubi.spark.connector.tpch.TPCHCatalog",
+    username = str(juju.config("kyuubi")["service-account"])
+    check_output(
+        [
+            f"{spark_client}.service-account-registry",
+            "add-config",
+            "--username",
+            username,
+            "--namespace",
+            cast(str, juju.model),
+            "--conf",
+            "spark.sql.catalog.tpch=org.apache.kyuubi.spark.connector.tpch.TPCHCatalog",
+        ]
     )
-    await action.wait()
-    action = await ops_test.model.units.get(f"{hub}/{leader_unit_id}").run_action(
-        "add-config",
-        conf="spark.jars.packages=org.apache.kyuubi:kyuubi-spark-connector-tpch_2.12:1.9.3",
+    check_output(
+        [
+            f"{spark_client}.service-account-registry",
+            "add-config",
+            "--username",
+            username,
+            "--namespace",
+            cast(str, juju.model),
+            "--conf",
+            "spark.jars.packages=org.apache.kyuubi:kyuubi-spark-connector-tpch_2.12:1.10.1",
+        ]
     )
-    await action.wait()
 
-    async with ops_test.fast_forward(fast_interval="90s"):
-        await ops_test.model.wait_for_idle(
-            apps=[kyuubi, hub],
-            status="active",
-            idle_period=20,
-            timeout=600,
-        )
+    juju.wait(jubilant.all_active, delay=5)
 
     logger.info("Persist TPC-H data from generator")
-    credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
+    credentials = get_kyuubi_credentials(juju)
     client = KyuubiClient(**credentials)
 
     cursor: Cursor
@@ -89,13 +113,12 @@ async def test_setup_env(ops_test: OpsTest, sf: str, kyuubi: str, hub: str) -> N
                 FROM tpch.{sf}.{table};""")
 
 
-@pytest.mark.abort_on_fail
-async def test_run_benchmark_queries(
-    ops_test: OpsTest, sf: str, bench_iterations: int, report_name: str
+def test_run_benchmark_queries(
+    juju: jubilant.Juju, sf: str, bench_iterations: int, report_name: str
 ) -> None:
     """Run benchmark queries and generate report."""
     logger.info("Running benchmark queries")
-    credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
+    credentials = get_kyuubi_credentials(juju)
     client = KyuubiClient(**credentials)
 
     cursor: Cursor
@@ -149,29 +172,42 @@ async def test_run_benchmark_queries(
     logger.info("Report written to 'report.html'")
 
 
-async def cleanup(ops_test: OpsTest, kyuubi: str, hub: str) -> None:
+def cleanup(juju: jubilant.Juju, spark_client: str) -> None:
     """Cleanup deployment.
 
     - Remove persisted data
     - Remove benchmark configuration from integration hub
     """
     logger.info("Cleaning bench data")
-    credentials = await get_kyuubi_credentials(ops_test, "kyuubi")
+    credentials = get_kyuubi_credentials(juju)
     client = KyuubiClient(**credentials)
 
     with client.connection as conn, conn.cursor() as cursor:
         cursor.execute("DROP DATABASE bench;")
 
     logger.info("Cleaning bench config")
-    leader_unit_id = await get_leader_unit_number(ops_test, hub)
-    action = await ops_test.model.units.get(f"{hub}/{leader_unit_id}").run_action(
-        "remove-config",
-        key="spark.sql.catalog.tpch",
+    username = str(juju.config("kyuubi")["service-account"])
+    check_output(
+        [
+            f"{spark_client}.service-account-registry",
+            "remove-config",
+            "--username",
+            username,
+            "--namespace",
+            cast(str, juju.model),
+            "--conf",
+            "spark.sql.catalog.tpch",
+        ]
     )
-    await action.wait()
-    action = await ops_test.model.units.get(f"{hub}/{leader_unit_id}").run_action(
-        "remove-config",
-        conf="spark.jars.packages",
+    check_output(
+        [
+            f"{spark_client}.service-account-registry",
+            "remove-config",
+            "--username",
+            username,
+            "--namespace",
+            cast(str, juju.model),
+            "--conf",
+            "spark.jars.packages",
+        ]
     )
-    await action.wait()
-    await ops_test.model.wait_for_idle(apps=[kyuubi, hub], idle_period=20, timeout=600)

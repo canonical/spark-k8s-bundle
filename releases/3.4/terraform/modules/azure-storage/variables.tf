@@ -7,7 +7,7 @@ variable "model" {
   nullable    = false
 }
 
-variable "azure" {
+variable "azure_storage" {
   description = "Azure Object storage information"
   type = object({
     container       = optional(string, "azurecontainer")
@@ -22,4 +22,10 @@ variable "azure" {
 variable "spark_charms" {
   description = "Names of the Spark applications in the Spark Juju model."
   type        = map(string)
+}
+
+variable "azure_storage_revision" {
+  description = "Charm revision for azure-storage-integrator"
+  type        = number
+  nullable    = false
 }

@@ -1,28 +1,30 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
+from __future__ import annotations
 
+import ast
 import json
 import logging
 import os
 import re
 import shutil
 import subprocess
-import urllib.request
+import textwrap
+import urllib.parse
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, Generic, TypeVar, cast
+from random import choices
+from string import hexdigits
+from typing import Callable, Generic, TypeVar, cast
 
 import httpx
+import jinja2
+import jubilant
 import yaml
-from pytest_operator.plugin import OpsTest
 
-from spark_test.core import ObjectStorageUnit
-from spark_test.core.azure_storage import Container
-from spark_test.core.s3 import Bucket, Credentials
+from spark_test.core.s3 import Credentials
 from tests.integration.types import KyuubiCredentials
-
-from .terraform import Terraform
 
 T = TypeVar("T")
 S = TypeVar("S")
@@ -46,70 +48,27 @@ class Bundle(Generic[T]):
         return Bundle(main=f(self.main), overlays=[f(item) for item in self.overlays])
 
 
-async def set_s3_credentials(
-    ops_test: OpsTest, credentials: Credentials, application_name="s3", num_unit=0
-) -> Any:
+def set_s3_credentials(
+    juju: jubilant.Juju, credentials: Credentials, application_name="s3", num_unit=0
+) -> None:
     """Use the charm action to start a password rotation."""
     params = {
         "access-key": credentials.access_key,
         "secret-key": credentials.secret_key,
     }
 
-    action = await ops_test.model.units.get(
-        f"{application_name}/{num_unit}"
-    ).run_action("sync-s3-credentials", **params)
-
-    return await action.wait()
+    task = juju.run(f"{application_name}/{num_unit}", "sync-s3-credentials", params)
+    assert task.return_code == 0
 
 
-async def set_azure_credentials(
-    ops_test: OpsTest, secret_uri: str, application_name="azure-storage"
-) -> Any:
-    """Use the charm action to start a password rotation."""
-
-    params = {"credentials": secret_uri}
-    await ops_test.model.applications[application_name].set_config(params)
-
-
-async def get_address(ops_test: OpsTest, app_name, unit_num=0) -> str:
-    """Get the address for a unit."""
-    status = await ops_test.model.get_status()  # noqa: F821
-    logger.info(f"Status: {status}")
-    address = status["applications"][app_name]["units"][f"{app_name}/{unit_num}"][
-        "address"
-    ]
-    return address
-
-
-async def get_leader_unit_number(ops_test: OpsTest, application_name: str) -> int:
-    """Return the id of the leader unit."""
-    leader_unit = None
-    for unit in ops_test.model.applications[application_name].units:
-        logger.info(unit)
-        if await unit.is_leader_from_status():
-            unit_name = unit.name
-            logger.info(f"Unit name: {unit_name}")
-            leader_unit = int(unit_name.split("/")[1])
-            logger.info(leader_unit)
-
-    assert leader_unit is not None
-    return leader_unit
-
-
-async def get_kyuubi_credentials(
-    ops_test: OpsTest, application_name="kyuubi", num_unit=0
+def get_kyuubi_credentials(
+    juju: jubilant.Juju, data_integrator_unit: str = "data-integrator/0"
 ) -> KyuubiCredentials:
     """Use the charm action to start a password rotation."""
-
-    leader_unit_id = await get_leader_unit_number(ops_test, application_name)
-    logger.info(f"Leader unit: {application_name}/{leader_unit_id}")
-    action = await ops_test.model.units.get(
-        f"{application_name}/{leader_unit_id}"
-    ).run_action("get-password")
-
-    results = (await action.wait()).results
-
-    endpoint = await fetch_jdbc_endpoint(ops_test)
+    task = juju.run(data_integrator_unit, "get-credentials")
+    assert task.return_code == 0
+    kyuubi_info = task.results["kyuubi"]
+    endpoint = kyuubi_info["uris"]
     logger.info(endpoint)
 
     if (
@@ -119,49 +78,33 @@ async def get_kyuubi_credentials(
     ) is not None:
         address = host_match.group("host")
     else:
-        address = await get_address(
-            ops_test,
-            app_name=application_name,
-            unit_num=leader_unit_id,  # type: ignore
-        )
+        status = juju.status()
+        address = None
+        for unit in status.apps["kyuubi"].units.values():
+            if unit.leader:
+                address = unit.address
+        assert address
 
-    return {"username": "admin", "password": results["password"], "host": address}
-
-
-async def fetch_jdbc_endpoint(ops_test):
-    """Return the JDBC endpoint for clients to connect to Kyuubi server."""
-    logger.info("Running action 'get-jdbc-endpoint' on kyuubi-k8s unit...")
-    leader_unit_id = await get_leader_unit_number(ops_test, "kyuubi")
-    action = await ops_test.model.units.get(f"kyuubi/{leader_unit_id}").run_action(
-        "get-jdbc-endpoint"
-    )
-
-    result = await action.wait()
-    logger.info(f"result: {result.results}")
-
-    jdbc_endpoint = result.results.get("endpoint")
-    logger.info(f"JDBC endpoint: {jdbc_endpoint}")
-
-    return jdbc_endpoint
+    return {
+        "username": kyuubi_info["username"],
+        "password": kyuubi_info["password"],
+        "host": address,
+    }
 
 
-async def get_zookeeper_quorum(ops_test: OpsTest, zookeeper_name: str) -> str:
+def get_zookeeper_quorum(juju: jubilant.Juju, zookeeper_name: str) -> str:
     addresses = []
-    for unit in ops_test.model.applications[zookeeper_name].units:
-        app_name, unit_id = unit.name.split("/")
-        host = await get_address(ops_test, app_name=app_name, unit_num=unit_id)
-        port = ZOOKEEPER_PORT
-        addresses.append(f"{host}:{port}")
+    status = juju.status()
+    for unit in status.apps[zookeeper_name].units.values():
+        addresses.append(f"{unit.address}:{ZOOKEEPER_PORT}")
     return ",".join(addresses)
 
 
-async def get_active_kyuubi_servers_list(
-    ops_test: OpsTest, zookeeper_name=ZOOKEEPER_NAME
+def get_active_kyuubi_servers_list(
+    juju: jubilant.Juju, zookeeper_name=ZOOKEEPER_NAME
 ) -> list[str]:
     """Return the list of Kyuubi servers that are live in the cluster."""
-    zookeeper_quorum = await get_zookeeper_quorum(
-        ops_test=ops_test, zookeeper_name=zookeeper_name
-    )
+    zookeeper_quorum = get_zookeeper_quorum(juju=juju, zookeeper_name=zookeeper_name)
     logger.info(f"Zookeeper quorum: {zookeeper_quorum}")
     pod_command = [
         "/opt/kyuubi/bin/kyuubi-ctl",
@@ -181,7 +124,7 @@ async def get_active_kyuubi_servers_list(
         "-c",
         "kyuubi",
         "-n",
-        ops_test.model_name,
+        cast(str, juju.model),
         "--",
         *pod_command,
     ]
@@ -202,25 +145,60 @@ async def get_active_kyuubi_servers_list(
     return servers
 
 
-async def get_postgresql_credentials(
-    ops_test: OpsTest, application_name, num_unit=0
+def get_postgresql_credentials(
+    juju: jubilant.Juju, application_name: str, num_unit=0
 ) -> dict[str, str]:
     """Return the credentials that can be used to connect to postgresql database."""
-    action = await ops_test.model.units.get(
-        f"{application_name}/{num_unit}"
-    ).run_action("get-password")
+    task = juju.run(f"{application_name}/{num_unit}", "get-password")
+    assert task.return_code == 0
 
-    results = (await action.wait()).results
-    address = await get_address(ops_test, app_name=application_name, unit_num=num_unit)
+    results = task.results
+    status = juju.status()
+    address = (
+        status.apps[application_name].units[f"{application_name}/{num_unit}"].address
+    )
 
     return {"username": "operator", "password": results["password"], "host": address}
 
 
-def render_yaml(file: Path, data: dict, ops_test: OpsTest) -> dict:
+def render_bundle(bundle, context=None, **kwcontext) -> Path:
+    """Render a templated bundle using Jinja2.
+
+    This can be used to populate built charm paths or config values.
+
+    :param bundle (str or Path): Path to bundle file or YAML content.
+    :param context (dict): Optional context mapping.
+    :param **kwcontext: Additional optional context as keyword args.
+
+    Returns the Path for the rendered bundle.
+    Adapted from pytest_operator.
+    """
+    bundles_dst_dir = Path(".build") / "bundles"
+    bundles_dst_dir.mkdir(exist_ok=True, parents=True)
+    if context is None:
+        context = {}
+    context.update(kwcontext)
+    if re.search(r".yaml(.j2)?$", str(bundle)):
+        bundle_path = Path(bundle)
+        bundle_text = bundle_path.read_text()
+        if bundle_path.suffix == ".j2":
+            bundle_name = bundle_path.stem
+        else:
+            bundle_name = bundle_path.name
+    else:
+        bundle_text = textwrap.dedent(bundle).strip()
+        infix = "".join(choices(hexdigits, k=4))
+        bundle_name = f"spark-{infix}.yaml"
+    logger.info(f"Rendering bundle {bundle_name}")
+    rendered = jinja2.Template(bundle_text).render(**context)
+    dst = bundles_dst_dir / bundle_name
+    dst.write_text(rendered)
+    return dst
+
+
+def render_yaml(file: Path, data: dict) -> dict:
     if os.path.splitext(file)[1] == ".j2":
-        bundle_file = ops_test.render_bundle(
-            file, **{str(k): str(v) for k, v in data.items()}
-        )
+        bundle_file = render_bundle(file, **{str(k): str(v) for k, v in data.items()})
     else:
         bundle_file = file
 
@@ -235,31 +213,16 @@ def _local(pointer) -> str:
     )
 
 
-async def set_memory_constraints(ops_test, model_name):
-    """ "Set memory resource constraints on given model."""
-    logger.info(f"Setting model constraint mem=500M on model {model_name}...")
-    model_constraints_command = [
-        "set-model-constraints",
-        "--model",
-        model_name,
-        "mem=500M",
-    ]
-    retcode, stdout, stderr = await ops_test.juju(*model_constraints_command)
-    assert retcode == 0
-
-
-async def deploy_bundle(ops_test: OpsTest, bundle: Bundle) -> tuple[int, str, str]:
+def deploy_bundle(juju: jubilant.Juju, bundle: Bundle) -> str:
     deploy_command = [
         "deploy",
         "--trust",
-        "-m",
-        ops_test.model_full_name,
         _local(bundle.main),
     ] + sum([["--overlay", _local(overlay)] for overlay in bundle.overlays], [])
 
-    retcode, stdout, stderr = await ops_test.juju(*deploy_command)
+    stdout = juju.cli(*deploy_command)
 
-    return retcode, stdout, stderr
+    return stdout
 
 
 @contextmanager
@@ -305,168 +268,9 @@ def get_secret_data(namespace: str, service_account: str):
         return e.stdout.decode(), e.stderr.decode(), e.returncode
 
 
-async def deploy_bundle_yaml(
-    bundle: Bundle,
-    bucket: Bucket,
-    cos: str | None,
-    ops_test: OpsTest,
-) -> list[str]:
-    """Deploy the Bundle in YAML format.
-
-    Args:
-        bundle: Bundle object
-        service_account: Kyuubi service account to be used
-        bucket: S3 bucket to be used in the deployment
-        ops_test: OpsTest class
-
-    Returns:
-        list of charms deployed
-    """
-
-    data = {
-        "namespace": ops_test.model_name,  # service_account.namespace,
-        "service_account": "kyuubi-test-user",
-        "bucket": bucket.bucket_name,
-        "s3_endpoint": bucket.s3.meta.endpoint_url,
-        "zookeeper_units": 1,
-    } | ({"cos_controller": ops_test.controller_name, "cos_model": cos} if cos else {})
-
-    bundle_content = bundle.map(lambda path: render_yaml(path, data, ops_test))
-
-    with local_tmp_folder("tmp") as tmp_folder:
-        logger.info(tmp_folder)
-
-        bundle_tmp = bundle_content.map(
-            lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
-        )
-
-        logger.info(f"bundle_tmp: {bundle_tmp}")
-        retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
-
-        assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
-        logger.info(stdout)
-
-    charms: Bundle[list[str]] = bundle_content.map(
-        lambda bundle_data: list(bundle_data["applications"].keys())
-    )
-
-    return charms.main + sum(charms.overlays, [])
-
-
-async def deploy_bundle_yaml_azure_storage(
-    bundle: Bundle,
-    container: Container,
-    cos: str | None,
-    ops_test: OpsTest,
-) -> list[str]:
-    """Deploy the Bundle in YAML format.
-
-    Args:
-        bundle: Bundle object
-        service_account: Kyuubi service account to be used
-        container: Azure Storage container to be used in the deployment
-        ops_test: OpsTest class
-
-    Returns:
-        list of charms deployed
-    """
-
-    data = {
-        "namespace": ops_test.model_name,
-        "service_account": "kyuubi-test-user",
-        "container": container.container_name,
-        "storage_account": container.credentials.storage_account,
-        "zookeeper_units": 1,
-    } | ({"cos_controller": ops_test.controller_name, "cos_model": cos} if cos else {})
-
-    bundle_content = bundle.map(lambda path: render_yaml(path, data, ops_test))
-
-    with local_tmp_folder("tmp") as tmp_folder:
-        logger.info(tmp_folder)
-
-        bundle_tmp = bundle_content.map(
-            lambda bundle_data: generate_tmp_file(bundle_data, tmp_folder)
-        )
-        retcode, stdout, stderr = await deploy_bundle(ops_test, bundle_tmp)
-
-        assert retcode == 0, f"Deploy failed: {(stderr or stdout).strip()}"
-        logger.info(stdout)
-
-    charms: Bundle[list[str]] = bundle_content.map(
-        lambda bundle_data: list(bundle_data["applications"].keys())
-    )
-
-    return charms.main + sum(charms.overlays, [])
-
-
-async def deploy_bundle_terraform(
-    bundle: Terraform,
-    storage_unit: ObjectStorageUnit,
-    cos: str | None,
-    ops_test: OpsTest,
-    storage_backend: str,
-) -> list[str]:
-    if storage_backend == "azure":
-        storage_unit = cast(Container, storage_unit)
-        storage_vars = {
-            "azure": {
-                "storage_account": storage_unit.credentials.storage_account,
-                "container": storage_unit.container_name,
-                "secret_key": storage_unit.credentials.secret_key,
-            }
-        }
-
-    else:
-        storage_unit = cast(Bucket, storage_unit)
-        storage_vars = {
-            "s3": {
-                "bucket": storage_unit.bucket_name,
-                "endpoint": storage_unit.s3.meta.endpoint_url,
-            },
-        }
-
-    tf_vars = {
-        "kyuubi_user": "kyuubi-test-user",
-        "model": ops_test.model_name,
-        "storage_backend": storage_backend,
-        "create_model": False,
-        "zookeeper_units": 1,
-    } | ({"cos_model": cos} if cos else {})
-
-    # NOTE: avoid logging secret key
-    logger.info(f"tf_vars: {tf_vars} + {storage_backend} information")
-
-    tf_vars = tf_vars | storage_vars
-    outputs = bundle.apply(tf_vars=tf_vars)
-
-    return list(outputs["charms"]["value"].values())
-
-
-async def add_juju_secret(
-    ops_test: OpsTest, charm_name: str, secret_label: str, data: Dict[str, str]
-) -> str:
-    """Add a new juju secret."""
-    key_values = " ".join([f"{key}={value}" for key, value in data.items()])
-    command = f"add-secret {secret_label} {key_values}"
-    _, stdout, _ = await ops_test.juju(*command.split())
-    secret_uri = stdout.strip()
-    command = f"grant-secret {secret_label} {charm_name}"
-    _, stdout, _ = await ops_test.juju(*command.split())
-    return secret_uri
-
-
-async def juju_sleep(ops: OpsTest, time: int, app: str | None = None):
-    app_name = app if app else list(ops.model.applications.keys())[0]
-
-    await ops.model.wait_for_idle(
-        apps=[app_name],
-        idle_period=time,
-        timeout=600,
-    )
-
-
-async def get_cos_address(ops_test: OpsTest, cos_model_name: str) -> str:
+def get_cos_address(cos_model_name: str) -> str:
     """Retrieve the URL where COS services are available."""
+    # FIXME: once jubilant allows to change models, adapt this
     cos_addr_res = subprocess.check_output(
         f"JUJU_MODEL={cos_model_name} juju run traefik/0 show-proxied-endpoints --format json",
         stderr=subprocess.PIPE,
@@ -495,22 +299,8 @@ def prometheus_exporter_data(host: str, port: int) -> str | None:
         return response.text
 
 
-async def all_prometheus_exporters_data(
-    ops_test: OpsTest, check_field, app_name
-) -> bool:
-    """Check if a all units has metric service available and publishing."""
-    result = True
-    for unit in ops_test.model.applications[app_name].units:
-        unit_name, unit_number = unit.name.split("/")
-        unit_ip = await get_address(ops_test, unit_name, int(unit_number))
-        result = result and check_field in prometheus_exporter_data(
-            unit_ip, JMX_EXPORTER_PORT
-        )
-    return result
-
-
 def published_prometheus_data(
-    ops_test: OpsTest, cos_model_name: str, host: str, field: str
+    cos_model_name: str, host: str, field: str
 ) -> dict | None:
     """Check the existence of field among Prometheus published data."""
     if "http://" in host:
@@ -525,11 +315,9 @@ def published_prometheus_data(
         return response.json()
 
 
-async def published_grafana_dashboards(
-    ops_test: OpsTest, cos_model_name: str
-) -> dict | None:
+def published_grafana_dashboards(cos_model_name: str) -> dict | None:
     """Get the list of dashboards published to Grafana."""
-    base_url, pw = await get_grafana_access(ops_test, cos_model_name)
+    base_url, pw = get_grafana_access(cos_model_name)
     url = f"{base_url}/api/search?query=&starred=false"
 
     try:
@@ -540,7 +328,7 @@ async def published_grafana_dashboards(
         return response.json()
 
 
-async def get_grafana_access(ops_test: OpsTest, cos_model_name: str) -> tuple[str, str]:
+def get_grafana_access(cos_model_name: str) -> tuple[str, str]:
     """Get Grafana URL and password."""
     grafana_res = subprocess.check_output(
         f"JUJU_MODEL={cos_model_name} juju run grafana/0 get-admin-password --format json",
@@ -573,8 +361,7 @@ def published_prometheus_alerts(cos_model_name: str, host: str) -> dict | None:
         return response.json()
 
 
-async def published_loki_logs(
-    ops_test: OpsTest,
+def published_loki_logs(
     cos_model_name: str,
     host: str,
     field: str,
@@ -616,3 +403,19 @@ def assert_logs(loki_address: str) -> None:
     #       there will be no logs.
     logger.info(f"query: {query}")
     assert len(query["data"]["result"]) != 0, "no logs was found"
+
+
+def get_kyuubi_ca_cert(
+    juju: jubilant.Juju, certificates_app_name: str = "certificates"
+) -> str:
+    """Get the CA certificate used by Kyuubi"""
+    status = juju.status()
+    self_signed_certificate_unit = next(
+        iter(status.apps[certificates_app_name].units.keys())
+    )
+    task = juju.run(self_signed_certificate_unit, "get-issued-certificates")
+    assert task.return_code == 0
+    items = ast.literal_eval(task.results["certificates"])
+    certificates = json.loads(items[0])
+    ca_cert = certificates["ca"]
+    return ca_cert

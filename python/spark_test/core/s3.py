@@ -16,6 +16,14 @@ from spark_test.core import ObjectStorageUnit
 logger = logging.getLogger(__name__)
 
 
+default_s3_config = Config(
+    connect_timeout=60,
+    retries={"max_attempts": 0},
+    request_checksum_calculation="when_supported",
+    response_checksum_validation="when_supported",
+)
+
+
 @dataclass
 class Credentials:
     """Class representing S3 credentials."""
@@ -54,13 +62,14 @@ class Bucket(ObjectStorageUnit):
         Returns:
             Bucket object
         """
-        config = Config(connect_timeout=60, retries={"max_attempts": 0})
         session = boto3.session.Session(
             aws_access_key_id=credentials.access_key,
             aws_secret_access_key=credentials.secret_key,
         )
 
-        s3 = session.client("s3", endpoint_url=credentials.endpoint, config=config)
+        s3 = session.client(
+            "s3", endpoint_url=credentials.endpoint, config=default_s3_config
+        )
 
         if not cls._exists(bucket_name, s3):
             raise FileNotFoundError(f"Bucket {bucket_name} does not exist.")
@@ -78,13 +87,14 @@ class Bucket(ObjectStorageUnit):
         Returns:
             Bucket object
         """
-        config = Config(connect_timeout=60, retries={"max_attempts": 0})
         session = boto3.session.Session(
             aws_access_key_id=credentials.access_key,
             aws_secret_access_key=credentials.secret_key,
         )
 
-        s3 = session.client("s3", endpoint_url=credentials.endpoint, config=config)
+        s3 = session.client(
+            "s3", endpoint_url=credentials.endpoint, config=default_s3_config
+        )
 
         if cls._exists(bucket_name, s3):
             raise FileExistsError(
@@ -164,8 +174,13 @@ class Bucket(ObjectStorageUnit):
     def cleanup(self) -> bool:
         """Cleanup objects from bucket."""
         try:
-            objs = [{"Key": x["Key"]} for x in self.list_objects()]
-            self.s3.delete_objects(Bucket=self.bucket_name, Delete={"Objects": objs})
+            objs = [x["Key"] for x in self.list_objects()]
+            for obj in objs:
+                # We need to iterate over keys because delete_objects (plural) has mandatory checksum
+                self.s3.delete_object(
+                    Bucket=self.bucket_name,
+                    Key=obj,
+                )
         except Exception:
             logger.exception("Issue while deleting file")
             return False

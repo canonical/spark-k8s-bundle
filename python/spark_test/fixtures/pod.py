@@ -25,7 +25,7 @@ def admin_pod_name():
 @pytest.fixture(scope="module")
 def spark_version():
     """Spark version."""
-    return "3.4.2"
+    return "3.4.4"
 
 
 @pytest.fixture(scope="module")

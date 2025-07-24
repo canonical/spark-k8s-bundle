@@ -1,13 +1,15 @@
-import asyncio
 import logging
 import re
+import subprocess
 from pathlib import Path
+from typing import cast
 
 import boto3.session
 import httpx
+import jubilant
 import pytest
 from azure.storage.blob import BlobServiceClient
-from pytest_operator.plugin import OpsTest
+from botocore.client import Config
 from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.core.azure_storage import Container
@@ -45,20 +47,6 @@ PROMETHEUS = "prometheus"
 LOKI = "loki"
 
 
-@pytest.mark.skip_if_deployed
-@pytest.mark.abort_on_fail
-async def test_deploy_bundle(spark_bundle):
-    await spark_bundle
-    await asyncio.sleep(0)  # do nothing, await deploy_cluster
-
-
-@pytest.mark.abort_on_fail
-async def test_active_status(ops_test):
-    """Test whether the bundle has deployed successfully."""
-    for app_name in ops_test.model.applications:
-        assert ops_test.model.applications[app_name].status == "active"
-
-
 @pytest.fixture
 def spark_properties(small_profile_properties, image_properties):
     return small_profile_properties + image_properties
@@ -69,13 +57,22 @@ def tmp_folder(tmp_path_factory):
     return tmp_path_factory.mktemp("data")
 
 
-@pytest.mark.abort_on_fail
-async def test_run_job(
-    ops_test: OpsTest,
+@pytest.mark.skip_if_deployed
+def test_deploy_bundle(spark_bundle):
+    """Deploy bundle."""
+    deployed_applications = spark_bundle
+    logger.info(f"Deployed applications: {deployed_applications}")
+
+
+def test_active_status(juju: jubilant.Juju) -> None:
+    """Test whether the bundle has deployed successfully."""
+    juju.wait(jubilant.all_active)
+
+
+def test_run_job(
     registry,
     service_account,
     pod,
-    credentials,
     object_storage,
     spark_properties,
     tmp_folder,
@@ -97,18 +94,21 @@ async def test_run_job(
         )
     }
 
-    pod.exec(
-        [
-            "spark-client.spark-submit",
-            "--username",
-            service_account.name,
-            "--namespace",
-            service_account.namespace,
-            "-v",
-            object_storage.get_uri("spark_test.py"),
-            f"-f {object_storage.get_uri('example.txt')}",
-        ]
-    )
+    try:
+        pod.exec(
+            [
+                "spark-client.spark-submit",
+                "--username",
+                service_account.name,
+                "--namespace",
+                service_account.namespace,
+                "-v",
+                object_storage.get_uri("spark_test.py"),
+                f"-f {object_storage.get_uri('example.txt')}",
+            ]
+        )
+    except subprocess.CalledProcessError as cpe:
+        logger.exception(cpe)
 
     driver_pods = get_spark_drivers(
         registry.kube_interface.client, service_account.namespace
@@ -130,9 +130,7 @@ async def test_run_job(
     driver_pod[0].write(tmp_folder / "spark-job-driver.json")
 
 
-@pytest.mark.abort_on_fail
-async def test_job_logs_are_persisted(
-    ops_test: OpsTest,
+def test_job_logs_are_persisted(
     registry,
     service_account,
     credentials,
@@ -168,8 +166,11 @@ async def test_job_logs_are_persisted(
         s3 = session.client(
             "s3",
             endpoint_url=credentials.endpoint,
-            config=boto3.session.Config(
-                connect_timeout=60, retries={"max_attempts": 0}
+            config=Config(
+                connect_timeout=60,
+                retries={"max_attempts": 0},
+                request_checksum_calculation="when_supported",
+                response_checksum_validation="when_supported",
             ),
         )
 
@@ -208,20 +209,19 @@ async def test_job_logs_are_persisted(
     assert logs_discovered
 
 
-@pytest.mark.abort_on_fail
-async def test_job_in_history_server(
-    ops_test: OpsTest, tmp_folder, port_forward: PortForwarder
+def test_job_in_history_server(
+    juju: jubilant.Juju, tmp_folder, port_forward: PortForwarder
 ) -> None:
     driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
     show_unit_cmd = ["show-unit", f"{HISTORY_SERVER}/0"]
-    _, stdout, _ = await ops_test.juju(*show_unit_cmd)
+    stdout = juju.cli(*show_unit_cmd)
     logger.info(f"Show unit: {stdout}")
     spark_id = driver_pod.labels["spark-app-selector"]
     logger.info(f"Spark ID: {spark_id}")
 
     apps = []
     with port_forward(
-        pod=f"{HISTORY_SERVER}-0", port=18080, namespace=ops_test.model.name
+        pod=f"{HISTORY_SERVER}-0", port=18080, namespace=cast(str, juju.model)
     ):
         for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
             with attempt:
@@ -233,9 +233,8 @@ async def test_job_in_history_server(
                 assert len(apps) == 1
 
 
-@pytest.mark.abort_on_fail
-async def test_job_not_in_prometheus_pushgateway(
-    ops_test: OpsTest, cos, tmp_folder: Path, port_forward: PortForwarder
+def test_job_not_in_prometheus_pushgateway(
+    juju: jubilant.Juju, cos, tmp_folder: Path, port_forward: PortForwarder
 ) -> None:
     """Once the job is completed, we don't expect the prometheus pushgateway to hold any data."""
     if not cos:
@@ -243,14 +242,16 @@ async def test_job_not_in_prometheus_pushgateway(
 
     # check that logs are sent to prometheus pushgateway
     show_status_cmd = ["status"]
-    _, stdout, _ = await ops_test.juju(*show_status_cmd)
+    stdout = juju.cli(*show_status_cmd)
     logger.info(f"Show status: {stdout}")
     driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
     spark_id = driver_pod.labels["spark-app-selector"]
     logger.info(f"Spark id: {spark_id}")
 
     metrics = {}
-    with port_forward(pod=f"{PUSHGATEWAY}-0", port=9091, namespace=ops_test.model.name):
+    with port_forward(
+        pod=f"{PUSHGATEWAY}-0", port=9091, namespace=cast(str, juju.model)
+    ):
         for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
             with attempt:
                 metrics = httpx.get("http://127.0.0.1:9091/api/v1/metrics").json()
@@ -274,11 +275,8 @@ async def test_job_not_in_prometheus_pushgateway(
                         raise AssertionError("Unknown data format")
 
 
-@pytest.mark.abort_on_fail
-async def test_spark_metrics_in_prometheus(
-    ops_test: OpsTest,
-    registry,
-    service_account,
+def test_spark_metrics_in_prometheus(
+    juju: jubilant.Juju,
     cos,
     tmp_folder,
     port_forward: PortForwarder,
@@ -290,7 +288,7 @@ async def test_spark_metrics_in_prometheus(
 
     show_status_cmd = ["status"]
 
-    _, stdout, _ = await ops_test.juju(*show_status_cmd)
+    stdout = juju.cli(*show_status_cmd)
 
     logger.info(f"Show status: {stdout}")
     logger.info(f"Spark id: {driver_pod.labels['spark-app-selector']}")
@@ -314,33 +312,30 @@ async def test_spark_metrics_in_prometheus(
                 assert driver_pod.labels["spark-app-selector"] in spark_ids
 
 
-@pytest.mark.abort_on_fail
-async def test_spark_logforwaring_to_loki(
-    ops_test: OpsTest, registry, service_account, cos, port_forward: PortForwarder
+def test_spark_logforwaring_to_loki(
+    juju: jubilant.Juju, cos, port_forward: PortForwarder
 ) -> None:
     if not cos:
         pytest.skip("Not possible to test without cos")
 
-    _, stdout, _ = await ops_test.juju("status")
+    stdout = juju.cli("status")
     logger.info(f"Show status: {stdout}")
 
-    with (
-        ops_test.model_context(COS_ALIAS) as cos_model,
-        port_forward(pod=f"{LOKI}-0", port=3100, namespace=cos_model.name),
-    ):
+    with port_forward(pod=f"{LOKI}-0", port=3100, namespace=cos):
         assert_logs("127.0.0.1")
 
 
-@pytest.mark.abort_on_fail
-async def test_history_server_metrics_in_cos(
-    ops_test: OpsTest, cos, port_forward: PortForwarder
+def test_history_server_metrics_in_cos(
+    juju: jubilant.Juju, cos, port_forward: PortForwarder
 ) -> None:
     if not cos:
         pytest.skip("Not possible to test without cos")
 
     # Prometheus data is being published by the app
     with port_forward(
-        pod=f"{HISTORY_SERVER}-0", port=JMX_EXPORTER_PORT, namespace=ops_test.model.name
+        pod=f"{HISTORY_SERVER}-0",
+        port=JMX_EXPORTER_PORT,
+        namespace=cast(str, juju.model),
     ):
         logger.info("Accessing prometheus")
         result = prometheus_exporter_data(host="127.0.0.1", port=JMX_EXPORTER_PORT)
@@ -350,9 +345,9 @@ async def test_history_server_metrics_in_cos(
     # We should leave time for Prometheus data to be published
     for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
         with attempt:
-            cos_address = await get_cos_address(ops_test, cos_model_name=cos)
+            cos_address = get_cos_address(cos_model_name=cos)
             assert published_prometheus_data(
-                ops_test, cos, cos_address, "jmx_scrape_duration_seconds"
+                cos, cos_address, "jmx_scrape_duration_seconds"
             )
 
             # Alerts got published to Prometheus
@@ -377,7 +372,7 @@ async def test_history_server_metrics_in_cos(
                 )
 
             # Grafana dashboard got published
-            dashboards_info = await published_grafana_dashboards(ops_test, cos)
+            dashboards_info = published_grafana_dashboards(cos)
             assert dashboards_info is not None
             logger.info(f"Dashboard info {dashboards_info}")
             assert any(
@@ -386,8 +381,7 @@ async def test_history_server_metrics_in_cos(
             )
 
             # Loki logs are ingested
-            logs = await published_loki_logs(
-                ops_test,
+            logs = published_loki_logs(
                 cos,
                 cos_address,
                 "juju_application",

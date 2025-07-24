@@ -3,27 +3,24 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-import asyncio
 import logging
 
+import jubilant
 import pytest
-
-from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace  # noqa
-from spark_test.fixtures.s3 import bucket, credentials  # noqa
-from spark_test.fixtures.service_account import registry, service_account  # noqa
 
 logger = logging.getLogger(__name__)
 
 
 @pytest.mark.skip_if_deployed
-@pytest.mark.abort_on_fail
-async def test_deploy_bundle(spark_bundle):
-    await spark_bundle
-    await asyncio.sleep(0)  # do nothing, await deploy_cluster
+def test_deploy_bundle(spark_bundle: list[str]) -> None:
+    """Deploy bundle."""
+    deployed_applications = spark_bundle
+    logger.info(f"Deployed applications: {deployed_applications}")
 
 
-@pytest.mark.abort_on_fail
-async def test_active_status(ops_test):
+def test_active_status(juju: jubilant.Juju) -> None:
     """Test whether the bundle has deployed successfully."""
-    for app_name in ops_test.model.applications:
-        assert ops_test.model.applications[app_name].status == "active"
+    juju.wait(
+        lambda status: jubilant.all_active(status) and jubilant.all_agents_idle(status),
+        delay=5,
+    )

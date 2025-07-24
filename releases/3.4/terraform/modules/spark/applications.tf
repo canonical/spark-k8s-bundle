@@ -8,14 +8,11 @@ resource "juju_application" "history_server" {
   charm {
     name     = "spark-history-server-k8s"
     channel  = "3.4/edge"
-    revision = 40
+    revision = var.history_server_revision
   }
 
-  resources = {
-    spark-history-server-image = "ghcr.io/canonical/charmed-spark@sha256:1d9949dc7266d814e6483f8d9ffafeff32f66bb9939e0ab29ccfd9d5003a583a" # 3.4.2
-  }
-
-  units = 1
+  resources = var.history_server_image
+  units     = 1
 
   constraints = "arch=amd64"
 }
@@ -27,18 +24,25 @@ resource "juju_application" "kyuubi" {
   charm {
     name     = "kyuubi-k8s"
     channel  = "latest/edge"
-    revision = 45
+    revision = var.kyuubi_revision
   }
 
-  resources = {
-    kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:3c49dfe71387bd702a30844c80c9a17a8bc8ecb99ebdee37eab4b05e44ac683f" # 3.4.2
-  }
+  resources = var.kyuubi_image
 
-  config = {
-    namespace       = data.juju_model.spark.name
-    service-account = var.kyuubi_user
-    expose-external = "loadbalancer"
-  }
+  config = merge(
+    {
+      namespace       = data.juju_model.spark.name
+      service-account = var.kyuubi_user
+      expose-external = "loadbalancer"
+      profile         = var.kyuubi_profile
+    },
+    var.tls_private_key == null ? {} : {
+      tls-client-private-key = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
+    },
+    var.admin_password == null ? {} : {
+      system-users = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
+    }
+  )
 
   units = 3
   trust = true
@@ -53,12 +57,10 @@ resource "juju_application" "kyuubi_users" {
   charm {
     name     = "postgresql-k8s"
     channel  = "14/stable"
-    revision = 281
+    revision = var.kyuubi_users_revision
   }
 
-  resources = {
-    postgresql-image = 159
-  }
+  resources = var.kyuubi_users_image
 
   units = 1
   trust = true
@@ -73,12 +75,10 @@ resource "juju_application" "metastore" {
   charm {
     name     = "postgresql-k8s"
     channel  = "14/stable"
-    revision = 281
+    revision = var.metastore_revision
   }
 
-  resources = {
-    postgresql-image = 159
-  }
+  resources = var.metastore_image
 
   units = 1
   trust = true
@@ -86,19 +86,17 @@ resource "juju_application" "metastore" {
   constraints = "arch=amd64"
 }
 
-resource "juju_application" "hub" {
+resource "juju_application" "integration_hub" {
   name  = "integration-hub"
   model = data.juju_model.spark.name
 
   charm {
     name     = "spark-integration-hub-k8s"
-    channel  = "latest/edge"
-    revision = 46
+    channel  = "3/edge"
+    revision = var.integration_hub_revision
   }
 
-  resources = {
-    integration-hub-image = 5
-  }
+  resources = var.integration_hub_image
 
   units = 1
   trust = true
@@ -112,14 +110,30 @@ resource "juju_application" "zookeeper" {
 
   charm {
     name     = "zookeeper-k8s"
-    channel  = "3/edge"
-    revision = 75
+    channel  = "3/stable"
+    revision = var.zookeeper_revision
   }
 
-  resources = {
-    zookeeper-image = 34
-  }
+  resources = var.zookeeper_image
 
   units       = var.zookeeper_units
+  constraints = "arch=amd64"
+}
+
+resource "juju_application" "data_integrator" {
+  name  = "data-integrator"
+  model = data.juju_model.spark.name
+
+  charm {
+    name     = "data-integrator"
+    channel  = "latest/stable"
+    revision = var.data_integrator_revision
+  }
+
+  config = {
+    database-name = "integrator"
+  }
+
+  units       = 1
   constraints = "arch=amd64"
 }
