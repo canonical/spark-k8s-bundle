@@ -1,0 +1,144 @@
+name: Reference Architecture Testing (AKS)
+on:
+  # TODO: Uncomment this once the reference architecture tests are fixed
+  # pull_request:
+  workflow_dispatch:
+    inputs:
+      k8s_version:
+        description: 'Kubernetes version to be used for the AKS cluster'
+        required: false
+        default: "1.32"
+      juju_version:
+        description: 'Charmed Spark version to be tested'
+        required: false
+        default: "3.6"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  aks-deployment:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set default envs
+        run: |
+          echo "K8S_VERSION=1.32" >> $GITHUB_ENV
+          echo "JUJU_VERSION=3.6" >> $GITHUB_ENV
+
+
+      - name: Update ENV variables from inputs if available
+        run: |
+          K8S_VERSION=${{ inputs.k8s_version || env.K8S_VERSION }}
+          echo "K8S_VERSION=${K8S_VERSION}" >> $GITHUB_ENV
+
+          JUJU_VERSION=${{ inputs.juju_version || env.JUJU_VERSION }}
+          echo "JUJU_VERSION=${JUJU_VERSION}" >> $GITHUB_ENV
+
+      - name: Install CLI tools
+        run: |
+          # Install python tooling
+          pipx install tox
+          pipx install poetry
+
+          # Install general tools via snaps
+          sudo snap install juju --classic --channel=${{ env.JUJU_VERSION }}/stable
+          sudo snap install charmcraft --classic
+          sudo snap install terraform  --channel latest/stable --classic
+
+          # Check versions
+          juju version
+          terraform --version
+
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AKS_SERVICE_PRINCIPAL }}
+
+      - name: Create resource group and cluster
+        run: |
+          _K8S_VERSION=${{ env.K8S_VERSION }}
+          # Renaming of the version to use _ instead of . 
+          RUN_VERSION="spark-${_K8S_VERSION//./_}"
+          RESOURCE_GROUP=${RUN_VERSION}_rg
+          NAME=${RUN_VERSION}_aks
+          LOCATION=westeurope
+          echo "RESOURCE_GROUP=${RESOURCE_GROUP}" >> $GITHUB_ENV
+          echo "NAME=${NAME}" >> $GITHUB_ENV
+          echo "LOCATION=${LOCATION}" >> $GITHUB_ENV
+          az group create --name ${RESOURCE_GROUP} --location ${LOCATION}
+          az aks create \
+            --resource-group ${RESOURCE_GROUP} \
+            --name ${NAME} \
+            --kubernetes-version ${{ env.K8S_VERSION }} \
+            --node-count 2 \
+            --node-vm-size Standard_D8s_v3 \
+            --node-osdisk-size 100 \
+            --node-osdisk-type Managed \
+            --os-sku Ubuntu \
+            --no-ssh-key
+
+      - name: Add AKS cloud to juju and bootstrap controller
+        run: |
+          az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.NAME }} --admin
+          juju add-k8s aks --client
+          juju bootstrap aks aks-controller
+
+      - name: Deploy Kyuubi Reference Architecture
+        working-directory: ./python/tests/reference_architecture/azure
+        run: |
+          terraform init
+          source get-vars.sh
+          export TF_VAR_AZURE_RESOURCE_GROUP="test_aks_${{ env.RESOURCE_GROUP }}"
+          _NAME="aks${{ env.RESOURCE_GROUP }}"
+          export TF_VAR_AZURE_STORAGE_ACCOUNT=${_NAME//[_-]/}
+          terraform apply -auto-approve
+
+          juju wait-for model cos --query='forEach(units, unit => unit.agent-status=="idle" && unit.workload-status=="active")' --timeout 30m0s
+          juju wait-for model spark --query='forEach(units, unit => unit.agent-status=="idle" && unit.workload-status=="active")' --timeout 30m0s
+
+      - name: Get juju status
+        if: always()
+        run: |
+          juju status --model cos
+          juju status --model spark
+
+      - name: Run Kyuubi UATs
+        working-directory: ./python
+        run: |
+          tox -e integration-kyuubi -- --no-deploy --keep-models --model spark --cos-model cos
+
+      - name: Get juju debug logs
+        run: juju debug-log --replay --no-tail
+        if: failure() || cancelled()
+
+      - name: Tear down deployment
+        if: always()
+        working-directory: ./python/tests/reference_architecture/azure
+        run: |
+          source get-vars.sh
+          export TF_VAR_AZURE_RESOURCE_GROUP="test_aks_${{ env.RESOURCE_GROUP }}"
+          _NAME="aks${{ env.RESOURCE_GROUP }}"
+          export TF_VAR_AZURE_STORAGE_ACCOUNT=${_NAME//[_-]/}
+          terraform destroy -auto-approve
+
+      - name: Delete AKS cluster
+        if: always()
+        run: az aks delete --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.NAME }} --yes
+
+      - name: Delete resource groups
+        if: always()
+        run: |
+          az group delete --name ${{ env.RESOURCE_GROUP }} --yes
+          if [ "$(az group exists --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }})" = "true" ]; then
+            az group delete --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }} --yes
+          fi
+
+      - name: Check that resource groups have been deleted, else fail
+        if: always()
+        run: |
+          if [ "$(az group exists --name ${{ env.RESOURCE_GROUP }} )" = "true" ] || [ "$(az group exists --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }})" = "true" ]; then
+            exit 1
+          fi

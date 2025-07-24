@@ -1,0 +1,12 @@
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: label-test
+  labels:
+    product: charmed-spark
+spec:
+  containers:
+  - name: spark
+

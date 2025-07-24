@@ -1,4 +1,7 @@
-name: Verify contents of a PR
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+name: Run CI tests on a PR
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -9,4 +12,7 @@ on:
 
 jobs:
   tests:
-    uses: ./.github/workflows/ci-tests.yaml
+    name: Run CI tests on a PR
+    uses: ./.github/workflows/ci-tests-minimal.yaml
+    secrets: inherit
+

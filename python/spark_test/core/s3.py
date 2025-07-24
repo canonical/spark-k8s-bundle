@@ -1,0 +1,187 @@
+#!/usr/bin/env python3
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+"""S3 module."""
+
+import logging
+import os
+from dataclasses import dataclass
+
+import boto3
+from botocore.client import Config
+from botocore.exceptions import ClientError
+
+from spark_test.core import ObjectStorageUnit
+
+logger = logging.getLogger(__name__)
+
+
+default_s3_config = Config(
+    connect_timeout=60,
+    retries={"max_attempts": 0},
+    request_checksum_calculation="when_supported",
+    response_checksum_validation="when_supported",
+)
+
+
+@dataclass
+class Credentials:
+    """Class representing S3 credentials."""
+
+    access_key: str
+    secret_key: str
+    host: str
+
+    @property
+    def endpoint(self) -> str:
+        """Return the S3 endpoint."""
+        return f"http://{self.host}:80"
+
+
+class Bucket(ObjectStorageUnit):
+    """Class representing a S3 bucket."""
+
+    def __init__(self, s3, bucket_name: str):
+        """Create an instance of Bucket class.
+
+        Args:
+            s3: boto3 class representing the S3 session
+            bucket_name: name of the bucket
+        """
+        self.s3 = s3
+        self.bucket_name = bucket_name
+
+    @classmethod
+    def get(cls, bucket_name: str, credentials: Credentials):
+        """Return an instance of an existing Bucket class.
+
+        Args:
+            bucket_name: name of the bucket
+            credentials: S3 credentials
+
+        Returns:
+            Bucket object
+        """
+        session = boto3.session.Session(
+            aws_access_key_id=credentials.access_key,
+            aws_secret_access_key=credentials.secret_key,
+        )
+
+        s3 = session.client(
+            "s3", endpoint_url=credentials.endpoint, config=default_s3_config
+        )
+
+        if not cls._exists(bucket_name, s3):
+            raise FileNotFoundError(f"Bucket {bucket_name} does not exist.")
+
+        return Bucket(s3, bucket_name)
+
+    @classmethod
+    def create(cls, bucket_name: str, credentials: Credentials):
+        """Create and return an instance of the Bucket class.
+
+        Args:
+            bucket_name: name of the bucket
+            credentials: S3 credentials
+
+        Returns:
+            Bucket object
+        """
+        session = boto3.session.Session(
+            aws_access_key_id=credentials.access_key,
+            aws_secret_access_key=credentials.secret_key,
+        )
+
+        s3 = session.client(
+            "s3", endpoint_url=credentials.endpoint, config=default_s3_config
+        )
+
+        if cls._exists(bucket_name, s3):
+            raise FileExistsError(
+                f"Cannot create bucket {bucket_name}. Already exists."
+            )
+
+        s3.create_bucket(Bucket=bucket_name)
+
+        return Bucket(s3, bucket_name)
+
+    def init(self):
+        """Initialize the bucket to be used with Spark."""
+        self.s3.put_object(Bucket=self.bucket_name, Key=("spark-events/"))
+        return self
+
+    def delete(self):
+        """Delete the current bucket."""
+        if not self.exists():
+            return
+
+        self.cleanup()
+        self.s3.delete_bucket(Bucket=self.bucket_name)
+
+        self.s3.close()
+        self.s3 = None
+
+    @staticmethod
+    def _exists(bucket_name, s3) -> bool:
+        buckets = [
+            bucket
+            for bucket in s3.list_buckets().get("Buckets", [])
+            if bucket["Name"] == bucket_name
+        ]
+        return len(buckets) > 0
+
+    def exists(self) -> bool:
+        """Check if the bucket exists."""
+        return self._exists(self.bucket_name, self.s3)
+
+    def upload_file(self, file_name, object_name=None):
+        """Upload a file to an S3 bucket.
+
+        Args:
+            file_name: File to upload
+            object_name: S3 object name. If not specified then file_name is used
+
+        Returns:
+             True if file was uploaded, else False
+        """
+        # If S3 object_name was not specified, use file_name
+        if object_name is None:
+            object_name = os.path.basename(file_name)
+
+        # Upload the file
+        try:
+            _ = self.s3.upload_file(file_name, self.bucket_name, object_name)
+        except ClientError:
+            return False
+        return True
+
+    def list_objects(self) -> list[dict]:
+        """Return the list of object contained in the bucket."""
+        return self.s3.list_objects_v2(Bucket=self.bucket_name).get("Contents", [])
+
+    def list_content(self):
+        """Return the list of object names."""
+        return [
+            name
+            for obj in self.list_objects()
+            if not (name := obj["Key"]).endswith("/")
+        ]
+
+    def get_uri(self, file: str):
+        """Get file URI."""
+        return f"s3a://{self.bucket_name}/{file}"
+
+    def cleanup(self) -> bool:
+        """Cleanup objects from bucket."""
+        try:
+            objs = [x["Key"] for x in self.list_objects()]
+            for obj in objs:
+                # We need to iterate over keys because delete_objects (plural) has mandatory checksum
+                self.s3.delete_object(
+                    Bucket=self.bucket_name,
+                    Key=obj,
+                )
+        except Exception:
+            logger.exception("Issue while deleting file")
+            return False
+        return True
