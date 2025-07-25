@@ -60,6 +60,25 @@ runs:
     - name: Disk usage
       shell: bash
       run: |
+        sudo rm -rf \
+          /opt/google \
+          /opt/hostedtoolcache \
+          /opt/microsoft/powershell \
+          /opt/microsoft/msedge \
+          "$AGENT_TOOLSDIRECTORY" \
+          /usr/lib/firefox \
+          /usr/lib/mono \
+          /usr/local/julia* \
+          /usr/local/lib/android \
+          /usr/local/share/chromium \
+          /usr/local/share/powershell \
+          /usr/share/dotnet \
+          /usr/share/gradle* \
+          /usr/share/miniconda \
+          /usr/share/sbt \
+          /usr/share/swift \
+          /home/linuxbrew
+        pipx uninstall-all
         printf '\nDisk usage\n'
         df --human-readable
     - name: Checkout repo
@@ -82,7 +101,6 @@ runs:
     - name: Install tools
       shell: bash
       run: |
-        sudo apt update && sudo apt install pipx -y
         pipx install tox
     - name: Select tests
       id: select-tests
@@ -156,6 +174,13 @@ runs:
         if [[ -n "${{ inputs.cos-model }}" ]]; then
           printf '\nCos pods\n'
           kubectl get pods -n cos -o wide
+        fi
+
+        printf '\nK8s events\n'
+        kubectl get events -n spark-bundle-test -o wide
+        if [[ -n "${{ inputs.cos-model }}" ]]; then
+          printf '\nCos events\n'
+          kubectl get events -n cos -o wide
         fi
 
         printf '\nDebug logs\n'
