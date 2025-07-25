@@ -79,6 +79,9 @@ class KyuubiClient:
 
                 with closing(connect(**params)) as conn, closing(f):
                     yield conn
+        else:
+            with closing(connect(**params)) as conn:
+                yield conn
 
     @property
     def databases(self):
