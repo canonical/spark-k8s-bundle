@@ -1,7 +1,6 @@
 name: Reference Architecture Testing (AKS)
 on:
-  # TODO: Uncomment this once the reference architecture tests are fixed
-  # pull_request:
+  pull_request:
   workflow_dispatch:
     inputs:
       k8s_version:
