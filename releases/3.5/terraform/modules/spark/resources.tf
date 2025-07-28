@@ -18,7 +18,7 @@ resource "juju_secret" "system_users_and_private_key_secret" {
     var.tls_private_key == null ? {} : {
       private-key = var.tls_private_key
     }
-  ) 
+  )
   info = "This secret contains password for admin user and the TLS private key."
 }
 

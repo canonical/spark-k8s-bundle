@@ -6,10 +6,10 @@ import json
 import subprocess
 from functools import cached_property
 from pathlib import Path
-from typing import Dict, Iterator, List
+from typing import Dict, Iterator, List, cast
 
-import lightkube
 from lightkube import Client, KubeConfig
+from lightkube.resources import core_v1
 
 from spark_test import BINS, PKG_DIR
 
@@ -24,10 +24,10 @@ def get_kube_config(kubeconfig_file: Path | None) -> KubeConfig:
     Returns:
         lightkube.KubeConfig instance
     """
-    if kubeconfig_file.exists():
-        return KubeConfig.from_file(kubeconfig_file.absolute())
-    else:
+    if kubeconfig_file is None or not kubeconfig_file.exists():
         return KubeConfig.from_env()
+    else:
+        return KubeConfig.from_file(kubeconfig_file.absolute())
 
 
 class Pod:
@@ -169,19 +169,24 @@ class Pod:
     def metadata(self):
         """Return the metadata of the pod."""
         return self.client.get(
-            lightkube.resources.core_v1.Pod,
+            core_v1.Pod,
             name=self.pod_name,
             namespace=self.namespace,
         ).metadata
 
     @property
-    def labels(self) -> Dict[str, str]:
+    def labels(self) -> dict[str, str]:
         """Return the labels of the pod."""
-        return self.client.get(
-            lightkube.resources.core_v1.Pod,
-            name=self.pod_name,
-            namespace=self.namespace,
-        ).metadata.labels
+        labels = getattr(
+            self.client.get(
+                core_v1.Pod,
+                name=self.pod_name,
+                namespace=self.namespace,
+            ).metadata,
+            "labels",
+            {},
+        )
+        return cast(dict[str, str], labels)
 
     def delete(self):
         """Delete the current pod."""

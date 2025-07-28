@@ -23,9 +23,9 @@ class TerraformBackend(BundleBackend):
     def init(self) -> None:
         """Initialize terraform."""
         shutil.copytree(self.module_path, self.tempdir, dirs_exist_ok=True)
-        return self.execute(["terraform", "init"])
+        self.execute(["terraform", "init"])
 
-    def apply(self, vars=None):
+    def apply(self, vars: dict[str, str] | None = None) -> list[str]:
         """Apply the terraform plan."""
         with tempfile.NamedTemporaryFile(
             mode="w+",

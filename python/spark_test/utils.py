@@ -19,15 +19,19 @@ def get_spark_drivers(
     """Get Spark driver pod."""
     if client is None:
         client = Client()
-    return [
-        Pod(
-            pod_name=pod.metadata.name,
-            namespace=namespace,
-            kubeconfig_file=client.config.fname,
-        )
-        for pod in client.list(LightKubePod, namespace=namespace)
-        if pod.metadata.name.endswith("driver")
-    ]
+
+    pods = []
+    for pod in client.list(LightKubePod, namespace=namespace):
+        assert pod.metadata is not None
+        if (pod_name := pod.metadata.name) and pod_name.endswith("driver"):
+            pods.append(
+                Pod(
+                    pod_name=pod_name,
+                    namespace=namespace,
+                    kubeconfig_file=client.config.fname,
+                )
+            )
+    return pods
 
 
 def get_spark_executors(
@@ -36,13 +40,18 @@ def get_spark_executors(
     """Get Spark executor pods for a given namespace."""
     if client is None:
         client = Client()
-    return [
-        Pod(
-            pod_name=pod.metadata.name,
-            namespace=namespace,
-            kubeconfig_file=client.config.fname,
-        )
-        for pod in client.list(LightKubePod, namespace=namespace)
-        if re.match(SPARK_EXECUTOR_POD_REGEX, pod.metadata.name)
-        and pod.metadata.name.startswith(prefix)
-    ]
+
+    pods = []
+    for pod in client.list(LightKubePod, namespace=namespace):
+        assert pod.metadata is not None
+        if (pod_name := pod.metadata.name) and re.match(
+            SPARK_EXECUTOR_POD_REGEX, pod_name
+        ):
+            pods.append(
+                Pod(
+                    pod_name=pod_name,
+                    namespace=namespace,
+                    kubeconfig_file=client.config.fname,
+                )
+            )
+    return pods
