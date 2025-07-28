@@ -420,3 +420,20 @@ metadata:
 [/details]
 
 With that, the tutorial’s environment setup is complete!
+
+## (Optional) Create a snapshot
+
+At this stage, you may want to create a [snapshot](https://documentation.ubuntu.com/multipass/en/latest/reference/command-line-interface/snapshot/#snapshot) of the current state, for which you need to stop the Multipass VM:
+
+```bash
+multipass stop spark-tutorial
+multipass snapshot spark-tutorial -n env-setup
+```
+
+This creates a snapshot name `env-setup` that we can use later to reset the environment. We will use it later for the Charmed Apache Kyuubi K8s deployment.
+
+Before continuing with this tutorial, make sure to start the VM again:
+
+```bash
+multipass start spark-tutorial
+```
