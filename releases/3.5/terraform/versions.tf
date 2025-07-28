@@ -13,7 +13,7 @@ terraform {
 locals {
   revisions = {
     history_server  = 47
-    integration_hub = 66
+    integration_hub = 67
     kyuubi          = 111
     kyuubi_users    = 495
     metastore       = 495
@@ -34,7 +34,7 @@ locals {
     } # rev21, spark-version: 3.5.5 revision: c9fe483160d8aad5d23260af98c18e2653720c8e
     integration_hub = {
       integration-hub-image = "ghcr.io/canonical/spark-integration-hub@sha256:fa5e73d6339b2eb137b5917771caa62bd6605284b8dfab3dafb7d6026a9a3b1a"
-    } # rev
+    } # rev6
     kyuubi = {
       kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:e2029c6976fc5b9ee2865eced632ca42ce554039d9832af20dfa3e63113e00f7"
     } # rev11, spark-3.5.5, kyuubi 1.10.2 release date 28/07/25
