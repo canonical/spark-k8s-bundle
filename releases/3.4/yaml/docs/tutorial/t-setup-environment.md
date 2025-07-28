@@ -432,6 +432,10 @@ multipass snapshot spark-tutorial -n env-setup
 
 This creates a snapshot name `env-setup` that we can use later to reset the environment. We will use it later for the Charmed Apache Kyuubi K8s deployment.
 
+[note]
+Restarting the VM means that you might need to reset the environment variables exported earlier.
+[/note]
+
 Before continuing with this tutorial, make sure to start the VM again:
 
 ```bash
