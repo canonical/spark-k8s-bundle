@@ -43,13 +43,13 @@ variable "enable_dynamic_allocation" {
   default     = false
 }
 
-variable "k8s_node_selectors" {
+variable "kyuubi_k8s_node_selectors" {
   description = "Comma separated label:value selectors for K8s pods in Kyuubi."
   type        = string
   default     = null
 }
 
-variable "loadbalancer_extra_annotations" {
+variable "kyuubi_loadbalancer_extra_annotations" {
   description = "Optional extra annotations to be supplied to the load balancer service in Kyuubi."
   type        = string
   default     = null

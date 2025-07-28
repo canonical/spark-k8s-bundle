@@ -37,11 +37,11 @@ resource "juju_application" "kyuubi" {
       profile                   = var.kyuubi_profile
       enable-dynamic-allocation = var.enable_dynamic_allocation
     },
-    var.k8s_node_selectors == null ? {} : {
-      k8s-node-selectors = var.k8s_node_selectors
+    var.kyuubi_k8s_node_selectors == null ? {} : {
+      k8s-node-selectors = var.kyuubi_k8s_node_selectors
     },
-    var.loadbalancer_extra_annotations == null ? {} : {
-      loadbalancer-extra-annotations = var.loadbalancer_extra_annotations
+    var.kyuubi_loadbalancer_extra_annotations == null ? {} : {
+      loadbalancer-extra-annotations = var.kyuubi_loadbalancer_extra_annotations
     },
     var.tls_private_key == null ? {} : {
       tls-client-private-key = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"

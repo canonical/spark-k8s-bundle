@@ -29,6 +29,9 @@ module "ssc" {
   constraints = "arch=amd64"
   base        = "ubuntu@24.04"
   units       = 1
+  config = {
+    ca-common-name = var.certificate_common_name
+  }
 }
 
 module "spark" {
@@ -40,8 +43,8 @@ module "spark" {
   admin_password                 = var.admin_password
   tls_private_key                = var.tls_private_key
   enable_dynamic_allocation      = var.enable_dynamic_allocation
-  k8s_node_selectors             = var.k8s_node_selectors
-  loadbalancer_extra_annotations = var.loadbalancer_extra_annotations
+  kyuubi_k8s_node_selectors             = var.kyuubi_k8s_node_selectors
+  kyuubi_loadbalancer_extra_annotations = var.kyuubi_loadbalancer_extra_annotations
   driver_pod_template            = var.driver_pod_template
   executor_pod_template          = var.executor_pod_template
   zookeeper_units                = var.zookeeper_units
