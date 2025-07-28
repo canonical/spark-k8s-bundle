@@ -84,4 +84,3 @@ resource "juju_integration" "kyuubi_data_integrator" {
     endpoint = "kyuubi"
   }
 }
-

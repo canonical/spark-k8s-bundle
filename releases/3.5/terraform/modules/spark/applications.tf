@@ -31,17 +31,17 @@ resource "juju_application" "kyuubi" {
 
   config = merge(
     {
-      namespace                       = data.juju_model.spark.name
-      service-account                 = var.kyuubi_user
-      expose-external                 = "loadbalancer"
-      profile                         = var.kyuubi_profile
-      enable-dynamic-allocation       = var.enable_dynamic_allocation
+      namespace                 = data.juju_model.spark.name
+      service-account           = var.kyuubi_user
+      expose-external           = "loadbalancer"
+      profile                   = var.kyuubi_profile
+      enable-dynamic-allocation = var.enable_dynamic_allocation
     },
     var.k8s_node_selectors == null ? {} : {
-      k8s-node-selectors              = var.k8s_node_selectors
+      k8s-node-selectors = var.k8s_node_selectors
     },
     var.loadbalancer_extra_annotations == null ? {} : {
-      loadbalancer-extra-annotations  = var.loadbalancer_extra_annotations
+      loadbalancer-extra-annotations = var.loadbalancer_extra_annotations
     },
     var.tls_private_key == null ? {} : {
       tls-client-private-key = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
@@ -105,13 +105,13 @@ resource "juju_application" "integration_hub" {
 
   config = merge(
     {
-      enable-dynamic-allocation       = var.enable_dynamic_allocation
+      enable-dynamic-allocation = var.enable_dynamic_allocation
     },
     var.driver_pod_template == null ? {} : {
-      driver-pod-template       = var.driver_pod_template
+      driver-pod-template = var.driver_pod_template
     },
     var.executor_pod_template == null ? {} : {
-      executor-pod-template     = var.executor_pod_template
+      executor-pod-template = var.executor_pod_template
     }
   )
 

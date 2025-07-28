@@ -21,7 +21,7 @@ resource "juju_model" "cos" {
 
 module "ssc" {
   depends_on  = [juju_model.spark]
-  source      = "git::https://github.com/canonical/self-signed-certificates-operator//terraform"
+  source      = "git::https://github.com/canonical/self-signed-certificates-operator//terraform?ref=rev326"
   model       = var.model
   app_name    = "certificates"
   channel     = "1/stable"
@@ -32,21 +32,21 @@ module "ssc" {
 }
 
 module "spark" {
-  depends_on                      = [juju_model.spark, module.ssc]
-  source                          = "./modules/spark"
-  model                           = var.model
-  kyuubi_user                     = var.kyuubi_user
-  kyuubi_profile                  = var.kyuubi_profile
-  admin_password                  = var.admin_password
-  tls_private_key                 = var.tls_private_key
-  enable_dynamic_allocation       = var.enable_dynamic_allocation
-  k8s_node_selectors              = var.k8s_node_selectors
-  loadbalancer_extra_annotations  = var.loadbalancer_extra_annotations
-  driver_pod_template             = var.driver_pod_template
-  executor_pod_template           = var.executor_pod_template
-  zookeeper_units                 = var.zookeeper_units
-  tls_app_name                    = module.ssc.app_name
-  tls_certificates_endpoint       = module.ssc.provides.certificates
+  depends_on                     = [juju_model.spark, module.ssc]
+  source                         = "./modules/spark"
+  model                          = var.model
+  kyuubi_user                    = var.kyuubi_user
+  kyuubi_profile                 = var.kyuubi_profile
+  admin_password                 = var.admin_password
+  tls_private_key                = var.tls_private_key
+  enable_dynamic_allocation      = var.enable_dynamic_allocation
+  k8s_node_selectors             = var.k8s_node_selectors
+  loadbalancer_extra_annotations = var.loadbalancer_extra_annotations
+  driver_pod_template            = var.driver_pod_template
+  executor_pod_template          = var.executor_pod_template
+  zookeeper_units                = var.zookeeper_units
+  tls_app_name                   = module.ssc.app_name
+  tls_certificates_endpoint      = module.ssc.provides.certificates
 
   history_server_revision  = var.history_server_revision != null ? var.history_server_revision : local.revisions.history_server
   history_server_image     = var.history_server_image != null ? var.history_server_image : local.images.history_server
