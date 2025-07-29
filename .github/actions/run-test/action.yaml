@@ -122,18 +122,24 @@ runs:
           echo "Installing terraform from snap"
           sudo snap install terraform --classic
         fi
-    - id: cache-image
-      name: Cache Image Locally
+    - id: cache-images
+      name: Cache Images Locally
       shell: bash
       run: |
-        # Download image for avoiding time out
-        IMAGE="ghcr.io/canonical/charmed-spark-kyuubi@sha256:153eaf8be341dcea2c91277cbc2a69a1c9c48d3f7847151898ab2e5a81753ec5"
+        IMAGES=(
+            "ghcr.io/canonical/charmed-spark-kyuubi@sha256:38f35ce47b84b8370da9a371edaf83ca9911347a1efd6eb0cfbc8128f051b1e4" # 3.4.4_1.10.2 2025-07-25
+            "ghcr.io/canonical/charmed-spark-kyuubi@sha256:e2029c6976fc5b9ee2865eced632ca42ce554039d9832af20dfa3e63113e00f7" # 3.5.5_1.10.2 2025-07-28
+            "ghcr.io/canonical/charmed-spark@sha256:568d652977b06a1791588ae1b57529c0b32a44641fac7364f4f16cde5f1c18b4"        # 3.4.4 2025-07-25
+            "ghcr.io/canonical/charmed-spark@sha256:f1f944369108c0b0112212fb0242f3c314dfad362926c234857029f13c5de2c0"        # 3.5.5 2025-07-28
+            "ghcr.io/canonical/charmed-spark@sha256:99e8494070af297e9cfb6965e5216abef33539ae36fde34cbcbd2d7acb433e60"        # 3.4.4 2025-06-16
+            "ghcr.io/canonical/charmed-spark:3.4.4-22.04_edge"                                                               # 3.4.4, used in integration-basic
+            "ghcr.io/canonical/charmed-spark:3.5.5-22.04_edge"                                                               # 3.5.4, used in integration-basic
+        )
 
-        docker pull $IMAGE
-        docker save $IMAGE -o image.tar
-        sudo microk8s ctr images import --base-name $IMAGE image.tar
-        docker rmi $IMAGE
-        rm image.tar
+        for image in "${IMAGES[@]}"; do
+            echo "Pulling $image"
+            sudo microk8s ctr image pull "$image" > /dev/null 2>&1
+        done
     - id: tests-integration
       name: Run Integration Tests
       shell: bash

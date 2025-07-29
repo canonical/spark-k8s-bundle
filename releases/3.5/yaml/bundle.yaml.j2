@@ -5,10 +5,10 @@ bundle: kubernetes
 applications:
   kyuubi:
     charm: kyuubi-k8s
-    channel: latest/edge
-    revision: 100
+    channel: 3.5/stable
+    revision: 111
     resources:
-      kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:29c84e1693ce7b5e6cf4fcb84570a79357f9bc1e66bce59d2e0031f1314699e5 # 3.4.4-1.10.1-22.04_edge 2025-05-06
+      kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:e2029c6976fc5b9ee2865eced632ca42ce554039d9832af20dfa3e63113e00f7 # rev11, spark-3.5.5, kyuubi 1.10.2 release date 28/07/25
     scale: 3
     options:
       namespace: {{ namespace }}
@@ -20,9 +20,9 @@ applications:
   kyuubi-users:
     charm: postgresql-k8s
     channel: 14/stable
-    revision: 281
+    revision: 495
     resources:
-      postgresql-image: 159
+      postgresql-image: 165
     scale: 1
     constraints: arch=amd64
     storage:
@@ -35,13 +35,13 @@ applications:
     scale: {{ zookeeper_units or 3}}
     constraints: arch=amd64
     resources:
-      zookeeper-image: 31
+      zookeeper-image: 34
   metastore:
     charm: postgresql-k8s
     channel: 14/stable
-    revision: 281
+    revision: 495
     resources:
-      postgresql-image: 159
+      postgresql-image: 165
     scale: 1
     constraints: arch=amd64
     storage:
@@ -59,32 +59,32 @@ applications:
     constraints: arch=amd64
   history-server:
     charm: spark-history-server-k8s
-    channel: 3.4/edge
-    revision: 40
+    channel: 3/stable
+    revision: 47
     resources:
-      spark-history-server-image: ghcr.io/canonical/charmed-spark@sha256:04727c07bd7ce9b244cf38376e6deb7acd7eabe5579d5f043c8b4af1aa9d79a4 # 3.5.1
+      spark-history-server-image: ghcr.io/canonical/charmed-spark@sha256:f1f944369108c0b0112212fb0242f3c314dfad362926c234857029f13c5de2c0" # rev21, spark-version: 3.5.5
     scale: 1
     constraints: arch=amd64
   integration-hub:
     charm: spark-integration-hub-k8s
-    channel: 3/edge
-    revision: 64
+    channel: 3/stable
+    revision: 67
     resources:
-      integration-hub-image: 5
+      integration-hub-image: ghcr.io/canonical/spark-integration-hub@sha256:fa5e73d6339b2eb137b5917771caa62bd6605284b8dfab3dafb7d6026a9a3b1a # rev6
     scale: 1
     constraints: arch=amd64
     trust: true
   certificates:
     charm: self-signed-certificates
-    channel: latest/stable
-    revision: 163
+    channel: 1/stable
+    revision: 317
     scale: 1
     constraints: arch=amd64
     trust: true
   data-integrator:
     charm: data-integrator
     channel: latest/stable
-    revision: 161
+    revision: 179
     scale: 1
     constraints: arch=amd64
     options:

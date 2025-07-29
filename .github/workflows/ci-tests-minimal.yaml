@@ -25,7 +25,6 @@ jobs:
         bundle-backend: ["terraform"]
         spark-version: ["3.4.4"]
         storage-backend: ["s3", "azure_storage"]
-        cos-model: ["cos"]
         juju-snap-channel: ["3.5/stable", "3.6/stable"]
         include:
           # Add juju snap channel and agent version to all matrix combinations
@@ -46,7 +45,7 @@ jobs:
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.8"
 
-          # Test bundle with YAML backend just once
+          # Test bundle + COS with YAML backend just once
           - tox-env: integration-bundle
             bundle-backend: yaml
             cos-model: cos
@@ -54,6 +53,27 @@ jobs:
             spark-version: 3.4.4
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.8"
+
+          # Test COS just once with integration-sparkjob
+          - tox-env: integration-sparkjob
+            storage-backend: s3
+            juju-snap-channel: "3.6/stable"
+            juju-agent-version: "3.6.8"
+            cos-model: cos
+
+          # Test COS just once with integration-kyuubi
+          - tox-env: integration-kyuubi
+            storage-backend: s3
+            juju-snap-channel: "3.6/stable"
+            juju-agent-version: "3.6.8"
+            cos-model: cos
+
+          # Test COS just once with integration-backupo-restore
+          - tox-env: integration-backup-restore
+            storage-backend: s3
+            juju-snap-channel: "3.6/stable"
+            juju-agent-version: "3.6.8"
+            cos-model: cos
 
     needs:
       - checks

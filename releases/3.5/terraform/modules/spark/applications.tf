@@ -7,7 +7,7 @@ resource "juju_application" "history_server" {
 
   charm {
     name     = "spark-history-server-k8s"
-    channel  = "3.4/edge"
+    channel  = "3/stable"
     revision = var.history_server_revision
   }
 
@@ -23,7 +23,7 @@ resource "juju_application" "kyuubi" {
 
   charm {
     name     = "kyuubi-k8s"
-    channel  = "latest/edge"
+    channel  = "3.5/stable"
     revision = var.kyuubi_revision
   }
 
@@ -31,10 +31,17 @@ resource "juju_application" "kyuubi" {
 
   config = merge(
     {
-      namespace       = data.juju_model.spark.name
-      service-account = var.kyuubi_user
-      expose-external = "loadbalancer"
-      profile         = var.kyuubi_profile
+      namespace                 = data.juju_model.spark.name
+      service-account           = var.kyuubi_user
+      expose-external           = "loadbalancer"
+      profile                   = var.kyuubi_profile
+      enable-dynamic-allocation = var.enable_dynamic_allocation
+    },
+    var.kyuubi_k8s_node_selectors == null ? {} : {
+      k8s-node-selectors = var.kyuubi_k8s_node_selectors
+    },
+    var.kyuubi_loadbalancer_extra_annotations == null ? {} : {
+      loadbalancer-extra-annotations = var.kyuubi_loadbalancer_extra_annotations
     },
     var.tls_private_key == null ? {} : {
       tls-client-private-key = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
@@ -92,9 +99,21 @@ resource "juju_application" "integration_hub" {
 
   charm {
     name     = "spark-integration-hub-k8s"
-    channel  = "3/edge"
+    channel  = "3/stable"
     revision = var.integration_hub_revision
   }
+
+  config = merge(
+    {
+      enable-dynamic-allocation = var.enable_dynamic_allocation
+    },
+    var.driver_pod_template == null ? {} : {
+      driver-pod-template = var.driver_pod_template
+    },
+    var.executor_pod_template == null ? {} : {
+      executor-pod-template = var.executor_pod_template
+    }
+  )
 
   resources = var.integration_hub_image
 
