@@ -86,7 +86,7 @@ lakehouse          microk8s    microk8s/localhost  3.6.8    unsupported  16:43:1
 App                       Version  Status  Scale  Charm                      Channel        Rev  Address         Exposed  Message
 auth-db                   14.15    active      1  postgresql-k8s             14/stable      495  10.152.183.19   no
 data-integrator                    active      1  data-integrator            latest/stable  181  10.152.183.94   no
-integration-hub                    active      1  spark-integration-hub-k8s  latest/edge     66  10.152.183.220  no
+integration-hub                    active      1  spark-integration-hub-k8s  3/edge          66  10.152.183.220  no
 kyuubi-k8s                1.10     active      1  kyuubi-k8s                 3.4/edge       109  10.152.183.84   no
 s3-integrator                      active      1  s3-integrator              1/stable       146  10.152.183.103  no
 
