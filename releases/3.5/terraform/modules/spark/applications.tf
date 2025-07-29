@@ -7,7 +7,7 @@ resource "juju_application" "history_server" {
 
   charm {
     name     = "spark-history-server-k8s"
-    channel  = "3/candidate"
+    channel  = "3/stable"
     revision = var.history_server_revision
   }
 
@@ -23,7 +23,7 @@ resource "juju_application" "kyuubi" {
 
   charm {
     name     = "kyuubi-k8s"
-    channel  = "3.5/candidate"
+    channel  = "3.5/stable"
     revision = var.kyuubi_revision
   }
 
@@ -99,7 +99,7 @@ resource "juju_application" "integration_hub" {
 
   charm {
     name     = "spark-integration-hub-k8s"
-    channel  = "3/candidate"
+    channel  = "3/stable"
     revision = var.integration_hub_revision
   }
 

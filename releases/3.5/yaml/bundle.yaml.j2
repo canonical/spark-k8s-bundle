@@ -5,7 +5,7 @@ bundle: kubernetes
 applications:
   kyuubi:
     charm: kyuubi-k8s
-    channel: 3.5/candidate
+    channel: 3.5/stable
     revision: 111
     resources:
       kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:e2029c6976fc5b9ee2865eced632ca42ce554039d9832af20dfa3e63113e00f7 # rev11, spark-3.5.5, kyuubi 1.10.2 release date 28/07/25
@@ -59,7 +59,7 @@ applications:
     constraints: arch=amd64
   history-server:
     charm: spark-history-server-k8s
-    channel: 3/candidate
+    channel: 3/stable
     revision: 47
     resources:
       spark-history-server-image: ghcr.io/canonical/charmed-spark@sha256:f1f944369108c0b0112212fb0242f3c314dfad362926c234857029f13c5de2c0" # rev21, spark-version: 3.5.5
@@ -67,7 +67,7 @@ applications:
     constraints: arch=amd64
   integration-hub:
     charm: spark-integration-hub-k8s
-    channel: 3/candidate
+    channel: 3/stable
     revision: 67
     resources:
       integration-hub-image: ghcr.io/canonical/spark-integration-hub@sha256:fa5e73d6339b2eb137b5917771caa62bd6605284b8dfab3dafb7d6026a9a3b1a # rev6
