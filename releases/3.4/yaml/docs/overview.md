@@ -64,6 +64,8 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
 | 2     | h-spark-gpu             | [Use GPU](/t/charmed-spark-k8s-documentation-enabling-gpu-acceleration-with-charmed-spark/14896)   |
 | 2     | h-spark-cert             | [Self-signed certificates](/t/charmed-spark-k8s-documentation-using-self-signed-certificates/14898)                                                  |
 | 1     | reference                      | [Reference]()                                                                                                                                  |
+| 2     | r-releases                      | [Releases]()                                                                                                                                  |
+| 3     | r-rev-2                   | [Revision 2](/t/18310)                                                                                                                                  |
 | 2     | r-requirements                 | [Requirements](/t/spark-client-snap-reference-requirements/8962)                                                                               |
 | 2     | r-contacts                     | [Contacts](/t/charmed-spark-k8s-documentation-reference-contacts/14298)                                                                        |
 | 1     | explanation                    | [Explanation]()                                                                                                                                |

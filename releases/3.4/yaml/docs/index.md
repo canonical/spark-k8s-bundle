@@ -60,6 +60,8 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
   1. [Use GPU](how-to/h-spark-gpu.md)
   1. [Self-signed certificates](how-to/h-spark-cert.md)
 1. [Reference](reference)
+  1. [Releases](reference/r-releases)
+    1. [Revision 2](reference/r-releases/r-rev-2.md)
   1. [Requirements](reference/r-requirements.md)
   1. [Contacts](reference/r-contacts.md)
 1. [Explanation](explanation)
