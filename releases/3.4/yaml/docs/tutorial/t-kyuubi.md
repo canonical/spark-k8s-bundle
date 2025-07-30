@@ -46,7 +46,7 @@ We will deploy the [Spark Integration Hub K8s charm](https://charmhub.io/spark-i
 To deploy it and integrate with the object storage integrator:
 
 ```shell
-juju deploy spark-integration-hub-k8s --channel 3/edge --trust integration-hub
+juju deploy spark-integration-hub-k8s --channel 3/stable --trust integration-hub
 juju integrate integration-hub s3-integrator
 ```
 
@@ -65,7 +65,7 @@ juju deploy data-integrator --channel latest/stable --config database-name=test
 We are now ready to deploy the Charmed Apache Kyuubi K8s charm, and integrate it with the previous charms:
 
 ```shell
-juju deploy kyuubi-k8s --channel 3.4/edge --trust --config expose-external=loadbalancer
+juju deploy kyuubi-k8s --channel 3.4/stable --trust --config expose-external=loadbalancer
 juju integrate kyuubi-k8s integration-hub 
 juju integrate kyuubi-k8s:auth-db auth-db
 juju integrate kyuubi-k8s data-integrator
@@ -86,8 +86,8 @@ lakehouse          microk8s    microk8s/localhost  3.6.8    unsupported  16:43:1
 App                       Version  Status  Scale  Charm                      Channel        Rev  Address         Exposed  Message
 auth-db                   14.15    active      1  postgresql-k8s             14/stable      495  10.152.183.19   no
 data-integrator                    active      1  data-integrator            latest/stable  181  10.152.183.94   no
-integration-hub                    active      1  spark-integration-hub-k8s  3/edge          66  10.152.183.220  no
-kyuubi-k8s                1.10     active      1  kyuubi-k8s                 3.4/edge       109  10.152.183.84   no
+integration-hub                    active      1  spark-integration-hub-k8s  3/stable        67  10.152.183.220  no
+kyuubi-k8s                1.10     active      1  kyuubi-k8s                 3.4/stable     109  10.152.183.84   no
 s3-integrator                      active      1  s3-integrator              1/stable       146  10.152.183.103  no
 
 Unit                         Workload  Agent  Address       Ports  Message
@@ -126,7 +126,7 @@ ok: "True"
 Make sure that the [spark-client snap](https://snapcraft.io/spark-client) is installed:
 
 ```shell
-sudo snap install spark-client --channel=3.4/edge
+sudo snap install spark-client --channel=3.4/stable
 ```
 
 Use the `spark-client.beeline` command to access the endpoint with a JDBC-compliant `beeline` client:

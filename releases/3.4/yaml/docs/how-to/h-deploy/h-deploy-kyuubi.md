@@ -20,13 +20,17 @@ juju add-model kyuubi
 Deploy the Apache Kyuubi charm:
 
 ```bash
-juju deploy kyuubi-k8s --trust --channel=latest/edge
+juju deploy kyuubi-k8s --trust --channel=3.5/edge
 ```
+
+[note]
+We also offer a  `3.4` track to run Apache Spark 3.4 workloads.
+[/note]
 
 Open a new terminal window/tab and run the following for a persistent view of the model status:
 
 ```bash
-juju status --watch=1s
+watch -c juju status --color
 ```
 
 Wait for the `kyuubi-k8s` app to have the `blocked` status.
@@ -34,10 +38,10 @@ Wait for the `kyuubi-k8s` app to have the `blocked` status.
 Get back to the previous terminal, then deploy the `spark-integration-hub-k8s`:
 
 ```bash
-juju deploy spark-integration-hub-k8s --trust --channel=latest/edge
+juju deploy spark-integration-hub-k8s --trust --channel=3/stable
 ```
 
-Wait for it to initialise (change its status from `waiting` to `active`) and integrate the two charms:
+Wait for it to initialize (change its status from `waiting` to `active`) and integrate the two charms:
 
 ```bash
 juju integrate kyuubi-k8s spark-integration-hub-k8s
@@ -133,7 +137,7 @@ juju config kyuubi-k8s expose-external=loadbalancer
 Integrate with `data-integrator` to create a new user:
 
 ```bash
-juju deploy data-integrator --channel=latest/edge --config database-name=clientdb
+juju deploy data-integrator --channel=latest/stable --config database-name=clientdb
 juju integrate kyuubi-k8s data-integrator
 ```
 
@@ -155,7 +159,7 @@ For example, you can use the beeline tool that is a part of the Apache Kyuubi ch
 We recommend deploying a new, dedicated Apache Kyuubi app for that:
 
 ```bash
-juju deploy kyuubi-k8s --channel=latest/edge --trust beeline
+juju deploy kyuubi-k8s --channel=3.5/stable --trust beeline
 ```
 
 Wait for the new app to become `blocked`, but don't integrate it to anything.
@@ -220,7 +224,7 @@ Now the application is blocked, as it requires ZooKeeper to work in a multi-node
 Deploy and relate the ZooKeeper charm:
 
 ```bash
-juju deploy zookeeper-k8s --channel=3/edge --trust -n 1
+juju deploy zookeeper-k8s --channel=3/stable --trust -n 1
 juju relate kyuubi-k8s zookeeper-k8s
 ```
 
