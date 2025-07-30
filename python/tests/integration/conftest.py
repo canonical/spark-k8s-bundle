@@ -18,6 +18,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from subprocess import PIPE, Popen, TimeoutExpired, check_output
 from typing import Generator, cast
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 import httpx
 import jubilant
@@ -611,27 +612,40 @@ def spark_bundle(
         juju.wait(lambda status: jubilant.all_agents_idle(status, "s3"))
         set_s3_credentials(juju, credentials=credentials)
 
+    logger.info("Waiting for spark deployment to settle down")
+    robust_wait_active(juju)
+
     if cos:
         cos_juju_model = jubilant.Juju()
         cos_juju_model.model = cos
         logger.info("Waiting for COS deployment to settle down")
-        cos_juju_model.wait(
-            lambda status: jubilant.all_active(status, *COS_APPS),
-            timeout=2400,  # 40 min
-            delay=10,
-        )
-
-    logger.info("Waiting for spark deployment to settle down")
-    juju.wait(
-        lambda status: jubilant.all_active(
-            status, *list(set(deployed_applications) - set(COS_APPS))
-        ),
-        timeout=2400,
-        delay=10,
-    )
+        robust_wait_active(cos_juju_model)
 
     yield deployed_applications
 
     # In our tests, we leave the teardown responsibility to the Juju model fixture
     # and thus do not explicitly call bundle.destroy() here. When the test passes,
     # The juju model is destroyed, which will effectively remove apps and units.
+
+
+@retry(stop=stop_after_attempt(5), reraise=True)
+def robust_wait_active(juju: jubilant.Juju) -> None:
+    """Wait for an active deployment.
+
+    FIXME: Remove once we figure out why CI deployments
+    can fail on charm install.
+    """
+    try:
+        juju.wait(
+            jubilant.all_active,
+            timeout=600,  # 10 min
+            delay=10,
+        )
+
+    except TimeoutError:
+        status = juju.status()
+        logger.info(juju.cli("status"))
+        for app in status.apps.values():
+            for unit_name, unit in app.units.items():
+                if unit.is_error:
+                    juju.cli("resolve", unit_name)

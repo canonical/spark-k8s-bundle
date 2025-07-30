@@ -247,7 +247,7 @@ class TestFirstDeployment:
         juju.wait(
             lambda status: jubilant.all_active(status)
             and jubilant.all_agents_idle(status),
-            delay=5,
+            delay=10,
         )
 
     def test_ha_enabled(self, juju: jubilant.Juju) -> None:
@@ -385,7 +385,9 @@ class TestFirstDeployment:
             delay=10,
         )
 
-        task = juju.run(f"{METASTORE_APP_NAME}/0", "create-backup")
+        # The `wait` param specified here due to a bug in `jubilant/juju`:
+        # https://github.com/canonical/jubilant/issues/159
+        task = juju.run(f"{METASTORE_APP_NAME}/0", "create-backup", wait=5 * 60)
         assert task.return_code == 0
         juju.wait(
             lambda status: jubilant.all_active(
@@ -393,10 +395,16 @@ class TestFirstDeployment:
             ),
         )
 
-        task = juju.run(f"{METASTORE_APP_NAME}/0", "list-backups")
+        # The `wait` param specified here due to a bug in `jubilant/juju`:
+        # https://github.com/canonical/jubilant/issues/159
+        task = juju.run(f"{METASTORE_APP_NAME}/0", "list-backups", wait=5 * 60)
         assert task.return_code == 0
         results = task.results
-        backup_lines = str(results["backups"]).splitlines()[2:]
+        backup_lines = [
+            line.strip()
+            for line in str(results["backups"]).splitlines()[5:]
+            if line.strip() != ""
+        ]
         assert len(backup_lines) == 1
 
         backup_id = backup_lines[0].split(maxsplit=1)[0]
@@ -432,7 +440,7 @@ class TestNewDeployment:
         juju.wait(
             lambda status: jubilant.all_active(status)
             and jubilant.all_agents_idle(status),
-            delay=5,
+            delay=10,
         )
 
     def test_ha_enabled(self, juju: jubilant.Juju) -> None:
@@ -516,10 +524,16 @@ class TestNewDeployment:
             delay=5,
         )
 
-        task = juju.run(f"{METASTORE_APP_NAME}/0", "list-backups")
+        # The `wait` param specified here due to a bug in `jubilant/juju`:
+        # https://github.com/canonical/jubilant/issues/159
+        task = juju.run(f"{METASTORE_APP_NAME}/0", "list-backups", wait=5 * 60)
         assert task.return_code == 0
         results = task.results
-        backup_lines = str(results["backups"]).splitlines()[2:]
+        backup_lines = [
+            line.strip()
+            for line in str(results["backups"]).splitlines()[5:]
+            if line.strip() != ""
+        ]
         assert len(backup_lines) == 1
 
         backup_id = backup_lines[0].split(maxsplit=1)[0]
@@ -528,12 +542,27 @@ class TestNewDeployment:
         expected_backup_id = context["backup_id"]
         assert backup_id == expected_backup_id
 
-        task = juju.run(f"{METASTORE_APP_NAME}/0", "restore", {"backup-id": backup_id})
+        # The `wait` param specified here due to a bug in `jubilant/juju`:
+        # https://github.com/canonical/jubilant/issues/159
+        task = juju.run(
+            f"{METASTORE_APP_NAME}/0", "restore", {"backup-id": backup_id}, wait=5 * 60
+        )
         assert task.return_code == 0
+
+        # The postgresql instance will be in Blocked state with a message that the backup
+        # detected in the S3 is from some other cluster (which in our case, is true).
         juju.wait(
-            lambda status: jubilant.all_active(
-                status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
+            lambda status: (
+                status.apps[METASTORE_APP_NAME]
+                .units[f"{METASTORE_APP_NAME}/0"]
+                .workload_status.current
+                == "blocked"
+                and status.apps[METASTORE_APP_NAME]
+                .units[f"{METASTORE_APP_NAME}/0"]
+                .workload_status.message.strip()
+                == "the S3 repository has backups from another cluster"
             ),
+            timeout=5 * 60,
             delay=5,
         )
 

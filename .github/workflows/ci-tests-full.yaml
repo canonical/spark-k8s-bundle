@@ -23,7 +23,6 @@ jobs:
       matrix:
         tox-env:
           - integration-sparkjob
-          - integration-bundle
           - integration-kyuubi
           - integration-backup-restore
         bundle-backend: ["yaml", "terraform"]

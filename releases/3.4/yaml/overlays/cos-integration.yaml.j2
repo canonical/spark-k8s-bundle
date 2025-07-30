@@ -15,9 +15,9 @@ applications:
   agent:
     charm: grafana-agent-k8s
     channel: 1/stable
-    revision: 115
+    revision: 121
     resources:
-      agent-image: 45
+      agent-image: 46
     scale: 1
     constraints: arch=amd64
     storage:
@@ -26,10 +26,12 @@ applications:
   cos-configuration:
     charm: cos-configuration-k8s
     channel: 1/stable
-    revision: 68
+    # TODO: bump the revision to 1/stable when the following issue gets fixed:
+    # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 
+    revision: 69
     base: ubuntu@20.04/stable
     resources:
-      git-sync-image: 34
+      git-sync-image: 35
     scale: 1
     options:
       git_branch: main
@@ -52,7 +54,7 @@ applications:
   scrape-config:
     charm: prometheus-scrape-config-k8s
     channel: 1/stable
-    revision: 64
+    revision: 67
     base: ubuntu@20.04/stable
     scale: 1
     options:

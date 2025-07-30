@@ -16,16 +16,14 @@ from . import BundleBackend, BundleBackendEnum
 class YamlBackend(BundleBackend):
     """The YAML bundle backend."""
 
-    bundle_file = None
-
     def __init__(
         self,
         model: str,
         tempdir,
         bundle_file: str | Path,
-        overlays: list[str | Path] = None,
+        overlays: list[str | Path],
     ):
-        super().__init__(backend=BundleBackendEnum.YAML.value, tempdir=tempdir)
+        super().__init__(backend=BundleBackendEnum.YAML, tempdir=tempdir)
         self.model = model
         self.bundle_file = bundle_file
         self.overlays = overlays
@@ -40,7 +38,7 @@ class YamlBackend(BundleBackend):
             template = jinja2.Template(source.read())
             return template.render(**vars)
 
-    def apply(self, vars: dict[str, str] | None = None):
+    def apply(self, vars: dict[str, str] | None = None) -> list[str]:
         """Apply the YAML bundle."""
         rendered_bundle_file = self.tempdir / os.path.basename(self.bundle_file)
         deployed_applications = []
@@ -58,7 +56,7 @@ class YamlBackend(BundleBackend):
             "--model",
             self.model,
             "--trust",
-            rendered_bundle_file,
+            str(rendered_bundle_file),
         ]
 
         for overlay in self.overlays:
@@ -70,7 +68,7 @@ class YamlBackend(BundleBackend):
                 deployed_applications.extend(
                     list(yaml.safe_load(content)["applications"].keys())
                 )
-            command.extend(["--overlay", rendered_overlay_file])
+            command.extend(["--overlay", str(rendered_overlay_file)])
 
         self.execute(command)
         self.deployed_applications = deployed_applications
