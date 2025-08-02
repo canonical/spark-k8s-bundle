@@ -1,7 +1,6 @@
 name: Reference Architecture Testing (AKS)
 on:
-  # TODO: Uncomment this once the reference architecture tests are fixed
-  # pull_request:
+  pull_request:
   workflow_dispatch:
     inputs:
       k8s_version:
@@ -122,7 +121,7 @@ jobs:
           export TF_VAR_AZURE_RESOURCE_GROUP="test_aks_${{ env.RESOURCE_GROUP }}"
           _NAME="aks${{ env.RESOURCE_GROUP }}"
           export TF_VAR_AZURE_STORAGE_ACCOUNT=${_NAME//[_-]/}
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve || echo "Destroy process has failed somewhere. Check the logs"
 
       - name: Delete AKS cluster
         if: always()
