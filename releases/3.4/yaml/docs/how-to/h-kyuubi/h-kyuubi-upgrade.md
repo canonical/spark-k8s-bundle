@@ -59,7 +59,7 @@ Store it safely to use in case of a rollback.
 Before running the [juju refresh](https://juju.is/docs/juju/juju-refresh) command, it is necessary to run the `pre-refresh-check` action against the leader unit:
 
 ```shell
-juju run kyuubi-k8s/leader pre-refresh-check
+juju run <application_name>/leader pre-refresh-check
 ```
 
 Make sure there are no errors in the resulted output.
@@ -73,7 +73,7 @@ We recommend keeping it, as it provides the safest way to rollback in case of an
 Use the `juju refresh` command to trigger the charm upgrade process, for example:
 
 ```shell
-juju refresh kyuubi-k8s --revision=104
+juju refresh <application_name> --revision=104
 ```
 
 After some time, the first unit finishes its refresh.
@@ -90,7 +90,7 @@ If your in-progress upgrade violates one or more of these checks, the first unit
 This usually indicates that you need to rollback, but if you consider the risks acceptable (like if you purposefully overwrote the OCI resource to use a custom one), you can force the charm to start the workload anyway on the blocked unit using the following:
 
 ```shell
-juju run kyuubi-k8s/<refreshed-unit-number> force-refresh-start <parameters>
+juju run <application_name>/<refreshed-unit-number> force-refresh-start <parameters>
 ```
 
 where `<refreshed-unit-number>` should be the highest ordinal one ("2" for a three units deployment) and `<parameters>` one or more action parameter set to false (for instance `check-workload-container=false` if you purposefully overwrite the OCI resource).
@@ -104,7 +104,7 @@ Make sure that you test that it is properly functioning as well.
 If you're satisfied with the result of upgrading a single unit, resume the upgrade process with the rest of the units:
 
 ```shell
-juju run kyuubi-k8s/leader resume-refresh
+juju run <application_name>/leader resume-refresh
 ```
 
 All units will be refreshed (i.e. receive new charm content), and the upgrade will execute one unit at a time.
@@ -114,7 +114,7 @@ All units will be refreshed (i.e. receive new charm content), and the upgrade wi
 Should a **failure** arise at any point after the `juju refresh` command is run, the application status should display the command to run to rollback the changes, for example:
 
 ```shell
-juju refresh kyuubi-k8s --revision 103 --resource kyuubi-image=ghcr.io/canonical/charmed-spark-kyuubi@sha256:153eaf8be341dcea2c91277cbc2a69a1c9c48d3f7847151898ab2e5a81753ec5
+juju refresh <application_name> --revision 103 --resource kyuubi-image=ghcr.io/canonical/charmed-spark-kyuubi@sha256:153eaf8be341dcea2c91277cbc2a69a1c9c48d3f7847151898ab2e5a81753ec5
 ```
 
 This command can also be found in the logs using `juju debug-log`.

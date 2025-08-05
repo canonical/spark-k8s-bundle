@@ -47,9 +47,9 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
 | 3     | h-deploy                       | [Deploy Charmed Apache Spark](/t/charmed-spark-k8s-documentation-how-to-deploy-charmed-spark/10979)                                                   |
 | 3     | h-deploy-kyuubi                      | [Deploy Charmed Apache Kyuubi](/t/charmed-apache-spark-k8s-documentation-how-to-deploy-apache-kyuubi/17957)                                                   |
 | 2     | h-service-accounts      | [Manage service accounts]()                                               |
-| 3     | h-manage-service-accounts      | [The spark-client snap](/t/spark-client-snap-how-to-manage-spark-accounts/8959)                                               |
-| 3     | h-use-spark-client-from-python | [Python](/t/spark-client-snap-how-to-python-api/8958)                                                            |
-| 3     | h-use-integration-hub          | [Integration Hub](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296)                     |
+| 3     | h-manage-service-accounts      | [Using spark-client snap](/t/spark-client-snap-how-to-manage-spark-accounts/8959)                                               |
+| 3     | h-use-spark-client-from-python | [Using Python](/t/spark-client-snap-how-to-python-api/8958)                                                            |
+| 3     | h-use-integration-hub          | [Using Integration Hub](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296)                     |
 | 2     | h-kyuubi                  | [Apache Kyuubi]()                                               |
 | 3     | h-kyuubi-encryption                   | [Encryption and passwords](/t/18304)                                                 |
 | 3     | h-kyuubi-connections                   | [External connections and metastore](/t/18305)                                                 |

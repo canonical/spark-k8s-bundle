@@ -20,7 +20,7 @@ juju add-model kyuubi
 Deploy the Apache Kyuubi charm:
 
 ```bash
-juju deploy kyuubi-k8s --trust --channel=3.5/edge
+juju deploy kyuubi-k8s --trust --channel=3.5/stable
 ```
 
 [note]

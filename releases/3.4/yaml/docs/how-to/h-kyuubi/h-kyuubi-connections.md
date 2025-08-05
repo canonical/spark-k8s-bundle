@@ -1,4 +1,4 @@
-## External connections and metastore
+# External connections and metastore
 
 To expose Charmed Apache Kyuubi K8s externally, use the `expose-external` configuration option. Possible values are: `false`, `nodeport`, and `loadbalancer`.
 
