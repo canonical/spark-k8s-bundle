@@ -31,38 +31,71 @@ Let's create a fresh Juju model for the Charmed Apache Kyuubi K8s experiments:
 juju add-model lakehouse
 ```
 
-To create our simple, minimal data lakehouse, we need an object storage.
+To create our simple, minimal data lakehouse, we need an object storage. 
 
-Deploy and configure [S3-integrator](https://charmhub.io/s3-integrator) to use the object storage provided by the MinIO addon, run:
+### Object storage
+
+We will use the MinIO, installed in the environment setup stage of this tutorial. Let's set up a new bucket:
+
+```shell
+aws s3 mb s3://lakehouse
+```
+
+Now add the `spark-events` directory to the bucket:
+
+```shell
+aws s3api put-object --bucket lakehouse --key spark-events/
+```
+
+You can check the result of directory creation by calling the list of elements in the bucket:
+
+```shell
+aws s3 ls lakehouse
+```
+
+The resulted output should contain the `spark-events` directory we have just created.
+
+To provide access to our object storage, we can use the [S3-integrator](https://charmhub.io/s3-integrator) charm. Let's deploy the charm first:
 
 ```shell
 juju deploy s3-integrator --channel 1/stable
+```
+
+Now configure the `s3-integrator` application to have access to our object storage:
+
+```shell
 juju config s3-integrator bucket=lakehouse path="spark-events" endpoint=http://$S3_ENDPOINT
 juju run s3-integrator/0 sync-s3-credentials access-key=$ACCESS_KEY secret-key=$SECRET_KEY
 ```
 
 We will deploy the [Spark Integration Hub K8s charm](https://charmhub.io/spark-integration-hub-k8s) to manage integrations and configure service accounts on Kubernetes.
 
-To deploy it and integrate with the object storage integrator:
+To deploy it and integrate with the object storage integrator charm:
 
 ```shell
 juju deploy spark-integration-hub-k8s --channel 3/stable --trust integration-hub
 juju integrate integration-hub s3-integrator
 ```
 
-We also need a database to hold our users, using the [Charmed PostgreSQL K8s charm](https://charmhub.io/postgresql-k8s):
+### Authentication database
+
+We need a database to hold our users. Let's use the [Charmed PostgreSQL K8s charm](https://charmhub.io/postgresql-k8s) for that:
 
 ```shell
 juju deploy postgresql-k8s --channel 14/stable --trust auth-db
 ```
 
-Finally, to enable external clients to connect to our lakehouse, we need the [Data Integrator charm](https://charmhub.io/data-integrator):
+### External access
+
+To enable external clients to connect to our lakehouse, we need the [Data Integrator charm](https://charmhub.io/data-integrator):
 
 ```shell
 juju deploy data-integrator --channel latest/stable --config database-name=test
 ```
 
-We are now ready to deploy the Charmed Apache Kyuubi K8s charm, and integrate it with the previous charms:
+## Deploy Charmed Apache Kyuubi K8s
+
+We are now ready to deploy the Charmed Apache Kyuubi K8s charm, and integrate it with the previously prepared charms:
 
 ```shell
 juju deploy kyuubi-k8s --channel 3.4/stable --trust --config expose-external=loadbalancer
@@ -129,7 +162,13 @@ Make sure that the [spark-client snap](https://snapcraft.io/spark-client) is ins
 sudo snap install spark-client --channel=3.4/stable
 ```
 
-Use the `spark-client.beeline` command to access the endpoint with a JDBC-compliant `beeline` client:
+Use the `spark-client.beeline` command with the credentials from previous commands to access the endpoint with a JDBC-compliant `beeline` client:
+
+```shell
+spark-client.beeline -u "jdbc:hive2://<endpoints>/" -n <username> -p <password>
+```
+
+For example, using the data from the previous output example, the command should look like that:
 
 ```shell
 spark-client.beeline -u "jdbc:hive2://10.64.140.43:10009/" -n relation_id_15 -p 31rwWzk8wpnhoZvU
@@ -219,7 +258,7 @@ juju run data-integrator/0 get-credentials | yq ".kyuubi.tls-ca" > cert.pem
 spark-client.import-certificate tutorial-cert cert.pem
 ```
 
-Then, add `;ssl=true` to the JDBC endpoint you got from the data-integrator charm.
+Then, add `;ssl=true` to the JDBC endpoint you got from the data-integrator charm, for example:
 
 ```shell
 spark-client.beeline -u "jdbc:hive2://10.64.140.43:10009/;ssl=true" -n relation_id_15 -p 31rwWzk8wpnhoZvU
