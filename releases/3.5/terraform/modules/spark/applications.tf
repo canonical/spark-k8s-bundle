@@ -51,7 +51,7 @@ resource "juju_application" "kyuubi" {
     }
   )
 
-  units = 3
+  units = var.kyuubi_units
   trust = true
 
   constraints = "arch=amd64"

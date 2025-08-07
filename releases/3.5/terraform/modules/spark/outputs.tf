@@ -13,3 +13,10 @@ output "charms" {
     certificates    = var.tls_app_name
   }
 }
+
+output "offers" {
+  value = {
+    hub_service_account = juju_offer.integration_hub
+    metastore_database  = juju_offer.metastore
+  }
+}

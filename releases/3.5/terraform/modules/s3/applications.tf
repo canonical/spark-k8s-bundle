@@ -13,6 +13,7 @@ resource "juju_application" "s3" {
     path     = "spark-events"
     bucket   = var.s3.bucket
     endpoint = var.s3.endpoint
+    region   = var.s3.region
   }
   units       = 1
   constraints = "arch=amd64"

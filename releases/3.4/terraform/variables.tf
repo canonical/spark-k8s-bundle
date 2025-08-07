@@ -85,6 +85,7 @@ variable "s3" {
   type = object({
     bucket   = optional(string, "spark-test")
     endpoint = optional(string, "https://s3.amazonaws.com")
+    region   = optional(string, "us-east-1")
   })
   default = {}
 }
@@ -198,6 +199,13 @@ variable "kyuubi_image" {
   description = "Image for kyuubi-k8s"
   type        = map(string)
   default     = null
+}
+
+variable "kyuubi_units" {
+  description = "Number of Kyuubi units. 3 units are recommended for high availability."
+  type        = number
+  default     = 3
+  nullable    = false
 }
 
 variable "kyuubi_users_revision" {

@@ -104,6 +104,13 @@ variable "integration_hub_revision" {
   nullable    = false
 }
 
+variable "kyuubi_units" {
+  description = "Number of Kyuubi units. 3 units are recommended for high availability."
+  type        = number
+  default     = 3
+  nullable    = false
+}
+
 variable "integration_hub_image" {
   description = "Image for spark-integration-hub-k8s"
   type        = map(string)
