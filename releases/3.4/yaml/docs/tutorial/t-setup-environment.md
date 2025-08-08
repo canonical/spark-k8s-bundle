@@ -348,7 +348,7 @@ aws s3 ls
 
 With the access key, secret key, and the endpoint properly configured, you should see `spark-tutorial` bucket listed in the output.
 
-### Credentials set up
+### Credentials setup
 
 For Apache Spark to be able to access and use our local S3 bucket, we need to provide a few configuration options including the bucket endpoint, access key and secret key.
 

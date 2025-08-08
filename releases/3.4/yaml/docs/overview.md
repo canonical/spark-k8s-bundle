@@ -37,13 +37,13 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
 | 2     | t-setup-environment | [1. Environment setup](/t/13233) |
 | 2     | t-data-processing | [2. Distributed data processing](/t/13232) |
 | 2     | t-streaming | [3. Data stream processing](/t/13230) |
-| 2     | t-history-server | [4. History server](/t/17354) |
+| 2     | t-history-server | [4. History Server](/t/17354) |
 | 2     | t-cos | [5. Monitoring with COS](/t/13225) |
 | 2     | t-kyuubi| [6. Apache Kyuubi ](/t/18309) |
 | 2     | t-wrapping-up | [7. Wrapping Up](/t/13224) |
 | 1     | how-to                         | [How To]()                                                                                                                                     |
 | 2     | h-deploy                   | [Deploy]()                                               |
-| 3     | h-setup-k8s                    | [Setup the Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618)                                                 |
+| 3     | h-setup-k8s                    | [Set up the environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618)                                                 |
 | 3     | h-deploy                       | [Deploy Charmed Apache Spark](/t/charmed-spark-k8s-documentation-how-to-deploy-charmed-spark/10979)                                                   |
 | 3     | h-deploy-kyuubi                      | [Deploy Charmed Apache Kyuubi](/t/charmed-apache-spark-k8s-documentation-how-to-deploy-apache-kyuubi/17957)                                                   |
 | 2     | h-service-accounts      | [Manage service accounts]()                                               |
@@ -69,7 +69,7 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
 | 2     | r-requirements                 | [Requirements](/t/spark-client-snap-reference-requirements/8962)                                                                               |
 | 2     | r-contacts                     | [Contacts](/t/charmed-spark-k8s-documentation-reference-contacts/14298)                                                                        |
 | 1     | explanation                    | [Explanation]()                                                                                                                                |
-| 2     | e-component-overview           | [Component Overview](/t/charmed-spark-documentation-explanation-components/11685)                                                              |
+| 2     | e-component-overview           | [Component overview](/t/charmed-spark-documentation-explanation-components/11685)                                                              |
 | 2     | e-security                       | [Security](/t/15858) |
 | 2     | e-cryptography                       | [Cryptography](/t/15795) |
 | 2     | e-configuration                | [Configuration](/t/spark-client-snap-explanation-hierarchical-configuration-handling/8956)                          |

@@ -7,7 +7,7 @@ The following guide is to set up Apache Kyuubi for running SQL queries with Char
 
 To continue, make sure that you have a properly set up Charmed Apache Spark K8s environment with [Juju](https://documentation.ubuntu.com/juju/3.6/).
 
-See the [How to setup K8s environment](/t/11618) guide for instructions on how to set up with different cloud providers and follow the [Environment setup](/t/13233) page in our Tutorial to set up a service account.
+See the [How to set up K8s environment](/t/11618) guide for instructions on how to set up with different cloud providers and follow the [Environment setup](/t/13233) page in our Tutorial to set up a service account.
 
 ## Initial setup
 

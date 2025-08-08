@@ -1,4 +1,4 @@
-## Expose the Spark History server UI
+## Expose the Spark History Server UI
 
 ### Without Ingress (MicroK8s only)
 
