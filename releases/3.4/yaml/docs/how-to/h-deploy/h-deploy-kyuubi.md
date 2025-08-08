@@ -220,12 +220,12 @@ For high availability, add more units for the Apache Kyuubi app:
 juju scale-application kyuubi-k8s 3
 ```
 
-Now the application is blocked, as it requires ZooKeeper to work in a multi-node mode.
-Deploy and relate the ZooKeeper charm:
+Now the application is blocked, as it requires Apache ZooKeeper to work in a multi-node mode.
+Deploy and integrate the Apache ZooKeeper charm:
 
 ```bash
 juju deploy zookeeper-k8s --channel=3/stable --trust -n 1
-juju relate kyuubi-k8s zookeeper-k8s
+juju integrate kyuubi-k8s zookeeper-k8s
 ```
 
 Wait for all the units of the `kyuubi-k8s` application to become active.

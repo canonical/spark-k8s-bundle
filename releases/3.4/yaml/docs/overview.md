@@ -57,8 +57,8 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
 | 3     | h-kyuubi-upgrade                   | [Upgrade](/t/18307)                                                 |
 | 2     | h-spark-monitoring             | [Enable monitoring](/t/charmed-spark-k8s-documentation-enable-monitoring/13063)                                                  |
 | 2     | h-history-server        | [Spark History Server]()                                   |
-| 3     | h-expose-history-server        | [Expose using Ingress](/t/charmed-spark-k8s-documentation-how-to-expose-history-server/14297)                                   |
-| 3     | h-history-server-authorization | [Authorization](/t/charmed-spark-k8s-documentation-how-to-enable-authentication-on-the-spark-history-server-charm/13563) |
+| 3     | h-expose-history-server        | [Expose web GUI](/t/charmed-spark-k8s-documentation-how-to-expose-history-server/14297)                                   |
+| 3     | h-history-server-authorization | [Auth](/t/charmed-spark-k8s-documentation-how-to-enable-authentication-on-the-spark-history-server-charm/13563) |
 | 2     | h-run-on-k8s-pod               | [Use K8s pods](/t/spark-client-snap-how-to-run-on-k8s-in-a-pod/8961)                                                      |
 | 2     | h-spark-streaming              | [Streaming Jobs](/t/charmed-spark-how-to-run-a-spark-streaming-job/10880)                                                            |
 | 2     | h-spark-gpu             | [Use GPU](/t/charmed-spark-k8s-documentation-enabling-gpu-acceleration-with-charmed-spark/14896)   |

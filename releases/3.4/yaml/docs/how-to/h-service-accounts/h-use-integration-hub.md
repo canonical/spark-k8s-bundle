@@ -149,7 +149,7 @@ The Integration Hub can consume the `pushgateway` relation provided by the
 You can find more information on how to deploy and configure a `prometheus-pushgateway` 
 charm [here](https://discourse.charmhub.io/t/prometheus-pushgateway-operator-k8s-docs-using-prometheus-pushgateway/11979/2).
 
-Once a `prometheus-pushgateway` charm is set up, the Integration Hub for Apache Spark charm can be related:
+Once a `prometheus-pushgateway` charm is set up, the Integration Hub for Apache Spark charm can be integrated:
 
 ```shell
 juju integrate prometheus-pushgateway spark-integration-hub-k8s
