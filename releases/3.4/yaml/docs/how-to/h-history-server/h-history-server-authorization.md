@@ -30,12 +30,12 @@ More information about supported identity providers and other useful information
 
 The relation between the Spark History Server and the Identity bundle is handled by another charm (Oathkeeper) that is offered by the Canonical Identity Team.
 This charm enables the protection of endpoints that are behind an ingress, more specifically Traefik.
-So as the next step, we need to relate the Spark History Server charm with Traefik.
+As the next step, we need to integrate the Spark History Server charm with Traefik.
 
 The Identity bundle deployed two instances of Traefik, we will need to use the one named: `traefik-public`
 
 ```bash
-juju relate spark-history-server-k8s traefik-public
+juju integrate spark-history-server-k8s traefik-public
 
 ```
 

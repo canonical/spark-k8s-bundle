@@ -29,13 +29,13 @@ object storage system
 To enable integration with an S3-compatible storage, deploy the S3-integrator charm:
 
 ```shell
-juju deploy s3-integration --channel stable
+juju deploy s3-integrator --channel 1/stable
 ```
 
 And configure the appropriate parameters via config options, i.e.
 
 ```shell
-juju config s3-integration \
+juju config s3-integrator \
   bucket=<S3_BUCKET> \
   endpoint=<S3_ENDPOINT> \
   path=spark-events
@@ -149,7 +149,7 @@ The Integration Hub can consume the `pushgateway` relation provided by the
 You can find more information on how to deploy and configure a `prometheus-pushgateway` 
 charm [here](https://discourse.charmhub.io/t/prometheus-pushgateway-operator-k8s-docs-using-prometheus-pushgateway/11979/2).
 
-Once a `prometheus-pushgateway` charm is set up, the Integration Hub for Apache Spark charm can be related:
+Once a `prometheus-pushgateway` charm is set up, the Integration Hub for Apache Spark charm can be integrated:
 
 ```shell
 juju integrate prometheus-pushgateway spark-integration-hub-k8s

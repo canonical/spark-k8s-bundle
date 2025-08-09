@@ -1,9 +1,9 @@
-## How to setup a K8s cluster for Apache Spark
+## How to set up a K8s cluster for Apache Spark
 
 The Charmed Apache Spark solution requires an environment with:
 
 * A Kubernetes cluster for running the services and workloads
-* An Object storage layer to store persistent data
+* An object storage layer to store persistent data
 
 In the following guide, we provide details on the technologies currently supported and instructions on how these layers can be set up.
 
@@ -22,7 +22,7 @@ The how-to guide below shows you how to set up these to be used with Charmed Apa
 
 #### MicroK8s
 
-[MicroK8s](https://microk8s.io/) is the mightiest tiny Kubernetes distribution around. It can easily installed locally via SNAPs
+[MicroK8s](https://microk8s.io/) is the mightiest tiny Kubernetes distribution around. It can be easily installed locally via snaps
 
 ```bash
 sudo snap install microk8s --classic
@@ -73,9 +73,9 @@ microk8s enable metallb:$IPADDR-$IPADDR
 
 To deploy an EKS cluster, make sure that you have working CLI tools properly installed on your edge machine:
 
-* [AWS CLI](https://aws.amazon.com/cli/) correctly setup to use a properly configured service account (refer to [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) for configuration and [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-authentication.html) for authentication). Once the AWS CLI is configured, make sure that it works properly by testing the authentication call through the following command:
+* [AWS CLI](https://aws.amazon.com/cli/) correctly set up to use a properly configured service account (see [configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)  and [authentication](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-authentication.html) guides). Once the AWS CLI is configured, make sure that it works properly by testing the authentication call through the following command:
 
-  ```bash 
+  ```bash
   aws sts get-identity-caller
   ```
 
@@ -317,7 +317,7 @@ aws configure set default.region <S3_REGION> # Optional for AWS only
 
 Test that the AWS CLI client is properly working with 
 
-```
+```shell
 aws s3 ls
 ```
 
@@ -332,7 +332,7 @@ In the following sections, we show how to setup and extract information for:
 
 If you have already a MicroK8s cluster running, you can enable the MinIO storage with the dedicated addon
 
-```
+```shell
 microk8s.enable minio
 ```
 
@@ -418,7 +418,7 @@ export AZURE_STORAGE_KEY=<storage_key>
 
 Now test that the `azcli` client is properly working with 
 
-```
+```shell
 azcli storage container list
 ```
 
@@ -454,6 +454,7 @@ Ensure you use the same Python version as the one shipped in the spark-client sn
 [/note]
 
 After the installation, configure the client using the following environment variable:
+
 ```shell
 export PYTHONPATH=path/to/.venv/lib/python3.10/site-packages
 ```

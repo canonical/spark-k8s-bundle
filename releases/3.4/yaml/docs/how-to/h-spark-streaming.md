@@ -19,7 +19,7 @@ juju deploy zookeeper-k8s --series=jammy --channel=edge
 
 juju deploy kafka-k8s --series=jammy --channel=edge
 
-juju relate  kafka-k8s  zookeeper-k8s
+juju integrate  kafka-k8s  zookeeper-k8s
 ```
 
 Deploy a test producer application, to write messages to Charmed Apache Kafka:
@@ -27,7 +27,7 @@ Deploy a test producer application, to write messages to Charmed Apache Kafka:
 ```shell
 juju deploy kafka-test-app --series=jammy --channel=edge --config role=producer --config topic_name=spark-streaming-store --config num_messages=1000
 
-juju relate kafka-test-app  kafka-k8s
+juju integrate kafka-test-app  kafka-k8s
 ```
 
 To consume these messages we need to establish a connection between Apache Spark and Apache Kafka, which requires credentials.
@@ -37,7 +37,7 @@ We need to deploy the `data-integrator` charm, which performs credential retriev
 ```shell
 juju deploy data-integrator --series=jammy --channel=edge --config extra-user-roles=consumer,admin --config topic-name=spark-streaming-store
 
-juju relate data-integrator kafka-k8s 
+juju integrate data-integrator kafka-k8s 
 
 juju run-action data-integrator/0 get-credentials --wait 
 ```
