@@ -12,6 +12,8 @@ We will use the same environment as the rest of the tutorial before. If you lack
 * Reset the Multipass virtual machine to the snapshot created at the end of the [environment setup](/t/13233) stage of this tutorial.
 * Delete the existing Multipass VM and repeat the [environment setup](/t/13233) stage of this tutorial.
 
+Same as before, all commands, unless stated otherwise, are executed in the Multipass virtual machine, created for this tutorial.
+
 ### Environment variables
 
 At this step of the tutorial, you’ll need some environment variables that were set earlier during the environment setup stage.
@@ -245,11 +247,14 @@ kyuubi:
 ok: "True"
 ```
 
-This can be tested by requesting the server certificate using `openssl` on the endpoint returned above:
+Test the server certificate by requesting it using `openssl` on the endpoint returned above:
 
 ```shell
+sudo snap install yq
 openssl s_client -showcerts -connect $(juju run data-integrator/0 get-credentials | yq ".kyuubi.endpoints") < /dev/null
 ```
+
+The resulted output should include issuer CN `Tutorial CA`.
 
 To connect to Charmed Apache Kyuubi K8s using the spark-client's bundled `beeline` client, import the certificate in the spark-client snap:
 

@@ -150,7 +150,7 @@ juju run data-integrator/leader get-credentials
 Finally, use the external endpoint address and database credentials from the previous step to connect with your JDBC-compliant tool of choice:
 
 ```bash
-beeline -u "<ENDPOINT>" -n <USERNAME> -p <PASSWORD>
+beeline -u <ENDPOINT> -n <USERNAME> -p <PASSWORD>
 ```
 
 ### Connection example
