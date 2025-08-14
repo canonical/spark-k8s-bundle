@@ -32,8 +32,6 @@ In short, the cluster must be as stable as possible during upgrades.
 
 Make sure to have a backup of your data when running any kind of upgrade.
 
-<!-- A guide on how to create a backup and restore the metastore and the user databases can be find [here](#TODO). -->
-
 ### Rollback preparations
 
 [note]

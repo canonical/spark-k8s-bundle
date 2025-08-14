@@ -1,4 +1,4 @@
-# External connections and metastore
+# External connections
 
 To expose Charmed Apache Kyuubi K8s externally, use the `expose-external` configuration option. Possible values are: `false`, `nodeport`, and `loadbalancer`.
 
@@ -25,7 +25,7 @@ Wait for the application to settle up with the `active` / `idle` status and retr
 juju run data-integrator/0 get-credentials
 ```
 
-The output of this command contains both endpoint and credentials, for example:
+The output of this command contains both the endpoint and credentials, for example:
 
 ```yaml
 kyuubi:
@@ -40,37 +40,4 @@ kyuubi:
   username: relation_id_15
   version: 1.10.2
 ok: "True"
-```
-
-## Enable external metastore
-
-By default, Apache Kyuubi uses an embedded database to manage the metadata of persistent relational entities.
-However, this database is limited to a single unit and is not persisted should the pod be rescheduled.
-
-In a production environment, we recommend deploying an external metastore shared by all Charmed Apache Kyuubi K8s units, that can be backed up and restored as well.
-
-The Charmed Apache Kyuubi K8s charm provides a `metastore-db` integration through the `postgresql_client` interface.
-
-To use it, deploy a Charmed PostgreSQL K8s charm:
-
-```shell
-juju deploy postgresql-k8s --channel 14/stable --trust
-```
-
-Then, integrate it with the Charmed Apache Kyuubi K8s charm on the `metastore-db` relation:
-
-```shell
-juju integrate kyuubi-k8s:metastore-db postgresql-k8s
-```
-
-Once the two charms are settled in `active/idle` status, the metastore is configured and operational.
-
-<!-- A guide on how to backup and restore the metastore can be find [here](#TODO). -->
-
-## Disable external metastore
-
-To stop using the external metastore, remove the integration:
-
-```shell
-juju remove-relation kyuubi-k8s:metastore-db postgresql-k8s
 ```

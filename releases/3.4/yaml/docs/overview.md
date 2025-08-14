@@ -52,8 +52,9 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
 | 3     | h-use-integration-hub          | [Using Integration Hub](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296)                     |
 | 2     | h-kyuubi                  | [Apache Kyuubi]()                                               |
 | 3     | h-kyuubi-encryption                   | [Encryption and passwords](/t/18304)                                                 |
-| 3     | h-kyuubi-connections                   | [External connections and metastore](/t/18305)                                                 |
-| 3     | h-kyuubi-applications                   | [Integrate applications](/t/18306)                                                 |
+| 3     | h-kyuubi-metastore                   | [External metastore](/t/18384)                                                 |
+| 3     | h-kyuubi-connections                   | [External connections](/t/18305)                                                 |
+| 3     | h-kyuubi-applications                   | [Integrate with applications](/t/18306)                                                 |
 | 3     | h-kyuubi-upgrade                   | [Upgrade](/t/18307)                                                 |
 | 2     | h-spark-monitoring             | [Enable monitoring](/t/charmed-spark-k8s-documentation-enable-monitoring/13063)                                                  |
 | 2     | h-history-server        | [Spark History Server]()                                   |
