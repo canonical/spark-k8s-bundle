@@ -37,6 +37,36 @@ variable "kyuubi_user" {
   default     = "kyuubi-spark-engine"
 }
 
+variable "enable_dynamic_allocation" {
+  description = "Enable dynamic allocation of pods for Spark jobs."
+  type        = bool
+  default     = false
+}
+
+variable "kyuubi_k8s_node_selectors" {
+  description = "Comma separated label:value selectors for K8s pods in Kyuubi."
+  type        = string
+  default     = null
+}
+
+variable "kyuubi_loadbalancer_extra_annotations" {
+  description = "Optional extra annotations to be supplied to the load balancer service in Kyuubi."
+  type        = string
+  default     = null
+}
+
+variable "driver_pod_template" {
+  description = "Define K8s driver pod from a file accessible to the `spark-submit` process."
+  type        = string
+  default     = null
+}
+
+variable "executor_pod_template" {
+  description = "Define K8s executor pod from a file accessible to the `spark-submit` process."
+  type        = string
+  default     = null
+}
+
 variable "zookeeper_units" {
   description = "Number of zookeeper units. 3 units are recommended for high availability."
   type        = number
@@ -71,6 +101,13 @@ variable "history_server_image" {
 variable "integration_hub_revision" {
   description = "Charm revision for spark-integration-hub-k8s"
   type        = number
+  nullable    = false
+}
+
+variable "kyuubi_units" {
+  description = "Number of Kyuubi units. 3 units are recommended for high availability."
+  type        = number
+  default     = 3
   nullable    = false
 }
 

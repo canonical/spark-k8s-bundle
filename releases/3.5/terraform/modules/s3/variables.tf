@@ -12,10 +12,12 @@ variable "s3" {
   type = object({
     bucket   = optional(string, "spark-bucket")
     endpoint = optional(string, "https://s3.amazonaws.com")
+    region   = optional(string, "us-east-1")
   })
   default = {
     bucket   = "spark-bucket"
     endpoint = "https://s3.amazonaws.com"
+    region   = "us-east-1"
   }
 }
 

@@ -50,7 +50,10 @@ def test_deploy_bundle(juju: jubilant.Juju, spark_bundle) -> None:
 
 def test_active_status(juju: jubilant.Juju) -> None:
     """Test whether the bundle has deployed successfully."""
-    juju.wait(jubilant.all_active)
+    juju.wait(
+        lambda status: jubilant.all_active(status) and jubilant.all_agents_idle(status),
+        delay=10,
+    )
 
 
 def test_setup_env(juju: jubilant.Juju, sf: str, spark_client: str) -> None:
