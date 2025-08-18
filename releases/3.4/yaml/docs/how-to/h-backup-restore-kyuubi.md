@@ -13,13 +13,13 @@ In order to backup the metastore more steps are needed, and this requires a back
 
 ### Back up the metastore
 
-First of all, we need to create a backup of the database that stores the metastore from the Apache Kyuubi deployment that you want to back up.
+First of all, we need to create a backup of the database that stores the metastore from the Charmed Apache Kyuubi deployment that you want to back up.
 
-The PostgreSQL charm supports the creation of a backup to an S3 compliant object storage. Please refer to [PostgreSQL documentation](https://canonical-charmed-postgresql-k8s.readthedocs-hosted.com/14/how-to/back-up-and-restore/) to check the available options. 
+The PostgreSQL charm supports the creation of a backup to an S3 compliant object storage. Please refer to [PostgreSQL documentation](https://canonical-charmed-postgresql-k8s.readthedocs-hosted.com/14/how-to/back-up-and-restore/) to check the available options and more details. 
 
 After the selection of the object storage, the first step is the create an S3 bucket (by using one of the supported S3 providers that has TLS enabled).
 
-Deploy a new instance of S3 Integrator that will be needed to share the credential with the metastore charm to store the backup.
+First of all, deploy a new instance of S3 Integrator that will be needed to share the credentials with the metastore charm to store the backup.
 
 ```bash
 juju deploy s3-integrator <metastore-backup> --channel 1/stable
@@ -34,14 +34,14 @@ juju config <metastore-backup> \
   path=<S3_PATH>
 ```
 
-and configure the credentials:
+and configure the access key and secret key:
 
 In the `<metastore-backup>`, credentials are fed using an action:
 
 ```bash
 juju run <metastore-backup>/leader sync-s3-credentials \
-  access-key=$S3_ACCESS_KEY \
-  secret-key=$S3_SECRET_KEY
+  access-key=<S3_ACCESS_KEY> \
+  secret-key=<S3_SECRET_KEY>
 ```
 
 Integrate the metastore charm with this new S3 Integrator configured with the backup credentials and storage information.
@@ -62,12 +62,13 @@ After the completion of the backup, check that the backup is listed.
 juju run <metastore>/leader list-backup
 ```
 
-
 Once the database backup is done, remove the metastore and the new S3 integrator relation.
 
 ```bash
 juju remove-relation <metastore-backup> <metastore>
 ```
+
+The backup process is complete and now let's continue with the restore phase.
 
 ### Restore the metastore
 
@@ -76,6 +77,7 @@ Let's switch to the new cluster that you want to restore the data to.
 ```bash
 juju switch <new-model>
 ```
+
 In the destination cluster, deploy a new S3 Integrator in the same way you have done in the old deployment.
 Configure it with the bucket name and credentials of the same bucket that holds the backup from the previous cluster.
 
@@ -88,7 +90,7 @@ juju integrate <new-metastore-backup> <new-metastore>
 
 After the integration, the `<new-metastore>` charm will move in blocked state with the following message: "the s3 bucket contains backup from a different cluster".
 
-Confirm that the backup is present in the S3 storage.
+Check that the desired backup is present in the S3 storage.
 
 ```bash
 juju run <new-metastore>/leader list-backups
