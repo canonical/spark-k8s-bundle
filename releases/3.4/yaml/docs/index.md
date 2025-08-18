@@ -52,6 +52,7 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
     1. [External connections](how-to/h-kyuubi/h-kyuubi-connections.md)
     1. [Integrate with applications](how-to/h-kyuubi/h-kyuubi-applications.md)
     1. [Upgrade](how-to/h-kyuubi/h-kyuubi-upgrade.md)
+    1. [Back up and restore](how-to/h-kyuubi/h-kyuubi-backup.md)
   1. [Enable monitoring](how-to/h-spark-monitoring.md)
   1. [Spark History Server](how-to/h-history-server)
     1. [Expose web GUI](how-to/h-history-server/h-expose-history-server.md)
