@@ -34,7 +34,7 @@ juju config <metastore-backup> \
   path=<S3_PATH>
 ```
 
-and configure the access key and secret key:
+Configure the access key and secret key in the `<metastore-backup>` using a Juju action:
 
 In the `<metastore-backup>`, credentials are fed using an action:
 
@@ -82,7 +82,7 @@ In the destination cluster, deploy a new S3 Integrator in the same way you have 
 Configure it with the bucket name and credentials of the same bucket that holds the backup from the previous cluster.
 
 
-In the new (destination) cluster, integrate the new S3 integrator (`<new-metastore-backup>`) with the new metastore (`<new-metastore>`).
+Integrate the new S3 integrator (`<new-metastore-backup>`) with the new metastore (`<new-metastore>`).
 
 ```bash
 juju integrate <new-metastore-backup> <new-metastore>
