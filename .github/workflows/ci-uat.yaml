@@ -136,3 +136,4 @@ jobs:
           juju debug-log -m test-uat --replay -l INFO | tail -n 500
           printf '\nCos logs\n'
           juju debug-log -m cos --replay -l INFO | tail -n 500
+
