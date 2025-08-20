@@ -28,10 +28,10 @@ jobs:
         juju-snap-channel: ["3.5/stable", "3.6/stable"]
         include:
           # Add juju snap channel and agent version to all matrix combinations
-          - juju-snap-channel: "3.5/stable"
-            juju-agent-version: "3.5.6"
-          - juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.8"
+          - juju-snap-channel: "4/beta"
+            juju-agent-version: "4.0.0"
+          # - juju-snap-channel: "3.6/stable"
+          #   juju-agent-version: "3.6.8"
 
           # Test integration-basic, with Spark 3.4
           - tox-env: integration-basic
