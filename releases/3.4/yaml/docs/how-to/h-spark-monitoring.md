@@ -1,4 +1,4 @@
-## Enable and configuring Apache Spark monitoring
+## Enable and configuring monitoring
 
 Charmed Apache Spark supports native integration with the Canonical Observability Stack (COS). If you want to enable monitoring on top of Charmed Apache Spark, make sure that you have a Juju model with COS correctly deployed.
 
@@ -20,7 +20,7 @@ The deployments of these resources can be enabled/disabled using either overlays
 Please refer to the [how-to deploy](/t/charmed-spark-k8s-documentation-how-to-deploy-charmed-spark/10979) guide for more information.
 
 After the deployment settles on an `active/idle` state, you can make sure that
-Grafana is correctly setup with dedicated dashboards.
+Grafana is correctly set up with dedicated dashboards.
 To do so, retrieve the credentials for logging into the Grafana dashboard, by
 switching to the COS model (using `juju switch <cos_model>`) and
 using the following action:

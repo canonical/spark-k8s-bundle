@@ -181,6 +181,7 @@ Now that RDD can be used for parallel processing by multiple Apache Spark execut
 Count the number of tweets (lines in CSV) with "text" field containing "Ubuntu" in a case insensitive way:
 
 ```python
+from operator import add
 count = rdd.map(lambda row: row['text']).map(lambda cell: 1 if isinstance(cell, str) and "ubuntu" in cell.lower() else 0).reduce(add)
 ```
 
@@ -198,6 +199,8 @@ The result should look similar to the following:
 ```text
 Number of tweets containing Ubuntu: 54
 ```
+
+To continue with this tutorial, leave the PySpark shell: run `exit()` or press `Ctrl + D` key combination.
 
 ## Run a script
 

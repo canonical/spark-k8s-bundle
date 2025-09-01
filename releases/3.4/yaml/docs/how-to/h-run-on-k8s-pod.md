@@ -2,7 +2,7 @@
 
 ### Setup
 
-After installing [Juju](https://juju.is/docs/olm/install-juju) and [Charmed Kubernetes](https://ubuntu.com/kubernetes/docs/install-manual) (together with applying [setup for the latter](https://ubuntu.com/kubernetes/docs/operations) ), now we can look into how to launch Spark jobs from within a pod in Charmed Kubernetes.
+After installing [Juju](https://juju.is/docs/olm/install-juju) and [Charmed Kubernetes](https://ubuntu.com/kubernetes/docs/install-manual) (together with applying [set up for the latter](https://ubuntu.com/kubernetes/docs/operations)), now we can look into how to launch Spark jobs from within a pod in Charmed Kubernetes.
 
 First, we create a pod using Canonical's Charmed Apache Spark container image.
 
