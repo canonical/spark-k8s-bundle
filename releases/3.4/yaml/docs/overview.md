@@ -37,28 +37,41 @@ Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source pr
 | 2     | t-setup-environment | [1. Environment setup](/t/13233) |
 | 2     | t-data-processing | [2. Distributed data processing](/t/13232) |
 | 2     | t-streaming | [3. Data stream processing](/t/13230) |
-| 2     | t-history-server | [4. History server](/t/17354) |
+| 2     | t-history-server | [4. History Server](/t/17354) |
 | 2     | t-cos | [5. Monitoring with COS](/t/13225) |
-| 2     | t-wrapping-up | [6. Wrapping Up](/t/13224) |
+| 2     | t-kyuubi| [6. Apache Kyuubi ](/t/18309) |
+| 2     | t-wrapping-up | [7. Wrapping Up](/t/13224) |
 | 1     | how-to                         | [How To]()                                                                                                                                     |
-| 2     | h-setup-k8s                    | [Setup the Environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618)                                                 |
-| 2     | h-deploy                       | [Deploy Charmed Apache Spark](/t/charmed-spark-k8s-documentation-how-to-deploy-charmed-spark/10979)                                                   |
-| 2     | h-deploy-kyuubi                      | [Deploy Charmed Apache Kyuubi](/t/charmed-apache-spark-k8s-documentation-how-to-deploy-apache-kyuubi/17957)                                                   |
-| 2     | h-manage-service-accounts      | [Manage Service Accounts using the snap](/t/spark-client-snap-how-to-manage-spark-accounts/8959)                                               |
-| 2     | h-use-spark-client-from-python | [Manage Service Accounts using Python](/t/spark-client-snap-how-to-python-api/8958)                                                            |
-| 2     | h-use-integration-hub          | [Manage Service Accounts using Integration Hub](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296)                     |
-| 2     | h-spark-monitoring             | [Enable and Configure Monitoring](/t/charmed-spark-k8s-documentation-enable-monitoring/13063)                                                  |
-| 2     | h-expose-history-server        | [Expose Spark History Server using Ingress](/t/charmed-spark-k8s-documentation-how-to-expose-history-server/14297)                                   |
-| 2     | h-history-server-authorization | [Spark History Server authorization](/t/charmed-spark-k8s-documentation-how-to-enable-authentication-on-the-spark-history-server-charm/13563) |
-| 2     | h-run-on-k8s-pod               | [Use K8s pods to run Charmed Apache Spark](/t/spark-client-snap-how-to-run-on-k8s-in-a-pod/8961)                                                      |
-| 2     | h-spark-streaming              | [Run Spark Streaming Jobs](/t/charmed-spark-how-to-run-a-spark-streaming-job/10880)                                                            |
-| 2     | h-spark-gpu             | [Run Spark with GPU enabled](/t/charmed-spark-k8s-documentation-enabling-gpu-acceleration-with-charmed-spark/14896)   |
-| 2     | h-spark-cert             | [Manage self-signed certificates](/t/charmed-spark-k8s-documentation-using-self-signed-certificates/14898)                                                  |
+| 2     | h-deploy                   | [Deploy]()                                               |
+| 3     | h-setup-k8s                    | [Set up the environment](/t/charmed-spark-k8s-documentation-how-to-setup-k8s-environment/11618)                                                 |
+| 3     | h-deploy                       | [Deploy Charmed Apache Spark](/t/charmed-spark-k8s-documentation-how-to-deploy-charmed-spark/10979)                                                   |
+| 3     | h-deploy-kyuubi                      | [Deploy Charmed Apache Kyuubi](/t/charmed-apache-spark-k8s-documentation-how-to-deploy-apache-kyuubi/17957)                                                   |
+| 2     | h-service-accounts      | [Manage service accounts]()                                               |
+| 3     | h-manage-service-accounts      | [Using spark-client snap](/t/spark-client-snap-how-to-manage-spark-accounts/8959)                                               |
+| 3     | h-use-spark-client-from-python | [Using Python](/t/spark-client-snap-how-to-python-api/8958)                                                            |
+| 3     | h-use-integration-hub          | [Using Integration Hub](/t/charmed-spark-k8s-documentation-how-to-use-spark-integration-hub/14296)                     |
+| 2     | h-kyuubi                  | [Apache Kyuubi]()                                               |
+| 3     | h-kyuubi-encryption                   | [Encryption and passwords](/t/18304)                                                 |
+| 3     | h-kyuubi-metastore                   | [External metastore](/t/18384)                                                 |
+| 3     | h-kyuubi-connections                   | [External connections](/t/18305)                                                 |
+| 3     | h-kyuubi-applications                   | [Integrate with applications](/t/18306)                                                 |
+| 3     | h-kyuubi-upgrade                   | [Upgrade](/t/18307)                                                 |
+| 3     | h-kyuubi-backup                   | [Back up and restore](/t/18718)                                                 |
+| 2     | h-spark-monitoring             | [Enable monitoring](/t/charmed-spark-k8s-documentation-enable-monitoring/13063)                                                  |
+| 2     | h-history-server        | [Spark History Server]()                                   |
+| 3     | h-expose-history-server        | [Expose web GUI](/t/charmed-spark-k8s-documentation-how-to-expose-history-server/14297)                                   |
+| 3     | h-history-server-authorization | [Auth](/t/charmed-spark-k8s-documentation-how-to-enable-authentication-on-the-spark-history-server-charm/13563) |
+| 2     | h-run-on-k8s-pod               | [Use K8s pods](/t/spark-client-snap-how-to-run-on-k8s-in-a-pod/8961)                                                      |
+| 2     | h-spark-streaming              | [Streaming Jobs](/t/charmed-spark-how-to-run-a-spark-streaming-job/10880)                                                            |
+| 2     | h-spark-gpu             | [Use GPU](/t/charmed-spark-k8s-documentation-enabling-gpu-acceleration-with-charmed-spark/14896)   |
+| 2     | h-spark-cert             | [Self-signed certificates](/t/charmed-spark-k8s-documentation-using-self-signed-certificates/14898)                                                  |
 | 1     | reference                      | [Reference]()                                                                                                                                  |
+| 2     | r-releases                      | [Releases]()                                                                                                                                  |
+| 3     | r-rev-2                   | [Revision 2](/t/18310)                                                                                                                                  |
 | 2     | r-requirements                 | [Requirements](/t/spark-client-snap-reference-requirements/8962)                                                                               |
 | 2     | r-contacts                     | [Contacts](/t/charmed-spark-k8s-documentation-reference-contacts/14298)                                                                        |
 | 1     | explanation                    | [Explanation]()                                                                                                                                |
-| 2     | e-component-overview           | [Component Overview](/t/charmed-spark-documentation-explanation-components/11685)                                                              |
+| 2     | e-component-overview           | [Component overview](/t/charmed-spark-documentation-explanation-components/11685)                                                              |
 | 2     | e-security                       | [Security](/t/15858) |
 | 2     | e-cryptography                       | [Cryptography](/t/15795) |
 | 2     | e-configuration                | [Configuration](/t/spark-client-snap-explanation-hierarchical-configuration-handling/8956)                          |

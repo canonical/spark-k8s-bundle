@@ -1,10 +1,10 @@
-## Charmed Apache Spark Components Overview
+## Charmed Apache Spark components overview
 
-The Charmed Apache Spark Solution bundles the following components:
+The Charmed Apache Spark solution bundles the following components:
 
 * [spark8t](https://github.com/canonical/spark-k8s-toolkit-py), which is a Python package to enhance Apache Spark capabilities allowing to manage Spark jobs and service accounts, with hierarchical level of configuration
 * [Charmed Apache Spark Rock](https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark) OCI-compliant Image, that bundles Apache Spark binaries together with Canonical tooling to be used to start your Apache Spark workload on Kubernetes, to use Charmed Apache Spark CLI tooling or derive your own images from secured and supported bases;
-* [Apache Spark Client Snap](https://snapcraft.io/spark-client), to simplify Apache Spark installation on edge nodes or local machines, by leveraging on confined [SNAPs](https://snapcraft.io/) and exposing simple Snap commands to run and manage Spark jobs 
+* [Apache Spark Client Snap](https://snapcraft.io/spark-client), to simplify Apache Spark installation on edge nodes or local machines, by leveraging on confined [snaps](https://snapcraft.io/) and exposing simple Snap commands to run and manage Spark jobs 
 * [Charmed Bundle](https://charmhub.io/spark-k8s-bundle) to deploy, manage and operate Charmed Apache Spark using [Juju](https://juju.is/). This includes:
   * [Spark History Server](https://charmhub.io/spark-history-server-k8s) to expose a web UI for analysing the logs of previous Spark jobs
   * [Charmed Apache Kyuubi](https://charmhub.io/kyuubi-k8s) to provide a JDBC/ODBC endpoint for running Hive powered by Apache Spark engines
@@ -23,7 +23,7 @@ flowchart TD
     provides a reliable Apache Spark image to run Apache Spark applications and Apache Spark CLI tooling`"]
 
     spark-client["`**Spark Client Snap** 
-    (*SNAP*)
+    (*snap*)
     simplify client integration with an Apache Spark Kubernetes cluster via a snap package to be installed in edge nodes or locally`"]
 
     spark-k8s-bundle["`**Charmed Apache Spark** 
