@@ -36,4 +36,4 @@ sphinx:
 # Optionally declare the Python requirements required to build your docs
 python:
   install:
-  - requirements: /releases/3.4/yaml/docs/requirements.txt
+  - requirements: releases/3.4/yaml/docs/requirements.txt
