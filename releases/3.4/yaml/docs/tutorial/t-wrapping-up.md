@@ -1,4 +1,4 @@
-# 6. Wrapping Up
+# 7. Wrapping Up
 
 This section concludes the Tutorial by freeing up the resources used so far.
 
