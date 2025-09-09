@@ -1,4 +1,4 @@
-(how-to-deploy-deploy-charmed-apache-spark)=
+(how-to-deploy-spark)=
 # Deploy Charmed Apache Spark
 
 Charmed Apache Spark comes with a bundled set of components that allow you to easily 

@@ -1,29 +1,30 @@
-(how-to-manage-service-accounts-using-integration-hub)=
+(how-to-service-accounts-integration-hub)=
 # Configure service accounts using the Integration Hub charm
 
 The Integration Hub charm allows seamless configuration of Charmed Apache Spark service accounts
-via Juju relations, therefore providing a charming, integrated user experience. 
+via Juju relations, therefore providing a charming, integrated user experience.
 
-The Integration Hub charm is part of the Charmed Apache Spark bundle, that can be deployed by following 
-the [How-to deploy guide](/). Alternatively, you can also deploy the 
+The Integration Hub charm is part of the Charmed Apache Spark bundle, that can be deployed by following
+the [How-to deploy guide](how-to-deploy-spark). Alternatively, you can also deploy the
 Integration Hub for Apache Spark charm standalone by running the following command:
 
 ```shell
 juju deploy spark-integration-hub-k8s --channel edge -n1
 ```
 
-Once deployed, the Integration Hub for Apache Spark will automatically manage the properties for all the service 
-accounts created either with the `spark-client` snap or using the `spark8t` python library. 
-Refer to the how-to guides for more information on the [snap usage](/how-to/manage-service-accounts/using-spark-client-snap) and 
-on the [python library](/how-to/manage-service-accounts/using-python).
+Once deployed, the Integration Hub for Apache Spark will automatically manage the properties for all the service
+accounts created either with the `spark-client` snap or using the `spark8t` python library.
+Refer to the how-to guides for more information on the [snap usage](/how-to/manage-service-accounts/using-spark-client-snap) and on the [python library](/how-to/manage-service-accounts/using-python).
 
 ## Enable object storage integration
 
 Integration Hub for Apache Spark can consume:
 
-* `s3-credentials` relation provided by the [S3-integrator](https://charmhub.io/s3-integrator) to enable integration with an S3-compatible 
-object storage system
-* `azure-storage-credentials` relation provided by the [Azure Storage Integrator](https://charmhub.io/azure-storage-integrator) to enable integration with Azure Storages, such as Azure Blob Storage (WASB) and Azure DataLake Gen2 Storage (ABFS).
+* `s3-credentials` relation provided by the [S3-integrator](https://charmhub.io/s3-integrator)
+  to enable integration with an S3-compatible object storage system
+* `azure-storage-credentials` relation provided by the
+  [Azure Storage Integrator](https://charmhub.io/azure-storage-integrator) to enable integration with Azure Storages, such as
+  Azure Blob Storage (WASB) and Azure DataLake Gen2 Storage (ABFS).
 
 ### S3-compatible object storage
 
@@ -50,19 +51,22 @@ juju run s3-integrator/leader sync-s3-credentials \
   secret-key=$S3_SECRET_KEY
 ```
 
-Please refer to the [How-To Setup Environment](/) for guidance on how to set up and retrieve the 
-different parameters for a MinIO deployed on MicroK8s and AWS S3. 
-For more information on how to deploy and configure the `s3-integrator` charm refer to the charm documentation.
+Please refer to the [How-To Setup Environment](how-to-deploy-environment)
+for guidance on how to set up and retrieve the
+different parameters for a MinIO deployed on MicroK8s and AWS S3.
+For more information on how to deploy and configure the `s3-integrator`
+charm refer to the charm documentation.
 
-Once the `s3-integrator` is set up and in an idle/active state, the Integration Hub for Apache Spark charm can be integrated with
+Once the `s3-integrator` is set up and in an `idle`/`active` state,
+the Integration Hub for Apache Spark charm can be integrated with
 
 ```shell
 juju integrate s3-integrator spark-integration-hub-k8s
 ```
 
 This will automatically add relevant configuration properties to your Spark jobs,
-depending on the storage backend. 
-This can be verified using the tools provided in the spark-client snap, e.g. 
+depending on the storage backend.
+This can be verified using the tools provided in the spark-client snap, for example:
 
 ```shell
 spark-client.service-account-registry get-config --username <service_account> --namespace <namespace>
@@ -89,7 +93,7 @@ juju deploy azure-storage-integrator --channel edge
 
 `storage_account` and `container` are provided to the charm using normal configuration, while
 `storage_key` is provided using Juju secrets, to ensure confidentiality and 
-security over its value. 
+security over its value.
 
 Thus, create a Juju secret holding its value:
 
@@ -117,20 +121,21 @@ juju config azure-storage-integrator \
   path="spark-events"
 ```
 
-Please refer to the [How-To Setup Environment](/) for guidance on how to set up and retrieve the 
-different parameters for Azure Storage backends. 
-For more information on how to deploy and configure the Azure Storage Integrator charm refer 
+Please refer to the [How-To Setup Environment](how-to-deploy-environment) for guidance on how to set up and retrieve the
+different parameters for Azure Storage backends.
+For more information on how to deploy and configure the Azure Storage Integrator charm refer
 to the charm documentation.
 
-Once the Azure Storage Integrator charm is set up and on an `idle/active` state, the Integration Hub for Apache Spark charm can be integrated with
+Once the Azure Storage Integrator charm is set up and on an `idle/active` state,
+the Integration Hub for Apache Spark charm can be integrated with
 
 ```shell
 juju integrate azure-storage-integrator spark-integration-hub-k8s
 ```
 
 This will automatically add relevant configuration properties to your Spark jobs,
-depending on the storage backend. 
-This can be verified using the tools provided in the spark-client snap, e.g. 
+depending on the storage backend.
+This can be verified using the tools provided in the spark-client snap, for example:
 
 ```shell
 spark-client.service-account-registry get-config --username <service_account> --namespace <namespace>

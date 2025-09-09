@@ -1,4 +1,4 @@
-(how-to-deploy-set-up-the-environment)=
+(how-to-deploy-environment)=
 # How to set up a K8s cluster for Apache Spark
 
 The Charmed Apache Spark solution requires an environment with:

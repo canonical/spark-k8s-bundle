@@ -14,8 +14,10 @@ The sections below summarize the hierarchical levels of configurations. The fina
 
 Group configurations are centrally stored as secrets in K8s,
 and managed by `spark-integration-hub-k8s` charm that takes care of managing
-their lifecycle from creation, modification and deletion. Please refer to [this how-to guide](/)
-for more information on the usage of the `spark-integration-hub-k8s` charm for
+their lifecycle from creation, modification and deletion.
+See the
+[Configure service accounts using the Integration Hub charm](how-to-service-accounts-integration-hub)
+guide for more information on the usage of the `spark-integration-hub-k8s` charm for
 setting up group configurations. Theese are valid across users, machines and sessions.
 
 ## User configuration
