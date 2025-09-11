@@ -10,6 +10,7 @@ Once COS is correctly deployed, to enable monitoring it is necessary to:
 
 1. Integrate and configure the COS bundle with Charmed Apache Spark
 2. Configure the Apache Spark service account
+3. (Optional) Integrate the optional components of Charmed Apache Spark (such as the Spark History Server charm and Charmed Apache Kyuubi) with the COS bundle
 
 ## Integrating/configuring with COS
 
@@ -26,7 +27,7 @@ To do so, retrieve the credentials for logging into the Grafana dashboard, by
 switching to the COS model (using `juju switch <cos_model>`) and
 using the following action:
 
-``` shell
+```shell
 juju run grafana/leader get-admin-password
 ```
 
@@ -35,34 +36,6 @@ log in with the provided credentials for the `admin` user.
 
 After the login, Grafana will show a new dashboard: `Spark Dashboard` where
 the Apache Spark metrics will be displayed.
-
-### Customize Charmed Apache Spark dashboards
-
-The `cos-configuration-k8s` charm included in the bundle can be used to customise
-the Grafana dashboard. If needed, we provide a [default dashboard](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/resources/grafana) as part
-of the bundle.
-
-The `cos-configuration-k8s` charm syncs the content of a repository with the resources
-provided to Grafana, thus enabling versioning of the resource.
-You can specify the repository, branch and folder using the config options, i.e.
-
-```shell
-# deploy cos configuration charm to import the grafana dashboard
-juju config cos-configuration \
-  git_repo=<your-repo> \
-  git_branch=<your-branch> \
-  git_depth=1 \
-  grafana_dashboards_path=<path-to-dashboard-folder>
-```
-
-After updating the configuration or whenever the repository is updated,
-contents is synced either upon an `update-status` event or after running the action:
-
-```shell
-juju run cos-configuration-k8s/leader sync-now
-```
-
-For more information, refer to the `cos-configuration-k8s` charm [docs](https://discourse.charmhub.io/t/cos-configuration-k8s-docs-index/7284).
 
 ### Configuring scraping intervals
 
@@ -83,8 +56,8 @@ please refer to its [documentation](https://discourse.charmhub.io/t/prometheus-s
 
 Logs from each driver or executor can be enabled using two Spark configuration options:
 
-* `spark.executorEnv.LOKI_URL`
-* `spark.kubernetes.driverEnv.LOKI_URL`
+- `spark.executorEnv.LOKI_URL`
+- `spark.kubernetes.driverEnv.LOKI_URL`
 
 They are used to forward executor and driver logs respectively to a Loki server.
 
@@ -145,3 +118,95 @@ directly (as explained in the
 3. Feeding these arguments directly to the `spark-submit` command (as shown in the
 [Spark client tutorial](https://discourse.charmhub.io/t/spark-client-snap-tutorial-spark-submit/8953)).
 ```
+
+## Enable monitoring for Spark History Server and Charmed Apache Kyuubi (optional)
+
+After setting up COS following the previous sections, you should have:
+
+- a Juju model running the COS component
+- Juju cross-model offers to integrate with the COS components
+- the `grafana-agent-k8s` charm running and consuming the offers
+
+Both the Spark History Server and Charmed Apache Kyuubi charms come with the [JMX exporter](https://github.com/prometheus/jmx_exporter/).
+The metrics can be queried by accessing the `http://<history-server-unit-ip>:9101/metrics` and `http://<kyuubi-unit-ip>:10019/metrics` endpoints, respectively.
+
+To benefit from the native COS support, integrate `grafana-agent` with Spark History Server and Charmed Apache Kyuubi:
+
+```shell
+juju integrate grafana-agent-k8s spark-history-server-k8s:grafana-dashboard
+juju integrate grafana-agent-k8s spark-history-server-k8s:logging
+juju integrate grafana-agent-k8s spark-history-server-k8s:metrics-endpoint
+```
+
+```shell
+juju integrate grafana-agent-k8s kyuubi-k8s:grafana-dashboard
+juju integrate grafana-agent-k8s kyuubi-k8s:logging
+juju integrate grafana-agent-k8s kyuubi-k8s:metrics-endpoint
+```
+
+Wait for all components to settle down to the `active/idle` state on both models.
+
+Congratulations, the COS now monitors the two charms.
+
+## Customize dashboards and alert rules
+
+The `cos-configuration-k8s` charm included in the bundle can be used to customise the Grafana dashboards and alert rules.
+If needed, we provide a [default dashboard](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/resources/grafana) as part
+of the bundle and dedicated dashboards for the [Spark History Server](https://github.com/canonical/spark-history-server-k8s-operator/tree/3/edge/src/grafana_dashboards)
+and [Charmed Apache Kyuubi](https://github.com/canonical/kyuubi-k8s-operator/tree/3.4/edge/src/grafana_dashboards) charms.
+
+The `cos-configuration-k8s` charm syncs the content of a repository with the resources
+provided to Grafana, thus enabling versioning of the resource.
+
+### Create a repository with a custom monitoring setup
+
+Save your alert rules and dashboard models in a Git repository (new or existing) as separate directories:
+
+- Prometheus rules
+- Loki rules
+- Dashboard models
+
+For rule writing examples, see the
+[Prometheus documentation](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) and
+[Charmed Apache Kyuubi K8s repository](https://github.com/canonical/kyuubi-k8s-operator/blob/3.4/edge/src/prometheus_alert_rules/prometheus.yaml).
+
+Make sure to push your changes to the remote repository.
+
+### Deploy the COS configuration charm
+
+Deploy the [COS configuration](https://charmhub.io/cos-configuration-k8s) charm in the COS Juju model:
+
+```shell
+juju switch <cos_model_name>
+
+juju deploy cos-configuration-k8s cos-config
+  --config git_repo=<repository_url>
+  --config git_branch=<branch>
+  --config git_depth=1
+  --config grafana_dashboards_path=<path_to_dashboard_folder> 
+  --config prometheus_alert_rules_path=<path_to_prometheus_rules_folder>
+  --config loki_alert_rules_path=<path_to_loki_rules>
+```
+
+```shell
+juju run cos-configuration-k8s/leader sync-now
+```
+
+For more information, refer to the `cos-configuration-k8s` charm [docs](https://discourse.charmhub.io/t/cos-configuration-k8s-docs-index/7284).
+
+### Forward the rules and dashboards
+
+Integrate the charm to the COS operator to forward the rules and dashboards:
+
+```shell
+juju integrate cos-config prometheus
+juju integrate cos-config grafana
+juju integrate cos-config loki
+```
+
+After this is complete, the monitoring COS stack should be up, and ready to fire alerts based on your new rules.
+As for the dashboards, they should be available in the Grafana interface.
+
+## Conclusion
+
+In this guide, we enabled monitoring on a Charmed Apache Spark deployment and integrated alert rules and dashboards by syncing a Git repository to the COS stack.
