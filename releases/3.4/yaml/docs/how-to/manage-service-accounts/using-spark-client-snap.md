@@ -1,4 +1,4 @@
-(how-to-manage-service-accounts-using-spark-client-snap)=
+(how-to-service-accounts-spark-client)=
 # Manage Charmed Apache Spark service accounts
 
 This is an introduction to the CLI interface for creating, managing and configuring Charmed Apache Spark service accounts. 

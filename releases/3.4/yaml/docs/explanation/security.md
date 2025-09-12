@@ -209,7 +209,7 @@ Refer to the
 page for more information.
 
 For more information on how to enable and customise monitoring with COS,
-see the [Monitoring](how-to-enable-monitoring) guide.
+see the [Monitoring](how-to-monitoring) guide.
 
 ## Additional resources
 

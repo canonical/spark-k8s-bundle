@@ -1,4 +1,4 @@
-(how-to-manage-service-accounts-using-python)=
+(how-to-service-accounts-python)=
 # Manage Service Accounts using the Python API
 
 The `spark-client` snap relies on the [`spark8t` toolkit](https://github.com/canonical/spark-k8s-toolkit-py). `spark8t` provides both a CLI and a programmatic interface to enhanced Apache Spark client functionalities. 

@@ -1,4 +1,4 @@
-(how-to-deploy-deploy-charmed-apache-kyuubi)=
+(how-to-deploy-kyuubi)=
 # Deploy Charmed Apache Kyuubi
 
 Charmed Apache Spark can work with [Apache Kyuubi](https://kyuubi.apache.org/),
