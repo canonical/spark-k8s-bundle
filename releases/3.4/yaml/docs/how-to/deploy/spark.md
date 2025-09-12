@@ -89,10 +89,10 @@ The following table summarizes the properties to be specified for the main bundl
 
 | key             | Description                                                                                                   |
 |-----------------|---------------------------------------------------------------------------------------------------------------|
-| service_account | Service Account to be used by Apache Kyuubi Engines (deprecated)                                                     |
-| namespace       | Namespace where the charms will be deployed. This should correspond to the name of the Juju model to be used. |
-| s3_endpoint     | Endpoint of the S3-compatible object storage backend, in the form of `http(s)//host:port`.                    |
-| bucket          | Name of the S3 bucket to be used for storing logs and data                                                    |
+| `service_account` | Service Account to be used by Apache Kyuubi Engines (deprecated)                                                     |
+| `namespace`       | Namespace where the charms will be deployed. This should correspond to the name of the Juju model to be used. |
+| `s3_endpoint`     | Endpoint of the S3-compatible object storage backend, in the form of `http(s)//host:port`.                    |
+| `bucket`          | Name of the S3 bucket to be used for storing logs and data                                                    |
 
 Once the bundle is deployed, you will see that most of the charms will be in a blocked status because of missing or invalid S3 credentials.
 In particular, the `s3` charm should notify that it needs to be provided with access and a secret key. This can be done using the `sync-s3-credentials` action:
@@ -151,8 +151,8 @@ Similarly to the main bundle, the jinja2 template for the overlay can be rendere
 
 | key            | Description                                   | Default |
 |----------------|-----------------------------------------------|---------|
-| cos_controller | Name of the controller hosting the COS model. | micro   |
-| cos_model      | Name of the COS model                         | cos     |
+| `cos_controller` | Name of the controller hosting the COS model. | micro   |
+| `cos_model`      | Name of the COS model                         | cos     |
 
 Once the template is rendered, the COS-enabled Charmed Apache Spark bundle can be deployed using:
 
@@ -200,11 +200,11 @@ The following table provides the description of the different configuration opti
 
 | key         | Description                                                                                                                           |
 |-------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| kyuubi_user | Service Account to be used by Apache Kyuubi Engines (deprecated)                                                                             |
-| model       | Namespace where the charms will be deployed. This should correspond to the name of the Juju model to be used.                         |
-| s3.endpoint | Endpoint of the S3-compatible object storage backend, in the form of `http(s)//host:port`.                                            |
-| s3.bucket   | Name of the S3 bucket to be used for storing logs and data                                                                            |
-| cos_model   | (Optional) Name of the model where COS is deployed. If omitted, the resource of the cos-integration submodules will not be deployed   |
+| `kyuubi_user` | Service Account to be used by Apache Kyuubi Engines (deprecated)                                                                             |
+| `model`       | Namespace where the charms will be deployed. This should correspond to the name of the Juju model to be used.                         |
+| `s3.endpoint` | Endpoint of the S3-compatible object storage backend, in the form of `http(s)//host:port`.                                            |
+| `s3.bucket`   | Name of the S3 bucket to be used for storing logs and data                                                                            |
+| `cos_model`   | (Optional) Name of the model where COS is deployed. If omitted, the resource of the cos-integration submodules will not be deployed   |
 
 ```{caution}
 The Juju Terraform provider does not yet support cross-controller relations with COS. Therefore, COS model must be hosted in the same controller as the Charmed Apache Spark model. 

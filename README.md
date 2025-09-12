@@ -41,7 +41,7 @@ Charmed Apache Spark supports native integration with the Canonical Observabilit
 
 For information on security features and the use of cryptography, see the [Security explanation](https://charmhub.io/spark-k8s-bundle/docs/e-security) page.
 
-Security issues in the Charmed Apache Spark can be reported through [LaunchPad](https://wiki.ubuntu.com/DebuggingSecurity#How%20to%20File). Please do not file GitHub issues about security issues.
+Security issues in the Charmed Apache Spark can be reported through [LaunchPad](https://wiki.ubuntu.com/DebuggingSecurity). Please do not file GitHub issues about security issues.
 
 ## Contributing
 

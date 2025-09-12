@@ -9,7 +9,7 @@ The legacy [Mattermost](https://chat.charmhub.io/charmhub/channels/data-platform
 
 Report your ideas/issues/pull-requests on [GitHub](https://github.com/canonical/spark-k8s-bundle/issues/new).
 
-Security issues should be reported through [LaunchPad](https://wiki.ubuntu.com/DebuggingSecurity#How%20to%20File).
+Security issues should be reported through [LaunchPad](https://wiki.ubuntu.com/DebuggingSecurity).
 Please do NOT file GitHub issues on security topics.
 
 ## Useful links

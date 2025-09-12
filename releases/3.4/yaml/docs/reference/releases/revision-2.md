@@ -74,8 +74,8 @@ Charmhub: [3.4/stable](https://charmhub.io/kyuubi-k8s?channel=3.4/stable), [3.5/
 
 ### Spark Client Snap
 
-- [[DPE-3472](https://warthogs.atlassian.net/browse/DPE-3472)] Fix error when using S3 with Pyspark or Spark shell
-- [[DPE-3621](https://warthogs.atlassian.net/browse/DPE-3621)] Fix usage of KUBECONFIG env variable
+- [[DPE-3472](https://warthogs.atlassian.net/browse/DPE-3472)] Fix error when using S3 with PySpark or Spark shell
+- [[DPE-3621](https://warthogs.atlassian.net/browse/DPE-3621)] Fix usage of KUBECONFIG environment variable
 
 ### Charmed Spark OCI Images
 
@@ -86,7 +86,7 @@ Charmhub: [3.4/stable](https://charmhub.io/kyuubi-k8s?channel=3.4/stable), [3.5/
 ### Charmed Spark OCI Images
 
 - [[DPE-3067](https://warthogs.atlassian.net/browse/DPE-3067)] Changes following up entrypoint service refactoring\
-  _(This change removed the python files needed by jupyter service, as the jupyter binaries were moved into a separate image to reduce the security surface of the image)_
+  _(This change removed the python files needed by Jupyter service, as the Jupyter binaries were moved into a separate image to reduce the security surface of the image)_
 
 ## Other improvements
 
