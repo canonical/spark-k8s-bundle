@@ -421,7 +421,8 @@ or also using the `azcli` with
 azcli storage container create --fail-on-exist --name <AZURE_CONTAINER>
 ```
 
-To create a folder on an existing container, just place a dummy file in the container under the  `spark-events` path.
+To create a folder on an existing container,
+just place any file in the container under the `spark-events` path.
 To do this, you can use the `azcli` client snap:
 
 ```shell
