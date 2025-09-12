@@ -1,14 +1,18 @@
 (how-to-deploy-deploy-charmed-apache-kyuubi)=
 # Deploy Charmed Apache Kyuubi
 
-Charmed Apache Spark can work with [Apache Kyuubi](https://kyuubi.apache.org/), which is a distributed and multi-tenant gateway to provide serverless SQL on lakehouses.
+Charmed Apache Spark can work with [Apache Kyuubi](https://kyuubi.apache.org/),
+which is a distributed and multi-tenant gateway to provide serverless SQL on lakehouses.
 The following guide is to set up Apache Kyuubi for running SQL queries with Charmed Apache Spark.
 
 ## Prerequisites
 
-To continue, make sure that you have a properly set up Charmed Apache Spark K8s environment with [Juju](https://documentation.ubuntu.com/juju/3.6/).
+To continue, make sure that you have a properly set up Charmed Apache Spark K8s environment with
+[Juju](https://documentation.ubuntu.com/juju/3.6/).
 
-See the [How to set up K8s environment](/how-to/deploy/set-up-the-environment) guide for instructions on how to set up with different cloud providers and follow the [Environment setup](/tutorial/1-environment-setup) page in our Tutorial to set up a service account.
+See the [How to set up K8s environment](how-to-deploy-environment) guide for instructions on
+how to set up with different cloud providers and follow the
+[Environment setup](/tutorial/1-environment-setup) page in our Tutorial to set up a service account.
 
 ## Initial setup
 
@@ -230,4 +234,3 @@ juju integrate kyuubi-k8s zookeeper-k8s
 ```
 
 Wait for all the units of the `kyuubi-k8s` application to become active.
-

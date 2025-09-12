@@ -34,11 +34,15 @@ Then, integrate with the Spark History server charm
 juju integrate traefik-k8s spark-history-server-k8s
 ```
 
-After the charms settle down into `idle/active` states, fetch the URL of the Spark History server with 
+After the charms settle down into `idle/active` states, fetch the URL of the Spark History server with
 
 ```bash
 juju run-action traefik-k8s/0 show-proxied-endpoints --wait
 ```
 
-This should print a JSON with all the ingress endpoints exposed by the `traefik-k8s` charm. To also exposed the UI outside the local cloud network via a public domain or to enable TLS encryption, please refer to this [guide for Let’s Encrypt certificates](/) about integration of `traefik-k8s` with Route53 and Let's Encrypt (note that this is currently only supported on AWS EKS only).
-
+This should print a JSON with all the ingress endpoints exposed by the
+`traefik-k8s` charm. To also exposed the UI outside the local cloud network via
+a public domain or to enable TLS encryption, please refer to this
+[guide for Let’s Encrypt certificates](https://discourse.charmhub.io/t/lets-encrypt-certificates-in-the-juju-ecosystem/8704)
+about integration of `traefik-k8s` with Route53 and Let's Encrypt (note that
+this is currently only supported on AWS EKS only).

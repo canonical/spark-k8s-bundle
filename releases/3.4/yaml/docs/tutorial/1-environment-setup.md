@@ -217,7 +217,7 @@ spark-client.pyspark \
 
 The resulted output should include a welcome screen from PySpark:
 
-```bash
+```text
 Welcome to
       ____              __
      / __/__  ___ _____/ /__

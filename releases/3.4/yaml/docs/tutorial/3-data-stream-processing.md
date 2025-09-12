@@ -47,7 +47,7 @@ juju deploy kafka-k8s --trust
 juju integrate kafka-k8s zookeeper-k8s
 ```
 
-For more details on the Charmed Apache Kafka K8s deployment process, see the [How to deploy](/) guide.
+For more details on the Charmed Apache Kafka K8s deployment process, see the [How to deploy](how-to-deploy-spark) guide.
 
 Once installed, let's see the current status of the Juju model with the following command:
 

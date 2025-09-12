@@ -1,7 +1,9 @@
 (explanation-security)=
 # Security hardening guide
 
-This document provides an overview of security features and guidance for hardening the security of [Charmed Apache Spark K8s](https://github.com/canonical/spark-k8s-bundle), including setting up and managing a secure environment.
+This document provides an overview of security features and guidance for hardening the security of
+[Charmed Apache Spark K8s](https://github.com/canonical/spark-k8s-bundle),
+including setting up and managing a secure environment.
 
 ## Environment
 
@@ -12,8 +14,8 @@ The environment where applications operate can be divided in two components:
 
 ### Kubernetes
 
-Charmed Apache Spark can be deployed on top of several Kubernetes distributions. 
-The following table provides references for the security documentation for the 
+Charmed Apache Spark can be deployed on top of several Kubernetes distributions.
+The following table provides references for the security documentation for the
 main supported cloud platforms.
 
 | Cloud              | Security guide                                                                                                                                                                                                                                                                                                                                   |
@@ -22,33 +24,37 @@ main supported cloud platforms.
 | AWS EKS            | [Best Practices for Security, Identity and Compliance](https://aws.amazon.com/architecture/security-identity-compliance), [AWS security credentials](https://docs.aws.amazon.com/IAM/latest/UserGuide/security-creds.html#access-keys-and-secret-access-keys), [Security in EKS](https://docs.aws.amazon.com/eks/latest/userguide/security.html) | 
 | Azure AKS          | [Azure security best practices and patterns](https://learn.microsoft.com/en-us/azure/security/fundamentals/best-practices-and-patterns), [Managed identities for Azure resource](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/), [Security in AKS](https://learn.microsoft.com/en-us/azure/aks/concepts-security)                                                      |
 
-### Juju 
+### Juju
 
-Juju is the component responsible for orchestrating the entire lifecycle, from deployment to Day 2 operations, of 
-all applications. Therefore, Juju must be set up securely. For more information, see the
-[Juju security page](/) and the [How to harden your deployment guide](https://juju.is/docs/juju/harden-your-deployment).
+Juju is the component responsible for orchestrating the entire lifecycle,
+from deployment to Day 2 operations, of all applications. Therefore, Juju must be set up securely.
+For more information, see the
+[Juju security page](https://documentation.ubuntu.com/juju/latest/explanation/juju-security/index.html)
+and the
+[How to harden your deployment guide](https://documentation.ubuntu.com/juju/3.6/howto/manage-your-juju-deployment/harden-your-juju-deployment/#harden-your-deployment).
 
 #### Cloud credentials
 
-When configuring the cloud credentials to be used with Juju, ensure that the users have correct permissions to operate at the required level on the Kubernetes cluster. 
-Juju superusers responsible for bootstrapping and managing controllers require elevated permissions to manage several kind of resources. For this reason, the 
-K8s user used for bootstrapping and managing the deployments should have full permissions, such as: 
+When configuring the cloud credentials to be used with Juju, ensure that the users have correct
+permissions to operate at the required level on the Kubernetes cluster.
+Juju superusers responsible for bootstrapping and managing controllers require elevated permissions to manage several kind of resources. For this reason, the
+K8s user used for bootstrapping and managing the deployments should have full permissions, such as:
 
 * create, delete, patch, and list:
-    * namespaces
-    * services
-    * deployments
-    * stateful sets
-    * pods
-    * PVCs
+  * namespaces
+  * services
+  * deployments
+  * stateful sets
+  * pods
+  * PVCs
 
-In general, it is common practice to run Juju using the admin role of K8s, to have full permissions on the Kubernetes cluster. 
+In general, it is common practice to run Juju using the admin role of K8s, to have full permissions on the Kubernetes cluster.
 
 #### Juju users
 
-It is very important that juju users are set up with minimal permissions depending on the scope of their operations. 
-Please refer to the [User access levels](https://juju.is/docs/juju/user-permissions) documentation for more information on the access level and corresponding abilities 
-that the different users can be granted. 
+It is very important that Juju users are set up with minimal permissions depending on the scope of their operations.
+Please refer to the [User access levels](https://juju.is/docs/juju/user-permissions) documentation for more information on the access level and corresponding abilities
+that the different users can be granted.
 
 Juju user credentials must be stored securely and rotated regularly to limit the chances of unauthorized access due to credentials leakage.
 
@@ -64,11 +70,11 @@ In the following, we provide guidance on how to harden your deployment using:
 
 ### Base images
 
-Charmed Apache Spark K8s runs on top of a set of Rockcraft-based images, all based on the same Apache Spark distribution binaries, 
-available in the [Apache Spark release page](https://launchpad.net/spark-releases), on top of Ubuntu 22.04. 
+Charmed Apache Spark K8s runs on top of a set of Rockcraft-based images, all based on the same Apache Spark distribution binaries,
+available in the [Apache Spark release page](https://launchpad.net/spark-releases), on top of Ubuntu 22.04.
 The images that can be found in the [Charmed Apache Spark rock images GitHub repo](https://github.com/canonical/charmed-spark-rock) are used as the base 
 images for pods both for Spark jobs and charms. 
-The following table summarises the relation between the component and its underlying base image. 
+The following table summarises the relation between the component and its underlying base image.
 
 | Component                          | Image                                                                                                       |
 |------------------------------------|-------------------------------------------------------------------------------------------------------------|
@@ -80,69 +86,83 @@ The following table summarises the relation between the component and its underl
 | Spark Job (Executor) - GPU Support | [`charmed-spark-gpu`](https://github.com/orgs/canonical/packages/container/package/charmed-spark-gpu)       |
 | Integration Hub                    | [`spark-integration-hub`](https://github.com/orgs/canonical/packages/container/package/spark-integration-hub)                    |
 
-New versions of the Charmed Apache Spark images may be released to provide patching of vulnerabilities (CVEs). 
+New versions of the Charmed Apache Spark images may be released to provide patching of vulnerabilities (CVEs).
 
 ### Charmed operator security upgrades
 
-Charmed Apache Spark K8s operators, including Spark History server, Charmed Apache Kyuubi, and Integration Hub, install a pinned revision of the 
-Charmed Apache Spark images outlined in the previous table to provide reproducible and secure environments. 
-New versions of Charmed Apache Spark K8s operators may therefore be released to provide patching of vulnerabilities (CVEs). 
-It is important to refresh the charm regularly to make sure the workload is as secure as possible. 
+Charmed Apache Spark K8s operators, including Spark History server, Charmed Apache Kyuubi, and Integration Hub, install a pinned revision of the
+Charmed Apache Spark images outlined in the previous table to provide reproducible and secure environments.
+New versions of Charmed Apache Spark K8s operators may therefore be released to provide patching of vulnerabilities (CVEs).
+It is important to refresh the charm regularly to make sure the workload is as secure as possible.
 <!-- For more information on how to refresh the charm, see the [how-to refresh](https://juju.is/docs/juju/juju-refresh) guide and other data-platform guide -->
 
 ### Encryption
 
-We recommend deploying Charmed Apache Spark K8s with encryption enabled for securing the communication between components, whenever available and supported by the server and client applications.
-In the following, we provide further information on how to encrypt the various data flow between the different components of the solution:
+We recommend deploying Charmed Apache Spark K8s with encryption enabled for securing the
+communication between components, whenever available and supported by the server and client applications.
+In the following, we provide further information on how to encrypt the various data flow between
+the different components of the solution:
 
 * Client <> Kubernetes API connections
 * Object storage connections
 * Apache Kyuubi <> PostgreSQL connection
 * Apache Kyuubi <> Apache ZooKeeper connection
-* Spark History Server client connection 
+* Spark History Server client connection
 * Kyuubi Client <> Kyuubi Server connection
 * Spark jobs communications
 
 #### Client <> Kubernetes API connections
 
-Make sure that the API service of Kubernetes is correctly encrypted, and it exposes HTTPS protocol. Please refer to the documentation above
-for the main substrates and/or the documentation of your distribution. Please ensure that the various components of the solution, 
-e.g. `spark-client`, `pods`, etc, are correctly configured with the trusted CA certificate of the K8s cluster. 
+Make sure that the API service of Kubernetes is correctly encrypted, and it exposes HTTPS protocol.
+Please refer to the documentation above
+for the main substrates and/or the documentation of your distribution.
+Please ensure that the various components of the solution, e.g. `spark-client`, `pods`, etc,
+are correctly configured with the trusted CA certificate of the K8s cluster.
 
 #### Object storage connections
 
-Make sure that the object storage service is correctly encrypted, and it exposes HTTPS protocol. Please refer to the documentation of your 
-object storage backend to make sure this option is supported and enabled. Please ensure that the various components of the solution, 
-e.g. `spark-client`, `pods`, etc, are correctly configured with the trusted CA certificate of the K8s cluster. 
-See the [how-to manage certificates](/) guide for more information.
+Make sure that the object storage service is correctly encrypted, and it exposes HTTPS protocol.
+Please refer to the documentation of your object storage backend to make sure
+this option is supported and enabled. Please ensure that the various components of the solution,
+e.g. `spark-client`, `pods`, etc, are correctly configured with the trusted CA certificate of the
+K8s cluster.
+See the [how-to manage certificates](how-to-self-signed-certificates) guide for more information.
 
-#### Apache Kyuubi <> PostgreSQL connection 
+#### Apache Kyuubi <> PostgreSQL connection
 
-Charmed Apache Kyuubi integration with PostgreSQL can be secured by enabling encryption for the PostgreSQL K8s charm. 
-See the [PostgreSQL K8s how-to enable TLS](/) user guide for more information on 
-how to enable and customize encryption. 
+Charmed Apache Kyuubi integration with PostgreSQL can be secured by enabling encryption for the PostgreSQL K8s charm.
+See the [PostgreSQL K8s how-to enable TLS](https://canonical-charmed-postgresql.readthedocs-hosted.com/14/how-to/enable-tls/)
+guide for more information on how to enable and customize encryption.
 
 #### Apache Kyuubi <> Apache ZooKeeper connection
 
-Charmed Apache Kyuubi integration with Apache ZooKeeper can be secured by enabling encryption for the Apache ZooKeeper K8s charm. 
-See the [Apache Kafka K8s how-to enable TLS](/) user guide for more information on 
-how to enable and customize encryption for Apache ZooKeeper. 
+Charmed Apache Kyuubi integration with Apache ZooKeeper can be secured by enabling encryption
+for the Apache ZooKeeper K8s charm.
+See the [Apache Kafka K8s how-to enable TLS](https://documentation.ubuntu.com/charmed-kafka/3/how-to/enable-encryption/)
+guide for more information on how to enable and customize encryption for Apache ZooKeeper.
 
-#### Spark History Server client connection 
+#### Spark History Server client connection
 
-Spark History Server implements encryption terminated at ingress-level. Therefore, internal Kubernetes communication between ingress and Spark History Server is 
-unencrypted. To enable encryption, see the [how-to expose Spark History Server](/) user guide. 
+Spark History Server implements encryption terminated at ingress-level.
+Therefore, internal Kubernetes communication between ingress and Spark History Server is unencrypted.
+To enable encryption, see the
+[how-to expose Spark History Server](how-to-spark-history-server-expose-web-gui) user guide.
 
 #### Kyuubi Client <> Kyuubi Server connection
 
-The Apache Kyuubi charm exposes a JDBC-compliant endpoint which can be connected using JDBC-compliant clients, like Beeline. 
+The Apache Kyuubi charm exposes a JDBC-compliant endpoint which can be connected using
+JDBC-compliant clients, like Beeline.
 Encryption is currently not supported and it is planned for 25.04.
 
 #### Spark jobs communications
 
-To secure the RPC channel used for communication between driver and executor, use the [dedicated Apache Spark properties](https://spark.apache.org/docs/latest/security.html#ssl-configuration). 
-Refer to the [how-to manage spark accounts](/how-to/manage-service-accounts/using-spark-client-snap) for more information on how to customize the 
-Apache Spark service account with additional properties, or the [Spark Configuration Management](/explanation/component-overview) explanation page for more information on how Spark workload can be further configured.
+To secure the RPC channel used for communication between driver and executor, use the
+[dedicated Apache Spark properties](https://spark.apache.org/docs/latest/security.html#ssl-configuration).
+Refer to the [how-to manage spark accounts](/how-to/manage-service-accounts/using-spark-client-snap)
+for more information on how to customize the
+Apache Spark service account with additional properties, or the
+[Spark Configuration Management](/explanation/component-overview) explanation page
+for more information on how Spark workload can be further configured.
 
 ### Authentication
 
@@ -163,29 +183,35 @@ See the [upstream documentation](https://kubernetes.io/docs/tasks/run-applicatio
 
 #### Spark History Server
 
-Authentication can be enabled in the Spark History Server when exposed using Traefik by leveraging on the [Oath Keeper](https://charmhub.io/oathkeeper) integration, that provides 
-a cloud native Identity & Access Proxy (IAP) and Access Control Decision API able to authenticates, authorizes, 
+Authentication can be enabled in the Spark History Server when exposed using Traefik by leveraging on the
+[Oath Keeper](https://charmhub.io/oathkeeper) integration, that provides
+a cloud native Identity & Access Proxy (IAP) and Access Control Decision API able to authenticates, authorizes,
 and mutates incoming HTTP(s) requests, fully-integrated with the Canonical Identity Platform.
 
-Refer to the [how-to enable authorization in the Spark history server](/) user guide 
-for more information. From a permission-wise point of view, white lists of authorised users 
-can be provided using the Spark History Server [charm configuration option](https://charmhub.io/spark-history-server-k8s/configurations?channel=3.4/edge). 
+Refer to the [how-to enable authorization in the Spark history server](how-to-spark-history-server-auth) guide
+for more information. From a permission-wise point of view, white lists of authorised users
+can be provided using the Spark History Server
+[charm configuration option](https://charmhub.io/spark-history-server-k8s/configurations?channel=3.4/edge).
 
 #### Kyuubi JDBC endpoint
 
-Authentication can be enabled for Charmed Apache Kyuubi via its integration with PostgreSQL charm on the `auth-db` interface. Currently, only one admin user is enabled, whose credentials can be retrieved 
+Authentication can be enabled for Charmed Apache Kyuubi via its integration with PostgreSQL charm
+on the `auth-db` interface. Currently, only one admin user is enabled, whose credentials can be retrieved
 using the [`get-jdbc-endpoint` action](https://charmhub.io/kyuubi-k8s/actions#get-jdbc-endpoint).
 
 ### Monitoring and auditing
 
 Charmed Apache Spark provides native integration with the [Canonical Observability Stack (COS)](https://charmhub.io/topics/canonical-observability-stack).
-To reduce the blast radius of infrastructure disruptions, the general recommendation is to deploy COS and the observed application into 
-separate environments, isolated from one another. Refer to the [COS production deployments best practices](https://charmhub.io/topics/canonical-observability-stack/reference/best-practices) page
-for more information. 
+To reduce the blast radius of infrastructure disruptions, the general recommendation is to deploy
+COS and the observed application into separate environments, isolated from one another.
+Refer to the
+[COS production deployments best practices](https://charmhub.io/topics/canonical-observability-stack/reference/best-practices)
+page for more information.
 
-For more information on how to enable and customise monitoring with COS, see the [Guide](/).
+For more information on how to enable and customise monitoring with COS,
+see the [Monitoring](how-to-enable-monitoring) guide.
 
 ## Additional resources
 
-For further information and details on the security and cryptographic specifications used by Charmed Apache Spark, please refer to the [Cryptography](/explanation/cryptography).
-
+For further information and details on the security and cryptographic specifications used by
+Charmed Apache Spark, please refer to the [Cryptography](/explanation/cryptography).

@@ -47,7 +47,7 @@ with a service account that is able to create pods, services and configmaps in
 order to correctly spawn executors. Moreover, Charmed Apache Spark service accounts
 also store Apache Spark configuration centrally in Kubernetes as secrets, that must 
 be readable/writable depending on their scope. Please refer to the explanations 
-about the [Charmed Apache Spark hierarchical configuration](/8956) for more information. 
+about the [Charmed Apache Spark hierarchical configuration](explanation-configuration) for more information.
 
 ## Metrics
 
@@ -82,23 +82,23 @@ that is used as the default base for both Driver and Executors pods.
 This exporter is designed to push metrics to the [prometheus-pushgateway-k8s](https://charmhub.io/prometheus-pushgateway)
 charm, which is integrated with the [Canonical Observability Stack](https://charmhub.io/topics/canonical-observability-stack).
 
-Once the metrics are ingested by Prometheus, they are then exposed to the user 
-through [Grafana](https://grafana.com/) where they can be visualized in custom dashboards. 
+Once the metrics are ingested by Prometheus, they are then exposed to the user
+through [Grafana](https://grafana.com/) where they can be visualized in custom dashboards.
 Custom alerting rules can also be defined and efficiently managed by [AlertManager](https://prometheus.io/docs/alerting/latest/alertmanager/).
 
 ## Logs
 
-Logs of driver and executors are stored on the pod local filesystem by default, 
+Logs of driver and executors are stored on the pod local filesystem by default,
 however they can also be forwarded to the [Loki](https://grafana.com/oss/loki/) via the `LOKI_URL`
 environment variable. This variable is used by [Pebble](https://canonical-pebble.readthedocs-hosted.com/en/latest/),
 to configure [log-forwarding](https://canonical-pebble.readthedocs-hosted.com/en/latest/reference/log-forwarding/)
 to remote Loki server.
 
-This feature is available from Charmed Apache Spark version [3.4.2/edge](ghcr.io/canonical/charmed-spark:3.4.2-22.04_edge@sha256:321b6deb13f10c045028c9b25264b8113c6fdcbe4f487ff472a06fd7bdcb2758)
+This feature is available from Charmed Apache Spark version
+[3.4.2/edge](https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark/357294915?tag=3.4.2-22.04_edge)
 and requires a working Loki. Hence, we recommend using it with
 [COS](https://charmhub.io/topics/canonical-observability-stack).
 
 Charmed Apache Spark also allows you to store these logs in S3 or Azure storage so that they can
-be re-read and visualized using the Spark History Server, allowing users to monitor 
+be re-read and visualized using the Spark History Server, allowing users to monitor
 and visualize the information and metrics about the job execution.
-

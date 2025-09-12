@@ -37,8 +37,8 @@ History Server.
 
 | | |
 |--|--|
-| [Tutorials](/tutorial/introduction)</br>  Get started - a hands-on introduction to using Charmed Apache Spark operator for new users </br> | [How-to guides](/how-to/deploy/set-up-the-environment) </br> Step-by-step guides covering key operations and common tasks |
-| [Reference](/reference/requirements) </br> Technical information - specifications, APIs, architecture | [Explanation](/explanation/component-overview) </br> Concepts - discussion and clarification of key topics |
+| [Tutorials](tutorial-introduction)</br>  Get started - a hands-on introduction to using Charmed Apache Spark operator for new users </br> | [How-to guides](how-to-deploy-index) </br> Step-by-step guides covering key operations and common tasks |
+| [Reference](reference-index) </br> Technical information - specifications, APIs, architecture | [Explanation](explanation-index) </br> Concepts - discussion and clarification of key topics |
 
 ## Project and community
 

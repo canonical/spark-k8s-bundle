@@ -1,10 +1,11 @@
 (how-to-deploy-spark)=
 # Deploy Charmed Apache Spark
 
-Charmed Apache Spark comes with a bundled set of components that allow you to easily 
+Charmed Apache Spark comes with a bundled set of components that allow you to easily
 manage Apache Spark workloads on K8s, providing integration with object storage,
 monitoring and log aggregation. For an overview on the different components
-that form Charmed Apache Spark, please refer to [this section](./path/to/explanation.md).
+that form Charmed Apache Spark, please refer to the
+[components overview](explanation-component-overview) page.
 
 ## Prerequisites
 
@@ -14,14 +15,24 @@ Since Charmed Apache Spark will be managed by Juju, make sure that:
 * you are able to connect to a juju controller
 * you have read-write permissions to either an S3-compatible or an Azure object storage
 
-To set up a Juju controller on K8s and the Juju client, you can refer to existing tutorials and documentation for [MicroK8s](https://juju.is/docs/olm/get-started-with-juju) and for [AWS EKS](https://juju.is/docs/juju/amazon-eks). Also refer to the [How-to set up environment](/) guide to install and set up an S3-compatible object storage on MicroK8s (MinIO), EKS (AWS S3), or Azure object storages. 
-For other backends or K8s distributions other than MinIO on MicroK8s and S3 on EKS (e.g. Ceph, Charmed Kubernetes, GKE, etc.), please refer to their documentation.
+To set up a Juju controller on K8s and the Juju client, you can refer to existing tutorials
+and documentation for [MicroK8s](https://juju.is/docs/olm/get-started-with-juju) and for
+[AWS EKS](https://juju.is/docs/juju/amazon-eks).
+Also refer to the [How-to set up environment](how-to-deploy-environment) guide to install and set up
+an S3-compatible object storage on MicroK8s (MinIO), EKS (AWS S3), or Azure object storages.
+For other backends or K8s distributions other than MinIO on MicroK8s and S3 on EKS
+(e.g. Ceph, Charmed Kubernetes, GKE, etc.), please refer to their documentation.
 
-Charmed Apache Spark supports native integration with the Canonical Observability Stack (COS). To enable monitoring on top of Charmed Apache Spark, make sure that you have a Juju model with COS correctly deployed. To deploy COS on MicroK8s follow the step-by-step [tutorial](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s) or refer to its [documentation](https://charmhub.io/topics/canonical-observability-stack) for more informations.
+Charmed Apache Spark supports native integration with the Canonical Observability Stack (COS).
+To enable monitoring on top of Charmed Apache Spark, make sure that you have a Juju model with COS
+correctly deployed. To deploy COS on MicroK8s follow the step-by-step
+[tutorial](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s)
+or refer to its [documentation](https://charmhub.io/topics/canonical-observability-stack) for more
+information.
 
 ## Preparation
 
-### Juju Model 
+### Juju model
 
 Make sure that you have a Juju model where you can deploy the Spark History server. In general, we advise to segregate juju applications belonging to different solutions, and therefore
 to have a dedicated model for `Spark` components, e.g.
@@ -34,10 +45,10 @@ juju add-model <juju_model>
 Note that this will create a K8s namespace to which the different Charmed Apache Spark components will be deployed.
 ```
 
-## Deploy Charmed Apache Spark
+## Deploy
 
 Charmed Apache Spark can be deployed via:
- 
+
 * Native Juju YAML bundle and overlays
 * Terraform modules
 
@@ -151,13 +162,21 @@ juju deploy -m <juju_model> ./bundle.yaml --overlay cos-integration.yaml
 
 ### Using Terraform
 
-Make sure you have a working Terraform 1.8+ installed in your machine. You can install [Terraform](https://snapcraft.io/terraform) or [OpenTofu](https://snapcraft.io/terraform) via a snap.
+Make sure you have a working Terraform 1.8+ installed in your machine.
+You can install [Terraform](https://snapcraft.io/terraform) or
+[OpenTofu](https://snapcraft.io/terraform) via a snap.
 
-Terraform modules make use of the Terraform Juju provider. More information about the Juju provider can be found [here](https://registry.terraform.io/providers/juju/juju/latest/docs).
+Terraform modules make use of the Terraform Juju provider.
+More information about the Juju provider can be found in the
+[Terraform documentation](https://registry.terraform.io/providers/juju/juju/latest/docs).
 
-The [Charmed Apache Spark Terraform module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform) is composed of the following submodules:
-* [base module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/base) that bundles all the base resources of the Charmed Apache Spark solution 
-* [cos-integration module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/cos) that bundles all the resources that enable integration with COS
+The [Charmed Apache Spark Terraform module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform)
+is composed of the following submodules:
+
+* [base module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/base)
+  that bundles all the base resources of the Charmed Apache Spark solution
+* [cos-integration module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/cos)
+  that bundles all the resources that enable integration with COS
 
 ```{caution}
 Currently only S3 storage backends are supported for Terraform-based bundles.
@@ -168,12 +187,12 @@ The Charmed Apache Spark Terraform modules can be configured using a `.tfvars.js
 ```json
 {
   "s3": {
-    "bucket": <bucket_name>,
-    "endpoint": <s3_endpoint>
+    "bucket": "<bucket_name>",
+    "endpoint": "<s3_endpoint>"
   },
-  "kyuubi_user": <kyuubi_service_account>,
-  "model": <juju_model>,
-  "cos_model": <cos_model> 
+  "kyuubi_user": "<kyuubi_service_account>",
+  "model": "<juju_model>",
+  "cos_model": "<cos_model>" 
 }
 ```
 

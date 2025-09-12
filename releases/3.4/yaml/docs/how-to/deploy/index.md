@@ -5,7 +5,7 @@
 :titlesonly:
 :hidden:
 
-Set up environment<set-up-the-environment.md>
-deploy-charmed-apache-spark.md
-deploy-charmed-apache-kyuubi.md
+Set up the environment<environment.md>
+Deploy Charmed Apache Spark<spark.md>
+Deploy Charmed Apache Kyuubi<kyuubi.md>
 ```

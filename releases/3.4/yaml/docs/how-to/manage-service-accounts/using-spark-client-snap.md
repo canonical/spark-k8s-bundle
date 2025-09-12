@@ -1,17 +1,20 @@
 (how-to-manage-service-accounts-using-spark-client-snap)=
-# Manage Charmed Apache Spark Service Accounts
+# Manage Charmed Apache Spark service accounts
 
 This is an introduction to the CLI interface for creating, managing and configuring Charmed Apache Spark service accounts. 
 
 ```{note}
-Charmed Apache Spark service accounts are designed to work seamlessly with the Integration Hub for Apache Spark charm, allowing you to manage Apache Spark configuration using Juju relations. For more information about how to use the configuration hub see the [How to guide](/).
+Charmed Apache Spark service accounts are designed to work seamlessly with the
+Integration Hub for Apache Spark charm, allowing you to manage Apache Spark configuration
+using Juju relations. For more information about how to use the configuration hub see the
+[How to guide](how-to-service-accounts-integration-hub).
 ```
 
 ```{caution}
 The following commands assume that you have administrative permission on the namespaces (or on the Kubernetes cluster) so that the corresponding resources (such as service accounts, secrets, roles, and role bindings) can be created and deleted. 
 ```
 
-## Create Service Account
+## Create service account
 
 In case using another namespace than `default`, make sure that it already exists in Kubernetes:
 
@@ -20,14 +23,19 @@ $ kubectl create namespace demonamespace
 namespace/demonamespace created
 ```
 
-Now we can define a service account within the scope of this namespace. In case we have a configuration file with default settings for the account, we can also include those when defining the account. The syntax of the config file is identical to [Apache Spark Configuration Properties](https://spark.apache.org/docs/latest/configuration.html#available-properties). For example:
+Now we can define a service account within the scope of this namespace.
+In case we have a configuration file with default settings for the account, we can also include
+those when defining the account. The syntax of the config file is identical to
+[Apache Spark Configuration Properties](https://spark.apache.org/docs/latest/configuration.html#available-properties).
+For example:
 
 ```bash
-$ echo "spark.kubernetes.deploy-mode=cluster" > /home/demouser/conf/spark-overrides.conf
+echo "spark.kubernetes.deploy-mode=cluster" > /home/demouser/conf/spark-overrides.conf
 ```
 
-The command below creates a service account associated with configuration properties provided either via property file or explicit 
-configuration arguments.  The flags `--primary` specifies that the newly created account will be the primary account to 
+The command below creates a service account associated with configuration properties provided
+either via property file or explicit configuration arguments.
+The flags `--primary` specifies that the newly created account will be the primary account to
 be used. (If another primary exists, the latter account primary flag will be set to `false`.)
 
 ```bash
@@ -42,7 +50,7 @@ To display a list of the service accounts available, and whether they are primar
 spark-client.service-account-registry list
 ```
 
-## Add more entries to Service Account Configuration
+## Add more entries to service account configuration
 
 To upsert into the existing configuration associated with the account:
 
@@ -50,7 +58,7 @@ To upsert into the existing configuration associated with the account:
 spark-client.service-account-registry add-config --username demouser --namespace demonamespace  --properties-file /home/demouser/conf/spark-overrides.conf  --conf spark.app.name=demo-spark-app-overrides
 ```
 
-## Remove entries from Service Account Configuration
+## Remove entries from service account configuration
 
 To remove the specified keys from the existing configuration associated with the account:
 
@@ -58,7 +66,7 @@ To remove the specified keys from the existing configuration associated with the
 spark-client.service-account-registry remove-config --username demouser --namespace demonamespace  --conf conf.key1.to.remove --conf conf.key2.to.remove
 ```
 
-## Print configuration for a given Service Account
+## Print configuration for a given service account
 
 To print the configuration for a given service account:
 
@@ -66,7 +74,7 @@ To print the configuration for a given service account:
 spark-client.service-account-registry get-config --username demouser --namespace demonamespace 
 ```
 
-## Delete Service Account Configuration
+## Delete service account configuration
 
 To delete the configurations associated with a given service account:
 
@@ -74,7 +82,7 @@ To delete the configurations associated with a given service account:
 spark-client.service-account-registry clear-config --username demouser --namespace demonamespace 
 ```
 
-## Inspect Primary Service Account
+## Inspect primary service account
 
 To find out which is the primary account, together with related configuration settings:
 
@@ -82,11 +90,10 @@ To find out which is the primary account, together with related configuration se
 spark-client.service-account-registry get-primary
 ```
 
-## Cleanup a Service Account
+## Cleanup a service account
 
 To delete the service account together with the other resources created, e.g. secrets, role, role-bindings, etc.:
 
 ```bash
 spark-client.service-account-registry delete --username demouser --namespace demonamespace 
 ```
-

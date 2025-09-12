@@ -11,14 +11,14 @@ Once COS is correctly deployed, to enable monitoring it is necessary to:
 1. Integrate and configure the COS bundle with Charmed Apache Spark
 2. Configure the Apache Spark service account
 
-## Integrating/Configuring with COS
+## Integrating/configuring with COS
 
 The Charmed Apache Spark solution already bundles all the components required to integrate
 COS as well as to configure the monitoring artifacts.
 
 The deployments of these resources can be enabled/disabled using either overlays
 (for Juju bundles) or input variables (for Terraform bundles).
-Please refer to the [how-to deploy](/) guide for more information.
+Please refer to the [how-to deploy](how-to-deploy-spark) guide for more information.
 
 After the deployment settles on an `active/idle` state, you can make sure that
 Grafana is correctly set up with dedicated dashboards.
@@ -64,7 +64,7 @@ juju run cos-configuration-k8s/leader sync-now
 
 For more information, refer to the `cos-configuration-k8s` charm [docs](https://discourse.charmhub.io/t/cos-configuration-k8s-docs-index/7284).
 
-### Configuring Scraping intervals
+### Configuring scraping intervals
 
 The `prometheus-scrape-config-k8s` charm included in the bundle can be used to configure
 the prometheus scraping jobs.
@@ -79,7 +79,7 @@ juju config scrape-config --config scrape_interval=<SCRAPE_INTERVAL>
 For more information about the properties that can be set using `prometheus-scrape-config-k8s`,
 please refer to its [documentation](https://discourse.charmhub.io/t/prometheus-scrape-config-k8s-docs-index/6856).
 
-### Enable Log Forwarding to Loki
+### Enable log forwarding to Loki
 
 Logs from each driver or executor can be enabled using two Spark configuration options:
 
@@ -91,10 +91,11 @@ They are used to forward executor and driver logs respectively to a Loki server.
 There are two ways to provide the `LOKI_URL` variables:
 
 1. Manually, via [Spark configuration](https://canonical.com/data/docs/spark/k8s/e-configuration):
-   - `spark.executorEnv.LOKI_URL` - for executors
-   - `spark.kubernetes.driverEnv.LOKI_URL` - for drivers
-2. Using the [`logging` relation](https://charmhub.io/spark-integration-hub-k8s/integrations#logging) in an Integration Hub for Apache Spark
-   charm either with the [Grafana-agent charm](https://charmhub.io/grafana-agent-k8s) (recommended) or
+   * `spark.executorEnv.LOKI_URL` - for executors
+   * `spark.kubernetes.driverEnv.LOKI_URL` - for drivers
+2. Using the [`logging` relation](https://charmhub.io/spark-integration-hub-k8s/integrations#logging)
+   in an Integration Hub for Apache Spark charm either with the
+   [Grafana-agent charm](https://charmhub.io/grafana-agent-k8s) (recommended) or
    directly with the [Loki charm](https://charmhub.io/loki-k8s), for example:
 
    ```shell
@@ -112,19 +113,20 @@ Just make sure that the `spark-integration-hub-k8s` charm is correctly related t
 the `prometheus-pushgateway` charm on the `pushgateway` interface.
 
 You can also double-check that the configuration done by the `spark-integration-hub-k8s`
-was effective by inspecting the Charmed Apache Spark service account properties using the snap
+was effective by inspecting the Charmed Apache Spark service account properties using the snap:
 
 ```shell
 spark-client.service-account-registry get-config --username <username> --namespace <namespace>
 ```
 
-and check that the following property
+and check that the following property:
 
 ```shell
 spark.metrics.conf.driver.sink.prometheus.pushgateway-address=<PROMETHEUS_GATEWAY_ADDRESS>:<PROMETHEUS_PORT>
 ```
 
-is configured with the correct values. The Prometheus Pushgateway address and port should be can be consistent with what is exposed by Juju, e.g.
+is configured with the correct values. The Prometheus Pushgateway address and port should be can be
+consistent with what is exposed by Juju, e.g.:
 
 ```shell
 PROMETHEUS_GATEWAY=$(juju status --format=yaml | yq ".applications.prometheus-pushgateway-k8s.address")
@@ -136,10 +138,10 @@ for exporting metrics by means of other properties, returned by the `get-config`
 command. You can override some of them with custom values by either:
 
 1. Providing custom configuration to the `spark-integration-hub-k8s` charm
-(as explained in the [How to use integration hub guide](/))
+(as explained in the [How to use integration hub guide](how-to-service-accounts-integration-hub)).
 2. Adding the configurations to the Charmed Apache Spark service account
-directly (as explained in the [How to manage Charmed Apache Spark accounts guide](/how-to/manage-service-accounts/using-spark-client-snap))
-3. Feeding these arguments directly to the spark-submit command (as shown in the
-[tutorial](/)).
+directly (as explained in the 
+[How to manage Charmed Apache Spark accounts guide](/how-to/manage-service-accounts/using-spark-client-snap)).
+3. Feeding these arguments directly to the `spark-submit` command (as shown in the
+[Spark client tutorial](https://discourse.charmhub.io/t/spark-client-snap-tutorial-spark-submit/8953)).
 ```
-
