@@ -173,9 +173,9 @@ More information about the Juju provider can be found in the
 The [Charmed Apache Spark Terraform module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform)
 is composed of the following submodules:
 
-* [base module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/base)
+* [base module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/modules/spark)
   that bundles all the base resources of the Charmed Apache Spark solution
-* [cos-integration module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/cos)
+* [cos-integration module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/modules/observability)
   that bundles all the resources that enable integration with COS
 
 ```{caution}
