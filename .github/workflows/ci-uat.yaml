@@ -107,6 +107,7 @@ jobs:
           # tox run -e integration-backup-restore -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --model test-uat --cos-model cos --uuid $UUID
       - name: Setup upterm session
         uses: owenthereal/action-upterm@v1      
+        if: ${{ failure() }}
       - id: collect-logs
         name: Collect logs if job failed
         shell: bash
