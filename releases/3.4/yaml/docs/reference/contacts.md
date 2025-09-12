@@ -3,9 +3,9 @@
 
 Chat with the Canonical Data Platform team in [Matrix](https://matrix.to/#/#charmhub-data-platform:ubuntu.com).
 
-```{note}
+<!-- ```{note}
 The legacy [Mattermost](https://chat.charmhub.io/charmhub/channels/data-platform) channel is in read-only until January 31, 2025.
-```
+``` -->
 
 Report your ideas/issues/pull-requests on [GitHub](https://github.com/canonical/spark-k8s-bundle/issues/new).
 
@@ -20,4 +20,3 @@ Please do NOT file GitHub issues on security topics.
 * [Canonical Data on Launchpad](https://launchpad.net/~data-platform)
 * [Canonical Data on Matrix](https://matrix.to/#/#charmhub-data-platform:ubuntu.com) 
 * [Mailing list on Launchpad](https://lists.launchpad.net/data-platform/)
-

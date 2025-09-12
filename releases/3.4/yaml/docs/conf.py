@@ -239,7 +239,11 @@ linkcheck_ignore = [
     "http://127.0.0.1:8000",
     "https://github.com/canonical/ACME/*",
     "https://launchpad.net/soss",
+    "https://code.launchpad.net/soss/*",
     "https://matrix.to/#/#charmhub-data-platform:ubuntu.com",
+    "https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Storage%2FStorageAccounts",
+    "https://charmhub.io/spark-integration-hub-k8s/integrations#logging",
+    "https://charmhub.io/kyuubi-k8s/actions#get-jdbc-endpoint",
     ]
 
 
