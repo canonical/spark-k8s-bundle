@@ -75,8 +75,6 @@ jobs:
           sudo microk8s ctr images import --base-name $IMAGE image.tar
           docker rmi $IMAGE
           rm image.tar
-      - name: Setup upterm session
-        uses: owenthereal/action-upterm@v1
       - id: tests-integration
         name: Run Integration Tests
         timeout-minutes: 90
@@ -107,6 +105,8 @@ jobs:
 
           # # Run backup / restore tests separately without --no-deploy and --keep-models
           # tox run -e integration-backup-restore -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --model test-uat --cos-model cos --uuid $UUID
+      - name: Setup upterm session
+        uses: owenthereal/action-upterm@v1      
       - id: collect-logs
         name: Collect logs if job failed
         shell: bash
