@@ -6,12 +6,12 @@
 :hidden:
 
 deploy/index
-apache-kyuubi/index
 manage-service-accounts/index
-spark-history-server/index
+apache-kyuubi/index
 Monitoring<enable-monitoring.md>
+spark-history-server/index
+Use K8s pods<use-k8s-pods.md>
+Streaming Jobs<streaming-jobs.md>
+Use GPU<use-gpu.md>
 Self-signed certificates<self-signed-certificates.md>
-Streaming<streaming-jobs.md>
-use-gpu.md
-K8s pods<use-k8s-pods.md>
 ```

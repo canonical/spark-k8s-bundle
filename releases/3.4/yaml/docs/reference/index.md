@@ -6,6 +6,6 @@
 :hidden:
 
 releases/index
-requirements
+Requirements<requirements.md>
 contacts
 ```

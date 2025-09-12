@@ -6,9 +6,9 @@
 :hidden:
 
 component-overview.md
-configuration.md
-monitoring.md
-security.md
+Security<security.md>
 cryptography.md
+Configuration<configuration.md>
+monitoring.md
 trademarks.md
 ```

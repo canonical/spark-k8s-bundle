@@ -53,9 +53,9 @@ community contributions, suggestions, fixes and constructive feedback.
 :titlesonly:
 :hidden:
 
-Home <self>
+Overview <self>
 Tutorial <tutorial/index>
-how-to/index
-reference/index
-explanation/index
+How To <how-to/index>
+Reference <reference/index>
+Explanation <explanation/index>
 ```

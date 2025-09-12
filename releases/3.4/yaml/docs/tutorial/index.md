@@ -35,7 +35,7 @@ This tutorial is divided into multiple steps, which we recommend following in th
 2-distributed-data-processing.md
 3-data-stream-processing.md
 4-history-server.md
-5-monitoring-with-cos.md
-6-apache-kyuubi.md
+5. Monitoring with COS<5-monitoring-with-cos.md>
+6. Apache Kyuubi<6-apache-kyuubi.md>
 7-wrapping-up.md
 ```
