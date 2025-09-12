@@ -23,16 +23,11 @@ jobs:
           - integration-kyuubi
           - integration-backup-restore
         bundle-backend: ["terraform"]
-        spark-version: ["3.4.4"]
+        spark-version: ["3.4.4", "3.5.5"]
         storage-backend: ["s3", "azure_storage"]
-        juju-snap-channel: ["3.5/stable", "3.6/stable"]
+        juju-snap-channel: ["3.6/stable"]
+        juju-agent-version: ["3.6.8"]
         include:
-          # Add juju snap channel and agent version to all matrix combinations
-          - juju-snap-channel: "3.5/stable"
-            juju-agent-version: "3.5.6"
-          - juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.8"
-
           # Test integration-basic, with Spark 3.4
           - tox-env: integration-basic
             spark-version: 3.4.4
@@ -41,7 +36,7 @@ jobs:
 
           # Test integration-basic, with Spark 3.5
           - tox-env: integration-basic
-            spark-version: 3.5.4
+            spark-version: 3.5.5
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.8"
 
@@ -54,21 +49,18 @@ jobs:
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.8"
 
-          # Test bundle + COS with 3.5.5 just once
-          - tox-env: integration-bundle
-            bundle-backend: terraform
-            cos-model: cos
-            storage-backend: s3
-            spark-version: 3.5.5
-            juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.8"
-
           # Test COS just once with integration-sparkjob
           - tox-env: integration-sparkjob
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.8"
             cos-model: cos
+
+          # Test juju 3.5 just once with integration-sparkjob
+          - tox-env: integration-sparkjob
+            storage-backend: s3
+            juju-snap-channel: "3.5/stable"
+            juju-agent-version: "3.5.6"
 
           # Test COS just once with integration-kyuubi
           - tox-env: integration-kyuubi
@@ -77,12 +69,24 @@ jobs:
             juju-agent-version: "3.6.8"
             cos-model: cos
 
-          # Test COS just once with integration-backupo-restore
+          # Test juju 3.5 just once with integration-kyuubi
+          - tox-env: integration-kyuubi
+            storage-backend: s3
+            juju-snap-channel: "3.5/stable"
+            juju-agent-version: "3.5.6"
+
+          # Test COS just once with integration-backup-restore
           - tox-env: integration-backup-restore
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.8"
             cos-model: cos
+
+          # Test juju 3.5 just once with integration-backup-restore
+          - tox-env: integration-backup-restore
+            storage-backend: s3
+            juju-snap-channel: "3.5/stable"
+            juju-agent-version: "3.5.6"
 
     needs:
       - checks

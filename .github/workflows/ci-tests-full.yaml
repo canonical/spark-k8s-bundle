@@ -26,9 +26,9 @@ jobs:
           - integration-kyuubi
           - integration-backup-restore
         bundle-backend: ["yaml", "terraform"]
-        spark-version: ["3.4.4", "3.5.4"]
+        spark-version: ["3.4.4", "3.5.5"]
         storage-backend: ["s3", "azure_storage"]
-        cos-model: ["", "cos"]
+        cos-model: ["cos"]
         juju-snap-channel: ["3.5/stable", "3.6/stable"]
         include:
           # Add juju snap channel and agent version to all matrix combinations
@@ -45,19 +45,11 @@ jobs:
       
           # Test integration-basic, with Spark 3.5
           - tox-env: integration-basic
-            spark-version: 3.5.4
+            spark-version: 3.5.5
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.5"
 
         exclude:
-          # COS bundle is mandatory for sparkjob test.
-          - tox-env: integration-sparkjob
-            cos-model:
-
-          # COS bundle is mandatory for Kyuubi test.
-          - tox-env: integration-kyuubi
-            cos-model:
-
           # Backup / Restore tests only supported on Terraform
           - tox-env: integration-backup-restore
             bundle-backend: yaml
