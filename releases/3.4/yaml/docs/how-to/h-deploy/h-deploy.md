@@ -3,7 +3,7 @@
 Charmed Apache Spark comes with a bundled set of components that allow you to easily 
 manage Apache Spark workloads on K8s, providing integration with object storage,
 monitoring and log aggregation. For an overview on the different components
-that form Charmed Apache Spark, please refer to [this section](./path/to/explanation.md).
+that form Charmed Apache Spark, please refer to the [components overview](/t/11685) page.
 
 ### Prerequisites
 
