@@ -45,12 +45,21 @@ jobs:
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.8"
 
-          # Test bundle + COS with YAML backend just once
+          # Test bundle + COS with YAML backend just once 
           - tox-env: integration-bundle
             bundle-backend: yaml
             cos-model: cos
             storage-backend: s3
             spark-version: 3.4.4
+            juju-snap-channel: "3.6/stable"
+            juju-agent-version: "3.6.8"
+
+          # Test bundle + COS with 3.5.5 just once
+          - tox-env: integration-bundle
+            bundle-backend: terraform
+            cos-model: cos
+            storage-backend: s3
+            spark-version: 3.5.5
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.8"
 
