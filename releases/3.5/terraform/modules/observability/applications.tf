@@ -19,7 +19,7 @@ resource "juju_application" "cos_configuration" {
   model = data.juju_model.spark.name
   charm {
     name     = "cos-configuration-k8s"
-    channel  = "1/stable"
+    channel  = "2/edge"
     revision = var.cos_configuration_revision
   }
   config = {

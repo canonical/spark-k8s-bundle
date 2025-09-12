@@ -24,7 +24,7 @@ locals {
     grafana_agent   = 121
     # TODO: bump the revision to 1/stable when the following issue gets fixed:
     # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 
-    cos_configuration = 65
+    cos_configuration = 74
     pushgateway       = 27
     scrape_config     = 67
   }
