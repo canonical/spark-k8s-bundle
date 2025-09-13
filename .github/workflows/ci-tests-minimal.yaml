@@ -51,6 +51,7 @@ jobs:
 
           # Test COS just once with integration-sparkjob
           - tox-env: integration-sparkjob
+            bundle-backend: terraform
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.8"
@@ -58,12 +59,14 @@ jobs:
 
           # Test juju 3.5 just once with integration-sparkjob
           - tox-env: integration-sparkjob
+            bundle-backend: terraform
             storage-backend: s3
             juju-snap-channel: "3.5/stable"
             juju-agent-version: "3.5.6"
 
           # Test COS just once with integration-kyuubi
           - tox-env: integration-kyuubi
+            bundle-backend: terraform
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.8"
@@ -71,12 +74,14 @@ jobs:
 
           # Test juju 3.5 just once with integration-kyuubi
           - tox-env: integration-kyuubi
+            bundle-backend: terraform
             storage-backend: s3
             juju-snap-channel: "3.5/stable"
             juju-agent-version: "3.5.6"
 
           # Test COS just once with integration-backup-restore
           - tox-env: integration-backup-restore
+            bundle-backend: terraform
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.8"
@@ -84,6 +89,7 @@ jobs:
 
           # Test juju 3.5 just once with integration-backup-restore
           - tox-env: integration-backup-restore
+            bundle-backend: terraform
             storage-backend: s3
             juju-snap-channel: "3.5/stable"
             juju-agent-version: "3.5.6"
@@ -97,7 +103,7 @@ jobs:
         uses: ./.github/actions/run-test
         with:
           tox-env: ${{ matrix.tox-env }}
-          bundle-backend: ${{ matrix.bundle-backend || 'yaml'}}
+          bundle-backend: ${{ matrix.bundle-backend || 'terraform'}}
           spark-version: ${{ matrix.spark-version }}
           storage-backend: ${{ matrix.storage-backend || 's3'}}
           cos-model: ${{ matrix.cos-model }}
