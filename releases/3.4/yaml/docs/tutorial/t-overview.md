@@ -22,5 +22,5 @@ This tutorial is divided into multiple steps, which we recommend following in th
 | 3. [Data stream processing](/t/13230) | Learn how to handle real-time data streams.|
 | 4. [History server](/t/17354) | Integrate with Apache Spark History Server.|
 | 5. [Monitoring with COS](/t/13225) | Set up monitoring and alerting using Canonical's Observability Stack (COS).|
-| 6. [Apache Kyuubi](/t/17354) | Learn how to deploy and use Charmed Apache Kyuubi.|
+| 6. [Apache Kyuubi](/t/18309) | Learn how to deploy and use Charmed Apache Kyuubi.|
 | 7. [Wrapping up](/t/13224) | Finish the tutorial by decommissioning your Charmed Apache Spark environment to free up system resources.|
