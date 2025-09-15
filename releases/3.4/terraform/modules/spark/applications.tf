@@ -31,11 +31,7 @@ resource "juju_application" "kyuubi" {
 
   config = merge(
     {
-      driver-pod-template        = var.kyuubi_driver_pod_template
       enable-dynamic-allocation  = var.enable_dynamic_allocation
-      executor-cores             = var.kyuubi_executor_cores
-      executor-memory            = var.kyuubi_executor_memory
-      executor-pod-template      = var.kyuubi_executor_pod_template
       expose-external            = "loadbalancer"
       gpu-enable                 = var.kyuubi_gpu_enable
       gpu-engine-executors-limit = var.kyuubi_gpu_engine_executors_limit
@@ -55,6 +51,18 @@ resource "juju_application" "kyuubi" {
     },
     var.admin_password == null ? {} : {
       system-users = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
+    },
+    var.kyuubi_executor_cores == null ? {} : {
+      executor-cores = var.kyuubi_executor_cores
+    },
+    var.kyuubi_executor_memory == null ? {} : {
+      executor-memory = var.kyuubi_executor_memory
+    },
+    var.kyuubi_driver_pod_template == null ? {} : {
+      driver-pod-template = var.kyuubi_driver_pod_template
+    },
+    var.kyuubi_executor_pod_template == null ? {} : {
+      executor-pod-template = var.kyuubi_executor_pod_template
     }
   )
 

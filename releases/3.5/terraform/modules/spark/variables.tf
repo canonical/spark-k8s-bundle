@@ -58,19 +58,19 @@ variable "kyuubi_loadbalancer_extra_annotations" {
 variable "kyuubi_gpu_enable" {
   description = "Enable GPU acceleration for SparkSQLEngine."
   type        = bool
-  default     = null
+  nullable    = false
 }
 
 variable "kyuubi_gpu_engine_executors_limit" {
   description = "Limit the number of GPUs an engine can schedule executor pods on."
   type        = number
-  default     = null
+  nullable    = false
 }
 
 variable "kyuubi_gpu_pinned_memory" {
   description = "Set the host memory (in GB) per executor reserved for fast data transfer on GPUs."
   type        = number
-  default     = null
+  nullable    = false
 }
 
 variable "kyuubi_driver_pod_template" {
