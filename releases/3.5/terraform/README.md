@@ -58,33 +58,6 @@ module "azure" {
 }
 ```
 
-### Inputs
-
-| Module        | Name                         | Type        | Description                                                              |
-| ------------- | ---------------------------- | ----------- | ------------------------------------------------------------------------ |
-| azure-storage | `azure`                      | object      | Azure Object storage information (storage account, key, container, etc.) |
-| azure-storage | `model`                      | string      | Name of the model to deploy to (same as spark).                          |
-| azure-storage | `spark_charms`               | map(string) | Names of the Spark applications in the Spark Juju model.                 |
-| observability | `config_repo`                | string      | COS configuration repo URL.                                              |
-| observability | `config_grafana_path`        | string      | Grafana dashboard path from configuration repo root.                     |
-| observability | `dashboards_offer`           | string      | URL of the `grafana_dashboards` interface offer.                         |
-| observability | `metrics_offer`              | string      | URL of the `prometheus_remote_write` interface offer.                    |
-| observability | `logging_offer`              | string      | URL of the `loki_push_api` interface offer.                              |
-| observability | `spark_charms`               | map(string) | Names of the Spark applications in the Spark Juju model.                 |
-| observability | `spark_model`                | string      | Name of the model to deploy to (same as spark).                          |
-| s3            | `s3`                         | object      | S3 Bucket information (bucket name, path, etc.)                          |
-| s3            | `model`                      | string      | Name of the model to deploy to (same as spark).                          |
-| s3            | `spark_charms`               | map(string) | Names of the Spark applications in the Spark Juju model.                 |
-| spark         | `model`                      | string      | Name of the model to deploy to.                                          |
-| spark         | `kyuubi_user`                | string      | User name to be used for running Kyuubi engines.                         |
-| spark         | `zookeeper_units`            | number      | Number of zookeeper units.                                               |
-| spark         | `tls_app_name`               | string      | Name of the application providing the `tls-certificates` interface.      |
-| spark         | `tls_certificates_endpoints` | string      | Name of the endpoint providing the `tls-certificates` interface.         |
-
-### Outputs
-
-All modules return a `charms` output, a map(string) of the charms deployed.
-
 ## Development
 
 The features are split into multiples submodules, where each file has a dedicated role:
@@ -101,7 +74,7 @@ This means that using this structure, a new optional module just takes care of d
 ## Versions
 
 | Module        | Charm                        | Channel       | revision |
-| ------------- | ---------------------------- |---------------|----------|
+| ------------- | ---------------------------- | ------------- | -------- |
 | azure         | azure-storage-integrator     | latest/edge   | 15       |
 | observability | grafana-agent-k8s            | 1/stable      | 121      |
 | observability | cos-configuration-k8s        | 1/stable      | 65       |
@@ -109,7 +82,7 @@ This means that using this structure, a new optional module just takes care of d
 | observability | prometheus-scrape-config-k8s | 1/stable      | 67       |
 | spark         | spark-history-server-k8s     | 3/stable      | 47       |
 | spark         | spark-integration-hub-k8s    | 3/stable      | 67       |
-| spark         | kyuubi-k8s                   | 3.5/stable    | 112      |
+| spark         | kyuubi-k8s                   | 3.5/stable    | 121      |
 | spark         | postgresql-k8s               | 14/stable     | 495      |
 | spark         | postgresql-k8s               | 14/stable     | 495      |
 | spark         | zookeeper-k8s                | 3/stable      | 78       |

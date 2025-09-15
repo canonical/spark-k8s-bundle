@@ -31,11 +31,18 @@ resource "juju_application" "kyuubi" {
 
   config = merge(
     {
-      namespace                 = data.juju_model.spark.name
-      service-account           = var.kyuubi_user
-      expose-external           = "loadbalancer"
-      profile                   = var.kyuubi_profile
-      enable-dynamic-allocation = var.enable_dynamic_allocation
+      driver-pod-template        = var.kyuubi_driver_pod_template
+      enable-dynamic-allocation  = var.enable_dynamic_allocation
+      executor-cores             = var.kyuubi_executor_cores
+      executor-memory            = var.kyuubi_executor_memory
+      executor-pod-template      = var.kyuubi_executor_pod_template
+      expose-external            = "loadbalancer"
+      gpu-enable                 = var.kyuubi_gpu_enable
+      gpu-engine-executors-limit = var.kyuubi_gpu_engine_executors_limit
+      gpu-pinned-memory          = var.kyuubi_gpu_pinned_memory
+      namespace                  = data.juju_model.spark.name
+      profile                    = var.kyuubi_profile
+      service-account            = var.kyuubi_user
     },
     var.kyuubi_k8s_node_selectors == null ? {} : {
       k8s-node-selectors = var.kyuubi_k8s_node_selectors
