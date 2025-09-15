@@ -1,6 +1,9 @@
 name: Reference Architecture Testing (AKS)
 on:
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
   workflow_dispatch:
     inputs:
       k8s_version:
