@@ -2,7 +2,7 @@ name: Reference Architecture Testing (AKS)
 on:
   pull_request:
     paths-ignore:
-      - 'docs/**'
+      - 'releases/3.4/yaml/docs/**'
       - '**.md'
   workflow_dispatch:
     inputs:

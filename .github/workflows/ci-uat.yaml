@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths-ignore:
-      - 'docs/**'
+      - 'releases/3.4/yaml/docs/**'
       - '**.md'    
 
 jobs:
