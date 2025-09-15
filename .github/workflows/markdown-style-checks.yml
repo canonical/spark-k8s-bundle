@@ -1,0 +1,27 @@
+name: Markdown style checks
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - 'releases/3.4/yaml/docs/**'   # Only run on changes to the docs directory
+  pull_request:
+    branches:
+    - '*'
+    paths:
+    - 'releases/3.4/yaml/docs/**'   # Only run on changes to the docs directory
+
+jobs:
+  markdown-lint:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Create venv
+      working-directory: "releases/3.4/yaml/docs"
+      run: make install
+    - name: Lint markdown
+      working-directory: "releases/3.4/yaml/docs"
+      run: make lint-md
