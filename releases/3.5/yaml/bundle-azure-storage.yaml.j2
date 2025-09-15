@@ -5,10 +5,10 @@ bundle: kubernetes
 applications:
   kyuubi:
     charm: kyuubi-k8s
-    channel: latest/edge
-    revision: 104
+    channel: 3.5/stable
+    revision: 121
     resources:
-      kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:96492ac6d3e1b5a43d10dcefc1e92e32585b9158256e4720e98bc827f9773133 # 3.4.4-1.10.2-22.04_edge 2025-06-30
+      kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:73d2c499680e4f55c5f65930774ce8ae7eb85d7019754944d82ca2183d716b15 # rev12, spark-3.5.5, kyuubi 1.10.2 release date 12/09/25
     scale: 3
     options:
       namespace: {{ namespace }}
@@ -32,7 +32,7 @@ applications:
     charm: zookeeper-k8s
     channel: 3/stable
     revision: 78
-    scale: 3
+    scale: {{ zookeeper_units or 3}}
     constraints: arch=amd64
     resources:
       zookeeper-image: 34
@@ -68,10 +68,10 @@ applications:
     constraints: arch=amd64
   integration-hub:
     charm: spark-integration-hub-k8s
-    channel: 3/edge
-    revision: 64
+    channel: 3/stable
+    revision: 67
     resources:
-      integration-hub-image: 5
+      integration-hub-image: ghcr.io/canonical/spark-integration-hub@sha256:fa5e73d6339b2eb137b5917771caa62bd6605284b8dfab3dafb7d6026a9a3b1a # rev6
     scale: 1
     constraints: arch=amd64
     trust: true
