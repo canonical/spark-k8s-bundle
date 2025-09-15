@@ -106,7 +106,6 @@ You can do that by manually setting the version of image used on the cluster sid
 ```bash
 spark-client.service-account-registry add-config --username spark --namespace spark --conf spark.kubernetes.container.image=ghcr.io/canonical/charmed-spark:3.4.2-22.04_edge
 ```
-```
 
 Here, we split the data into two parts, generating a distributed data structure, where each line is stored in one of the (possibly many) executors.
 The number of vowels in each line is computed, line by line, with the `count_vowels` function on each executor in parallel.

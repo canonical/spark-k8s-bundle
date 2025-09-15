@@ -190,7 +190,10 @@ kubectl get roles -n spark
 kubectl get rolebindings -n spark
 ```
 
-[details="Output example"]
+<details>
+
+<summary> Output example</summary>
+
 ```text
 kubectl get serviceaccounts -n spark
 NAME      SECRETS   AGE
@@ -206,7 +209,8 @@ kubectl get rolebindings -n spark
 NAME                 ROLE              AGE
 spark-role-binding   Role/spark-role   2m48s
 ```
-[/details]
+
+</details>
 
 Now, launch a PySpark shell using the service account you created earlier to verify that it works:
 
@@ -394,7 +398,10 @@ You can also see the configuration stored in a Kubernetes secret:
 kubectl get secret -n spark -o yaml
 ```
 
-[details="Output example"]
+<details>
+
+<summary> Output example</summary>
+
 ```text
 apiVersion: v1
 items:
@@ -418,7 +425,8 @@ kind: List
 metadata:
   resourceVersion: ""
 ```
-[/details]
+
+</details>
 
 With that, the tutorial’s environment setup is complete!
 
