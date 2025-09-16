@@ -60,8 +60,9 @@ jobs:
         run: |
           _K8S_VERSION=${{ env.K8S_VERSION }}
           # Renaming of the version to use _ instead of . 
+          RANDOM_ID=$(uuidgen | cut -d "-" -f1)
           RUN_VERSION="spark-${_K8S_VERSION//./_}"
-          RESOURCE_GROUP=${RUN_VERSION}_rg
+          RESOURCE_GROUP=${RUN_VERSION}_rg_${RANDOM_ID}
           NAME=${RUN_VERSION}_aks
           LOCATION=westeurope
           echo "RESOURCE_GROUP=${RESOURCE_GROUP}" >> $GITHUB_ENV
