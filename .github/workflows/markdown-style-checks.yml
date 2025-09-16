@@ -5,12 +5,12 @@ on:
     branches:
     - main
     paths:
-    - 'releases/3.4/yaml/docs/**'   # Only run on changes to the docs directory
+    - 'docs/**'   # Only run on changes to the docs directory
   pull_request:
     branches:
     - '*'
     paths:
-    - 'releases/3.4/yaml/docs/**'   # Only run on changes to the docs directory
+    - 'docs/**'   # Only run on changes to the docs directory
 
 jobs:
   markdown-lint:
@@ -20,8 +20,8 @@ jobs:
       with:
         fetch-depth: 0
     - name: Create venv
-      working-directory: "releases/3.4/yaml/docs"
+      working-directory: "docs"
       run: make install
     - name: Lint markdown
-      working-directory: "releases/3.4/yaml/docs"
+      working-directory: "docs"
       run: make lint-md

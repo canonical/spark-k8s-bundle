@@ -10,7 +10,7 @@ concurrency:
 on:
   pull_request:
     paths-ignore:
-      - 'releases/3.4/yaml/docs/**'
+      - 'docs/**'
       - '**.md'
 
 jobs:
