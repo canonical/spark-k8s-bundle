@@ -10,7 +10,7 @@ on:
 jobs:
   integration-tests:
     name: Integration Tests
-    runs-on: ["self-hosted", "linux", "X64", "jammy", "xlarge"]
+    runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
     timeout-minutes: 120
     strategy:
       fail-fast: false
@@ -136,3 +136,4 @@ jobs:
           juju debug-log -m test-uat --replay -l INFO | tail -n 500
           printf '\nCos logs\n'
           juju debug-log -m cos --replay -l INFO | tail -n 500
+

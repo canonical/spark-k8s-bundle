@@ -104,7 +104,7 @@ This means that using this structure, a new optional module just takes care of d
 | ------------- | ---------------------------- |---------------|----------|
 | azure         | azure-storage-integrator     | latest/edge   | 15       |
 | observability | grafana-agent-k8s            | 1/stable      | 121      |
-| observability | cos-configuration-k8s        | 1/stable      | 69       |
+| observability | cos-configuration-k8s        | 1/stable      | 65       |
 | observability | prometheus-pushgateway-k8s   | 1/stable      | 27       |
 | observability | prometheus-scrape-config-k8s | 1/stable      | 67       |
 | spark         | spark-history-server-k8s     | 3/stable      | 47       |
