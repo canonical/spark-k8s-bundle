@@ -15,7 +15,7 @@ Please do NOT file GitHub issues on security topics.
 ## Useful links
 
 * [Canonical Data Fabric](https://ubuntu.com/data/spark)
-* [Charmed Apache Kafka](https://charmhub.io/spark-k8s-bundle)
+* [Charmed Apache Kafka](https://charmhub.io/kafka)
 * [Git sources for Charmed Apache Spark](https://github.com/canonical/spark-k8s-bundle)
 * [Canonical Data on Launchpad](https://launchpad.net/~data-platform)
 * [Canonical Data on Matrix](https://matrix.to/#/#charmhub-data-platform:ubuntu.com) 

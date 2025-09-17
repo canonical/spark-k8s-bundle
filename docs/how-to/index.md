@@ -8,7 +8,7 @@ If you are missing a particular how-to guide, feel free to leave us feedback via
 ## Deployment
 
 See guides on how to prepare a K8s environment and deploy
-Charmed Apache Kafka and Charmed Apache Kyuubi:
+Charmed Apache Spark and Charmed Apache Kyuubi:
 
 * [Set up K8s environment](how-to-deploy-environment)
 * [Spark deployment guide](how-to-deploy-spark)
@@ -54,7 +54,7 @@ We have a guide for using [self-signed certificates](how-to-self-signed-certific
 
 ## Other guides
 
-Advanced features of Charmed Apache Kafka include:
+Advanced features of Charmed Apache Spark include:
 
 * [Use K8s pods](how-to-use-k8s-pods)
 * [Streaming jobs](how-to-streaming-jobs)
