@@ -9,5 +9,5 @@ Charmed Apache Spark has the following stable revisions:
 :titlesonly:
 :hidden:
 
-revision-2
+Revision 2<revision-2.md>
 ```
