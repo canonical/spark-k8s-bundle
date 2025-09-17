@@ -52,7 +52,7 @@ For more details on the Charmed Apache Kafka K8s deployment process, see the [Ho
 Once installed, let's see the current status of the Juju model with the following command:
 
 ```bash
-juju status --watch 1s
+watch -c juju status --color
 ```
 
 Once all the charms have been deployed and integrated (you may need to wait some time), output similar to the following should appear:

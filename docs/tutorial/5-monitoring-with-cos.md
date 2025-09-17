@@ -30,12 +30,12 @@ When you deploy the `cos-lite` bundle, it deploys several charms like Prometheus
 Check the list of charms that have been deployed, their statuses, and relations:
 
 ```shell
-juju status --relations --watch 1s
+watch -c juju status --color --relations
 ```
 
 Wait until the status to be active for each charm:
 
-```
+```text
 Model  Controller  Cloud/Region        Version  SLA          Timestamp
 cos    k8s         microk8s/localhost  3.1.7    unsupported  15:41:53+05:45
 

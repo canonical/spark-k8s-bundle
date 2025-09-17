@@ -86,7 +86,7 @@ juju run s3-integrator/leader sync-s3-credentials \
 juju integrate s3-integrator spark-history-server-k8s
 ```
 
-Let's view the status of the Juju model now with the command `juju status --watch 1s --relations`. Once deployment and integration have been completed for the charms, the status should look similar to the following:
+Let's view the status of the Juju model now with the command `watch -c juju status --color --relations`. Once deployment and integration have been completed for the charms, the status should look similar to the following:
 
 ```
 Model           Controller      Cloud/Region        Version  SLA          Timestamp
