@@ -14,7 +14,7 @@ locals {
   revisions = {
     history_server  = 47
     integration_hub = 67
-    kyuubi          = 112
+    kyuubi          = 121
     kyuubi_users    = 495
     metastore       = 495
     zookeeper       = 78
@@ -37,8 +37,8 @@ locals {
       integration-hub-image = "ghcr.io/canonical/spark-integration-hub@sha256:fa5e73d6339b2eb137b5917771caa62bd6605284b8dfab3dafb7d6026a9a3b1a"
     } # rev6
     kyuubi = {
-      kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:e2029c6976fc5b9ee2865eced632ca42ce554039d9832af20dfa3e63113e00f7"
-    } # rev11, spark-3.5.5, kyuubi 1.10.2 release date 28/07/25
+      kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:73d2c499680e4f55c5f65930774ce8ae7eb85d7019754944d82ca2183d716b15"
+    } # rev12, spark-3.5.5, kyuubi 1.10.2 release date 12/09/25
     kyuubi_users = {
       postgresql-image = 165
     }

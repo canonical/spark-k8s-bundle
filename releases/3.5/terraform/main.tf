@@ -45,6 +45,13 @@ module "spark" {
   enable_dynamic_allocation             = var.enable_dynamic_allocation
   kyuubi_k8s_node_selectors             = var.kyuubi_k8s_node_selectors
   kyuubi_loadbalancer_extra_annotations = var.kyuubi_loadbalancer_extra_annotations
+  kyuubi_gpu_enable                     = var.kyuubi_gpu_enable
+  kyuubi_gpu_engine_executors_limit     = var.kyuubi_gpu_engine_executors_limit
+  kyuubi_gpu_pinned_memory              = var.kyuubi_gpu_pinned_memory
+  kyuubi_driver_pod_template            = var.kyuubi_driver_pod_template
+  kyuubi_executor_pod_template          = var.kyuubi_executor_pod_template
+  kyuubi_executor_cores                 = var.kyuubi_executor_cores
+  kyuubi_executor_memory                = var.kyuubi_executor_memory
   driver_pod_template                   = var.driver_pod_template
   executor_pod_template                 = var.executor_pod_template
   tls_app_name                          = module.ssc.app_name
