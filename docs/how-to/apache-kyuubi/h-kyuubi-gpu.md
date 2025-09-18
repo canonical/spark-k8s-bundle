@@ -1,16 +1,18 @@
-# Enable and configure GPU support for Charmed Apache Kyuubi
+# How to configure GPU support for Charmed Apache Kyuubi
 
 Charmed Apache Kyuubi supports the [RAPIDS Accelerator](https://docs.nvidia.com/spark-rapids/index.html) for Apache Spark on K8s.
-This makes possible to run hardware-accelerated queries on NVIDIA GPUs.
+This makes it possible to run queries with hardware acceleration on NVIDIA GPUs.
 
 ## Prerequisites
 
-- Charmed Apache Kyuubi, starting from revision <to-be-filled-once-released> and more.
 - Kubernetes cluster is up and running with NVIDIA GPU support
+- Charmed Apache Kyuubi, revision `3` or higher
+
+<!-- TODO revise revision number -->
 
 Check that NVIDIA GPU support is properly enabled by searching for a `gpu-operator` deployment.
 On a non-confined MicroK8s cluster, this is done by enabling the `gpu` [add-on](https://microk8s.io/docs/addon-gpu).
-Once the deployment is successful, you should see a new `gpu-operator-resource` namespace with the following similar-looking pods:
+Once the deployment is successful, you should see a new `gpu-operator-resource` namespace with similar-looking pods:
 
 ```shell
 kubectl get pods -n gpu-operator-resources
@@ -37,7 +39,7 @@ kubectl get node <node-name> -o=jsonpath="{.status.capacity."nvidia.com/gpu"}"
 
 ## Configuring hardware-accelerated spark jobs
 
-Enable hardware-accelerated spark jobs with the following configuration option:
+Enable hardware-accelerated Spark jobs with the following configuration option:
 
 ```shell
 juju config <kyuubi-app> gpu-enable=true
@@ -50,7 +52,7 @@ Use the `gpu-engine-executors-limit` to set the number of executors a Kyuubi Eng
 juju config <kyuubi-app> gpu-engine-executors-limit=2
 ```
 
-To get the most out of the hardware, it is needed to adapt the pod configuration to the workload:
+To get the most out of the hardware, the pod configuration should be adjusted for the workload:
 
 ```shell
 juju config <kyuubi-app> gpu-pinned-memory=4
@@ -58,7 +60,7 @@ juju config <kyuubi-app> executor-memory=8
 juju config <kyuubi-app> executor-cores=4
 ```
 
-## Checking that GPU resources are used
+## Checking GPU resources usage
 
 If you have a shell access to the machine, you can use the system management interface CLI:
 
