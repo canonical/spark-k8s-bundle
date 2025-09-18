@@ -14,7 +14,9 @@ Once the deployment is successful, you should see a new `gpu-operator-resource` 
 
 ```shell
 kubectl get pods -n gpu-operator-resources
+```
 
+```text
 NAME                                                          READY   STATUS
 gpu-feature-discovery-l5g5k                                   1/1     Running
 gpu-operator-85776c76f-7jzp2                                  1/1     Running
@@ -32,7 +34,10 @@ Finally, make sure that the cluster now list at least one `nvidia.com/gpu` GPU r
 
 ```shell
 kubectl get node <node-name> -o=jsonpath="{.status.capacity."nvidia.com/gpu"}"  
-# 1
+```
+
+```text
+1
 ```
 
 ## Configuring hardware-accelerated spark jobs
