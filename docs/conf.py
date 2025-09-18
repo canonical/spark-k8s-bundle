@@ -244,6 +244,7 @@ linkcheck_ignore = [
     "https://portal.azure.com/#view/HubsExtension/BrowseResource/resourceType/Microsoft.Storage%2FStorageAccounts",
     "https://charmhub.io/spark-integration-hub-k8s/integrations#logging",
     "https://charmhub.io/kyuubi-k8s/actions#get-jdbc-endpoint",
+    "https://developer.hashicorp.com/terraform/*",
     ]
 
 
@@ -252,7 +253,7 @@ linkcheck_ignore = [
 linkcheck_anchors_ignore_for_url = [r"https://github\.com/.*"]
 
 # give linkcheck multiple tries on failure
-# linkcheck_timeout = 30
+linkcheck_timeout = 60
 linkcheck_retries = 3
 
 ########################
