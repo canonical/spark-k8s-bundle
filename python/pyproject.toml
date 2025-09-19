@@ -46,14 +46,14 @@ types-pyyaml = "^6.0.12.20250516"
 optional = true
 
 [tool.poetry.group.unit.dependencies]
-pytest-cov = ">=3.0"
+pytest-cov = ">=7.0.0"
 pytest-mock = ">=3.10"
 
 [tool.poetry.group.integration]
 optional = true
 
 [tool.poetry.group.integration.dependencies]
-pytest-cov = ">=3.0"
+pytest-cov = ">=7.0.0"
 pytest-mock = ">=3.10"
 psycopg2-binary = "^2.9.9"
 tenacity = "^9.0.0"
