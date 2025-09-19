@@ -11,4 +11,5 @@ External metastore<external-metastore.md>
 Integrate with apps<integrate-with-applications.md>
 Backups<back-up-and-restore.md>
 Upgrades<upgrade.md>
+GPU support<gpu.md>
 ```
