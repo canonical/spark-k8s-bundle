@@ -37,9 +37,14 @@ Finally, make sure that the cluster now list at least one `nvidia.com/gpu` GPU r
 kubectl get node <node-name> -o=jsonpath="{.status.capacity."nvidia.com/gpu"}"  
 ```
 
+<details>
+<summary>Output example</summary>
+
 ```text
 1
 ```
+
+</details>
 
 ## Configuring hardware-accelerated spark jobs
 

@@ -119,7 +119,14 @@ directly (as explained in the
 [Spark client tutorial](https://discourse.charmhub.io/t/spark-client-snap-tutorial-spark-submit/8953)).
 ```
 
-## Enable monitoring for Spark History Server and Charmed Apache Kyuubi (optional)
+## (Optional) Spark History Server and Charmed Apache Kyuubi 
+
+Both the Spark History Server and Charmed Apache Kyuubi charms come with the [JMX exporter](https://github.com/prometheus/jmx_exporter/).
+The metrics can be queried by accessing the `http://<history-server-unit-ip>:9101/metrics` and `http://<kyuubi-unit-ip>:10019/metrics` endpoints, respectively.
+
+This section guides you how to set up monitoring with Canonical Obesrvation Stack (COS) for both Spark History Server and Charmed Apache Kyuubi.
+
+### Prerequisites
 
 After setting up COS following the previous sections, you should have:
 
@@ -127,16 +134,18 @@ After setting up COS following the previous sections, you should have:
 - Juju cross-model offers to integrate with the COS components
 - the `grafana-agent-k8s` charm running and consuming the offers
 
-Both the Spark History Server and Charmed Apache Kyuubi charms come with the [JMX exporter](https://github.com/prometheus/jmx_exporter/).
-The metrics can be queried by accessing the `http://<history-server-unit-ip>:9101/metrics` and `http://<kyuubi-unit-ip>:10019/metrics` endpoints, respectively.
+### Setup
 
-To benefit from the native COS support, integrate `grafana-agent` with Spark History Server and Charmed Apache Kyuubi:
+To benefit from the native COS support, integrate the charms with `grafana-agent`. 
+For Spark History Server:
 
 ```shell
 juju integrate grafana-agent-k8s spark-history-server-k8s:grafana-dashboard
 juju integrate grafana-agent-k8s spark-history-server-k8s:logging
 juju integrate grafana-agent-k8s spark-history-server-k8s:metrics-endpoint
 ```
+
+For Charmed Apache Kyuubi:
 
 ```shell
 juju integrate grafana-agent-k8s kyuubi-k8s:grafana-dashboard
@@ -174,7 +183,7 @@ Make sure to push your changes to the remote repository.
 
 ### Deploy the COS configuration charm
 
-Deploy the [COS configuration](https://charmhub.io/cos-configuration-k8s) charm in the COS Juju model:
+Deploy the [COS configuration](https://charmhub.io/cos-configuration-k8s) charm in the COS Juju model with configuration parameters defining the repository, branch, and paths to the directories:
 
 ```shell
 juju switch <cos_model_name>
@@ -187,6 +196,8 @@ juju deploy cos-configuration-k8s cos-config
   --config prometheus_alert_rules_path=<path_to_prometheus_rules_folder>
   --config loki_alert_rules_path=<path_to_loki_rules>
 ```
+
+And run the `sync-now` action:
 
 ```shell
 juju run cos-configuration-k8s/leader sync-now
