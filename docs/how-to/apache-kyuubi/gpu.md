@@ -1,3 +1,4 @@
+(how-to-apache-kyuubi-gpu)=
 # How to configure GPU support for Charmed Apache Kyuubi
 
 Charmed Apache Kyuubi supports the [RAPIDS Accelerator](https://docs.nvidia.com/spark-rapids/index.html) for Apache Spark on K8s.
