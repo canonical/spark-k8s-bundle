@@ -226,6 +226,8 @@ sitemap_excludes = [
 
 # redirects = {}
 
+rediraffe_redirects = "redirects.txt"
+
 
 ###########################
 # Link checker exceptions #
