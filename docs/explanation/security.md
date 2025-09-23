@@ -185,8 +185,8 @@ See the [upstream documentation](https://kubernetes.io/docs/tasks/run-applicatio
 
 Authentication can be enabled in the Spark History Server when exposed using Traefik by leveraging on the
 [Oath Keeper](https://charmhub.io/oathkeeper) integration, that provides
-a cloud native Identity & Access Proxy (IAP) and Access Control Decision API able to authenticates, authorizes,
-and mutates incoming HTTP(s) requests, fully-integrated with the Canonical Identity Platform.
+a cloud native Identity & Access Proxy (IAP) and Access Control Decision API able to authenticate, authorize,
+and mutate incoming HTTP(s) requests, fully-integrated with the Canonical Identity Platform.
 
 Refer to the [how-to enable authorization in the Spark history server](how-to-spark-history-server-auth) guide
 for more information. From a permission-wise point of view, white lists of authorised users
@@ -195,9 +195,9 @@ can be provided using the Spark History Server
 
 #### Kyuubi JDBC endpoint
 
-Authentication can be enabled for Charmed Apache Kyuubi via its integration with PostgreSQL charm
-on the `auth-db` interface. Currently, only one admin user is enabled, whose credentials can be retrieved
-using the [`get-jdbc-endpoint` action](https://charmhub.io/kyuubi-k8s/actions#get-jdbc-endpoint).
+Authentication is enabled by default and is mandatory for the JDBC endpoint exposed by Charmed Apache Kyuubi charm via 
+its integration with PostgreSQL charm on the `auth-db` interface. Currently, only one admin user is enabled, whose password 
+can be set using the [`system-users` config](https://charmhub.io/kyuubi-k8s/configurations#system-users) in the charm.
 
 ### Monitoring and auditing
 
