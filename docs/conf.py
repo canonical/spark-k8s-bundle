@@ -296,6 +296,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx_sitemap",
     "sphinxcontrib.mermaid",
+    "sphinxext.rediraffe",
 ]
 
 # Excludes files or directories from processing

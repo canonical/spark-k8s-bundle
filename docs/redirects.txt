@@ -53,7 +53,7 @@ h-spark-cert/ how-to/self-signed-certificates/
 
 # Reference
 
-r-releases/ reference/release-notes/
+r-releases/ reference/releases/
 r-rev-2/ reference/releases/revision-2/
 r-requirements/ reference/requirements/
 r-contacts/ reference/contacts/
