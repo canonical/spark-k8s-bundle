@@ -26,9 +26,10 @@ applications:
   cos-configuration:
     charm: cos-configuration-k8s
     channel: 1/stable
-    # TODO: bump the revision to 1/stable when the following issue gets fixed:
+    # TODO: bump the revision to 1/stable when both of the following issue gets fixed:
     # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 
-    revision: 69
+    # https://github.com/canonical/cos-configuration-k8s-operator/issues/84
+    revision: 65
     base: ubuntu@20.04/stable
     resources:
       git-sync-image: 35
