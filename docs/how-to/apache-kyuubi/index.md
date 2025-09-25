@@ -1,8 +1,9 @@
 (how-to-apache-kyuubi-index)=
 # Apache Kyuubi
 
-Apache Kyuubi is a distributed and multi-tenant gateway to provide serverless SQL on lakehouses
-developed by [Apache Software foundation](https://kyuubi.apache.org/).
+Apache Kyuubi is a distributed and multi-tenant gateway
+to provide serverless SQL on lakehouses.
+Find out more at the [Apache Kyuubi project page](https://kyuubi.apache.org/).
 
 [Charmed Apache Kyuubi](https://charmhub.io/kyuubi-k8s) is a
 [Juju charm](https://documentation.ubuntu.com/juju/3.6/reference/charm/)
