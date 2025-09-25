@@ -159,17 +159,17 @@ html_context = {
 # - https://github.com/example-org/example"
 # - https://launchpad.net/example
 # - https://git.launchpad.net/example
-#
-# html_theme_options = {
-# 'source_edit_link': 'https://github.com/canonical/sphinx-docs-starter-pack',
-# }
+
+html_theme_options = {
+'source_edit_link': 'https://github.com/canonical/spark-k8s-bundle',
+}
 
 # Project slug; see https://meta.discourse.org/t/what-is-category-slug/87897
 #
 # TODO: If your documentation is hosted on https://docs.ubuntu.com/,
 #       uncomment and update as needed.
 
-slug = 'charmed-spark'
+# slug = 'charmed-spark'
 
 #######################
 # Sitemap configuration: https://sphinx-sitemap.readthedocs.io/
@@ -225,6 +225,8 @@ sitemap_excludes = [
 #       the sphinx_reredirects extension will be disabled.
 
 # redirects = {}
+
+rediraffe_redirects = "redirects.txt"
 
 
 ###########################
@@ -294,6 +296,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx_sitemap",
     "sphinxcontrib.mermaid",
+    "sphinxext.rediraffe",
 ]
 
 # Excludes files or directories from processing
