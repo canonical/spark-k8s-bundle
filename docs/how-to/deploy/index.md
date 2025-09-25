@@ -2,7 +2,7 @@
 # Deploy
 
 For guidance on how to set up environment and deploy
-Apache Kafka and Apache Kyuubi with Juju charms,
+Apache Spark and Apache Kyuubi with Juju charms,
 see the [Tutorial](tutorial-1-environment-setup) and the following guides:
 
 ```{toctree}
