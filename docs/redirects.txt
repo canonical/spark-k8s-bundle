@@ -17,52 +17,52 @@
 
 # Tutorial
 
-t-overview/ tutorial/
-t-setup-environment/ tutorial/1-environment-setup/
-t-data-processing/ tutorial/2-distributed-data-processing/
-t-streaming/ tutorial/3-data-stream-processing/
-t-history-server/ tutorial/4-history-server/
-t-cos/ tutorial/5-monitoring-with-cos/
-t-kyuubi/ tutorial/6-apache-kyuubi/
-t-wrapping-up/ tutorial/7-wrapping-up/
+t-overview/ main/tutorial/
+t-setup-environment/ main/tutorial/1-environment-setup/
+t-data-processing/ main/tutorial/2-distributed-data-processing/
+t-streaming/ main/tutorial/3-data-stream-processing/
+t-history-server/ main/tutorial/4-history-server/
+t-cos/ main/tutorial/5-monitoring-with-cos/
+t-kyuubi/ main/tutorial/6-apache-kyuubi/
+t-wrapping-up/ main/tutorial/7-wrapping-up/
 
 # How-to guides
 
-h-setup-k8s/ how-to/deploy/environment/
-h-deploy/ how-to/deploy/spark/
-h-deploy-kyuubi/ how-to/deploy/kyuubi/
-h-manage-service-accounts/ how-to/manage-service-accounts/using-spark-client-snap/
-h-use-spark-client-from-python/ how-to/manage-service-accounts/using-python/
-h-use-integration-hub/ how-to/manage-service-accounts/using-integration-hub/
+h-setup-k8s/ main/how-to/deploy/environment/
+h-deploy/ main/how-to/deploy/spark/
+h-deploy-kyuubi/ main/how-to/deploy/kyuubi/
+h-manage-service-accounts/ main/how-to/manage-service-accounts/using-spark-client-snap/
+h-use-spark-client-from-python/ main/how-to/manage-service-accounts/using-python/
+h-use-integration-hub/ main/how-to/manage-service-accounts/using-integration-hub/
 
-h-kyuubi-encryption/ how-to/apache-kyuubi/encryption-and-passwords/
-h-kyuubi-metastore/ how-to/apache-kyuubi/external-metastore/
-h-kyuubi-connections/ how-to/apache-kyuubi/external-connections/
-h-kyuubi-applications/ how-to/apache-kyuubi/integrate-with-applications/
-h-kyuubi-upgrade/ how-to/apache-kyuubi/upgrade/
-h-kyuubi-backup/ how-to/apache-kyuubi/back-up-and-restore/
+h-kyuubi-encryption/ main/how-to/apache-kyuubi/encryption-and-passwords/
+h-kyuubi-metastore/ main/how-to/apache-kyuubi/external-metastore/
+h-kyuubi-connections/ main/how-to/apache-kyuubi/external-connections/
+h-kyuubi-applications/ main/how-to/apache-kyuubi/integrate-with-applications/
+h-kyuubi-upgrade/ main/how-to/apache-kyuubi/upgrade/
+h-kyuubi-backup/ main/how-to/apache-kyuubi/back-up-and-restore/
 
-h-spark-monitoring/ how-to/enable-monitoring/
-h-history-server-authorization/ how-to/spark-history-server/auth/
-h-expose-history-server/ how-to/spark-history-server/expose-web-gui/
+h-spark-monitoring/ main/how-to/enable-monitoring/
+h-history-server-authorization/ main/how-to/spark-history-server/auth/
+h-expose-history-server/ main/how-to/spark-history-server/expose-web-gui/
 
-h-run-on-k8s-pod/ how-to/use-k8s-pods/
-h-spark-streaming/ how-to/streaming-jobs/
-h-spark-gpu/ how-to/use-gpu/
-h-spark-cert/ how-to/self-signed-certificates/
+h-run-on-k8s-pod/ main/how-to/use-k8s-pods/
+h-spark-streaming/ main/how-to/streaming-jobs/
+h-spark-gpu/ main/how-to/use-gpu/
+h-spark-cert/ main/how-to/self-signed-certificates/
 
 # Reference
 
-r-releases/ reference/releases/
-r-rev-2/ reference/releases/revision-2/
-r-requirements/ reference/requirements/
-r-contacts/ reference/contacts/
+r-releases/ main/reference/releases/
+r-rev-2/ main/reference/releases/revision-2/
+r-requirements/ main/reference/requirements/
+r-contacts/ main/reference/contacts/
 
 # Explanation
 
-e-component-overview/ explanation/component-overview/
-e-security/ explanation/security/
-e-cryptography/ explanation/cryptography/
-e-configuration/ explanation/configuration/
-e-monitoring/ explanation/monitoring/
-e-trademarks/ explanation/trademarks/
+e-component-overview/ main/explanation/component-overview/
+e-security/ main/explanation/security/
+e-cryptography/ main/explanation/cryptography/
+e-configuration/ main/explanation/configuration/
+e-monitoring/ main/explanation/monitoring/
+e-trademarks/ main/explanation/trademarks/
