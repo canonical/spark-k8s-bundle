@@ -42,7 +42,7 @@ Apache®, Apache Spark, Spark®, and the Apache Spark logo are either registered
 
 Apache®, [Apache Spark, Spark™](https://spark.apache.org/), [Apache Kyuubi, Kyuubi™](https://kyuubi.apache.org/), and their respective logos are either registered trademarks or trademarks of the [Apache Software Foundation](https://www.apache.org/) in the United States and/or other countries.
 
-The Charmed Apache Spark solution is free software, distributed under the Apache Software License, version 2.0. See [LICENSE](https://github.com/canonical/spark-client-snap/blob/main/LICENSE) for more information.
+The Charmed Apache Spark solution is free software, distributed under the Apache Software License, version 2.0. See [LICENSE](https://github.com/canonical/spark-k8s-bundle/blob/main/LICENSE) for more information.
 
 ```{toctree}
 :titlesonly:
