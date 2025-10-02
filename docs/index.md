@@ -1,61 +1,45 @@
-<!-- markdownlint-disable-next-line -->
 (index)=
-
-# Charmed Apache Spark K8s documentation
+# Charmed Apache Spark documentation
 
 Charmed Apache Spark solution is a set of Canonical supported artefacts (including charms, rocks and
-snaps) that make operating Apache Spark workloads on Kubernetes seamless, secure and
-production-ready. This solution includes the Charmed Apache Spark bundle as well as [Client tools
-snap for Apache Spark](https://snapcraft.io/spark-client) and
-[spark8t](https://github.com/canonical/spark-k8s-toolkit-py). For more information on the contents
-of the Charmed Apache Spark bundle and Charmed Apache Spark solution, see the [Components
-explanation](/explanation/component-overview) page.
+snaps) that makes operating Apache Spark workloads on Kubernetes seamless, secure and
+production-ready.
 
-Apache Spark is a free, open-source software project by the Apache Software Foundation. Users can
-find out more at the [Apache Spark project page](https://spark.apache.org).
+Charmed Apache Spark solution includes the
+[Client tools snap for Apache Spark](https://snapcraft.io/spark-client),
+[spark8t toolkit](https://github.com/canonical/spark-k8s-toolkit-py) and other components, like
+[Charmed Apache Spark rock](https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark).
+For an overview of all components in the solution, see the
+[Components overview page](explanation-component-overview).
 
-The solution helps to simplify user interaction with Apache Spark applications and the underlying
-Kubernetes cluster whilst retaining the traditional semantics and command line tooling that users
-already know. Operators benefit from straightforward, automated deployment of Apache Spark
-components (e.g. Spark History Server) to the Kubernetes cluster, using [Juju](https://juju.is/).
+[Apache Spark](https://spark.apache.org) is a free, open-source software project by the Apache Software Foundation.
 
-Deploying Apache Spark applications to Kubernetes has several benefits over other cluster resource
-managers such as Apache YARN, as it greatly simplifies deployment, operation, authentication while
-allowing for flexibility and scaling. However, it requires knowledge on Kubernetes, networking and
-coordination between the different components of the Apache Spark ecosystem in order to provide a
-scalable, secure and production-ready environment. As a consequence, this can significantly increase
-complexity for the end user and administrators, as a number of parameters need to be configured and
-prerequisites must be met for the application to deploy correctly or for using the Spark CLI
-interface (e.g. `pyspark` and `spark-shell`).
-
-Charmed Apache Spark helps to address these usability concerns and provides a
-consistent management
-interface for operations engineers and cluster administrators who need to manage enablers like Spark
-History Server.
+The solution helps ops teams and administrators automate Apache Spark operations from
+[Day 0 to Day 2](https://codilime.com/blog/day-0-day-1-day-2-the-software-lifecycle-in-the-cloud-age/)
+with additional capabilities, such as: replication, TLS encryption, password rotation,
+easy-to-use application integration, and monitoring.
 
 ## In this documentation
 
 | | |
 |--|--|
-| [Tutorials](tutorial-introduction)</br>  Get started - a hands-on introduction to using Charmed Apache Spark operator for new users </br> | [How-to guides](how-to-deploy-index) </br> Step-by-step guides covering key operations and common tasks |
-| [Reference](reference-index) </br> Technical information - specifications, APIs, architecture | [Explanation](explanation-index) </br> Concepts - discussion and clarification of key topics |
+| [Tutorial](tutorial-introduction)</br> Learn how to use Charmed Apache Spark with our step-by-step guidance. Get started from [step one](tutorial-1-environment-setup). </br> | [How-to guides](how-to-deploy-index) </br> Practical instructions for key tasks, like [deploy](how-to-deploy-index), [manage service accounts](how-to-manage-service-accounts-index), [monitor metrics](how-to-monitoring), [process streams](how-to-streaming-jobs), [use GPU](how-to-use-gpu). |
+| [Reference](reference-index) </br> Technical information, for example: [release notes](reference-releases-index), [system requirements](reference-requirements), and [contact information](reference-contacts). | [Explanation](explanation-index) </br> Explore and grow your understanding of key topics, such as: [security](explanation-security), [cryptography](explanation-cryptography), [solution components](explanation-component-overview), [configuration](explanation-configuration), and [monitoring](explanation-monitoring). |
 
 ## Project and community
 
-Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source project that welcomes
-community contributions, suggestions, fixes and constructive feedback.
+Charmed Apache Spark is a distribution of Apache Spark. It’s an open-source project that welcomes community contributions, suggestions, fixes and constructive feedback.  
 
-- [Read our Code of Conduct](https://ubuntu.com/community/code-of-conduct)
-- [Join the Discourse forum](https://discourse.charmhub.io/tag/spark)
-- [Contribute and report bugs](https://github.com/canonical/spark-client-snap)
+- [Read our Code of Conduct](https://ubuntu.com/community/code-of-conduct)  
+- [Join the Discourse forum](https://discourse.charmhub.io/tag/spark)  
+- [Contribute](https://github.com/canonical/spark-client-snap) and report [issues](https://github.com/canonical/spark-client-snap/issues/new)  
+- Explore [Canonical Data Fabric solutions](https://canonical.com/data)  
+- [Contact us](https://discourse.charmhub.io/t/13107) for all further questions  
 
-```{toctree}
-:titlesonly:
-:hidden:
+Apache®, Apache Spark, Spark®, and the Apache Spark logo are either registered trademarks or trademarks of the Apache Software Foundation in the United States and/or other countries.  
 
-Overview <self>
-Tutorial <tutorial/index>
-How To <how-to/index>
-Reference <reference/index>
-Explanation <explanation/index>
-```
+## License and trademarks
+
+Apache®, [Apache Spark, Spark™](https://spark.apache.org/), [Apache Kyuubi, Kyuubi™](https://kyuubi.apache.org/), and their respective logos are either registered trademarks or trademarks of the [Apache Software Foundation](https://www.apache.org/) in the United States and/or other countries.
+
+The Charmed Apache Spark solution is free software, distributed under the Apache Software License, version 2.0. See [LICENSE](https://github.com/canonical/spark-client-snap/blob/main/LICENSE) for more information.
