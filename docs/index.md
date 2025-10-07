@@ -5,10 +5,12 @@ Charmed Apache Spark solution is a set of Canonical supported artefacts (includi
 snaps) that makes operating Apache Spark workloads on Kubernetes seamless, secure and
 production-ready.
 
-Charmed Apache Spark solution includes the
-[Client tools snap for Apache Spark](https://snapcraft.io/spark-client),
-[spark8t toolkit](https://github.com/canonical/spark-k8s-toolkit-py) and other components, like
-[Charmed Apache Spark rock](https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark).
+Charmed Apache Spark solution includes the:
+
+* Charmed operators to deploy and manage Apache Spark-related components, such as [Apache Kyuubi](https://charmhub.io/kyuubi-k8s) and [Spark History Server](https://charmhub.io/spark-history-server-k8s), using [Juju](https://canonical.com/juju)
+* [OCI Images](https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark) that benefit from security patching and bug fixing support to run Apache Spark securely 
+* Client tools snap, either in the form of a [snap](https://snapcraft.io/spark-client) or [python package](https://github.com/canonical/spark-k8s-toolkit-py) to simplify the user experience of running Apache Spark on K8s
+
 For an overview of all components in the solution, see the
 [Components overview page](explanation-component-overview).
 
