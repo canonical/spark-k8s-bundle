@@ -108,6 +108,9 @@ jobs:
           juju status --model cos
           juju status --model spark
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: Run Kyuubi UATs
         working-directory: ./python
         run: |
