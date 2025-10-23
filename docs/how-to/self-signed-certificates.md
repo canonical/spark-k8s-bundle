@@ -3,11 +3,9 @@
 # Support self-signed certificates in Charmed Apache Spark
 
 In some use cases, there is the need to use self-signed certificates to trust self-hosted services such as Ceph or many others.
+For this reason, both the Spark-client snap and the Apache Spark applications need to add certificates in their respective truststore to validate the desired service.
 
-## Spark-client snap
-
-The Spark-client snap offers the possibility to submit jobs to a Kubernetes cluster with the `spark-submit` command.
-For this reason, we have a feature in the Apache Spark Client snap to add certificates in the Java truststore inside the snap to validate the desired service.
+## Import certificates in the Spark-client snap
 
 To add a new certificate you can use the following command:
 
@@ -19,21 +17,24 @@ where `<CERTIFICATE_ALIAS>` is the alias associated to the certificate and the `
 
 For more information, see the blog post on [how to deploy Charmed Apache Spark, with MAAS, Kubernetes and Ceph with self-signed certificates](https://ubuntu.com/blog/deploy-an-on-premise-data-hub-with-canonical-maas-spark-kubernetes-and-ceph).
 
-## Apache Spark applications
+## Import certificates in Apache Spark applications
 
-Apache Spark applications can interact with a TLS enabled object storage with a self-signed certificates using the following procedure.\
+Apache Spark applications can interact with a TLS enabled object storage with a self-signed certificates using the following procedure.
+
 First, create a truststore from the certificate file:
 
 ```bash
 keytool -import -alias ceph-cert -file <CERTIFICATE_PATH> -storetype JKS -keystore <STORE_PATH> -storepass <PASSWORD> -noprompt
 ```
 
+Then, create a new Kubernetes secret from this file:
+
 ```bash
 kubectl create secret generic <STORE_SECRET> --from-file <STORE_PATH>
 ```
 
-The application can be instructed to use the truststore we just created.
-This can be done on a per-application basic by passing additional properties to the `spark-submit` command, or on a service account-wide setting as follows:
+Configure the application to consume the secret and use the truststore we just created.
+Apply the configuration on a per-application basic by specifying additional properties to the `spark-submit` command, or at the service account level as shown below:
 
 ```bash
 spark-client.service-account-registry add-config --username <USERNAME> \
