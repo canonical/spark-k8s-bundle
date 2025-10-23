@@ -93,6 +93,7 @@ runs:
       uses: charmed-kubernetes/actions-operator@main
       with:
         juju-channel: ${{ inputs.juju-snap-channel }}
+        bootstrap-options: "--agent-version 3.6.9"
         provider: microk8s
         channel: 1.32-strict/stable
         bootstrap-options: "--agent-version ${{ inputs.juju-agent-version }}"
