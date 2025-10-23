@@ -13,7 +13,7 @@ To add a new certificate you can use the following command:
 spark-client.import-certificate <CERTIFICATE_ALIAS> <CERTIFICATE_PATH>
 ```
 
-where `<CERTIFICATE_ALIAS>` is the alias associated to the certificate and the `<CERTIFICATE_PATH>` is the path of the desired certificate. Please be sure that the path of the certificate is accessible by the Apache Spark Client snap.
+Please make sure that the path of the certificate is accessible by the Apache Spark Client snap.
 
 For more information, see the blog post on [how to deploy Charmed Apache Spark, with MAAS, Kubernetes and Ceph with self-signed certificates](https://ubuntu.com/blog/deploy-an-on-premise-data-hub-with-canonical-maas-spark-kubernetes-and-ceph).
 
