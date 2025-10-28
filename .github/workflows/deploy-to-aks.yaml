@@ -87,7 +87,7 @@ jobs:
         run: |
           az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.NAME }} --admin
           juju add-k8s aks --client
-          juju bootstrap aks aks-controller
+          juju bootstrap aks aks-controller --agent-version=3.6.9
 
       - name: Deploy Kyuubi Reference Architecture
         working-directory: ./python/tests/reference_architecture/azure
