@@ -35,7 +35,10 @@ class Credentials:
     @property
     def endpoint(self) -> str:
         """Return the S3 endpoint."""
-        return f"http://{self.host}:80"
+        if not self.host.startswith("http"):
+            return f"http://{self.host}:80"
+        else:
+            return self.host
 
 
 class Bucket(ObjectStorageUnit):

@@ -60,6 +60,7 @@ tenacity = "^9.0.0"
 httpx = "^0.28.1"
 jubilant = "^1.1.0"
 jinja2 = "*"
+python-dotenv = "^1.2.1"
 
 [tool.poetry.group.benchmark]
 optional = true

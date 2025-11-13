@@ -3,6 +3,7 @@
 # See LICENSE file for licensing details.
 """S3 fixtures."""
 
+import os
 import subprocess
 import uuid
 
@@ -15,21 +16,30 @@ from spark_test.core.s3 import Bucket, Credentials
 @pytest.fixture(scope="session")
 def credentials():
     """S3 credentials."""
-    output = subprocess.check_output(
-        [f"{BINS.relative_to(PKG_DIR) / 's3.sh'}", "create"], cwd=PKG_DIR
-    )
+    if any(
+        (
+            (access_key := os.environ.get("S3_ACCESS_KEY", None)) is None,
+            (secret_key := os.environ.get("S3_SECRET_KEY", None)) is None,
+            (endpoint_url := os.environ.get("S3_SERVER_URL", None)) is None,
+        )
+    ):
+        output = subprocess.check_output(
+            [f"{BINS.relative_to(PKG_DIR) / 's3.sh'}", "create"], cwd=PKG_DIR
+        )
 
-    raw_data = {
-        key_value[0]: key_value[1]
-        for pair in output.decode("utf-8").strip("\n").split(",")
-        if (key_value := pair.split(":"))
-    }
+        raw_data = {
+            key_value[0]: key_value[1]
+            for pair in output.decode("utf-8").strip("\n").split(",")
+            if (key_value := pair.split(":"))
+        }
 
-    yield Credentials(**raw_data)
+        yield Credentials(**raw_data)
 
-    output = subprocess.check_output(
-        [f"{BINS.relative_to(PKG_DIR) / 's3.sh'}", "teardown"], cwd=PKG_DIR
-    )
+        output = subprocess.check_output(
+            [f"{BINS.relative_to(PKG_DIR) / 's3.sh'}", "teardown"], cwd=PKG_DIR
+        )
+    else:
+        yield Credentials(str(access_key), str(secret_key), str(endpoint_url))
 
 
 @pytest.fixture(scope="module")

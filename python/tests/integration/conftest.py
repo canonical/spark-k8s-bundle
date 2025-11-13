@@ -18,12 +18,13 @@ from contextlib import contextmanager
 from pathlib import Path
 from subprocess import PIPE, Popen, TimeoutExpired, check_output
 from typing import Generator, cast
-from tenacity import retry, stop_after_attempt, wait_fixed
 
 import httpx
 import jubilant
 import pytest
+from dotenv import load_dotenv
 from spark8t.domain import PropertyFile
+from tenacity import retry, stop_after_attempt
 
 from spark_test.core.azure_storage import Container
 from spark_test.core.bundle import BundleBackendEnum
@@ -52,6 +53,7 @@ COS_APPS = [
     "alertmanager",
 ]
 FORWARD_TIMEOUT_SECONDS = 10
+load_dotenv()
 logger = logging.getLogger(__name__)
 logging.getLogger("jubilant.wait").setLevel(logging.WARNING)
 
