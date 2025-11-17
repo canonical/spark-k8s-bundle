@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-import base64
 import logging
 import os
 from dataclasses import dataclass
@@ -77,12 +76,13 @@ class Bucket(ObjectStorageUnit):
             aws_secret_access_key=credentials.secret_key,
         )
 
+        client_kwargs: dict[str, Any] = {
+            "endpoint_url": credentials.endpoint,
+            "config": default_s3_config,
+        }
         s3 = session.client(
             "s3",
-            **{
-                "endpoint_url": credentials.endpoint,
-                "config": default_s3_config,
-            },
+            **client_kwargs,
         )
 
         if not cls._exists(bucket_name, s3):
@@ -106,12 +106,13 @@ class Bucket(ObjectStorageUnit):
             aws_secret_access_key=credentials.secret_key,
         )
 
+        client_kwargs: dict[str, Any] = {
+            "endpoint_url": credentials.endpoint,
+            "config": default_s3_config,
+        }
         s3: S3Client = session.client(
             "s3",
-            **{
-                "endpoint_url": credentials.endpoint,
-                "config": default_s3_config,
-            },
+            **client_kwargs,
         )
 
         if cls._exists(bucket_name, s3):
