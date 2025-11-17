@@ -38,9 +38,9 @@ codespell = "^2.1.0"
 ruff = "^0.9.4"
 mypy = ">=0.910"
 pytest-mypy = ">=0.10.3"
-types-boto3 = { extras = ["essentials"], version = ">=1.36.0" }
 types-psycopg2 = "^2.9.21.20250718"
 types-pyyaml = "^6.0.12.20250516"
+types-boto3 = {extras = ["s3"], version = "^1.40.73"}
 
 [tool.poetry.group.unit]
 optional = true

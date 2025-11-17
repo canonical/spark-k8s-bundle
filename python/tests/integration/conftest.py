@@ -509,12 +509,6 @@ def spark_bundle(
     short_version = ".".join(spark_version.split(".")[:2])
     release_path = RELEASE_DIR / short_version / backend
 
-    storage_unit = (
-        cast(Container, object_storage)
-        if storage_backend == "azure_storage"
-        else cast(Bucket, object_storage)
-    )
-
     if backend == BundleBackendEnum.TERRAFORM.value:
         bundle = TerraformBackend(tempdir=tempdir, module_path=release_path)
         base_vars = {
@@ -537,22 +531,24 @@ def spark_bundle(
             if cos
             else {"cos": {"deployed": "no"}}
         )
-        storage_vars = (
-            {
+        if storage_backend == "azure_storage":
+            storage_unit = cast(Container, object_storage)
+            storage_vars = {
                 "azure_storage": {
                     "storage_account": storage_unit.credentials.storage_account,
                     "container": storage_unit.container_name,
                     "secret_key": storage_unit.credentials.secret_key,
                 }
             }
-            if storage_backend == "azure_storage"
-            else {
+        else:
+            storage_unit = cast(Bucket, object_storage)
+
+            storage_vars = {
                 "s3": {
                     "bucket": storage_unit.bucket_name,
                     "endpoint": storage_unit.s3.meta.endpoint_url,
                 }
             }
-        )
 
     elif backend == BundleBackendEnum.YAML.value:
         bundle_yaml_filename = (
@@ -582,17 +578,19 @@ def spark_bundle(
             if cos
             else {}
         )
-        storage_vars = (
-            {
+        if storage_backend == "azure_storage":
+            storage_unit = cast(Container, object_storage)
+            storage_vars = {
                 "storage_account": storage_unit.credentials.storage_account,
                 "container": storage_unit.container_name,
             }
-            if storage_backend == "azure_storage"
-            else {
+        else:
+            storage_unit = cast(Bucket, object_storage)
+
+            storage_vars = {
                 "s3_endpoint": storage_unit.s3.meta.endpoint_url,
                 "bucket": storage_unit.bucket_name,
             }
-        )
 
     else:
         raise NotImplementedError(
