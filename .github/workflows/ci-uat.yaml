@@ -52,29 +52,32 @@ jobs:
           pip install poetry
       - name: Setup spark object storage
         id: spark-object-storage
+        if: ${{ inputs.storage-backend == 's3' }}
         shell: bash
+        env:
+          CLOUD_INIT_FILE: |
+            #cloud-config
+            package_upgrade: true
+            snap:
+              commands:
+                0: snap install microceph
+                1: sudo microceph cluster bootstrap
+                2: sudo microceph disk add loop,1G,3
+                3: sudo microceph enable rgw
+                4: sudo microceph.radosgw-admin user create --uid test --display-name test --access-key=foo --secret-key=bar
+
         run: |
-          lxc init ubuntu:jammy ceph -c limits.cpu=4 -c limits.memory=2GB -d root,size=8GB
-          cat > /home/ubuntu/microceph_rgw.yaml <<EOF
-          #cloud-config
-          package_upgrade: true
-          snap:
-            commands:
-              0: snap install microceph
-              1: sudo microceph cluster bootstrap
-              2: sudo microceph disk add loop,1G,3
-              3: sudo microceph enable rgw
-              4: sudo microceph.radosgw-admin user create --uid test --display-name test --access-key=foo --secret-key=bar
-          EOF
+          echo -e "$CLOUD_INIT_FILE" > microceph_rgw.yaml
+          lxc init ubuntu:jammy ceph -c limits.cpu=4 -c limits.memory=2GB -d root,size=5GB
 
-          cat /home/ubuntu/microceph_rgw.yaml
-
-          lxc config set ceph cloud-init.user-data - < /home/ubuntu/microceph_rgw.yaml
+          lxc config set ceph cloud-init.user-data - < microceph_rgw.yaml
           lxc start ceph
           while ! lxc exec ceph -- id -u ubuntu &>/dev/null; do sleep 0.5; done
           lxc exec ceph -- cloud-init status --wait
 
-          echo -e "S3_SERVER_URL=http://$(lxc list --format json | yq '.[] | select(.name == "ceph") .state.network.enp5s0.addresses.[] | select(.family == "inet") .address'):80/\nS3_ACCESS_KEY=foo\nS3_SECRET_KEY=bar" > .env
+          echo -e "S3_SERVER_URL=http://$(lxc list --format json | yq '.[] | select(.name == "ceph") .state.network.eth0.addresses.[] | select(.family == "inet") .address'):80/\nS3_ACCESS_KEY=foo\nS3_SECRET_KEY=bar" > .env
+          lxc list
+          cat .env
 
       - name: Select tests
         id: select-tests
