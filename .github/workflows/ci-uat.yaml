@@ -52,7 +52,7 @@ jobs:
           pip install poetry
       - name: Setup spark object storage
         id: spark-object-storage
-        if: ${{ inputs.storage-backend == 's3' }}
+        if: ${{ contains(matrix.storage-backend, 's3') }}
         shell: bash
         env:
           CLOUD_INIT_FILE: |
