@@ -97,7 +97,7 @@ runs:
         channel: 1.32-strict/stable
         bootstrap-options: "--agent-version ${{ inputs.juju-agent-version }}"
         microk8s-group: snap_microk8s
-        microk8s-addons: "storage rbac dns metallb:10.64.140.43-10.64.140.49"
+        microk8s-addons: "hostpath-storage rbac dns metallb:10.64.140.43-10.64.140.49"
     - name: Setup spark object storage
       id: spark-object-storage
       if: ${{ inputs.storage-backend == 's3' }}
