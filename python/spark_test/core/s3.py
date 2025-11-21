@@ -3,15 +3,21 @@
 # See LICENSE file for licensing details.
 """S3 module."""
 
+from __future__ import annotations
+
 import logging
 import os
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any
 
-import boto3
+from boto3.session import Session
 from botocore.client import Config
 from botocore.exceptions import ClientError
 
 from spark_test.core import ObjectStorageUnit
+
+if TYPE_CHECKING:
+    from types_boto3_s3.client import S3Client
 
 logger = logging.getLogger(__name__)
 
@@ -35,13 +41,16 @@ class Credentials:
     @property
     def endpoint(self) -> str:
         """Return the S3 endpoint."""
-        return f"http://{self.host}:80"
+        if not self.host.startswith("http"):
+            return f"http://{self.host}:80"
+        else:
+            return self.host
 
 
 class Bucket(ObjectStorageUnit):
     """Class representing a S3 bucket."""
 
-    def __init__(self, s3, bucket_name: str):
+    def __init__(self, s3: S3Client, bucket_name: str) -> None:
         """Create an instance of Bucket class.
 
         Args:
@@ -62,13 +71,18 @@ class Bucket(ObjectStorageUnit):
         Returns:
             Bucket object
         """
-        session = boto3.session.Session(
+        session = Session(
             aws_access_key_id=credentials.access_key,
             aws_secret_access_key=credentials.secret_key,
         )
 
+        client_kwargs: dict[str, Any] = {
+            "endpoint_url": credentials.endpoint,
+            "config": default_s3_config,
+        }
         s3 = session.client(
-            "s3", endpoint_url=credentials.endpoint, config=default_s3_config
+            "s3",
+            **client_kwargs,
         )
 
         if not cls._exists(bucket_name, s3):
@@ -87,13 +101,18 @@ class Bucket(ObjectStorageUnit):
         Returns:
             Bucket object
         """
-        session = boto3.session.Session(
+        session = Session(
             aws_access_key_id=credentials.access_key,
             aws_secret_access_key=credentials.secret_key,
         )
 
-        s3 = session.client(
-            "s3", endpoint_url=credentials.endpoint, config=default_s3_config
+        client_kwargs: dict[str, Any] = {
+            "endpoint_url": credentials.endpoint,
+            "config": default_s3_config,
+        }
+        s3: S3Client = session.client(
+            "s3",
+            **client_kwargs,
         )
 
         if cls._exists(bucket_name, s3):
@@ -119,7 +138,6 @@ class Bucket(ObjectStorageUnit):
         self.s3.delete_bucket(Bucket=self.bucket_name)
 
         self.s3.close()
-        self.s3 = None
 
     @staticmethod
     def _exists(bucket_name, s3) -> bool:
@@ -157,7 +175,7 @@ class Bucket(ObjectStorageUnit):
 
     def list_objects(self) -> list[dict]:
         """Return the list of object contained in the bucket."""
-        return self.s3.list_objects_v2(Bucket=self.bucket_name).get("Contents", [])
+        return self.s3.list_objects_v2(Bucket=self.bucket_name).get("Contents", [])  # type: ignore
 
     def list_content(self):
         """Return the list of object names."""
