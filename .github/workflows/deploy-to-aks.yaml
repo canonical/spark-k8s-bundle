@@ -1,17 +1,13 @@
 name: Reference Architecture Testing (AKS)
 on:
-  pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - '**.md'
   workflow_dispatch:
     inputs:
       k8s_version:
-        description: 'Kubernetes version to be used for the AKS cluster'
+        description: "Kubernetes version to be used for the AKS cluster"
         required: false
         default: "1.32"
       juju_version:
-        description: 'Charmed Spark version to be tested'
+        description: "Charmed Spark version to be tested"
         required: false
         default: "3.6"
 
@@ -30,7 +26,6 @@ jobs:
         run: |
           echo "K8S_VERSION=1.32" >> $GITHUB_ENV
           echo "JUJU_VERSION=3.6" >> $GITHUB_ENV
-
 
       - name: Update ENV variables from inputs if available
         run: |
@@ -62,7 +57,7 @@ jobs:
       - name: Create resource group and cluster
         run: |
           _K8S_VERSION=${{ env.K8S_VERSION }}
-          # Renaming of the version to use _ instead of . 
+          # Renaming of the version to use _ instead of .
           RANDOM_ID=$(uuidgen | cut -d "-" -f1)
           RUN_VERSION="spark-${_K8S_VERSION//./_}"
           RESOURCE_GROUP=${RUN_VERSION}_rg_${RANDOM_ID}
