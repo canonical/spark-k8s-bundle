@@ -16,6 +16,6 @@ on:
 jobs:
   tests:
     name: Run CI tests on a PR
-    uses: ./.github/workflows/ci-tests-minimal.yaml
+    uses: ./.github/workflows/ci-tests-minimal-k8s.yaml
     secrets: inherit
 
