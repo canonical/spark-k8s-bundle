@@ -12,8 +12,8 @@ jobs:
 
   integration-tests:
     name: "${{ matrix.tox-env }}: spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju-agent-version }} | ${{ matrix.cos-model }}"
-    # runs-on: ["self-hosted-linux-amd64-noble-xlarge"]
-    runs-on: ubuntu-22.04
+    runs-on: ["self-hosted-linux-amd64-noble-xlarge"]
+    # runs-on: ubuntu-22.04
     timeout-minutes: 120
     strategy:
       max-parallel: 15
