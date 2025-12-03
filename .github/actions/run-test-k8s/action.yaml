@@ -78,7 +78,7 @@ runs:
           /usr/share/sbt \
           /usr/share/swift \
           /home/linuxbrew
-        pipx uninstall-all
+        pip uninstall-all
         printf '\nDisk usage\n'
         df --human-readable
     - name: Checkout repo
@@ -158,7 +158,7 @@ runs:
     - name: Install tools
       shell: bash
       run: |
-        pipx install tox
+        pip install tox
     - name: Select tests
       id: select-tests
       shell: bash
