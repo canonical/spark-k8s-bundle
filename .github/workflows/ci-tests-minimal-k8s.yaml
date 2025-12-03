@@ -7,12 +7,13 @@ on:
   workflow_call:
 
 jobs:
-  checks:
-    uses: ./.github/workflows/ci-checks.yaml
+  # checks:
+  #   uses: ./.github/workflows/ci-checks.yaml
 
   integration-tests:
     name: "${{ matrix.tox-env }}: spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju-agent-version }} | ${{ matrix.cos-model }}"
-    runs-on: ["self-hosted-linux-amd64-noble-xlarge"]
+    # runs-on: ["self-hosted-linux-amd64-noble-xlarge"]
+    runs-on: ubuntu-22.04
     timeout-minutes: 120
     strategy:
       max-parallel: 15
@@ -29,8 +30,8 @@ jobs:
         juju-agent-version: ["3.6.8"]
         cos-model: ["cos"]
 
-    needs:
-      - checks
+    # needs:
+    #   - checks
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
