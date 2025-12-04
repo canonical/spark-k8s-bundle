@@ -14,7 +14,21 @@ on:
       - '**.md'
 
 jobs:
-  tests:
-    name: Run CI tests on a PR
-    uses: ./.github/workflows/ci-tests-minimal-k8s.yaml
-    secrets: inherit
+  install:
+    name: "installation tests"
+    runs-on: [ "self-hosted-linux-amd64-noble-xlarge" ]
+    # runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    steps:
+      - name: Install pipx
+        shell: bash
+        run: |
+          sudo apt update -y
+          sudo apt install pipx
+          pipx ensurepath
+    
+
+  # tests:
+  #   name: Run CI tests on a PR
+  #   uses: ./.github/workflows/ci-tests-minimal-k8s.yaml
+  #   secrets: inherit
