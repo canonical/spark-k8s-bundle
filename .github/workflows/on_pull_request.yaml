@@ -23,10 +23,10 @@ jobs:
       - name: Install pipx
         shell: bash
         run: |
-          sudo apt update -y
-          sudo apt install pipx
+          sudo apt-get update
+          sudo apt-get install pipx -y
           pipx ensurepath
-    
+          
 
   # tests:
   #   name: Run CI tests on a PR
