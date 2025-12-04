@@ -60,7 +60,7 @@ runs:
     - name: Install pipx
       shell: bash
       run: |
-        sudo apt update
+        sudo apt update -y
         sudo apt install pipx
         pipx ensurepath
     - name: Disk usage
