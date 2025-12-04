@@ -57,6 +57,12 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Install pipx
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install pipx
+        pipx ensurepath
     - name: Disk usage
       shell: bash
       run: |
@@ -78,7 +84,7 @@ runs:
           /usr/share/sbt \
           /usr/share/swift \
           /home/linuxbrew
-        pip uninstall-all
+        pipx uninstall-all
         printf '\nDisk usage\n'
         df --human-readable
     - name: Checkout repo
