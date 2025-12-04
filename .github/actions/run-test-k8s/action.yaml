@@ -70,6 +70,31 @@ runs:
         pipx install tox
         pipx install poetry
 
+    - name: Disk usage
+      shell: bash
+      run: |
+        sudo rm -rf \
+          /opt/google \
+          /opt/hostedtoolcache \
+          /opt/microsoft/powershell \
+          /opt/microsoft/msedge \
+          "$AGENT_TOOLSDIRECTORY" \
+          /usr/lib/firefox \
+          /usr/lib/mono \
+          /usr/local/julia* \
+          /usr/local/lib/android \
+          /usr/local/share/chromium \
+          /usr/local/share/powershell \
+          /usr/share/dotnet \
+          /usr/share/gradle* \
+          /usr/share/miniconda \
+          /usr/share/sbt \
+          /usr/share/swift \
+          /home/linuxbrew
+        pipx uninstall-all
+        printf '\nDisk usage\n'
+        df --human-readable
+
     - name: Setup environment
       shell: bash
       run: |
@@ -96,36 +121,6 @@ runs:
         sudo concierge prepare --trace
         cd ..
 
-#     - name: Install pipx
-#       shell: bash
-#       run: |
-#         sudo apt-get update
-#         sudo apt-get install pipx -y
-#         pipx ensurepath
-#     - name: Disk usage
-#       shell: bash
-#       run: |
-#         sudo rm -rf \
-#           /opt/google \
-#           /opt/hostedtoolcache \
-#           /opt/microsoft/powershell \
-#           /opt/microsoft/msedge \
-#           "$AGENT_TOOLSDIRECTORY" \
-#           /usr/lib/firefox \
-#           /usr/lib/mono \
-#           /usr/local/julia* \
-#           /usr/local/lib/android \
-#           /usr/local/share/chromium \
-#           /usr/local/share/powershell \
-#           /usr/share/dotnet \
-#           /usr/share/gradle* \
-#           /usr/share/miniconda \
-#           /usr/share/sbt \
-#           /usr/share/swift \
-#           /home/linuxbrew
-#         pipx uninstall-all
-#         printf '\nDisk usage\n'
-#         df --human-readable
 #     - name: Checkout repo
 #       uses: actions/checkout@v4
 #     - id: setup-python
