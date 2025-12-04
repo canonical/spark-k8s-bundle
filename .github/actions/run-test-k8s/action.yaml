@@ -101,7 +101,7 @@ runs:
       run: |
         # Avoiding dockerhub rate limits (see https://canonical-self-hosted-github-runner-docs.readthedocs-hosted.com/en/latest/usage/faq/how-to-avoid-dockerhub-rate-limits/ for more informations)
         if [ -n "$DOCKERHUB_MIRROR" ]; then
-        MIRROR_CONFIG=/opt/containerd/k8s-containerd/etc/containerd/hosts.d/docker.io
+        MIRROR_CONFIG=/etc/containerd/hosts.d/docker.io
           
         sudo mkdir -p ${MIRROR_CONFIG}
         sudo chown $USER ${MIRROR_CONFIG}
