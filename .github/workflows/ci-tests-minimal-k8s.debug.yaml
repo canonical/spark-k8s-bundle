@@ -34,19 +34,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v5
 
-    - name: Setup tmate session
-      uses: canonical/action-tmate@main
-
-    - name: Install tox & poetry
-      shell: bash
-      run: |
-        sudo apt-get install -yqq pipx
-        pipx ensurepath
-        sudo pipx ensurepath
-        
-        pipx install tox
-        pipx install poetry
-
     - name: Disk usage
       shell: bash
       run: |
@@ -71,6 +58,16 @@ jobs:
         pipx uninstall-all
         printf '\nDisk usage\n'
         df --human-readable
+
+    - name: Install tox & poetry
+      shell: bash
+      run: |
+        sudo apt-get install -yqq pipx
+        pipx ensurepath
+        sudo pipx ensurepath
+        
+        pipx install tox
+        pipx install poetry
 
     - name: Setup environment
       shell: bash
