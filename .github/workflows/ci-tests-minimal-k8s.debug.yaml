@@ -34,6 +34,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v5
 
+    - name: Install pipx
+      shell: bash
+      run: |
+        sudo apt-get install -yqq pipx
+        pipx ensurepath
+        sudo pipx ensurepath
+        
     - name: Disk usage
       shell: bash
       run: |
@@ -62,10 +69,6 @@ jobs:
     - name: Install tox & poetry
       shell: bash
       run: |
-        sudo apt-get install -yqq pipx
-        pipx ensurepath
-        sudo pipx ensurepath
-        
         pipx install tox
         pipx install poetry
 
