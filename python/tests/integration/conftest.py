@@ -599,6 +599,10 @@ def spark_bundle(
 
     vars = base_vars | cos_vars | storage_vars
 
+    stop_file = self.bundle.tempdir / "continue"
+    while not stop_file.exists():
+        logger.info(f"Waiting for file {stop_file}")
+    
     deployed_applications = bundle.apply(vars=vars)
     if storage_backend == "azure_storage":
         credentials = request.getfixturevalue("azure_credentials")
