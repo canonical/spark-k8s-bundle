@@ -82,6 +82,10 @@ resource "juju_application" "kyuubi_users" {
     revision = var.kyuubi_users_revision
   }
 
+  storage_directives = {
+    pgdata = var.kyuubi_users_size
+  }
+
   resources = var.kyuubi_users_image
 
   units = 1
@@ -99,6 +103,11 @@ resource "juju_application" "metastore" {
     channel  = "14/stable"
     revision = var.metastore_revision
   }
+
+  storage_directives = {
+    pgdata = var.kyuubi_users_size
+  }
+
 
   resources = var.metastore_image
 
@@ -147,6 +156,11 @@ resource "juju_application" "zookeeper" {
     channel  = "3/stable"
     revision = var.zookeeper_revision
   }
+
+  storage_directives = {
+    zookeeper = var.zookeeper_size
+  }
+
 
   resources = var.zookeeper_image
 
