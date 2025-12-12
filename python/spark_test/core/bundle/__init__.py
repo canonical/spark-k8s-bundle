@@ -8,6 +8,8 @@ import enum
 import subprocess
 from abc import abstractmethod
 from pathlib import Path
+import uuid
+import time
 
 from spark8t.utils import WithLogging
 
@@ -31,6 +33,12 @@ class BundleBackend(WithLogging):
     def execute(self, cmds: list[str]) -> list[str]:
         """Execute the given commands within the temp directory."""
         try:
+            stop_file = bundle.tempdir / str(uuid.uuid1().hex)
+            while not stop_file.exists():
+                time.sleep(60)
+                self.logger.info(f"Waiting for file {stop_file}")
+
+
             result = subprocess.check_output(
                 cmds, stderr=subprocess.PIPE, cwd=self.tempdir
             )

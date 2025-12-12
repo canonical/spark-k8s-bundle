@@ -599,8 +599,9 @@ def spark_bundle(
 
     vars = base_vars | cos_vars | storage_vars
 
-    stop_file = bundle.tempdir / "continue"
+    stop_file = bundle.tempdir / "continue_main"
     while not stop_file.exists():
+        time.sleep(60)
         logger.info(f"Waiting for file {stop_file}")
     
     deployed_applications = bundle.apply(vars=vars)
