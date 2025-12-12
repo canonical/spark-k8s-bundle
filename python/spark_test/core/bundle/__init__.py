@@ -33,7 +33,7 @@ class BundleBackend(WithLogging):
     def execute(self, cmds: list[str]) -> list[str]:
         """Execute the given commands within the temp directory."""
         try:
-            stop_file = bundle.tempdir / str(uuid.uuid1().hex)
+            stop_file = self.tempdir / str(uuid.uuid1().hex)
             while not stop_file.exists():
                 time.sleep(60)
                 self.logger.info(f"Waiting for file {stop_file}")
