@@ -14,7 +14,7 @@ providers:
       load-balancer:
         enabled: true
         l2-mode: true
-        cidrs: 10.64.140.43/32
+        cidrs: 10.64.0.0/16
     bootstrap-constraints:
       root-disk: 4G
 

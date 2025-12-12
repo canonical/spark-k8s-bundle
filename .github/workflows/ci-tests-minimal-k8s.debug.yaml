@@ -34,8 +34,8 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v5
 
-    - name: Setup tmate session
-      uses: canonical/action-tmate@main
+    # - name: Setup tmate session
+    #   uses: canonical/action-tmate@main
 
     - name: Install pipx
       shell: bash
