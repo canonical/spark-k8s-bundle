@@ -263,14 +263,14 @@ def storage_sizes(request) -> dict[str, str]:
     if option == "small":
         return {
             "kyuubi_users_size": "100M",
-            "metastore_size": "1G",
-            "zookeeper_size": "100M",
-            "alertmanager_size": "1G",
-            "grafana_size": "1G",
-            "loki_active_index_directory_size": "1G",
-            "loki_chunks_size": "5G",
-            "prometheus_size": "5G",
-            "traefik_size": "1G"
+            "metastore_size": "100M",
+            "zookeeper_size": "10G",
+            "alertmanager_size": "100M",
+            "grafana_size": "100M",
+            "loki_active_index_directory_size": "100M",
+            "loki_chunks_size": "500M",
+            "prometheus_size": "500M",
+            "traefik_size": "100M"
         }
     else:
         return {
