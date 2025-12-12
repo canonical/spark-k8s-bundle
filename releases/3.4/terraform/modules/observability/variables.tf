@@ -67,3 +67,9 @@ variable "scrape_config_revision" {
   type        = number
   nullable    = false
 }
+
+variable "pushgateway_size" {
+  description = "Storage size for the pushgateway database"
+  type        = string
+  default     = "10G"
+}

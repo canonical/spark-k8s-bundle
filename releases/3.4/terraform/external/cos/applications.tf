@@ -12,7 +12,7 @@ resource "juju_application" "alertmanager" {
   units       = 1
   constraints = "arch=amd64"
   storage_directives = {
-    data = "10G"
+    data = var.alertmanager_size
   }
 }
 
@@ -42,7 +42,7 @@ resource "juju_application" "grafana" {
   units       = 1
   constraints = "arch=amd64"
   storage_directives = {
-    database = "10G"
+    database = var.grafana_size
   }
 }
 
@@ -57,8 +57,8 @@ resource "juju_application" "loki" {
   units       = 1
   constraints = "arch=amd64"
   storage_directives = {
-    active-index-directory = "10G"
-    loki-chunks            = "500G"
+    active-index-directory = var.loki_active_index_directory_size
+    loki-chunks            = var.loki_chunks_size
   }
 }
 
@@ -76,7 +76,7 @@ resource "juju_application" "prometheus" {
   units       = 1
   constraints = "arch=amd64"
   storage_directives = {
-    database = "500G"
+    database = var.prometheus_size
   }
 }
 
@@ -97,7 +97,7 @@ resource "juju_application" "traefik" {
   units       = 1
   constraints = "arch=amd64"
   storage_directives = {
-    configurations = "10G"
+    configurations = var.traefik_size
   }
 }
 
