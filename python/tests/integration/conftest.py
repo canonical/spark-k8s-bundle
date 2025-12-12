@@ -148,6 +148,15 @@ def pytest_addoption(parser):
         help="This, together with the `--model` parameter, ensures that all functions "
         "marked with the` skip_if_deployed` tag are skipped.",
     )
+    parser.addoption(
+        "--storage-sizes",
+        choices=["small", "medium"],
+        nargs="?",
+        const="small",
+        default="small",
+        type=str,
+        help="Setting for the storage.",
+    )
 
 
 def determine_scope(fixture_name, config):
@@ -246,6 +255,35 @@ def bucket_name():
 @pytest.fixture(scope="module")
 def container_name(test_uuid):
     return f"spark-container-{test_uuid}"
+
+@pytest.fixture(scope="module")
+def storage_sizes(request) -> dict[str, str]:
+    """The name of the model in which COS is either already deployed or is to be deployed."""
+    option = request.config.getoption("--storage-sizes")
+    if option == "small":
+        return {
+            "kyuubi_users_size": "100M",
+            "metastore_size": "1G",
+            "zookeeper_size": "100M",
+            "alertmanager_size": "1G",
+            "grafana_size": "1G",
+            "loki_active_index_directory_size": "1G",
+            "loki_chunks_size": "5G",
+            "prometheus_size": "5G",
+            "traefik_size": "1G"
+        }
+    else:
+        return {
+            "kyuubi_users_size": "1G",
+            "metastore_size": "10G",
+            "zookeeper_size": "10G",
+            "alertmanager_size": "10G",
+            "grafana_size": "10G",
+            "loki_active_index_directory_size": "10G",
+            "loki_chunks_size": "500G",
+            "prometheus_size": "500G",
+            "traefik_size": "10G"
+        }
 
 
 @pytest.fixture
@@ -504,6 +542,7 @@ def spark_bundle(
     object_storage,
     admin_password,
     private_key,
+    storage_sizes
 ):
     """Deploy the Spark K8s bundle, with appropriate backend and object storage."""
     short_version = ".".join(spark_version.split(".")[:2])
@@ -597,13 +636,8 @@ def spark_bundle(
             f"The backend {backend} is not supported for deploying bundle."
         )
 
-    vars = base_vars | cos_vars | storage_vars
+    vars = base_vars | cos_vars | storage_vars | storage_sizes
 
-    stop_file = bundle.tempdir / "continue_main"
-    while not stop_file.exists():
-        time.sleep(60)
-        logger.info(f"Waiting for file {stop_file}")
-    
     deployed_applications = bundle.apply(vars=vars)
     if storage_backend == "azure_storage":
         credentials = request.getfixturevalue("azure_credentials")

@@ -26,7 +26,7 @@ applications:
     scale: 1
     constraints: arch=amd64
     storage:
-      pgdata: kubernetes,1,1024M
+      pgdata: kubernetes,1,{{ kyuubi_user_size }}
     trust: true
   zookeeper:
     charm: zookeeper-k8s
@@ -36,6 +36,8 @@ applications:
     constraints: arch=amd64
     resources:
       zookeeper-image: 34
+    storage:
+      zookeeper: kubernetes,1,{{ zookeeper_size }}
   metastore:
     charm: postgresql-k8s
     channel: 14/stable
@@ -45,7 +47,7 @@ applications:
     scale: 1
     constraints: arch=amd64
     storage:
-      pgdata: kubernetes,1,1024M
+      pgdata: kubernetes,1,{{ metastore_size }}
     trust: true
   s3:
     charm: s3-integrator
