@@ -21,7 +21,7 @@ jobs:
           - integration-sparkjob
           # - integration-kyuubi
           # - integration-backup-restore
-        bundle-backend: ["terraform"]
+        bundle-backend: ["yaml"]
         spark-version: ["3.5.5"]
         storage-backend: ["s3"]
         juju-snap-channel: ["3.6/stable"]
