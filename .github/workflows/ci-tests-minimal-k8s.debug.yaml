@@ -18,10 +18,11 @@ jobs:
       fail-fast: false
       matrix:
         tox-env:
-          - integration-sparkjob
+          - integration-basic
+          # - integration-sparkjob
           # - integration-kyuubi
           # - integration-backup-restore
-        bundle-backend: ["yaml"]
+        bundle-backend: ["terraform"]
         spark-version: ["3.5.5"]
         storage-backend: ["s3"]
         juju-snap-channel: ["3.6/stable"]
@@ -189,6 +190,10 @@ jobs:
         juju list-models
         cd python && tox run -e ${{ matrix.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ matrix.bundle-backend }} --cos-model ${{ matrix.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ matrix.storage-backend }} --model spark-bundle-test ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
         echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
+
+    - name: Setup tmate session
+      uses: canonical/action-tmate@main
+
     - id: collect-logs
       name: Collect logs if job failed
       shell: bash
