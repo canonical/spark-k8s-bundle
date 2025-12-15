@@ -188,7 +188,7 @@ jobs:
       run: |
         juju add-model spark-bundle-test
         juju list-models
-        cd python && tox run -e ${{ matrix.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ matrix.bundle-backend }} --cos-model ${{ matrix.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ matrix.storage-backend }} --model spark-bundle-test ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
+        cd python && tox run -e ${{ matrix.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ matrix.bundle-backend }} --cos-model ${{ matrix.cos-model }} --spark-version ${{ matrix.spark-version }} --storage-backend ${{ matrix.storage-backend }} --model spark-bundle-test ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
         echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
 
     - name: Setup tmate session
