@@ -192,6 +192,7 @@ jobs:
         echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
 
     - name: Setup tmate session
+      if: ${{ failure() }}
       uses: canonical/action-tmate@main
 
     - id: collect-logs
