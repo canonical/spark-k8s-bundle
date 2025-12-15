@@ -263,8 +263,8 @@ def storage_sizes(request) -> dict[str, str]:
     option = request.config.getoption("--storage-sizes")
     if option == "small":
         return {
-            "kyuubi_users_size": "100M",
-            "metastore_size": "100M",
+            "kyuubi_users_size": "500M",
+            "metastore_size": "500M",
             "zookeeper_size": "10G",
             "alertmanager_size": "100M",
             "grafana_size": "100M",
