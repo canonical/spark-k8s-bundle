@@ -74,8 +74,8 @@ module "spark" {
   data_integrator_revision = var.data_integrator_revision != null ? var.data_integrator_revision : local.revisions.data_integrator
 
   kyuubi_users_size = var.kyuubi_users_size
-  metastore_size = var.metastore_size
-  zookeeper_size = var.zookeeper_size
+  metastore_size    = var.metastore_size
+  zookeeper_size    = var.zookeeper_size
 }
 
 module "azure_storage" {
@@ -109,12 +109,12 @@ module "bundled_cos" {
   cos_tls_cert = var.cos.tls.cert
   cos_tls_key  = var.cos.tls.key
 
-  alertmanager_size = var.alertmanager_size
-  grafana_size = var.grafana_size
+  alertmanager_size                = var.alertmanager_size
+  grafana_size                     = var.grafana_size
   loki_active_index_directory_size = var.loki_active_index_directory_size
-  loki_chunks_size = var.loki_chunks_size
-  prometheus_size = var.prometheus_size
-  traefik_size = var.traefik_size
+  loki_chunks_size                 = var.loki_chunks_size
+  prometheus_size                  = var.prometheus_size
+  traefik_size                     = var.traefik_size
 }
 
 

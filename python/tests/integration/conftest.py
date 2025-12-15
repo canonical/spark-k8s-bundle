@@ -256,6 +256,7 @@ def bucket_name():
 def container_name(test_uuid):
     return f"spark-container-{test_uuid}"
 
+
 @pytest.fixture(scope="module")
 def storage_sizes(request) -> dict[str, str]:
     """The name of the model in which COS is either already deployed or is to be deployed."""
@@ -270,7 +271,7 @@ def storage_sizes(request) -> dict[str, str]:
             "loki_active_index_directory_size": "100M",
             "loki_chunks_size": "500M",
             "prometheus_size": "500M",
-            "traefik_size": "100M"
+            "traefik_size": "100M",
         }
     else:
         return {
@@ -282,7 +283,7 @@ def storage_sizes(request) -> dict[str, str]:
             "loki_active_index_directory_size": "10G",
             "loki_chunks_size": "500G",
             "prometheus_size": "500G",
-            "traefik_size": "10G"
+            "traefik_size": "10G",
         }
 
 
@@ -542,7 +543,7 @@ def spark_bundle(
     object_storage,
     admin_password,
     private_key,
-    storage_sizes
+    storage_sizes,
 ):
     """Deploy the Spark K8s bundle, with appropriate backend and object storage."""
     short_version = ".".join(spark_version.split(".")[:2])
