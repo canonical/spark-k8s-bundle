@@ -28,6 +28,10 @@ jobs:
         storage-backend: [ "s3", "azure_storage" ]
         juju-snap-channel: [ "3.6/stable" ]
         juju-agent-version: [ "3.6.8" ]
+        k8s-distribution: ["k8s", "microk8s"]
+        exclude:
+          - k8s-distribution: "microk8s"
+            spark-version: "3.4.4"
         include:
           # Test integration-basic, with Spark 3.4
           - tox-env: integration-basic
