@@ -29,14 +29,7 @@ def namespace_name():
     return "spark-ns"
 
 
-def test_pod_admin(admin_pod, service_account, tmp_path):
-    import time
-    from pathlib import Path
-    filename = Path(tmp_path) / "continue"
-    while not filename.exists():
-        print(f"File {filename} does not exist")
-        time.sleep(5)
-
+def test_pod_admin(admin_pod, service_account):
     output: str = admin_pod.exec(
         ["spark-client.service-account-registry", "list"]
     ).decode("utf-8")
