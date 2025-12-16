@@ -14,7 +14,7 @@ jobs:
     uses: ./.github/workflows/ci-checks.yaml
 
   integration-tests:
-    name: "${{ matrix.tox-env }}: spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju.agent }} | ${{ matrix.cos-model }}"
+    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}): spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju.agent }} | ${{ matrix.cos-model }}"
     runs-on: ubuntu-22.04
     timeout-minutes: 120
     strategy:
@@ -30,6 +30,7 @@ jobs:
         storage-backend: ["s3", "azure_storage"]
         cos-model: ["cos"]
         juju-snap-channel: ["3.6/stable"]
+        k8s-distribution: ["k8s", "microk8s"]
         include:
           # Add juju snap channel and agent version to all matrix combinations
           - juju-snap-channel: "3.5/stable"
@@ -63,6 +64,7 @@ jobs:
         uses: ./.github/actions/run-test
         timeout-minutes: 40
         with:
+          k8s-distribution: ${{ matrix.k8s-distribution }}
           tox-env: ${{ matrix.tox-env }}
           bundle-backend: ${{ matrix.bundle-backend }}
           spark-version: ${{ matrix.spark-version }}
