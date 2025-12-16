@@ -87,6 +87,7 @@ jobs:
       - name: Run integration test
         uses: ./.github/actions/run-test-k8s
         with:
+          k8s-distribution: ${{ matrix.k8s-distribution }}
           tox-env: ${{ matrix.tox-env }}
           bundle-backend: ${{ matrix.bundle-backend || 'terraform'}}
           spark-version: ${{ matrix.spark-version }}
