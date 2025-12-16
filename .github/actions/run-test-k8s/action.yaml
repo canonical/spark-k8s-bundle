@@ -109,7 +109,7 @@ runs:
         pipx install poetry
 
     - name: Setup environment (MicroK8s)
-      if: "${{ github.event.inputs.k8s-distribution == 'microk8s' }}"
+      if: "${{ inputs.k8s-distribution == 'microk8s' }}"
       uses: charmed-kubernetes/actions-operator@main
       with:
         juju-channel: ${{ inputs.juju-snap-channel }}
@@ -120,7 +120,7 @@ runs:
         microk8s-addons: "hostpath-storage rbac dns metallb:10.64.140.43-10.64.140.49"
 
     - name: Setup environment (K8s)
-      if: "${{ github.event.inputs.k8s-distribution == 'k8s' }}"
+      if: "${{ inputs.k8s-distribution == 'k8s' }}"
       shell: bash
       run: |
         # Avoiding dockerhub rate limits (see https://canonical-self-hosted-github-runner-docs.readthedocs-hosted.com/en/latest/usage/faq/how-to-avoid-dockerhub-rate-limits/ for more informations)
