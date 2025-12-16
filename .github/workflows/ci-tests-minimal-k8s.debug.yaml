@@ -1,72 +1,37 @@
-# Copyright 2025 Canonical Ltd.
+# Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-name: Run tests (on input)
-description: Run integration test with given parameters
+name: Run CI tests
 
-inputs:
-  tox-env:
-    description: "The name of tox environment to run for tests"
-    required: true
-  k8s-distribution:
-    description: "Which distribution of K8s to use: microk8s (for MicroK8s) or k8s (for Canonical K8s)"
-    required: false
-    default: "k8s"
-    type: string
-  k8s-version:
-    description: "The version of K8s to run the tests on"
-    default: 1.32
-    required: false
-    type: string
-  spark-version:
-    description: "The version of Spark to run the tests on"
-    default: 3.4.4
-    required: false
-    type: string
-  bundle-backend:
-    description: "The backend to use to deploy the bundle"
-    default: yaml
-    required: false
-    type: string
-  storage-backend:
-    description: "The object storage backend to be used"
-    default: s3
-    required: false
-    type: string
-  cos-model:
-    description: "The name of the model to deploy COS bundle"
-    default:
-    required: false
-    type: string
-  juju-snap-channel:
-    description: "The channel from which juju snap is to be downloaded"
-    required: false
-    default: 3.6/stable
-    type: string
-  juju-agent-version:
-    description: "The version of the Juju agent to be used"
-    required: false
-    default: 3.6.8
-    type: string
-  azure-storage-account:
-    description: "The Azure Storage account name to be used for test"
-    required: false
-    default: "dummy-account"
-    type: string
-  azure-storage-key:
-    description: "The Azure Storage account secret key to be used for test"
-    required: false
-    default: "dummy-key"
-    type: string
-  pytest-args:
-    description: "Extra arguments to be passed to pytest command"
-    required: false
-    default: ""
-    type: string
+on:
+  workflow_call:
 
-runs:
-  using: "composite"
-  steps:
+jobs:
+
+  integration-tests:
+    name: "Integration tests"
+    runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
+    # runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    strategy:
+      max-parallel: 15
+      fail-fast: false
+      matrix:
+        tox-env:
+          # - integration-basic
+          # - integration-sparkjob
+          # - integration-kyuubi
+          - integration-backup-restore
+        bundle-backend: ["terraform"]
+        spark-version: ["3.5.5"]
+        storage-backend: ["s3"]
+        juju-snap-channel: ["3.6/stable"]
+        juju-agent-version: ["3.6.8"]
+        cos-model: ["cos"]
+
+    # needs:
+    #   - checks
+    steps:
     - name: Checkout repository
       uses: actions/checkout@v5
 
@@ -76,7 +41,7 @@ runs:
         sudo apt-get install -yqq pipx
         pipx ensurepath
         sudo pipx ensurepath
-
+        
     - name: Disk usage
       shell: bash
       run: |
@@ -108,25 +73,13 @@ runs:
         pipx install tox
         pipx install poetry
 
-    - name: Setup environment (MicroK8s)
-      if: "${{ inputs.k8s-distribution == 'microk8s' }}"
-      uses: charmed-kubernetes/actions-operator@main
-      with:
-        juju-channel: ${{ inputs.juju-snap-channel }}
-        provider: microk8s
-        channel: "${{ inputs.k8s-version }}-strict/stable"
-        bootstrap-options: "--agent-version ${{ inputs.juju-agent-version }}"
-        microk8s-group: snap_microk8s
-        microk8s-addons: "hostpath-storage rbac dns metallb:10.64.140.43-10.64.140.49"
-
-    - name: Setup environment (K8s)
-      if: "${{ inputs.k8s-distribution == 'k8s' }}"
+    - name: Setup environment
       shell: bash
       run: |
         # Avoiding dockerhub rate limits (see https://canonical-self-hosted-github-runner-docs.readthedocs-hosted.com/en/latest/usage/faq/how-to-avoid-dockerhub-rate-limits/ for more informations)
         if [ -n "$DOCKERHUB_MIRROR" ]; then
         MIRROR_CONFIG=/etc/containerd/hosts.d/docker.io
-        
+          
         sudo mkdir -p ${MIRROR_CONFIG}
         sudo chown $USER ${MIRROR_CONFIG}
         cat << EOF > ${MIRROR_CONFIG}/hosts.toml
@@ -134,18 +87,21 @@ runs:
         capabilities = ["pull", "resolve"]
         EOF
         fi
-        
+
         sudo apt-get remove -y docker.io containerd
         sudo rm -rf /run/containerd /var/lib/docker /var/lib/containerd
         
         sudo snap install concierge --classic
         cd .github
         
-        # Set the versions
-        yq -i e '.providers.k8s.channel = "${{ inputs.k8s-version }}-classic/stable"' concierge.yaml
-        yq -i e '.juju.channel = "${{ inputs.juju-snap-channel }}"' concierge.yaml
-        yq -i e '.juju.agent-version = "${{ inputs.juju-agent-version }}"' concierge.yaml
+        # Set the K8s version
+        yq -i e '.providers.k8s.channel = "1.32-classic/stable"' concierge.yaml
         
+        # Set the versions
+        # yq -i e '.providers.k8s.channel = "${{ env.K8S_VERSION }}-classic/stable"' concierge.yaml
+        # yq -i e '.juju.channel = "${{ inputs.juju-snap-channel }}"' concierge.yaml
+        # yq -i e '.juju.agent-version = "${{ inputs.juju-agent-version }}"' concierge.yaml
+
         sudo concierge prepare --trace
         cd ..
 
@@ -155,10 +111,10 @@ runs:
       with:
         python-version: "3.10"
         architecture: x64
-
+#
     - name: Setup spark object storage
       id: spark-object-storage
-      if: ${{ inputs.storage-backend == 's3' }}
+      if: ${{ matrix.storage-backend == 's3' }}
       shell: bash
       env:
         CLOUD_INIT_FILE: |
@@ -175,12 +131,12 @@ runs:
       run: |
         echo -e "$CLOUD_INIT_FILE" > microceph_rgw.yaml
         lxc init ubuntu:jammy ceph -c limits.cpu=4 -c limits.memory=2GB -d root,size=5GB
-        
+
         lxc config set ceph cloud-init.user-data - < microceph_rgw.yaml
         lxc start ceph
         while ! lxc exec ceph -- id -u ubuntu &>/dev/null; do sleep 0.5; done
         lxc exec ceph -- cloud-init status --wait
-        
+
         echo -e "S3_SERVER_URL=http://$(lxc list --format json | yq '.[] | select(.name == "ceph") .state.network.eth0.addresses.[] | select(.family == "inet") .address'):80/\nS3_ACCESS_KEY=foo\nS3_SECRET_KEY=bar" > .env
         lxc list
         cat .env
@@ -197,7 +153,6 @@ runs:
           echo Skipping unstable tests
           echo "mark_expression=not unstable" >> $GITHUB_OUTPUT
         fi
-
     - id: setup-terraform
       name: Install terraform if needed
       shell: bash
@@ -206,18 +161,39 @@ runs:
           echo "Installing terraform from snap"
           sudo snap install terraform --classic
         fi
-
+    # - id: cache-images
+    #   name: Cache Images Locally
+    #   shell: bash
+    #   run: |
+    #     IMAGES=(
+    #         "ghcr.io/canonical/charmed-spark-kyuubi@sha256:c284924ff55152adc9a60000939d6ec604ec156ef4f4f9c9af90ef2cc501b1de" # 3.4.4_1.10.2 2025-09-11
+    #         "ghcr.io/canonical/charmed-spark-kyuubi@sha256:73d2c499680e4f55c5f65930774ce8ae7eb85d7019754944d82ca2183d716b15" # 3.5.5_1.10.2 2025-09-12
+    #         "ghcr.io/canonical/charmed-spark@sha256:c4e9b0a9404e9b5caff24d7937b30f5228da12b1a2c75e6126c4856619f39972"        # 3.4.4 2025-09-11
+    #         "ghcr.io/canonical/charmed-spark@sha256:13afe46fec2a84685e92c03fc94d96b52fbeee5c9494c5086537e6de86af512b"        # 3.5.5 2025-09-12
+    #         "ghcr.io/canonical/charmed-spark@sha256:99e8494070af297e9cfb6965e5216abef33539ae36fde34cbcbd2d7acb433e60"        # 3.4.4 2025-06-16
+    #         "ghcr.io/canonical/charmed-spark:3.4.4-22.04_edge"                                                               # 3.4.4, used in integration-basic
+    #         "ghcr.io/canonical/charmed-spark:3.5.5-22.04_edge"                                                               # 3.5.4, used in integration-basic
+    #     )
+    #
+    #     for image in "${IMAGES[@]}"; do
+    #         echo "Pulling $image"
+    #         sudo microk8s ctr image pull "$image" > /dev/null 2>&1
+    #     done
     - id: tests-integration
       name: Run Integration Tests
       shell: bash
       env:
-        AZURE_STORAGE_ACCOUNT: ${{ inputs.azure-storage-account }}
-        AZURE_STORAGE_KEY: ${{ inputs.azure-storage-key }}
+        AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+        AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
       run: |
         juju add-model spark-bundle-test
         juju list-models
-        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ inputs.bundle-backend }} --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }}
+        cd python && tox run -e ${{ matrix.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ matrix.bundle-backend }} --cos-model ${{ matrix.cos-model }} --spark-version ${{ matrix.spark-version }} --storage-backend ${{ matrix.storage-backend }} --model spark-bundle-test ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
         echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
+
+    - name: Setup tmate session
+      if: ${{ failure() }}
+      uses: canonical/action-tmate@main
 
     - id: collect-logs
       name: Collect logs if job failed
@@ -225,10 +201,9 @@ runs:
       if: ${{ failure() }}
       run: |
         juju-crashdump --model spark-bundle-test
-        if [[ -n "${{ inputs.cos-model }}" ]]; then
-          juju-crashdump --model "${{ inputs.cos-model }}"
+        if [[ -n "${{ matrix.cos-model }}" ]]; then
+          juju-crashdump --model "${{ matrix.cos-model }}"
         fi
-
     - id: debug-info
       name: Debug info
       shell: bash
@@ -236,50 +211,49 @@ runs:
       run: |
         printf '\nDisk usage after tests\n'
         df --human-readable
-        
+
         printf '\nJuju status(es)\n'
         juju status -m spark-bundle-test
-        if [[ -n "${{ inputs.cos-model }}" ]]; then
+        if [[ -n "${{ matrix.cos-model }}" ]]; then
           printf '\nCos status\n'
           juju status -m cos
         fi
-        
+
         printf '\nK8s pods\n'
         kubectl get pods -n spark-bundle-test -o wide
         if [[ -n "${{ inputs.cos-model }}" ]]; then
           printf '\nCos pods\n'
           kubectl get pods -n cos -o wide
         fi
-        
+
         printf '\nK8s events\n'
         kubectl get events -n spark-bundle-test -o wide
-        if [[ -n "${{ inputs.cos-model }}" ]]; then
+        if [[ -n "${{ matrix.cos-model }}" ]]; then
           printf '\nCos events\n'
           kubectl get events -n cos -o wide
         fi
-        
+
         printf '\nDebug logs\n'
         juju debug-log -m spark-bundle-test --replay -l INFO | tail -n 500
-        if [[ -n "${{ inputs.cos-model }}" ]]; then
+        if [[ -n "${{ matrix.cos-model }}" ]]; then
           printf '\nCos logs\n'
           juju debug-log -m cos --replay -l INFO | tail -n 500
         fi
 
-    - name: Write test result in JSON format
-      shell: bash
-      if: always()
-      run: |
-        STATUS="success"
-        if [ "${TEST_EXIT_CODE}" != "0" ]; then
-          STATUS="failure"
-        fi
-        echo '{"tox-env": "${{ inputs.tox-env }}", "k8s-distribution": "${{ inputs.k8s-distribution }}", "spark-version": "${{ inputs.spark-version }}", "bundle-backend": "${{ inputs.bundle-backend }}", "storage-backend": "${{ inputs.storage-backend }}", "cos": "${{ inputs.cos-model != '' }}", "juju-version": "${{ inputs.juju-agent-version }}", "status": "'"$STATUS"'"}' > test-result.json
-
+    # - name: Write test result in JSON format
+    #   shell: bash
+    #   if: always()
+    #   run: |
+    #     STATUS="success"
+    #     if [ "${TEST_EXIT_CODE}" != "0" ]; then
+    #       STATUS="failure"
+    #     fi
+    #     echo '{"tox-env": "${{ inputs.tox-env }}", "spark-version": "${{ inputs.spark-version }}", "bundle-backend": "${{ inputs.bundle-backend }}", "storage-backend": "${{ inputs.storage-backend }}", "cos": "${{ inputs.cos-model != '' }}", "juju-version": "${{ inputs.juju-agent-version }}", "status": "'"$STATUS"'"}' > test-result.json
     - name: Upload the test result as artifact
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: integration-results-${{ inputs.tox-env }}-${{ inputs.k8s-distribution }}-${{ inputs.spark-version }}-${{ inputs.bundle-backend }}-${{ inputs.storage-backend }}-${{ inputs.cos-model }}-${{ inputs.juju-agent-version }}
+        name: integration-results-${{ matrix.tox-env }}-${{ matrix.spark-version }}-${{ matrix.bundle-backend }}-${{ matrix.storage-backend }}-${{ matrix.cos-model }}-${{ matrix.juju-agent-version }}
         path: test-result.json
 
 
