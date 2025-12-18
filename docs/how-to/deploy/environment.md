@@ -10,7 +10,7 @@ In the following guide, we provide details on the technologies currently support
 
 ## Kubernetes
 
-The Charmed Apache Spark solution runs on top of several K8s distributions. We recommend using versions above or equal to `1.29`. 
+The Charmed Apache Spark solution runs on top of several K8s distributions. We recommend using versions above or equal to `1.30`. 
 Earlier versions may still be working, although we do not explicitly test them. 
 
 There are multiple ways that a K8s cluster can be deployed. We provide full compatibility and support for:
@@ -323,9 +323,9 @@ Object storage persistence integration with Charmed Apache Spark is critical for
 Charmed Apache Spark provides out-of-box integration with the following object storage backends:
 
 * S3-compatible object storages, such as:
+  * Ceph with RadosGW
   * MinIO
   * AWS S3 bucket
-  * Ceph with RadosGW
 * Azure Storage 
   * Azure Blob Storage 
   * Azure DataLake v2 Storage
