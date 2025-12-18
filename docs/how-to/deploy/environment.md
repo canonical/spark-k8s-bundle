@@ -397,7 +397,7 @@ At this point, a new Ceph cluster can be bootstrapped using
 sudo microceph cluster bootstrap
 ```
 
-Once the cluster is bootstrapped, we can then add a disk using three file-backed Object Storage Daemons (OSDs) that are a convinient way to create a small test and development environment
+Once the cluster is bootstrapped, we can then add a disk using three file-backed Object Storage Daemons that are a convenient way for creating a small test and development environment
 
 ```bash
 sudo microceph disk add loop,4G,3
@@ -415,7 +415,7 @@ The status output should provide you information about the deployment, e.g. the 
 
 ##### Enable RadosGW
 
-Once the Ceph cluster is up and running, we need to enable the Ceph Obectj Gateway (aka RadosGW) to interact with the Ceph storage using a S3-compatible API.
+Once the Ceph cluster is up and running, we need to enable the Ceph Object Gateway (aka RadosGW) to interact with the Ceph storage using a S3-compatible API.
 
 To enable the RadosGW
 
@@ -433,7 +433,7 @@ At this point, create a `test` user for the RadosGW API service, by specifying t
 sudo microceph.radosgw-admin user create --uid test --display-name test --access-key=<access-key> --secret-key=<secret-key>
 ```
 
-The RadosGW API can then be reached at `<hostname>:<port>`, where `hostname` is the IP provided by the `sudo microceph status` command, and the `port` is the one chosed when enabling the RadosGW (that defaults to 80 if not otherwise specified).
+The RadosGW API can then be reached at `<hostname>:<port>`, where `hostname` is the IP provided by the `sudo microceph status` command, and the `port` is the one chosen when enabling the RadosGW (that defaults to 80 if not otherwise specified).
 
 #### MicroK8s MinIO
 

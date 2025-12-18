@@ -65,7 +65,7 @@ All repositories in GitHub are set up with branch protection rules, requiring:
 ## Encryption
 
 The Spark8t Python library client authenticates to the underlying Kubernetes cluster using a variety of authentication
-mechanisms (depending upon how the underlying K8s server is configured) with the use of the Kubeconfig file.
+mechanisms (depending upon how the underlying K8s server is configured) with the use of the `kubeconfig` file.
 The communication between K8s and Spark8t is always encrypted by default with authentication enforced.
 Since Apache Spark Client snap is a wrapper around this library, the communication between the snap and the K8s cluster
 is also authenticated and encrypted.
@@ -117,7 +117,7 @@ directory inside the Apache Kyuubi workload container.
 
 ### Connection with PostgreSQL
 
-Kyuubi Server authenticates to Postgres using username and password that are exchanged using relation data when the two
+Kyuubi Server authenticates to PostgreSQL using username and password that are exchanged using relation data when the two
 applications are integrated. These credentials are stored by Apache Kyuubi in configuration files in the directory
 `/opt/kyuubi/conf` inside the workload container. For more information, see the
 [Apache Kyuubi official documentation](https://kyuubi.readthedocs.io/en/master/security/jdbc.html).
@@ -151,7 +151,7 @@ Kubernetes substrate is configured.
 
 The Kyuubi Client (aka JDBC Client) can connect with the Kyuubi Server endpoint (aka JDBC endpoint) using
 a pair of username and password provided in the query. Apache Kyuubi charm internally implements this authentication
-by storing the list of users and their passwords stored as plaintext in a PostgreSQL database.
+by storing the list of users and their passwords stored as plain text in a PostgreSQL database.
 For more information about the Kyuubi Client, see the
 [Apache Kyuubi official documentation](https://kyuubi.readthedocs.io/en/master/client/index.html).
 
