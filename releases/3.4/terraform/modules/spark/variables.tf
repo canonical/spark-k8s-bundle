@@ -222,7 +222,7 @@ variable "zookeeper_image" {
 }
 
 variable "zookeeper_size" {
-  description = "Storage size for the metastore database"
+  description = "Storage size for the zookeeper unit"
   type        = string
   default     = "10G"
 }
