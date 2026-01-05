@@ -5,7 +5,7 @@ name: Nightly CI tests
 
 on:
   schedule:
-    - cron: "53 0 * * *" # Daily at 00:53 UTC
+    - cron: "53 2 * * *" # Daily at 02:53 UTC
   workflow_dispatch:
   workflow_call:
 
@@ -15,7 +15,7 @@ jobs:
 
   integration-tests:
     name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}): spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju.agent }} | ${{ matrix.cos-model }}"
-    runs-on: ubuntu-22.04
+    runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
     timeout-minutes: 120
     strategy:
       max-parallel: 15
