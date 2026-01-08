@@ -5,7 +5,7 @@ Jul 29, 2025
 
 We're excited to introduce Apache Kyuubi as part of our expanded Apache Spark charmed bundle—bringing enhanced multi-tenant support and a simplified SQL interface for big data analytics.
 
-This release includes Apache Kyuubi, the Spark History Server, Spark Integration Hub, Spark Client Snap, and Apache Spark OCI Images to deliver a seamless, production-ready fully open-source data lakehouse experience. The Charmed Apache Spark with Apache Kyuubi is available on [charmhub.io](https://charmhub.io) at the `3.4/stable` and `3.5/stable` channels.
+This release includes Apache Kyuubi, the Spark History Server, Spark Integration Hub, Spark Client Snap, and Apache Spark OCI Images to deliver a seamless, production-ready fully open-source datalake experience. The Charmed Apache Spark with Apache Kyuubi is available on [charmhub.io](https://charmhub.io) at the `3.4/stable` and `3.5/stable` channels.
 
 Charmhub: [3.4/stable](https://charmhub.io/kyuubi-k8s?channel=3.4/stable), [3.5/stable](https://charmhub.io/kyuubi-k8s?channel=3.5/stable) | [Docs](https://charmhub.io/spark-k8s-bundle) | [Deploy guide](https://charmhub.io/spark-k8s-bundle/docs/h-deploy-kyuubi) | [System requirements](https://canonical.com/data/docs/postgresql/iaas/r-system-requirements)
 

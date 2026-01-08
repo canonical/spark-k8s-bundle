@@ -72,7 +72,7 @@ In the following, we provide guidance on how to harden your deployment using:
 
 Charmed Apache Spark K8s runs on top of a set of Rockcraft-based images, all based on the same Apache Spark distribution binaries,
 available in the [Apache Spark release page](https://launchpad.net/spark-releases), on top of Ubuntu 22.04.
-The images that can be found in the [Charmed Apache Spark rock images GitHub repo](https://github.com/canonical/charmed-spark-rock) are used as the base 
+The images that can be found in the [Charmed Apache Spark rock images GitHub repository](https://github.com/canonical/charmed-spark-rock) are used as the base 
 images for pods both for Spark jobs and charms. 
 The following table summarises the relation between the component and its underlying base image.
 
