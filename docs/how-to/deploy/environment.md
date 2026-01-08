@@ -61,9 +61,9 @@ microk8s.enable dns rbac storage hostpath-storage
 
 The MicroK8s cluster is now ready to be used.
 
-#### External LoadBalancer
+#### External load balancer
 
-If you want to expose the Spark History Server UI via a Traefik ingress, we need to enable an external loadbalancer:
+If you want to expose the Spark History Server UI via a Traefik ingress, we need to enable an external load balancer:
 
 ```bash
 IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
@@ -322,7 +322,7 @@ aws s3 ls
 
 #### MicroK8s MinIO
 
-If you have already a MicroK8s cluster running, you can enable the MinIO storage with the dedicated addon
+If you have already a MicroK8s cluster running, you can enable the MinIO storage with the dedicated add-on
 
 ```shell
 microk8s.enable minio

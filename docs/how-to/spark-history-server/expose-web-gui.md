@@ -19,7 +19,7 @@ IP=$(kubectl get pod spark-history-server-k8s-0 -n spark --template '{{.status.p
 
 ## With Ingress
 
-The Spark History server can be exposed outside a K8s cluster by means of an ingress. This is the recommended way in production for any K8s distribution. Exposing Kubernetes services through an ingress generally requires the cloud provider/infrastrucutre to have an external load balancer integrated with the Kubernetes cluster. Most cloud providers (such as AWS, Google and Azure) provide this integration out-of-the-box. If you are running on MicroK8s, make sure that you have enabled `metallb`, as shown in the "How-To Setup K8s" userguide. 
+The Spark History server can be exposed outside a K8s cluster by means of an ingress. This is the recommended way in production for any K8s distribution. Exposing Kubernetes services through an ingress generally requires the cloud provider/infrastrucutre to have an external load balancer integrated with the Kubernetes cluster. Most cloud providers (such as AWS, Google and Azure) provide this integration out-of-the-box. If you are running on MicroK8s, make sure that you have enabled `metallb`, as shown in the "How-To Setup K8s" user guide.
 
 Spark History server can be exposed outside of the K8s cluster using `traefik-k8s` charm. 
 If COS is enabled, you can use the ingress already provided as part of the COS bundle. Otherwise, you can deploy one using 

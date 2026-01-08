@@ -201,7 +201,7 @@ Fill in the following fields:
 * Password -- use the `password`
 
 Now press Finish and then, the Connect button in the horizontal ribbon menu.
-After a successfull connection, you can create and run your SQL queries in the right side of the interface.
+After a successful connection, you can create and run your SQL queries in the right side of the interface.
 
 ## High availability
 

@@ -117,7 +117,7 @@ directory inside the Apache Kyuubi workload container.
 
 ### Connection with PostgreSQL
 
-Kyuubi Server authenticates to Postgres using username and password that are exchanged using relation data when the two
+Kyuubi Server authenticates to PostgreSQL using username and password that are exchanged using relation data when the two
 applications are integrated. These credentials are stored by Apache Kyuubi in configuration files in the directory
 `/opt/kyuubi/conf` inside the workload container. For more information, see the
 [Apache Kyuubi official documentation](https://kyuubi.readthedocs.io/en/master/security/jdbc.html).

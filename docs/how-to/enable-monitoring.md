@@ -124,7 +124,7 @@ directly (as explained in the
 Both the Spark History Server and Charmed Apache Kyuubi charms come with the [JMX exporter](https://github.com/prometheus/jmx_exporter/).
 The metrics can be queried by accessing the `http://<history-server-unit-ip>:9101/metrics` and `http://<kyuubi-unit-ip>:10019/metrics` endpoints, respectively.
 
-This section guides you how to set up monitoring with Canonical Obesrvation Stack (COS) for both Spark History Server and Charmed Apache Kyuubi.
+This section guides you how to set up monitoring with Canonical Observation Stack (COS) for both Spark History Server and Charmed Apache Kyuubi.
 
 ### Prerequisites
 
