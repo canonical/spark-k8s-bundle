@@ -76,7 +76,6 @@ runs:
         sudo apt-get update -y 
         sudo apt-get install -yqq pipx
         pipx ensurepath
-        sudo pipx ensurepath
 
     - name: Disk usage
       shell: bash
