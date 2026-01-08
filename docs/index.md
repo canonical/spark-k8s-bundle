@@ -25,8 +25,19 @@ easy-to-use application integration, and monitoring.
 
 | | |
 |--|--|
-| [Tutorial](tutorial-introduction)</br> Learn how to use Charmed Apache Spark with our step-by-step guidance. Get started from [step one](tutorial-1-environment-setup). </br> | [How-to guides](how-to-deploy-index) </br> Practical instructions for key tasks, like [deploy](how-to-deploy-index), [manage service accounts](how-to-manage-service-accounts-index), [monitor metrics](how-to-monitoring), [process streams](how-to-streaming-jobs), [use GPU](how-to-use-gpu). |
-| [Reference](reference-index) </br> Technical information, for example: [release notes](reference-releases-index), [system requirements](reference-requirements), and [contact information](reference-contacts). | [Explanation](explanation-index) </br> Explore and grow your understanding of key topics, such as: [security](explanation-security), [cryptography](explanation-cryptography), [solution components](explanation-component-overview), [configuration](explanation-configuration), and [monitoring](explanation-monitoring). |
+| **Tutorial** | [Introduction](tutorial-introduction) 🞄 [Step 1: Environment setup](tutorial-1-environment-setup) |
+| **Deployment** | [Environment setup](how-to-deploy-environment) 🞄 [Charmed Apache Spark](how-to-deploy-spark) 🞄 [Charmed Apache Kyuubi](how-to-deploy-kyuubi) 🞄 [Requirements](reference-requirements) |
+| **Service account management** | [Integration hub](how-to-deploy-environment) 🞄 [Python](how-to-deploy-environment) 🞄 [Spark-client](how-to-deploy-environment) |
+| **Operations** | [Monitoring](how-to-deploy-environment) 🞄 Spark History Server: [Auth](how-to-deploy-environment) and [web GUI](how-to-deploy-environment) 🞄 [Use K8s pods](how-to-deploy-environment) 🞄 [Streaming jobs](how-to-deploy-environment) 🞄 [Use GPUs](how-to-deploy-environment) |
+| **Apache Kyuubi** | [External connections](how-to-deploy-environment) 🞄 [Integrate](how-to-deploy-environment) 🞄 [Metastore](how-to-deploy-environment) 🞄 [Backups](how-to-deploy-environment) 🞄 [Upgrades](how-to-deploy-environment) 🞄 [GPU support](how-to-deploy-environment) |
+| **Security** | [Overview](how-to-deploy-environment) 🞄 [Enable encryption (Apache Kyuubi)](how-to-deploy-environment) 🞄 [Cryptography](how-to-deploy-environment) 🞄 [Self-signed certificates](how-to-deploy-environment) |
+
+## How the documentation is organised
+
+[Tutorial](tutorial-introduction): For new users needing to learn how to use Charmed Apache Kafka <br>
+[How-to guides](how-to-index): For users needing step-by-step instructions to achieve a practical goal <br>
+[Reference](reference-index): For precise, theoretical, factual information to be used while working with the charm <br>
+[Explanation](explanation-index): For deeper understanding of key Charmed Apache Kafka concepts <br>
 
 ## Project and community
 
