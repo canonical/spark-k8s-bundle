@@ -25,12 +25,12 @@ easy-to-use application integration, and monitoring.
 
 | | |
 |--|--|
-| **Tutorial** | [Introduction](tutorial-introduction) 🞄 [Step 1: Environment setup](tutorial-1-environment-setup) |
-| **Deployment** | [Environment setup](how-to-deploy-environment) 🞄 [Charmed Apache Spark](how-to-deploy-spark) 🞄 [Charmed Apache Kyuubi](how-to-deploy-kyuubi) 🞄 [Requirements](reference-requirements) |
-| **Service account management** | [Integration hub](how-to-service-accounts-integration-hub) 🞄 [Python](how-to-service-accounts-python) 🞄 [Spark-client](how-to-service-accounts-spark-client) |
-| **Operations** | [Monitoring](how-to-monitoring) 🞄 Spark History Server: [Auth](how-to-spark-history-server-auth) and [web GUI](how-to-spark-history-server-expose-web-gui) 🞄 [Use K8s pods](how-to-use-k8s-pods) 🞄 [Streaming jobs](how-to-streaming-jobs) 🞄 [Use GPUs](how-to-use-gpu) |
-| **Apache Kyuubi** | [External connections](how-to-apache-kyuubi-external-connections) 🞄 [Integrate](how-to-apache-kyuubi-integrate-with-applications) 🞄 [Metastore](how-to-apache-kyuubi-external-metastore) 🞄 [Backups](how-to-apache-kyuubi-back-up-and-restore) 🞄 [Upgrades](how-to-apache-kyuubi-upgrade) 🞄 [GPU support](how-to-apache-kyuubi-gpu) |
-| **Security** | [Overview](explanation-security) 🞄 [Enable encryption (Apache Kyuubi)](how-to-apache-kyuubi-encryption-and-passwords) 🞄 [Cryptography](explanation-cryptography) 🞄 [Self-signed certificates](how-to-self-signed-certificates) |
+| **Tutorial** | [Introduction](tutorial-introduction) • [Step 1: Environment setup](tutorial-1-environment-setup) |
+| **Deployment** | [Environment setup](how-to-deploy-environment) • [Charmed Apache Spark](how-to-deploy-spark) • [Charmed Apache Kyuubi](how-to-deploy-kyuubi) • [Requirements](reference-requirements) |
+| **Service account management** | [Integration hub](how-to-service-accounts-integration-hub) • [Python](how-to-service-accounts-python) • [Spark-client](how-to-service-accounts-spark-client) |
+| **Operations** | [Monitoring](how-to-monitoring) • Spark History Server: [Auth](how-to-spark-history-server-auth) and [web GUI](how-to-spark-history-server-expose-web-gui) • [Use K8s pods](how-to-use-k8s-pods) • [Streaming jobs](how-to-streaming-jobs) • [Use GPUs](how-to-use-gpu) |
+| **Apache Kyuubi** | [External connections](how-to-apache-kyuubi-external-connections) • [Integrate](how-to-apache-kyuubi-integrate-with-applications) • [Metastore](how-to-apache-kyuubi-external-metastore) • [Backups](how-to-apache-kyuubi-back-up-and-restore) • [Upgrades](how-to-apache-kyuubi-upgrade) • [GPU support](how-to-apache-kyuubi-gpu) |
+| **Security** | [Overview](explanation-security) • [Enable encryption (Apache Kyuubi)](how-to-apache-kyuubi-encryption-and-passwords) • [Cryptography](explanation-cryptography) • [Self-signed certificates](how-to-self-signed-certificates) |
 
 ## How the documentation is organised
 
