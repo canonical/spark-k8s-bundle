@@ -31,8 +31,8 @@ multipass launch --cpus 4 --memory 8G --disk 50G --name spark-tutorial 24.04
 ```{note}
 See also:
 
-* [How to create an instance](https://canonical.com/multipass/docs/create-an-instance#create-an-instance-with-a-specific-image) guide from Multipass documentation
-* [`multipass launch` command reference](https://canonical.com/multipass/docs/launch-command)
+* [How to create an instance](https://documentation.ubuntu.com/multipass/latest/how-to-guides/manage-instances/create-an-instance/#create-an-instance-with-a-specific-image) guide from Multipass documentation
+* [`multipass launch` command reference](https://documentation.ubuntu.com/multipass/latest/reference/command-line-interface/launch/)
 ```
 
 Check the status of the provisioned virtual machine:
