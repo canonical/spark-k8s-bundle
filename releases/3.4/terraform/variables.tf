@@ -333,3 +333,58 @@ variable "certificate_common_name" {
   type        = string
   default     = "charmed-spark"
 }
+
+variable "kyuubi_users_size" {
+  description = "Storage size for the Kyuubi users database"
+  type        = string
+  default     = "1G"
+}
+
+variable "metastore_size" {
+  description = "Storage size for the metastore database"
+  type        = string
+  default     = "10G"
+}
+
+variable "zookeeper_size" {
+  description = "Storage size for the metastore database"
+  type        = string
+  default     = "10G"
+}
+
+
+variable "alertmanager_size" {
+  description = "Storage size for the alertmanager database"
+  type        = string
+  default     = "10G"
+}
+
+variable "grafana_size" {
+  description = "Storage size for the grafana database"
+  type        = string
+  default     = "10G"
+}
+
+variable "loki_active_index_directory_size" {
+  description = "Storage size for the active index directory for Loki"
+  type        = string
+  default     = "10G"
+}
+
+variable "loki_chunks_size" {
+  description = "Storage size for the Loki chucks storage"
+  type        = string
+  default     = "500G"
+}
+
+variable "prometheus_size" {
+  description = "Storage size for the Prometheus database"
+  type        = string
+  default     = "500G"
+}
+
+variable "traefik_size" {
+  description = "Storage size for the Traefik storage"
+  type        = string
+  default     = "10G"
+}
