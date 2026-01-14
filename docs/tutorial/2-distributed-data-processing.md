@@ -145,7 +145,7 @@ sudo apt install zip
 unzip twitter.zip
 ```
 
-This archive unpacks a directory called `twcs` with a single `CSV` file of the same in it.
+This archive unpacks a directory called `twcs` with a single `CSV` file of the same name in it.
 Let's upload it to our S3 storage:
 
 ```bash
