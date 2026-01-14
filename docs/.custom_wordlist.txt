@@ -1,14 +1,20 @@
 # Leave a blank line at the end of this file to support concatenation
+addon
+addons
 backend
 backends
 Charmcraft
 cjk
 cryptographically
+databag
+databags
 dvipng
 fonts
 freefont
 github
 GPG
+GPU
+GPUs
 gyre
 https
 html
@@ -21,6 +27,8 @@ Multipass
 otf
 plantuml
 PNG
+postgres
+postgresql
 Pygments
 pymarkdown
 QEMU
@@ -68,6 +76,8 @@ PVCs
 Servlet
 Storages
 datalake
+datalakes
+kubeconfig
 CVEs
 Canonical's
 metastore
@@ -80,3 +90,13 @@ Kubeconfig
 ConfigMaps
 plaintext
 databag
+serverless
+performant
+configmap
+configmaps
+loadbalancer
+loadbalancers
+kaggle
+csv
+dbeaver
+

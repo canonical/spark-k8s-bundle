@@ -1,7 +1,7 @@
 (tutorial-6-apache-kyuubi)=
 # 6. Using Apache Kyuubi
 
-Apache Kyuubi is a gateway to serverless SQL running on Kubernetes, bridging the gap between Apache Spark as a data processing framework and a data lakehouse platform.
+Apache Kyuubi is a gateway to serverless SQL running on Kubernetes, bridging the gap between Apache Spark as a data processing framework and a datalake platform.
 
 This hands-on tutorial stage aims to help you learn how to use Charmed Apache Kyuubi K8s and become familiar with its available operations.
 
@@ -21,10 +21,10 @@ export S3_ENDPOINT=$(kubectl get service minio -n minio-operator -o jsonpath='{.
 Let's create a fresh Juju model for the Charmed Apache Kyuubi K8s experiments:
 
 ```bash
-juju add-model lakehouse
+juju add-model datalake
 ```
 
-To create our simple, minimal data lakehouse, we need an object storage.
+To create our simple, minimal datalake, we need an object storage.
 
 ### Object storage
 
@@ -32,7 +32,7 @@ We will use the MinIO, installed in the environment setup stage of this tutorial
 Let's set up a new bucket:
 
 ```shell
-aws s3 mb s3://lakehouse
+aws s3 mb s3://datalake
 ```
 
 Now add the `spark-events` directory to the bucket:
@@ -82,7 +82,7 @@ juju deploy postgresql-k8s --channel 14/stable --trust auth-db
 
 ### External access
 
-To enable external clients to connect to our lakehouse, we need the [Data Integrator charm](https://charmhub.io/data-integrator):
+To enable external clients to connect to our datalake, we need the [Data Integrator charm](https://charmhub.io/data-integrator):
 
 ```shell
 juju deploy data-integrator --channel latest/stable --config database-name=test
@@ -109,7 +109,7 @@ Wait until the status to be active for each charm:
 
 ```text
 Model              Controller  Cloud/Region        Version  SLA          Timestamp
-lakehouse          microk8s    microk8s/localhost  3.6.8    unsupported  16:43:19+02:00
+datalake           microk8s    microk8s/localhost  3.6.8    unsupported  16:43:19+02:00
 
 App                       Version  Status  Scale  Charm                      Channel        Rev  Address         Exposed  Message
 auth-db                   14.15    active      1  postgresql-k8s             14/stable      495  10.152.183.19   no

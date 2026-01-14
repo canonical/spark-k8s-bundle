@@ -151,7 +151,7 @@ Kubernetes substrate is configured.
 
 The Kyuubi Client (aka JDBC Client) can connect with the Kyuubi Server endpoint (aka JDBC endpoint) using
 a pair of username and password provided in the query. Apache Kyuubi charm internally implements this authentication
-by storing the list of users and their passwords stored as plaintext in a PostgreSQL database.
+by storing the list of users and their passwords stored as plain text in a PostgreSQL database.
 For more information about the Kyuubi Client, see the
 [Apache Kyuubi official documentation](https://kyuubi.readthedocs.io/en/master/client/index.html).
 

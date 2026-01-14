@@ -10,16 +10,68 @@ In the following guide, we provide details on the technologies currently support
 
 ## Kubernetes
 
-The Charmed Apache Spark solution runs on top of several K8s distributions. We recommend using versions above or equal to `1.29`. 
+The Charmed Apache Spark solution runs on top of several K8s distributions. We recommend using versions above or equal to `1.30`. 
 Earlier versions may still be working, although we do not explicitly test them. 
 
 There are multiple ways that a K8s cluster can be deployed. We provide full compatibility and support for:
 
+* Canonical K8s
 * MicroK8s
 * AWS EKS
 * Azure AKS
 
 The how-to guide below shows you how to set up these to be used with Charmed Apache Spark. 
+
+### Canonical K8s
+
+[Canonical Kubernetes](https://documentation.ubuntu.com/canonical-kubernetes/latest/) (also named Canonical K8s) is a performant, lightweight, secure and opinionated distribution of Kubernetes supported by Canonical which includes everything needed to create and manage a scalable cluster suitable for all use cases.
+
+Canonical K8s can be deployed in multiple ways:
+* [Using a snap](https://documentation.ubuntu.com/canonical-kubernetes/latest/snap/)
+* [Using Juju](https://documentation.ubuntu.com/canonical-kubernetes/latest/charm/)
+* [Using the Cluster API](https://documentation.ubuntu.com/canonical-kubernetes/latest/capi/)
+
+For development, you can also setup Canonical K8s using [concierge](https://github.com/canonical/concierge), that is an opinionated utility for provisioning charm development and testing machines, and this is what we will use in the following. This will install a single node K8s deployment in the local environment using the Canonical K8s snap. However, for more production-ready use-case, we recommend to follow the more comprehensive product documentation provide above.  
+
+First, install concierge snap
+
+```bash 
+sudo snap install concierge --classic
+```
+
+Concierge can be configured using a YAML file, where the versions and configuration for the various development components can be set. Note that concierge can also take care of provisioning also a Juju controller as part of its setup, e.g.
+
+```
+juju:
+  channel: 3.6/stable
+  agent-version: "3.6.9"
+  model-defaults:
+    logging-config: <root>=INFO; unit=DEBUG
+
+providers:
+  k8s:
+    enable: true
+    bootstrap: true
+    channel: 1.32-classic/stable
+    features:
+      local-storage:
+      load-balancer:
+        enabled: true
+        l2-mode: true
+        cidrs: 10.64.0.0/16
+    bootstrap-constraints:
+      root-disk: 4G
+```
+
+Feel free to adapt the configuration YAML file above for other versions of the various components.
+
+Once the configuration is defined, concierge will take care of provisioning the various tools/components using
+
+```bash 
+sudo concierge prepare --trace
+```
+
+This will create a Canonical K8s cluster with already a Juju controller bootstrapped. 
 
 ### MicroK8s
 
@@ -271,6 +323,7 @@ Object storage persistence integration with Charmed Apache Spark is critical for
 Charmed Apache Spark provides out-of-box integration with the following object storage backends:
 
 * S3-compatible object storages, such as:
+  * Ceph with RadosGW
   * MinIO
   * AWS S3 bucket
 * Azure Storage 
@@ -319,6 +372,68 @@ Test that the AWS CLI client is properly working:
 ```shell
 aws s3 ls
 ```
+
+#### Ceph with RadowGW
+
+Ceph is a highly scalable, open-source distributed storage system designed to provide excellent performance, reliability, and flexibility for object, block, and file-level storage. MicroCeph is a lightweight way of deploying and managing a Ceph cluster, with a user-experience provided via a snap.
+
+In the following, we will setup a single node cluster. However, if you need a multi-node installation please refer to the [MicroCeph user documentation](https://canonical-microceph.readthedocs-hosted.com/stable/) for more information. 
+
+First of all, install the `microceph` snap
+
+```bash
+sudo snap install microceph --channel latest/stable
+```
+
+We generally recommend to hold off from refreshing, that may cause data losses or inconsistencies during upgrades
+
+```bash
+sudo snap refresh --hold microceph
+```
+
+At this point, a new Ceph cluster can be bootstrapped using
+
+```bash
+sudo microceph cluster bootstrap
+```
+
+Once the cluster is bootstrapped, we can then add a disk using three file-backed Object Storage Daemons that are a convenient way for creating a small test and development environment
+
+```bash
+sudo microceph disk add loop,4G,3
+```
+
+In a production system, typically one would assign a physical block device to an OSD. Please refer to the product documentation for more information. 
+
+You can check the status of the Ceph cluster by using the `status` command, i.e.
+
+```bash
+sudo microceph status
+```
+
+The status output should provide you information about the deployment, e.g. the hostname (IP address) for the cluster. 
+
+##### Enable RadosGW
+
+Once the Ceph cluster is up and running, we need to enable the Ceph Object Gateway (aka RadosGW) to interact with the Ceph storage using a S3-compatible API.
+
+To enable the RadosGW
+
+```bash
+sudo microceph enable rgw [--port <port>]
+```
+
+You can use the `--port` to specify a port different than the port 80 (default) if this is already occupied.
+
+You can again check that the RadosGW service is enabled by using `sudo microceph status` command, and making sure that the `rgw` acronym appears among the `Services`.
+
+At this point, create a `test` user for the RadosGW API service, by specifying the chosen access-key and secret-key
+
+```bash
+sudo microceph.radosgw-admin user create --uid test --display-name test --access-key=<access-key> --secret-key=<secret-key>
+```
+
+The RadosGW API can then be reached at `<hostname>:<port>`, where `hostname` is the IP provided by the `sudo microceph status` command, and the `port` is the one chosen when enabling the RadosGW (that defaults to 80 if not otherwise specified).
 
 #### MicroK8s MinIO
 

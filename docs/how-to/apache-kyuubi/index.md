@@ -2,7 +2,7 @@
 # Apache Kyuubi
 
 Apache Kyuubi is a distributed and multi-tenant gateway
-to provide serverless SQL on lakehouse.
+to provide serverless SQL on datalakes.
 Find out more at the [Apache Kyuubi project page](https://kyuubi.apache.org/).
 
 [Charmed Apache Kyuubi](https://charmhub.io/kyuubi-k8s) is a
