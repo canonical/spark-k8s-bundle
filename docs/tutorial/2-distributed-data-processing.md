@@ -145,7 +145,7 @@ sudo apt install zip
 unzip twitter.zip
 ```
 
-This archive unpacks a directory called `twcs` with a single csv file of the same in it.
+This archive unpacks a directory called `twcs` with a single `CSV` file of the same name in it.
 Let's upload it to our S3 storage:
 
 ```bash
@@ -170,7 +170,7 @@ spark-client.pyspark --username spark --namespace spark
 
 For distributed and parallel data processing Apache Spark actively uses the concept of a [resilient distributed dataset (RDD)](https://spark.apache.org/docs/latest/rdd-programming-guide.html#resilient-distributed-datasets-rdds), which is a fault-tolerant collection of elements that can be operated on in parallel across the nodes of the cluster.
 
-Read CSV from S3 and create an RDD from our sample dataset:
+Read `CSV` from S3 and create an RDD from our sample dataset:
 
 ```python
 rdd = spark.read.csv("s3a://spark-tutorial/twitter.csv", header=True).rdd
@@ -178,7 +178,7 @@ rdd = spark.read.csv("s3a://spark-tutorial/twitter.csv", header=True).rdd
 
 Now that RDD can be used for parallel processing by multiple Apache Spark executors.
 
-Count the number of tweets (lines in CSV) with "text" field containing "Ubuntu" in a case insensitive way:
+Count the number of tweets (lines in `CSV`) with "text" field containing "Ubuntu" in a case insensitive way:
 
 ```python
 from operator import add

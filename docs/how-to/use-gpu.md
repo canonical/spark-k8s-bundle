@@ -5,7 +5,7 @@ The Charmed Apache Spark solution offers an OCI image that supports the [Apache 
 
 ## Setup
 
-After installing [spark-client](https://snapcraft.io/spark-client) and [Microk8s](https://microk8s.io/) with the GPU addon enabled, now we can look into how to launch Spark jobs with GPU in Kubernetes.
+After installing [spark-client](https://snapcraft.io/spark-client) and [Microk8s](https://microk8s.io/) with the GPU add-on enabled, now we can look into how to launch Spark jobs with GPU in Kubernetes.
 
 First, we need to create a pod template to limit the amount of GPU per container.
 

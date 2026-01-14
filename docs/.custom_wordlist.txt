@@ -81,6 +81,15 @@ kubeconfig
 CVEs
 Canonical's
 metastore
+DBeaver
+lakehouse
+serverless
+Kaggle
+GPUs
+Kubeconfig
+ConfigMaps
+plaintext
+databag
 serverless
 performant
 configmap

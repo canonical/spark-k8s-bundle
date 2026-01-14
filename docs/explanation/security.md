@@ -177,7 +177,7 @@ Charmed Apache Spark K8s provides external authentication capabilities for:
 Authentication to the Kubernetes API follows standard implementations, as described in the [upstream Kubernetes documentation](https://kubernetes.io/docs/reference/access-authn-authz/authentication/). 
 Please make sure that the distribution being used supports the authentication used by clients, and that the Kubernetes cluster has been correctly configured. 
 
-Generally, client applications store credentials information locally in a `KUBECONFIG` file. 
+Generally, client applications store credentials information locally in a `kubeconfig` file. 
 On the other hand, pods created by the charms and the Spark Job workloads receive credentials via shared secrets, mounted to the default locations `/var/run/secrets/kubernetes.io/serviceaccount/`. 
 See the [upstream documentation](https://kubernetes.io/docs/tasks/run-application/access-api-from-pod/#directly-accessing-the-rest-api) for more information.
 

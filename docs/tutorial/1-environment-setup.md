@@ -31,8 +31,8 @@ multipass launch --cpus 4 --memory 8G --disk 50G --name spark-tutorial 24.04
 ```{note}
 See also:
 
-* [How to create an instance](https://canonical.com/multipass/docs/create-an-instance#create-an-instance-with-a-specific-image) guide from Multipass documentation
-* [`multipass launch` command reference](https://canonical.com/multipass/docs/launch-command)
+* [How to create an instance](https://documentation.ubuntu.com/multipass/latest/how-to-guides/manage-instances/create-an-instance/#create-an-instance-with-a-specific-image) guide from Multipass documentation
+* [`multipass launch` command reference](https://documentation.ubuntu.com/multipass/latest/reference/command-line-interface/launch/)
 ```
 
 Check the status of the provisioned virtual machine:
@@ -116,13 +116,13 @@ addons:
 ```
 
 Let's generate a Kubernetes configuration file using MicroK8s and write it to `~/.kube/config`. 
-This is where `kubectl` looks for the Kubeconfig file by default.
+This is where `kubectl` looks for the `kubeconfig` file by default.
 
 ```bash
 microk8s config | tee ~/.kube/config
 ```
 
-Now let's enable a few addons for using features like role based access control, usage of local volume for storage, and load balancing.
+Now let's enable a few add-ons for using features like role based access control, usage of local volume for storage, and load balancing.
 
 ```bash
 sudo microk8s enable rbac
@@ -133,7 +133,7 @@ IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
 sudo microk8s enable metallb:$IPADDR-$IPADDR
 ```
 
-Wait for the commands to finish running and check the list of enabled addons:
+Wait for the commands to finish running and check the list of enabled add-ons:
 
 ```bash
 microk8s status --wait-ready
@@ -293,7 +293,7 @@ Apache Spark can be configured to use S3 for object storage.
 However, for this tutorial, instead of AWS S3, we'll use [MinIO](https://min.io/): a lightweight S3-compatible object storage.
 It is available as a MicroK8s [add-on](https://microk8s.io/docs/addon-minio) by default, allowing us to create a local S3 bucket, which is more convenient for our local tests.
 
-Let's enable the MinIO addon for MicroK8s.
+Let's enable the MinIO add-on for MicroK8s.
 
 ```bash
 sudo microk8s enable minio

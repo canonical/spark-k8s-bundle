@@ -25,8 +25,19 @@ easy-to-use application integration, and monitoring.
 
 | | |
 |--|--|
-| [Tutorial](tutorial-introduction)</br> Learn how to use Charmed Apache Spark with our step-by-step guidance. Get started from [step one](tutorial-1-environment-setup). </br> | [How-to guides](how-to-deploy-index) </br> Practical instructions for key tasks, like [deploy](how-to-deploy-index), [manage service accounts](how-to-manage-service-accounts-index), [monitor metrics](how-to-monitoring), [process streams](how-to-streaming-jobs), [use GPU](how-to-use-gpu). |
-| [Reference](reference-index) </br> Technical information, for example: [release notes](reference-releases-index), [system requirements](reference-requirements), and [contact information](reference-contacts). | [Explanation](explanation-index) </br> Explore and grow your understanding of key topics, such as: [security](explanation-security), [cryptography](explanation-cryptography), [solution components](explanation-component-overview), [configuration](explanation-configuration), and [monitoring](explanation-monitoring). |
+| **Tutorial** | [Introduction](tutorial-introduction) • [Step 1: Environment setup](tutorial-1-environment-setup) |
+| **Deployment** | [Environment setup](how-to-deploy-environment) • [Charmed Apache Spark](how-to-deploy-spark) • [Charmed Apache Kyuubi](how-to-deploy-kyuubi) • [Requirements](reference-requirements) |
+| **Service account management** | [Integration hub](how-to-service-accounts-integration-hub) • [Python](how-to-service-accounts-python) • [Spark-client](how-to-service-accounts-spark-client) |
+| **Operations** | [Monitoring](how-to-monitoring) • Spark History Server: [Auth](how-to-spark-history-server-auth) and [web GUI](how-to-spark-history-server-expose-web-gui) • [Use K8s pods](how-to-use-k8s-pods) • [Streaming jobs](how-to-streaming-jobs) • [Use GPUs](how-to-use-gpu) |
+| **Apache Kyuubi** | [External connections](how-to-apache-kyuubi-external-connections) • [Integrate](how-to-apache-kyuubi-integrate-with-applications) • [Metastore](how-to-apache-kyuubi-external-metastore) • [Backups](how-to-apache-kyuubi-back-up-and-restore) • [Upgrades](how-to-apache-kyuubi-upgrade) • [GPU support](how-to-apache-kyuubi-gpu) |
+| **Security** | [Overview](explanation-security) • [Enable encryption (Apache Kyuubi)](how-to-apache-kyuubi-encryption-and-passwords) • [Cryptography](explanation-cryptography) • [Self-signed certificates](how-to-self-signed-certificates) |
+
+## How the documentation is organised
+
+[Tutorial](tutorial-introduction): For new users needing to learn how to use Charmed Apache Kafka <br>
+[How-to guides](how-to-index): For users needing step-by-step instructions to achieve a practical goal <br>
+[Reference](reference-index): For precise, theoretical, factual information to be used while working with the charm <br>
+[Explanation](explanation-index): For deeper understanding of key Charmed Apache Kafka concepts <br>
 
 ## Project and community
 
