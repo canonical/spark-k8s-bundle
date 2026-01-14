@@ -46,7 +46,7 @@ Make sure that the MicroK8s cluster is now up and running:
 microk8s status --wait-ready
 ```
 
-Export the Kubernetes config file associated with admin rights and store it in the $KUBECONFIG file, e.g. `~/.kube/config`: 
+Export the Kubernetes config file associated with admin rights and store it in the `$KUBECONFIG` file, e.g. `~/.kube/config`: 
 
 ```bash
 export KUBECONFIG=path/to/file # Usually ~/.kube/config
@@ -133,13 +133,13 @@ You can then create the EKS via CLI:
 eksctl create cluster -f cluster.yaml
 ```
 
-The EKS cluster creation process may take several minutes. The cluster creation process should already update the `KUBECONFIG` file with the new cluster information. By default, `eksctl` creates a user that generates a new access token on the fly via the `aws` CLI. However, this conflicts with the `spark-client` snap that is strictly confined and does not have access to the `aws` command. Therefore, we recommend you to manually retrieve a token:
+The EKS cluster creation process may take several minutes. The cluster creation process should already update the `kubeconfig` file with the new cluster information. By default, `eksctl` creates a user that generates a new access token on the fly via the `aws` CLI. However, this conflicts with the `spark-client` snap that is strictly confined and does not have access to the `aws` command. Therefore, we recommend you to manually retrieve a token:
 
 ```bash
 aws eks get-token --region <AWS_REGION_NAME> --cluster-name spark-cluster --output json
 ```
 
-and paste the token in the KUBECONFIG file:
+and paste the token in the `kubeconfig` file:
 
 ```yaml
 users:
@@ -250,9 +250,9 @@ terraform output
 # resource_group_name = "TestSparkAKSRG"
 ```
 
-#### Generating Kubeconfig file
+#### Generating the Kubeconfig file
 
-To generate the Kubeconfig file for connecting the client to the newly created cluster:
+To generate the `kubeconfig` file for connecting the client to the newly created cluster:
 
 ```bash
 az aks get-credentials --resource-group <resource_group_name> --name <aks_cluster_name> --file ~/.kube/config

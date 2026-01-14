@@ -15,7 +15,7 @@ Furthermore, you need to make sure that `PYTHONPATH` contains the location where
 
 The following snipped allows you to import relevant environment variables
 into a confined object, among which there should an auto-inference of your 
-Kubeconfig file location. 
+`kubeconfig` file location. 
 
 ```python
 import os

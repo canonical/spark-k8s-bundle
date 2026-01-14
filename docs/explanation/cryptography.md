@@ -65,7 +65,7 @@ All repositories in GitHub are set up with branch protection rules, requiring:
 ## Encryption
 
 The Spark8t Python library client authenticates to the underlying Kubernetes cluster using a variety of authentication
-mechanisms (depending upon how the underlying K8s server is configured) with the use of the Kubeconfig file.
+mechanisms (depending upon how the underlying K8s server is configured) with the use of the `kubeconfig` file.
 The communication between K8s and Spark8t is always encrypted by default with authentication enforced.
 Since Apache Spark Client snap is a wrapper around this library, the communication between the snap and the K8s cluster
 is also authenticated and encrypted.

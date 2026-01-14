@@ -116,7 +116,7 @@ addons:
 ```
 
 Let's generate a Kubernetes configuration file using MicroK8s and write it to `~/.kube/config`. 
-This is where `kubectl` looks for the Kubeconfig file by default.
+This is where `kubectl` looks for the `kubeconfig` file by default.
 
 ```bash
 microk8s config | tee ~/.kube/config
