@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    description: "Comprehensive documentation for Charmed Apache Spark on Kubernetes with deployment guides, tutorials, and security best practices."
+    description: "Documentation for Charmed Apache Spark on Kubernetes: deploy and operate Spark with Juju, including Kyuubi, Spark History Server, tutorials, and security guidance."
 ---
 
 (index)=
