@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Learn how to set up monitoring and alerting for Apache Spark with Canonical Observability Stack (COS) using Prometheus and Grafana."
+---
+
 (tutorial-5-monitoring-with-cos)=
 # 5. Monitoring with Canonical Observability Stack
 

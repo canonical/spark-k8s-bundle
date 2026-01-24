@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Learn how to enable and configure monitoring for Charmed Apache Spark with Canonical Observability Stack (COS) integration."
+---
+
 (how-to-monitoring)=
 # Enable and configuring monitoring
 

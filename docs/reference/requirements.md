@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Minimum system requirements for deploying Charmed Apache Spark on Kubernetes including CPU, memory, storage, and network needs."
+---
+
 (reference-requirements)=
 # Minimum system requirements
 

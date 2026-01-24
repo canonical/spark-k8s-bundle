@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Understand the components of Charmed Apache Spark: spark8t, OCI images, spark-client snap, and Juju charms for Kubernetes deployments."
+---
+
 (explanation-component-overview)=
 # Components overview
 

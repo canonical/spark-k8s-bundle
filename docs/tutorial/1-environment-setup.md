@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Learn how to set up MicroK8s, spark-client snap, MinIO, and Juju on Ubuntu for running Charmed Apache Spark on Kubernetes."
+---
+
 (tutorial-1-environment-setup)=
 # 1. Environment setup
 

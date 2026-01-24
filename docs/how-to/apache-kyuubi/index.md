@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Guides for deploying and managing Charmed Apache Kyuubi on Kubernetes with encryption, external connections, and backups."
+---
+
 (how-to-apache-kyuubi-index)=
 # Apache Kyuubi
 

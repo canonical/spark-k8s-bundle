@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Learn how to configure GPU support for Charmed Apache Kyuubi to run hardware-accelerated queries with NVIDIA RAPIDS on Kubernetes."
+---
+
 (how-to-apache-kyuubi-gpu)=
 # How to configure GPU support for Charmed Apache Kyuubi
 

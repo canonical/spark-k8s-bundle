@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Comprehensive documentation for Charmed Apache Spark on Kubernetes with deployment guides, tutorials, and security best practices."
+---
+
 (index)=
 # Charmed Apache Spark documentation
 

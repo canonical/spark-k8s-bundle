@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Learn how to deploy and use Charmed Apache Kyuubi on Kubernetes for serverless SQL queries on data lakes with Apache Spark."
+---
+
 (tutorial-6-apache-kyuubi)=
 # 6. Using Apache Kyuubi
 

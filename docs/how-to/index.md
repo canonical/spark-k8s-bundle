@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "How-to guides for deploying, configuring, and managing Charmed Apache Spark and Kyuubi on Kubernetes with monitoring and security."
+---
+
 (how-to-index)=
 # How-To guides
 

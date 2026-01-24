@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Learn how to deploy Charmed Apache Spark on Kubernetes with Juju, including object storage, monitoring, and log aggregation integration."
+---
+
 (how-to-deploy-spark)=
 # Deploy Charmed Apache Spark
 

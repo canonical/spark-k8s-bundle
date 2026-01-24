@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Learn how to configure Charmed Apache Spark service accounts using the Integration Hub charm with Juju relations and object storage."
+---
+
 (how-to-service-accounts-integration-hub)=
 # Configure service accounts using the Integration Hub charm
 

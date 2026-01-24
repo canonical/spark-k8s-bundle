@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Contact information for Charmed Apache Spark support including Matrix chat, GitHub issues, and security reporting channels."
+---
+
 (reference-contacts)=
 # Contacts
 

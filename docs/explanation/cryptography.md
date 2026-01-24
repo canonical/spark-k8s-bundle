@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Learn about cryptography practices in Charmed Apache Spark including resource checksums, image verification, and source code integrity."
+---
+
 (explanation-cryptography)=
 # Cryptography
 

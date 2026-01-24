@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Learn how to process real-time data streams with Apache Spark Streaming and integrate with Apache Kafka on Kubernetes."
+---
+
 (tutorial-3-data-stream-processing)=
 # 3. Data stream processing
 

@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "In-depth explanations of Charmed Apache Spark components, security, cryptography, configuration management, and monitoring concepts."
+---
+
 (explanation-index)=
 # Explanation
 

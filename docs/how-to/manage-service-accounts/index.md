@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Guides for managing Charmed Apache Spark service accounts using Integration Hub, Python API, and spark-client snap."
+---
+
 (how-to-manage-service-accounts-index)=
 # Manage service accounts
 

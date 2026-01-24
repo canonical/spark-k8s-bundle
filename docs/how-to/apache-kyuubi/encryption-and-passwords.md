@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Learn how to enable TLS encryption and manage passwords for Charmed Apache Kyuubi K8s using Juju secrets and certificate relations."
+---
+
 (how-to-apache-kyuubi-encryption-and-passwords)=
 # Manage encryption and passwords
 

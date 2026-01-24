@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Learn how to manage Charmed Apache Spark service accounts programmatically using the spark8t Python toolkit and API."
+---
+
 (how-to-service-accounts-python)=
 # Manage Service Accounts using the Python API
 

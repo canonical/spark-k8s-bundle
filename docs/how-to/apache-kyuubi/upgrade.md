@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Learn how to perform in-place upgrades for Charmed Apache Kyuubi K8s to update the charm and workload to newer versions."
+---
+
 (how-to-apache-kyuubi-upgrade)=
 # How to upgrade
 
