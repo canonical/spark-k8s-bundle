@@ -2,7 +2,7 @@
 
 [![CharmHub Badge](https://charmhub.io/spark-k8s-bundle/badge.svg)](https://charmhub.io/spark-k8s-bundle)
 [![Tests](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-tests.yaml/badge.svg?branch=main)](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-tests.yaml?query=branch%3Amain)
-[![Docs](https://github.com/canonical/spark-k8s-bundle/actions/workflows/sync_docs.yaml/badge.svg)](https://github.com/canonical/spark-k8s-bundle/actions/workflows/sync_docs.yaml)
+[![Docs](https://readthedocs.com/projects/canonical-charmed-spark/badge/?version=main&style=plastic)](https://app.readthedocs.com/projects/canonical-charmed-spark/builds/?version__slug=main)
 <!-- [![Release](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-checks.yaml/badge.svg)](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-checks.yaml) -->
 
 Charmed Apache Spark is a solution that makes operating Apache Spark workloads on Kubernetes seamless, secure, and production-ready. This solution includes:
