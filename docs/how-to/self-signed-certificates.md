@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    description: "Learn how to configure Charmed Apache Spark to work with self-signed certificates for TLS-enabled object storage and services."
+    description: "Learn how to configure Charmed Apache Spark to work with self-signed certificates for secure communication between services."
 ---
 
 (how-to-self-signed-certificates)=
