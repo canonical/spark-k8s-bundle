@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Trademark information for Apache Spark, Apache Kyuubi, and related Apache Software Foundation trademarks used in this documentation."
+---
+
 (explanation-trademarks)=
 # Trademarks
 

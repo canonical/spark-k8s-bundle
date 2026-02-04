@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Learn how to deploy and configure Apache Spark History Server on Kubernetes to monitor completed and running Spark applications."
+---
+
 (tutorial-4-history-server)=
 # 4. History Server
 

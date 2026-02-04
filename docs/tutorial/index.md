@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Step-by-step tutorial for deploying and configuring Charmed Apache Spark on Kubernetes with data processing, streaming, and monitoring."
+---
+
 (tutorial-introduction)=
 # Charmed Apache Spark Solution Tutorial
 

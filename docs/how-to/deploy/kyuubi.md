@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "How-to guide for deploying Charmed Apache Kyuubi on Kubernetes with Juju for serverless SQL queries on data lakes with Apache Spark."
+---
+
 (how-to-deploy-kyuubi)=
 # Deploy Charmed Apache Kyuubi
 

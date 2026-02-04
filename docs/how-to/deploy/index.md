@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Deployment guides for setting up Kubernetes environments and deploying Charmed Apache Spark and Kyuubi with Juju."
+---
+
 (how-to-deploy-index)=
 # Deploy
 

@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Understand hierarchical configuration management in Charmed Apache Spark with group, user, environment, and session-level settings."
+---
+
 (explanation-configuration)=
 # Configuration management
 

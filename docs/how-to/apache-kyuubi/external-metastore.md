@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "How-to guide for configuring an external PostgreSQL metastore for Charmed Apache Kyuubi K8s instead of the embedded database."
+---
+
 (how-to-apache-kyuubi-external-metastore)=
 # External metastore
 

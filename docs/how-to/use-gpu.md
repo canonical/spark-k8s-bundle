@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "How-to guide for enabling GPU acceleration for Apache Spark jobs on Kubernetes using the Apache Spark Rapids plugin with NVIDIA GPUs."
+---
+
 (how-to-use-gpu)=
 # Enabling GPU acceleration
 

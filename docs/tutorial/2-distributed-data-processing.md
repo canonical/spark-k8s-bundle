@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Learn how to run distributed data processing jobs with PySpark and Spark Submit on Kubernetes using Charmed Apache Spark."
+---
+
 (tutorial-2-distributed-data-processing)=
 # 2. Distributed data processing
 

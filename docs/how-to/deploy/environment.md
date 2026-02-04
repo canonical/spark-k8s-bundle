@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "How-to guide for setting up Kubernetes clusters and object storage for Charmed Apache Spark on MicroK8s, AWS EKS, Azure AKS, and Canonical K8s."
+---
+
 (how-to-deploy-environment)=
 # How to set up a K8s cluster for Apache Spark
 

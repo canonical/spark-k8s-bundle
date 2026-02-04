@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "How-to guide for enabling authentication and authorization for Spark History Server using Canonical Identity Platform integration."
+---
+
 (how-to-spark-history-server-auth)=
 # Enable authorization and authentication with the Spark History Server charm
 

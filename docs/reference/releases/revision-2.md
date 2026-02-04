@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Release notes for Charmed Apache Spark revision 2 featuring Apache Kyuubi, enhanced security, Azure support, and observability."
+---
+
 (reference-releases-revision-2)=
 # Charmed Apache Spark (revision 2)
 

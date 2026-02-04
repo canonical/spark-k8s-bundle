@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "How-to guide for exposing the Apache Spark History Server web UI externally using ingress with Traefik on Kubernetes."
+---
+
 (how-to-spark-history-server-expose-web-gui)=
 # Expose the Spark History Server UI
 

@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Guides for deploying and configuring Apache Spark History Server with authentication, authorization, and external access."
+---
+
 (how-to-spark-history-server-index)=
 # Spark History Server
 

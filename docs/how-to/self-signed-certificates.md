@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "How-to guide for configuring Charmed Apache Spark to work with self-signed certificates for secure communication between services."
+---
+
 (how-to-self-signed-certificates)=
 
 # Support self-signed certificates in Charmed Apache Spark

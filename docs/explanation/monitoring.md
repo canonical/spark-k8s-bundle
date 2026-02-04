@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Understand monitoring architecture in Charmed Apache Spark with Spark History Server and Canonical Observability Stack (COS) integration."
+---
+
 (explanation-monitoring)=
 # Monitoring
 

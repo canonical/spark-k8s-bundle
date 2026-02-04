@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Security hardening guide for Charmed Apache Spark covering Kubernetes, Juju, encryption, authentication, and secure deployment practices."
+---
+
 (explanation-security)=
 # Security hardening guide
 

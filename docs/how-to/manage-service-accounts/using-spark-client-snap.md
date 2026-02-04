@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "How-to guide for creating, managing, and configuring Charmed Apache Spark service accounts using the spark-client snap command line interface (CLI)."
+---
+
 (how-to-service-accounts-spark-client)=
 # Manage Charmed Apache Spark service accounts
 

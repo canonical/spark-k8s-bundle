@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Complete the Charmed Apache Spark tutorial by cleaning up resources and discover next steps for production deployments on AWS EKS."
+---
+
 (tutorial-7-wrapping-up)=
 # 7. Wrapping Up
 

@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Release notes and version history for all stable releases of Charmed Apache Spark with feature updates and improvements."
+---
+
 (reference-releases-index)=
 # Releases
 
