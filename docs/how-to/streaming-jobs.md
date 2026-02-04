@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    description: "Learn how to configure and run Apache Spark Streaming jobs against Apache Kafka on Kubernetes using structured streaming."
+    description: "How-to guide for configuring and run Apache Spark Streaming jobs against Apache Kafka on Kubernetes using structured streaming."
 ---
 
 (how-to-streaming-jobs)=

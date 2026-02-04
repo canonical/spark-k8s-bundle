@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    description: "Learn how to launch Apache Spark jobs from within a Kubernetes pod on Charmed Kubernetes using Charmed Apache Spark container images."
+    description: "How-to guide for launching Apache Spark jobs from within a Kubernetes pod on Charmed Kubernetes using Charmed Apache Spark container images."
 ---
 
 (how-to-use-k8s-pods)=
