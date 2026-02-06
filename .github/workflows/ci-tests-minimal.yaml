@@ -86,7 +86,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Run integration test
         uses: ./.github/actions/run-test
         with:
@@ -104,19 +104,19 @@ jobs:
 
   aggregate-results:
     name: Aggregate Results
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: integration-tests
     if: ${{ success() || failure() }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: results
       - id: setup-python
         name: Setup Python
-        uses: actions/setup-python@v5.0.0
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: 3.12
           architecture: x64
@@ -129,7 +129,7 @@ jobs:
         run: python3 .github/scripts/aggregate_results.py results/integration-results-*/test-result.json
 
       - name: Upload summary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: matrix-summary
           path: matrix-summary.md
