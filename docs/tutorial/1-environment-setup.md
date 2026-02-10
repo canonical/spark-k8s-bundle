@@ -363,7 +363,7 @@ With the access key, secret key, and the endpoint properly configured, you shoul
 
 For Apache Spark to be able to access and use our local S3 bucket, we need to provide a few configuration options including the bucket endpoint, access key and secret key.
 
-In the Charmed Apache Spark solution, these configurations are stored in a Kubernetes secret and bound to a Kubernetes service account. When Spark jobs are executed using that service account, all associated configurations are automatically retrieved and supplied to Apache Spark.
+In the Charmed Apache Spark solution, these configurations are stored in a Secret object and bound to a ServiceAccount. When Spark jobs are executed using that service account, all associated configurations are automatically retrieved and supplied to Apache Spark.
 
 The S3 configurations can be added to the existing `spark` service account with the following command:
 
