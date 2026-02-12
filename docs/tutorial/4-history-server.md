@@ -136,16 +136,16 @@ The Spark History Server comes with a Web UI for users to view and monitor the S
 
 ### Setup
 
-The web UI can be accessed at port 18080 of the IP address of the `spark-history-server-k8s/0` unit. However, it's good practice to access it via a Kubernetes Ingress rather than directly accessing the unit's IP address. Using an Ingress will allow us to have a common entrypoint to the applications running in the Juju model. 
+The web UI can be accessed at port 18080 of the IP address of the `spark-history-server-k8s/0` unit. However, it's good practice to access it via an ingress rather than directly accessing the unit's IP address. Using an ingress will allow us to have a common entrypoint to the applications running in the Juju model. 
 
-Let's add an Ingress by deploying and integrating the [`traefik-k8s`](https://charmhub.io/traefik-k8s) charm with `spark-history-server-k8s`:
+Let's add an ingress by deploying and integrating the [`traefik-k8s`](https://charmhub.io/traefik-k8s) charm with `spark-history-server-k8s`:
 
 ```bash
 juju deploy traefik-k8s --channel latest/stable --trust
 juju integrate traefik-k8s spark-history-server-k8s
 ```
 
-Now that Traefik has been deployed and configured, we can fetch the Ingress URL of the Spark History Server by running the `show-proxied-endpoints` action on the Traefik charm:
+Now that Traefik has been deployed and configured, we can fetch the ingress URL of the Spark History Server by running the `show-proxied-endpoints` action on the Traefik charm:
 
 ```bash
 juju run traefik-k8s/0 show-proxied-endpoints

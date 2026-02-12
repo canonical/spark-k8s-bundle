@@ -166,7 +166,7 @@ The MicroK8s setup is complete.
 
 ## The `spark-client` snap
 
-For Apache Spark jobs to be running run on top of Kubernetes, a set of resources (service account, associated roles, role bindings etc.) need to be created and configured.
+For Apache Spark jobs to be running run on top of Kubernetes, a set of resources (ServiceAccount, associated Roles, RoleBindings etc.) need to be created and configured.
 To simplify this task, the Charmed Apache Spark solution offers the `spark-client` snap. Install the snap: 
 
 ```bash
@@ -179,14 +179,14 @@ Let's create a Kubernetes namespace for us to use as a playground in this tutori
 kubectl create namespace spark
 ```
 
-We will now create a Kubernetes service account that will be used to run the Spark jobs. The creation of the service account can be done using the `spark-client` snap, which will create necessary roles, role bindings and other necessary configurations along with the creation of the service account:
+We will now create a ServiceAccount that will be used to run the Spark jobs. The creation of the ServiceAccount can be done using the `spark-client` snap, which will create necessary Roles, RoleBindings and other necessary configurations along with the creation of the ServiceAccount:
 
 ```bash
 spark-client.service-account-registry create \
   --username spark --namespace spark
 ```
 
-This command does a number of things in the background. First, it creates a service account in the `spark` namespace with the name `spark`. Then it creates a role with name `spark-role` with all the required RBAC permissions and binds that role to the service account by creating a role binding. 
+This command does a number of things in the background. First, it creates a ServiceAccount in the `spark` namespace with the name `spark`. Then it creates a Role with name `spark-role` with all the required RBAC permissions and binds that Role to the ServiceAccount by creating a RoleBinding. 
 
 These resources can be viewed with `kubectl get` commands as follows:
 
@@ -363,7 +363,7 @@ With the access key, secret key, and the endpoint properly configured, you shoul
 
 For Apache Spark to be able to access and use our local S3 bucket, we need to provide a few configuration options including the bucket endpoint, access key and secret key.
 
-In the Charmed Apache Spark solution, these configurations are stored in a Kubernetes secret and bound to a Kubernetes service account. When Spark jobs are executed using that service account, all associated configurations are automatically retrieved and supplied to Apache Spark.
+In the Charmed Apache Spark solution, these configurations are stored in a Secret object and bound to a ServiceAccount. When Spark jobs are executed using that service account, all associated configurations are automatically retrieved and supplied to Apache Spark.
 
 The S3 configurations can be added to the existing `spark` service account with the following command:
 

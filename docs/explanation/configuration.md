@@ -26,7 +26,7 @@ the latter sources on top of previous ones in case of multi-level definitions.
 
 ## Group configuration
 
-Group configurations are centrally stored as secrets in K8s,
+Group configurations are centrally stored as Secret objects,
 and managed by `spark-integration-hub-k8s` charm that takes care of managing
 their lifecycle from creation, modification and deletion.
 See the
@@ -36,7 +36,7 @@ setting up group configurations. These are valid across users, machines and sess
 
 ## User configuration
 
-User configurations are centrally stored as secrets in K8s, but they are
+User configurations are centrally stored as Secret objects, but they are
 managed by the user using the `spark-client` snap and/or `spark8t` Python library.
 For more information, please refer to
 [here](/how-to/manage-service-accounts/using-spark-client-snap) for the `spark-client`

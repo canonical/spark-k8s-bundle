@@ -308,7 +308,7 @@ terraform output
 # resource_group_name = "TestSparkAKSRG"
 ```
 
-#### Generating the Kubeconfig file
+#### Generating the kubeconfig file
 
 To generate the `kubeconfig` file for connecting the client to the newly created cluster:
 

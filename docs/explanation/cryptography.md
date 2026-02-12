@@ -76,7 +76,7 @@ The communication between K8s and Spark8t is always encrypted by default with au
 Since Apache Spark Client snap is a wrapper around this library, the communication between the snap and the K8s cluster
 is also authenticated and encrypted.
 
-The Spark8t Python library stores Apache Spark properties as Kubernetes Secrets because these properties may contain
+The Spark8t Python library stores Apache Spark properties as Secret objects because these properties may contain
 credentials like database password, AWS S3 access key, secret keys, etc.
 These are encrypted both at rest and in transit by default by the underlying K8s engine.
 
@@ -135,7 +135,7 @@ Azure object storages. Credentials are stored in peer-relation data for S3 Integ
 the Azure Object storage, and they are communicated to other charms (Spark History Server, Integration Hub
 and Apache Kyuubi) via relation databag.
 
-Integration Hub stores the credentials into Kubernetes Secrets to be made available for Spark jobs.
+Integration Hub stores the credentials into Secret objects to be made available for Spark jobs.
 Driver and executors store configuration files (where credential information is stored) unencrypted in `/etc/spark8t/conf`.
 Apache Kyuubi stores credentials in unencrypted configuration files in `/opt/spark/conf`, to be used to configure
 Apache Spark Engine, and `/opt/kyuubi/conf`, to be used to configure the Kyuubi Server.

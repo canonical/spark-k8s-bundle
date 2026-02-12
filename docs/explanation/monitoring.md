@@ -49,9 +49,9 @@ Every pod needs to be run using a service account that needs to be set up with t
 correct permissions. Charmed Apache Spark tooling, i.e. the `spark-client` snap
 and the `spark8t` Python libraries, make sure that service account are 
 created correctly and configured appropriately. The driver pod must be running
-with a service account that is able to create pods, services and configmaps in 
+with a service account that is able to create Pods, Services and ConfigMaps in 
 order to correctly spawn executors. Moreover, Charmed Apache Spark service accounts
-also store Apache Spark configuration centrally in Kubernetes as secrets, that must 
+also store Apache Spark configuration centrally in Kubernetes as Secret objects, that must 
 be readable/writable depending on their scope. Please refer to the explanations 
 about the [Charmed Apache Spark hierarchical configuration](explanation-configuration) for more information.
 
