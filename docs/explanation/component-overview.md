@@ -60,7 +60,7 @@ flowchart TD
 ```
 
 The Charmed Apache Spark solution can be used to deploy and manage Apache Spark workloads using the
-provided distribution on any conformant Kubernetes (for versions 1.26 and above), like:
+provided distribution on any conformant Kubernetes (reccomended versions 1.32 and above), like:
 
 * [MicroK8s](https://microk8s.io/), which is the simplest production-grade conformant K8s.
 Lightweight and focused. Single command install on Linux, Windows and macOS. See the
