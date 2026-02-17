@@ -12,19 +12,19 @@ on:
 
 jobs:
   integration-tests:
-    name: Integration Tests
+    name: "UATs (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju.agent }} "
     runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
     timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - --spark-version "3.4.4"
+        spark-version:
+          - "3.4.4"
         backend:
-          - --backend terraform
+          - terraform
         storage-backend:
-          - --storage-backend s3
-          - --storage-backend azure_storage
+          - s3
+          - azure_storage
         juju:
           - snap_channel: "3.6/stable"
             agent: "3.6.2"
@@ -123,25 +123,25 @@ jobs:
           echo "Using UUID: ${UUID}"
           cd python
           # Run simple tests to make sure backend works and to clean up if needed
-          tox run -e integration-object-storage -- ${{ matrix.version }} ${{ matrix.storage-backend }} --uuid $UUID
+          tox run -e integration-object-storage -- --spark-version ${{ matrix.version }} --storage-backend ${{ matrix.storage-backend }} --uuid $UUID
 
           # Sometimes deleting resources on the clouds may take some time
           sleep 60
 
           # The first tests deploy the bundle
-          tox run -e integration-bundle -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --keep-models --model test-uat --cos-model cos --uuid $UUID
+          tox run -e integration-bundle -- --backend ${{ matrix.backend }} --spark-version ${{ matrix.version }} --storage-backend ${{ matrix.storage-backend }} --keep-models --model test-uat --cos-model cos --uuid $UUID
 
           # Next we only use --no-deploy flag
 
-          tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
-          tox run -e integration-sparkjob -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
+          tox run -e integration-kyuubi -- --backend ${{ matrix.backend }} --spark-version ${{ matrix.version }} --storage-backend ${{ matrix.storage-backend }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
+          tox run -e integration-sparkjob -- --backend ${{ matrix.backend }} --spark-version ${{ matrix.version }} --storage-backend ${{ matrix.storage-backend }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
 
           # We re-run the last tests to make sure that the tests are idempotent
-          tox run -e integration-kyuubi -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
-          tox run -e integration-sparkjob -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --no-deploy --model test-uat --cos-model cos --uuid $UUID
+          tox run -e integration-kyuubi -- --backend ${{ matrix.backend }} --spark-version ${{ matrix.version }} --storage-backend ${{ matrix.storage-backend }} --no-deploy --keep-models --model test-uat --cos-model cos --uuid $UUID
+          tox run -e integration-sparkjob -- --backend ${{ matrix.backend }} --spark-version ${{ matrix.version }} --storage-backend ${{ matrix.storage-backend }} --no-deploy --model test-uat --cos-model cos --uuid $UUID
 
           # # Run backup / restore tests separately without --no-deploy and --keep-models
-          # tox run -e integration-backup-restore -- ${{ matrix.backend }} ${{ matrix.version }} ${{ matrix.storage-backend }} --model test-uat --cos-model cos --uuid $UUID
+          # tox run -e integration-backup-restore -- --backend ${{ matrix.backend }} --spark-version ${{ matrix.version }} --storage-backend ${{ matrix.storage-backend }} --model test-uat --cos-model cos --uuid $UUID
       - id: collect-logs
         name: Collect logs if job failed
         shell: bash
