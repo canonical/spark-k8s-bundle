@@ -28,6 +28,11 @@ jobs:
         juju:
           - snap_channel: "3.6/stable"
             agent: "3.6.2"
+        k8s-version:
+          - "1.28"
+          - "1.30"
+          - "1.32"
+          - "1.34"
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -42,7 +47,7 @@ jobs:
         with:
           juju-channel: ${{ matrix.juju.snap_channel }}
           provider: microk8s
-          channel: 1.32-strict/stable
+          channel: "${{ matrix.k8s-version }}-strict/stable"
           bootstrap-options: "--agent-version ${{ matrix.juju.agent }}"
           microk8s-group: snap_microk8s
           microk8s-addons: "hostpath-storage rbac dns metallb:10.64.140.43-10.64.140.49"
