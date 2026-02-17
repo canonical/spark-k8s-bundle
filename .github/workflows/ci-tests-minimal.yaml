@@ -47,6 +47,7 @@ jobs:
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.8"
             k8s-distribution: "k8s"
+            k8s-version: "1.32"
 
           # Test integration-basic, with Spark 3.5
           - tox-env: integration-basic
@@ -54,6 +55,7 @@ jobs:
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.8"
             k8s-distribution: "k8s"
+            k8s-version: "1.32"
 
           # Test bundle + COS with YAML backend just once
           - tox-env: integration-bundle
@@ -64,6 +66,7 @@ jobs:
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.8"
             k8s-distribution: "k8s"
+            k8s-version: "1.32"
 
           # Test COS just once with integration-sparkjob
           - tox-env: integration-sparkjob
