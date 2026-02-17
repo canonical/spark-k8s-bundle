@@ -14,7 +14,7 @@ jobs:
     uses: ./.github/workflows/ci-checks.yaml
 
   integration-tests:
-    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}): spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju.agent }} | ${{ matrix.cos-model }}"
+    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju.agent }} | ${{ matrix.cos-model }}"
     runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
     timeout-minutes: 120
     strategy:
