@@ -27,7 +27,7 @@ jobs:
         spark-version: [ "3.4.4", "3.5.5" ]
         storage-backend: [ "s3", "azure_storage" ]
         juju-snap-channel: [ "3.6/stable" ]
-        juju-agent-version: [ "3.6.8" ]
+        juju-agent-version: [ "3.6.14" ]
         k8s-distribution: ["k8s", "microk8s"]
         exclude:
           - k8s-distribution: "microk8s"
@@ -37,14 +37,14 @@ jobs:
           - tox-env: integration-basic
             spark-version: 3.4.4
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.8"
+            juju-agent-version: "3.6.14"
             k8s-distribution: "k8s"
 
           # Test integration-basic, with Spark 3.5
           - tox-env: integration-basic
             spark-version: 3.5.5
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.8"
+            juju-agent-version: "3.6.14"
             k8s-distribution: "k8s"
 
           # Test bundle + COS with YAML backend just once
@@ -54,7 +54,7 @@ jobs:
             storage-backend: s3
             spark-version: 3.4.4
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.8"
+            juju-agent-version: "3.6.14"
             k8s-distribution: "k8s"
 
           # Test COS just once with integration-sparkjob
@@ -62,7 +62,7 @@ jobs:
             bundle-backend: terraform
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.8"
+            juju-agent-version: "3.6.14"
             cos-model: cos
 
           # Test COS just once with integration-kyuubi
@@ -70,7 +70,7 @@ jobs:
             bundle-backend: terraform
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.8"
+            juju-agent-version: "3.6.14"
             cos-model: cos
 
           # Test COS just once with integration-backup-restore
@@ -78,7 +78,7 @@ jobs:
             bundle-backend: terraform
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.8"
+            juju-agent-version: "3.6.14"
             cos-model: cos
 
     needs:
@@ -86,7 +86,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Run integration test
         uses: ./.github/actions/run-test
         with:
@@ -109,9 +109,9 @@ jobs:
     if: ${{ success() || failure() }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: results
       - id: setup-python
@@ -129,7 +129,7 @@ jobs:
         run: python3 .github/scripts/aggregate_results.py results/integration-results-*/test-result.json
 
       - name: Upload summary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: matrix-summary
           path: matrix-summary.md
