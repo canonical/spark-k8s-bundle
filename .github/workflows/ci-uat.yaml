@@ -30,7 +30,7 @@ jobs:
             agent: "3.6.14"
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - id: setup-python
         name: Setup Python
         uses: actions/setup-python@v5.0.0
