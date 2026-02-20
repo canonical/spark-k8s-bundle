@@ -36,19 +36,19 @@ jobs:
           - juju-snap-channel: "3.5/stable"
             juju-agent-version: "3.5.6"
           - juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.5"
+            juju-agent-version: "3.6.14"
 
           # Test integration-basic, with Spark 3.4
           - tox-env: integration-basic
             spark-version: 3.4.4
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.5"
-      
+            juju-agent-version: "3.6.14"
+
           # Test integration-basic, with Spark 3.5
           - tox-env: integration-basic
             spark-version: 3.5.5
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.5"
+            juju-agent-version: "3.6.14"
 
         exclude:
           # Backup / Restore tests only supported on Terraform
@@ -76,12 +76,11 @@ jobs:
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
           pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
 
-
   aggregate-results:
     name: Aggregate Results
     runs-on: ubuntu-22.04
     needs: integration-tests
-    if: always()  
+    if: always()
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4

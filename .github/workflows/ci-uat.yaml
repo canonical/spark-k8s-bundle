@@ -27,7 +27,7 @@ jobs:
           - --storage-backend azure_storage
         juju:
           - snap_channel: "3.6/stable"
-            agent: "3.6.2"
+            agent: "3.6.14"
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
