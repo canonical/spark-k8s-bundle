@@ -91,9 +91,9 @@ jobs:
           path: results
       - id: setup-python
         name: Setup Python
-        uses: actions/setup-python@v5.0.0
+        uses: actions/setup-python@v5.6.0
         with:
-          python-version: 3.12
+          python-version: 3.14
           architecture: x64
       - name: Install pandas & tabulate
         run: |
