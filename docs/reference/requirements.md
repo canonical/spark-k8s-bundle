@@ -25,10 +25,14 @@ We recommend deploying Charmed Spark on top of a Canonical Kubernetes cluster at
 Charmed Spark has also been validated on various Kubernetes versions (1.28, 1.29, 1.30, 1.31, 1.33 and 1.34) on AMD/CPU nodes.
 GPU and ARM support have been validated for Kubernetes versions 1.32, 1.33 and 1.34.
 
-Charmed Spark has also been validated on other Kubernetes distributions among which:
-* MicroK8s (from version 1.28 to version 1.34) on AMD/CPU nodes
-* Azure AKS (on version 1.32)
-* Amazon EKS (on version 1.27)
+The following table provides the combination of substrates, architectures and Kubernetes versions that have been validated:
+
+| K8s Distribution | K8s versions                       | Architecture | GPU Acceleration |
+|------------------|------------------------------------|--------------|------------------|
+| Canonical K8s    | 1.32, 1.33, 1.34                   | AMD, ARM     | Yes              |
+| MicroK8s         | 1.28,1.29,1.30,1.31,1.32,1.33,1.34 | AMD          | No               |
+| Azure AKS        | 1.32                               | AMD          | No               |
+| Amazon EKS       | 1.32                               | AMD          | No               |
 
 ### Juju 
 
