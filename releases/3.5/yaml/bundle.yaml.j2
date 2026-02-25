@@ -70,9 +70,9 @@ applications:
   integration-hub:
     charm: spark-integration-hub-k8s
     channel: 3/stable
-    revision: 67
+    revision: 110 # TODO(stable): Update once we get a new stable release compatible with juju 3.6.13+
     resources:
-      integration-hub-image: ghcr.io/canonical/spark-integration-hub@sha256:fa5e73d6339b2eb137b5917771caa62bd6605284b8dfab3dafb7d6026a9a3b1a # rev6
+      integration-hub-image: ghcr.io/canonical/spark-integration-hub@sha256:2e31e78ac9eb9509d2cbbc233fbb62efe34966b8f9bcf5d862e17e7182637c7e # rev10
     scale: 1
     constraints: arch=amd64
     trust: true
