@@ -165,7 +165,7 @@ Congratulations, the COS now monitors the two charms.
 
 ## Customize dashboards and alert rules
 
-The `cos-configuration-k8s` charm included in the bundle can be used to customise the Grafana dashboards and alert rules.
+The `cos-configuration-k8s` charm included in the bundle can be used to customize the Grafana dashboards and alert rules.
 If needed, we provide a [default dashboard](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/resources/grafana) as part
 of the bundle and dedicated dashboards for the [Spark History Server](https://github.com/canonical/spark-history-server-k8s-operator/tree/3/edge/src/grafana_dashboards)
 and [Charmed Apache Kyuubi](https://github.com/canonical/kyuubi-k8s-operator/tree/3.4/edge/src/grafana_dashboards) charms.
