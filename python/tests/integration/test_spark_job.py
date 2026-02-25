@@ -45,6 +45,7 @@ HISTORY_SERVER = "history-server"
 PUSHGATEWAY = "pushgateway"
 PROMETHEUS = "prometheus"
 LOKI = "loki"
+HUB = "integration-hub"
 
 
 @pytest.fixture
@@ -58,14 +59,15 @@ def tmp_folder(tmp_path_factory):
 
 
 @pytest.mark.skip_if_deployed
-def test_deploy_bundle(spark_bundle):
+def test_deploy_bundle(juju: jubilant.Juju, spark_bundle):
     """Deploy bundle."""
     deployed_applications = spark_bundle
     logger.info(f"Deployed applications: {deployed_applications}")
 
 
 def test_active_status(juju: jubilant.Juju) -> None:
-    """Test whether the bundle has deployed successfully."""
+    """Test whether the bundle has deployed successfully and configure hub monitoring."""
+    juju.config(HUB, {"monitored-service-accounts": "*:*"})
     juju.wait(
         lambda status: jubilant.all_active(status) and jubilant.all_agents_idle(status),
         delay=10,
