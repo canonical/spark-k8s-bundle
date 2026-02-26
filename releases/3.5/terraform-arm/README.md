@@ -16,7 +16,7 @@ This temporary bundle differs from the existing one by:
 
 This bundle was successfully tested on PS7 using the following variables file:
 
-```json
+```
 K8S_CLOUD="mixed"
 K8S_CREDENTIAL="mixed"
 zookeeper_units=1
@@ -93,11 +93,49 @@ spec:
 One caveat is that the pod template file must be accessible from the environment running the `spark-submit` command.
 This is not an issue for our data lakehouse story, as the Kyuubi charm would that entrypoint, but this requires a more sensible approach for the spark-client snap.
 
+### namespace-node-affinity-operator
+
+We have an alternate way of enforcing the affinity and the toleration on namespaces, which is a good match for Charmed Apache Spark as we rely on them to inject spark properties in service accounts.
+
+First, we deploy the charm using
+
+```shell
+juju deploy namespace-node-affinity --trust
+```
+
+We then create the following configuration:
+
+```yaml
+lotr: |
+  nodeSelectorTerms:
+    - matchExpressions:
+      - key: pool
+        operator: In
+        values:
+        - worker
+  tolerations:
+  - key: pool
+    operator: Equal
+    value: worker
+    effect: "NoSchedule"
+```
+
+Every pod scheduled in the `lotr` namespace will get the affinity and toleration above applied.
+We create a `frodo` user using the spark-client snap as usual and make user that this namespace is monitored by the integration hub.
+
+Now we run a workload using
+
+```shell
+spark-client.spark-submit --username frodo --namespace lotr --class org.apache.spark.examples.SparkPi local:///opt/spark/examples/jars/spark-examples_2.12-3.5.5.jar 100
+```
+
+We then see the pods being deployed on the proper node, without needing to pass a pod template.
+If we `kubectl edit` the driver pod, we do see the toleration and the affinity applied.
+
 ## What's next
 
 - We need new stable release for arm64 support
 - We need to refactor the TF bundle following CC008 to expose the `constraint` input for the arch. We are already providing a variable to configure the pod template.
-- We could give the `namespace-node-affinity-operator` charm a try and label users namespace appropriately so that affinities are applied.
 - We could also give PodTolerationRestriction a try. For MicroK8s:
 
 1. Open the following file on each node:
