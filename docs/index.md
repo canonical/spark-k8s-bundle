@@ -38,7 +38,7 @@ easy-to-use application integration, and monitoring.
 | **Apache Kyuubi** | [External connections](how-to-apache-kyuubi-external-connections) • [Integrate](how-to-apache-kyuubi-integrate-with-applications) • [Metastore](how-to-apache-kyuubi-external-metastore) • [Backups](how-to-apache-kyuubi-back-up-and-restore) • [Upgrades](how-to-apache-kyuubi-upgrade) • [GPU support](how-to-apache-kyuubi-gpu) |
 | **Security** | [Overview](explanation-security) • [Enable encryption (Apache Kyuubi)](how-to-apache-kyuubi-encryption-and-passwords) • [Cryptography](explanation-cryptography) • [Self-signed certificates](how-to-self-signed-certificates) |
 
-## How the documentation is organised
+## How the documentation is organized
 
 [Tutorial](tutorial-introduction): For new users needing to learn how to use Charmed Apache Kafka <br>
 [How-to guides](how-to-index): For users needing step-by-step instructions to achieve a practical goal <br>

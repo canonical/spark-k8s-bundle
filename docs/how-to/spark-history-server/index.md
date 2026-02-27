@@ -13,6 +13,6 @@ see the [Tutorial](tutorial-4-history-server) and the following guides:
 ```{toctree}
 :titlesonly:
 
-Authentication and authorisation<auth.md>
+Authentication and authorization<auth.md>
 Expose web GUI<expose-web-gui.md>
 ```

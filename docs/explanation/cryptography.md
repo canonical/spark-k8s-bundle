@@ -17,7 +17,7 @@ All three charms in the Charmed Apache Spark solution employ pinned revisions of
 * Integration Hub for Apache Spark
 * Charmed Apache Kyuubi
 
-The Spark History Server and Charmed Apache Kyuubi use different flavours of the
+The Spark History Server and Charmed Apache Kyuubi use different flavors of the
 [Charmed Apache Spark Rock image](https://github.com/canonical/charmed-spark-rock/) whereas the Integration Hub for
 Apache Spark uses the [Integration Hub for Apache Spark Rock image](https://github.com/canonical/spark-integration-hub-rock).
 
@@ -166,4 +166,4 @@ For more information about the Kyuubi Client, see the
 The Spark History Server provides authentication integrated using the Canonical Identity Platform in combination
 with a custom design [servlet filter](https://code.launchpad.net/~data-platform/soss/+source/charmed-spark-servlet-filters/+git/charmed-spark-servlet-filters).
 This feature can be enabled by following the steps in the
-[Spark History Server authorisation How-to guide](https://charmhub.io/spark-k8s-bundle/docs/h-history-server-authorization).
+[Spark History Server authorization How-to guide](https://charmhub.io/spark-k8s-bundle/docs/h-history-server-authorization).
