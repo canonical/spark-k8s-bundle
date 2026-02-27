@@ -27,10 +27,10 @@ jobs:
           - --storage-backend azure_storage
         juju:
           - snap_channel: "3.6/stable"
-            agent: "3.6.2"
+            agent: "3.6.14"
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - id: setup-python
         name: Setup Python
         uses: actions/setup-python@v5.0.0
