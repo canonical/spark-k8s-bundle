@@ -59,7 +59,7 @@ def tmp_folder(tmp_path_factory):
 
 
 @pytest.mark.skip_if_deployed
-def test_deploy_bundle(juju: jubilant.Juju, spark_bundle):
+def test_deploy_bundle(spark_bundle):
     """Deploy bundle."""
     deployed_applications = spark_bundle
     logger.info(f"Deployed applications: {deployed_applications}")
