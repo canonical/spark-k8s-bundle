@@ -16,7 +16,7 @@ In the following guide, we provide details on the technologies currently support
 
 ## Kubernetes
 
-The Charmed Apache Spark solution runs on top of several K8s distributions. We recommend using versions K8s `1.32+`. 
+The Charmed Apache Spark solution runs on top of several K8s distributions. We recommend using Kubernetes versions `1.32+`. 
 Earlier versions may still be working, although we do not explicitly test them. 
 
 There are multiple ways that a K8s cluster can be deployed. We provide full compatibility and support for:

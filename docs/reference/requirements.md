@@ -22,12 +22,12 @@ This section lists the recommended versions for deploying Charmed Apache Spark, 
 
 ### Kubernetes
 
-We recommend deploying Charmed Spark on top of a Canonical Kubernetes cluster at version 1.32 LTS.
+We recommend deploying Charmed Apache Spark on a Canonical Kubernetes cluster running version 1.32 LTS.
 
 Charmed Spark has also been validated on various Kubernetes versions (1.28, 1.29, 1.30, 1.31, 1.33 and 1.34) on AMD/CPU nodes.
 GPU and ARM support have been validated for Kubernetes versions 1.32, 1.33 and 1.34.
 
-The following table provides the combination of substrates, architectures and Kubernetes versions that have been validated:
+The following table lists the validated combinations of substrate, architecture, and Kubernetes version:
 
 | K8s Distribution | K8s versions                       | Architecture | GPU Acceleration |
 |------------------|------------------------------------|--------------|------------------|
@@ -38,7 +38,7 @@ The following table provides the combination of substrates, architectures and Ku
 
 ### Juju 
 
-We recommend deploying Charmed Spark on top of Juju 3.6.9.  
+We recommend deploying Charmed Apache Spark on Juju v.3.6.9.
 
 ```{note}
 Juju controller versions from 3.9.10 to 3.6.13 are affected by a [regression in Juju](https://github.com/juju/juju/issues/21312) that has been fixed in 3.6.14.
