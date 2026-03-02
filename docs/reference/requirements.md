@@ -15,3 +15,30 @@ The following are the minimum system requirements for Charmed Apache Spark:
   [Canonical Apache Spark image](https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark).
 - Access to a Kubernetes cluster, e.g. [MicroK8s](https://microk8s.io/) or
   [Charmed Kubernetes](https://ubuntu.com/kubernetes/charmed-k8s).
+
+## Recommended versions
+
+This section lists the recommended versions for deploying Charmed Apache Spark, plus additional versions validated during testing.
+
+### Kubernetes
+
+We recommend deploying Charmed Apache Spark on a Canonical Kubernetes cluster running version 1.32 LTS.
+
+The following table lists the validated combinations of substrate, architecture, and Kubernetes version:
+
+| K8s Distribution | K8s versions                       | Architecture | GPU Acceleration |
+|------------------|------------------------------------|--------------|------------------|
+| Canonical K8s    | 1.32, 1.33, 1.34                   | AMD, ARM     | Yes              |
+| MicroK8s         | 1.28,1.29,1.30,1.31,1.32,1.33,1.34 | AMD          | No               |
+| Azure AKS        | 1.32                               | AMD          | No               |
+| Amazon EKS       | 1.32                               | AMD          | No               |
+
+### Juju 
+
+We recommend deploying Charmed Apache Spark on Juju v.3.6.9.
+
+```{note}
+Juju controller versions from 3.9.10 to 3.6.13 are affected by a [regression in Juju](https://github.com/juju/juju/issues/21312) that has been fixed in 3.6.14.
+Support for Juju 3.6.14+ is currently being addressed by [this issue](https://github.com/canonical/spark-integration-hub-k8s-operator/issues/119). 
+```
+
