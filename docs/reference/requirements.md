@@ -18,6 +18,8 @@ The following are the minimum system requirements for Charmed Apache Spark:
 
 ## Recommended versions
 
+This section lists the recommended versions for deploying Charmed Apache Spark, plus additional versions validated during testing.
+
 ### Kubernetes
 
 We recommend deploying Charmed Spark on top of a Canonical Kubernetes cluster at version 1.32 LTS.
