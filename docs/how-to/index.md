@@ -65,6 +65,7 @@ Advanced features of Charmed Apache Spark include:
 * [Use K8s pods](how-to-use-k8s-pods)
 * [Streaming jobs](how-to-streaming-jobs)
 * [Use GPU](how-to-use-gpu)
+* [Advanced Scheduling](how-to-advanced-scheduling)
 
 ```{toctree}
 :titlesonly:
@@ -78,5 +79,6 @@ spark-history-server/index
 Use K8s pods<use-k8s-pods.md>
 Streaming Jobs<streaming-jobs.md>
 Use GPU<use-gpu.md>
+advanced-scheduling/index
 Self-signed certificates<self-signed-certificates.md>
 ```
