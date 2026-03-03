@@ -1,15 +1,17 @@
 ---
 myst:
   html_meta:
-    description: "How-to guide for scheduling Spark jobs on dedicated worker pools."
+    description: "How-to guide for scheduling Charmed Apache Spark's components and its jobs on Kubernetes clusters."
 ---
 
-(how-to-advanced-scheduling-jobs)=
+(how-to-advanced-scheduling)=
 
-# Advanced scheduling of Spark jobs
+# Advanced scheduling
 
-Charmed Apache Spark can be configured to schedule driver and executor pod on specific nodes.
-This guide details how to set up and configure the advanced scheduling of Spark jobs to mutually segregate control-plane workloads from user workloads and allocate pods on mixed architectures clusters.
+You can optimize infrastructure governance and performance by configuring Charmed Apache Spark with Kubernetes mechanisms, such as node affinity and toleration.
+
+Those mechanisms are used to decouple control plane operations from user-driven workloads, ensuring system services remain stable on cost-effective instance.
+Spark executors can benefit from specialized hardware (high-memory nodes, custom hardware resources such as GPU, specific architecture) while maintaining the flexibility to scale idle resources to zero.
 
 ## Prerequisites
 
@@ -37,13 +39,16 @@ This guide will demonstrate how to allow pod to be scheduled on tainted nodes an
 - are scheduled on the nodes dedicated to running user workloads
 - are the only pods being scheduled there (unless another resource use the same toleration)
 
-## Deploy the Namespace Node Affinity Operator (recommended)
+## Scheduling jobs: deploying the Namespace Node Affinity Operator (recommended)
+
+Charmed Apache Spark can be configured to schedule driver and executor pod on specific nodes.
+This section details how to set up and configure the advanced scheduling of Spark jobs to mutually segregate control-plane workloads from user workloads and allocate pods on mixed architectures clusters.
 
 We can deploy the [Namespace Node Affinity Operator](https://github.com/canonical/namespace-node-affinity-operator) charm in the Juju model dedicated to running Charmed Apache Spark components.
 To do so, run the following command:
 
 ```shell
-juju deploy -m <charm_spark_juju_model> namespace-node-affinity --trust
+juju deploy -m <charmed_spark_juju_model> namespace-node-affinity --trust
 ```
 
 By default, the WebHook is not configured to modify pods in any namespace.
@@ -111,10 +116,11 @@ To restrict Spark jobs in `namespace_1` to only run on `arm64` nodes, use the fo
 Charmed Apache Spark provides multi-architecture rock images supporting amd64 and arm64.
 ```
 
-## Define a Pod template accessible from the spark-submit command (alternative)
+## Scheduling jobs: Defining a Pod template (alternative)
 
 While we recommend using Namespace Node Affinity Operator for common scenarios, one downside is that it cannot discriminate between driver and executor pods, should they have different hardware needs or resource quotas.
-[Enabling GPU acceleration](how-to-use-gpu) presents such a case, where we do not want to reserve costly resources for driver pods if they do not need it.
+[Enabling GPU acceleration](how-to-use-gpu) presents such a case, where we do not want to reserve costly resources for driver pods if they do not need it.\
+This section presents an alternative way to schedule Spark jobs using Pod templates.
 
 The example below is the equivalent of the first `namespaces_settings.yaml` presented in the previous section, as it applies a `nodeSelector` and a toleration matching a previously applied taint:
 
@@ -159,3 +165,29 @@ The [Integration Hub charm](how-to-service-accounts-integration-hub) can be used
 ```{note}
 Please note that the template files must be accessible from the 'spark-submit' command, **not** from where the pods are actually running.
 ```
+
+## Scheduling Charmed Apache Spark components
+
+While the two previous sections already take care of segregating control-plane workloads from user-driven workloads, this guide details a few strategies on how to also separate the Charmed Apache Spark component from third party workloads (neither Charmed Apache Spark nor the Spark jobs) and take advantage of specific architectures.
+
+To target a specific architecture, a Juju constraint can be applied to the Charmed Apache Spark model itself, or to each individual charm.
+To apply the constraint to the model, run:
+
+```shell
+juju -m <charmed_spark_juju_model> set-model-constraints arch=arm64
+```
+
+All Juju applications to be deployed on said model will then use the constraint.
+To apply the constraint to a single charm, run:
+
+```shell
+juju deploy -m <charmed_spark_juju_model> kyuubi-k8s --trust --channel=3.5/edge --constraints arch=arm64
+```
+
+One Juju model of multiple applications can be deployed over different architectures.
+
+```{note}
+You may check if a charm supports a specific architecture on [Charmhub](https://charmhub.io/).
+```
+
+TODO: mention tags, juju-system workloads, 2-step deployment with namespace node affinity operator.

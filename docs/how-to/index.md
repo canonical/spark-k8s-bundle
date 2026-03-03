@@ -79,6 +79,6 @@ spark-history-server/index
 Use K8s pods<use-k8s-pods.md>
 Streaming Jobs<streaming-jobs.md>
 Use GPU<use-gpu.md>
-advanced-scheduling/index
+Advanced Scheduling<advanced-scheduling.md>
 Self-signed certificates<self-signed-certificates.md>
 ```
