@@ -44,10 +44,10 @@ kubectl describe node <node_name>
 
 to verify that taints and labels were properly applied to the node.
 
-This guide will demonstrate how to allow pod to be scheduled on tainted nodes and how to assign them to those nodes, ensuring that Spark pods:
+This guide will demonstrate how to allow pod to be scheduled on tainted nodes and how to assign them to those nodes, ensuring that:
 
-- are scheduled on the nodes dedicated to running user workloads
-- are the only pods being scheduled there (unless another resource use the same toleration)
+- Spark driver and executor pods are scheduled on the nodes dedicated to running user workloads
+- Charmed Apache Spark components are scheduled on control-plane nodes
 
 ## Scheduling jobs
 
@@ -102,7 +102,7 @@ You may save this file under `namespaces_settings.yaml` and configure the charm 
 juju config namespace-node-affinity settings_yaml="$(<namespaces_settings.yaml)"
 ```
 
-This is it, you may now run a Spark job using the `spark-client` and see that the driver and executor pods are scheduled on the node(s) with the matching label, while the taint prevents other workloads from being scheduled there.
+This is it, you may now run a Spark job using the `spark-client` snap and see that the driver and executor pods are scheduled on the node(s) with the matching label, while the taint prevents other workloads from being scheduled there.
 
 ```shell
 spark-client.spark-submit \
@@ -166,7 +166,7 @@ spark-client.spark-submit \
     ...
 ```
 
-You may omit one of the two properties, or point to a different file to schedule driver and executors pods differently.
+You may omit one of the two Spark properties above, or point to a different file in each property to schedule driver and executors pods differently.
 
 Pod templates can also be used to schedule pods on specific architecture.
 The example below will schedule the driver and/or executors pods (depending on the Spark property used) only on `arm64` nodes.
@@ -203,7 +203,7 @@ To apply the constraint to a single charm, run:
 juju deploy -m <charmed_spark_juju_model> kyuubi-k8s --trust --channel=3.5/edge --constraints="arch=arm64"
 ```
 
-One Juju model of multiple applications can be deployed over different architectures.
+A single Juju model can contains applications deployed over different architectures.
 
 ```{note}
 You may check if a charm supports a specific architecture on [Charmhub](https://charmhub.io/).
@@ -220,7 +220,7 @@ juju deploy -m <charmed_spark_juju_model> kyuubi-k8s --constraints "tags=<label_
 
 results in a pod with a `nodeSelector` expression similar to what we did in the previous sections for the Spark jobs.
 
-This mechanism can be used to improve availability.
+The same mechanism can be used to improve service availability.
 To deploy three units of the Charmed Apache Kyuubi charm on three distinct nodes of a cluster, run:
 
 ```shell
