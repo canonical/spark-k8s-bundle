@@ -139,13 +139,16 @@ IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
 sudo microk8s enable metallb:$IPADDR-$IPADDR
 ```
 
+<!-- 
 ```{note}
 The command above configures MetalLB with a single IP address.
 This is sufficient for basic usage, but the full tutorial deploys two separate Traefik ingress controllers (one for History Server, one for COS) each of which requires its own `LoadBalancer` IP.
 If you intend to follow the complete tutorial through Step 5, configure a small IP range instead:
 
-```bash
+````bash
 sudo microk8s enable metallb:$IPADDR-$(python3 -c "import ipaddress; print(ipaddress.ip_address('$IPADDR') + 3)")
+````
+
 ```
 
 Alternatively, if you already enabled MetalLB with a single IP and encounter a Traefik `blocked` unit with the message "Traefik load balancer is unable to obtain an IP", expand the pool by running:
@@ -155,6 +158,7 @@ kubectl patch ipaddresspool -n metallb-system default-addresspool \
   --type='json' \
   -p='[{"op": "replace", "path": "/spec/addresses", "value": ["'$IPADDR'-$(python3 -c "import ipaddress; print(ipaddress.ip_address('$IPADDR') + 3)")'"]}]'
 ```
+-->
 
 Wait for the commands to finish running and check the list of enabled add-ons:
 
@@ -249,12 +253,12 @@ Welcome to
       ____              __
      / __/__  ___ _____/ /__
     _\ \/ _ \/ _ `/ __/  '_/
-   /__ / .__/\_,_/_/ /_/\_\   version 3.4.2
+   /__ / .__/\_,_/_/ /_/\_\   version 3.4.4
       /_/
 
-Using Python version 3.10.12 (main, Jan 17 2025 14:35:34)
-Spark context Web UI available at http://10.181.60.136:4040
-Spark context available as 'sc' (master = k8s://https://10.181.60.136:16443, app id = spark-627fb48be4da4315b3716e71a7613baf).
+Using Python version 3.10.12 (main, Jan  8 2026 06:52:19)
+Spark context Web UI available at http://10.189.154.233:4040
+Spark context available as 'sc' (master = k8s://https://10.189.154.233:16443, app id = spark-cf06b03549f54011a0ab612df8be335e).
 SparkSession available as 'spark'.
 >>> 
 ```
@@ -281,6 +285,7 @@ Juju can automatically detects all available clouds on our local machine (VM) wi
 You can verify this by running `juju clouds` command that should produce an output similar to the following:
 
 ```text
+Since Juju 3 is being run for the first time, it has downloaded the latest public cloud information.
 Only clouds with registered credentials are shown.
 There are more clouds, use --all to see them.
 You can bootstrap a new controller using one of these clouds...
@@ -305,7 +310,7 @@ The output of the command should be similar to:
 Use --refresh option with this command to see the latest information.
 
 Controller       Model  User   Access     Cloud/Region        Models  Nodes  HA  Version
-spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   -  3.6.5
+spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   -  3.6.14  
 ```
 
 The Juju setup is complete.
@@ -477,10 +482,6 @@ juju deploy s3-integrator --channel 1/stable
 juju config s3-integrator bucket=spark-tutorial path=spark-events endpoint=http://$S3_ENDPOINT
 ```
 
-```{note}
-The `path=spark-events` argument is required. Without it the Integration Hub charm will fail with a `KeyError: 'path'` error once the relation is established.
-```
-
 The `s3-integrator` will remain in `blocked` state until S3 credentials are provided. Set the credentials first, then integrate:
 
 ```bash
@@ -492,7 +493,7 @@ juju integrate s3-integrator spark-integration-hub-k8s
 Wait for both charms to reach `active/idle` status:
 
 ```bash
-watch -c juju status --color
+watch juju status --color
 ```
 
 Verify that the Integration Hub has automatically updated the `spark` service account:
@@ -507,22 +508,11 @@ now maintained by the Integration Hub.
 From this point on, any service account you create with `spark-client` will receive
 the S3 credentials automatically.
 
-```{note}
-When `path=spark-events` is configured on `s3-integrator`, the Integration Hub automatically pushes
-additional Spark properties to every managed service account, including:
-
-* `spark.eventLog.enabled=true`
-* `spark.eventLog.dir=s3a://spark-tutorial/spark-events`
-* `spark.sql.warehouse.dir=s3a://spark-tutorial/warehouse`
-
-This means Spark jobs will attempt to write event logs and warehouse data to S3.
-Both directories must exist before any Spark job is submitted, otherwise the job will fail.
-Create them now:
+Create the `spark-events` and `warehouse` directories in S3:
 
 ```bash
 aws s3api put-object --bucket spark-tutorial --key spark-events/
 aws s3api put-object --bucket spark-tutorial --key warehouse/
-```
 ```
 
 ## (Optional) Create a snapshot
