@@ -79,6 +79,7 @@ tex
 texlive
 TOC
 toctree
+tolerations
 txt
 uncommenting
 URL
