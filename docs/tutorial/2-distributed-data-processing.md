@@ -317,4 +317,3 @@ The result should look similar to the following:
 ```
 
 By default, Apache Spark stores the logs of drivers and executors as pod logs in the local file systems, which are lost once the pods are deleted. Apache Spark can store these logs in a persistent object storage system, like S3, so that they can later be retrieved and visualized by a component called Spark History Server.
-

@@ -169,9 +169,9 @@ Integrate the cos-configration-k8s charm to import the grafana dashboard:
 juju integrate cos-configuration-k8s grafana
 ```
 
-Once deployed and integrated, we can check the status of the juju model with the command `juju status --relations`, which should be similar to the following:
+Once deployed and integrated, we can check the status of the Juju model with the command `juju status --relations`, which should be similar to the following:
 
-```
+```text
 Model  Controller  Cloud/Region        Version  SLA          Timestamp
 cos    k8s         microk8s/localhost  3.1.7    unsupported  17:44:56+05:45
 
@@ -267,4 +267,3 @@ This is the dashboard we configured earlier with `cos-configuration-k8s` charm:
 ![spark_dashboard](https://assets.ubuntu.com/v1/cf80fe96-spark_dashboard.png)
 
 Play around the dashboard and observe the various metrics like Block Manager memory, JVM Executor Memory, etc.
-

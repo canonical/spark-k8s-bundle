@@ -170,4 +170,3 @@ When you click on the application ID, you can see the event timeline for the par
 In a similar way, you can view information about various stages in the job by navigating to the "Stages" menu. The values of the different properties used to run the job can be viewed on the "Environment" page. Finally, you can also view statistics about the individual executors on the "Executors" page. 
 
 Try submitting more jobs and view their statuses and logs.
-
