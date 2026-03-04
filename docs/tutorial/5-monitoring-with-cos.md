@@ -156,7 +156,6 @@ For this tutorial, we are going to use a [basic Grafana dashboard](https://githu
 Deploy the [cos-configuration-k8s](https://github.com/canonical/cos-configuration-k8s-operator) charm for importing the grafana dashboard:
 
 ```bash
-
 juju deploy cos-configuration-k8s \
   --config git_repo=https://github.com/canonical/charmed-spark-rock \
   --config git_branch=dashboard-hackaton \
