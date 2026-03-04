@@ -517,17 +517,17 @@ aws s3api put-object --bucket spark-tutorial --key warehouse/
 
 ## (Optional) Create a snapshot
 
-At this stage, you may want to create a [snapshot](https://documentation.ubuntu.com/multipass/en/latest/reference/command-line-interface/snapshot/#snapshot) of the current state, for which you need to stop the Multipass VM:
+At this stage, you may want to create a [snapshot](https://documentation.ubuntu.com/multipass/en/latest/reference/command-line-interface/snapshot/#snapshot) of the current state, for which you need to stop the Multipass VM. Exit the VM by pressing `CTRL + D` and stop it:
 
 ```bash
 multipass stop spark-tutorial
-multipass snapshot spark-tutorial -n env-setup
 ```
 
-This creates a snapshot name `env-setup` that we can use later to reset the environment. We will use it later for the Charmed Apache Kyuubi K8s deployment.
+Create a snapshot name `env-setup`.
+We will use it later to reset the environment for the Charmed Apache Kyuubi K8s deployment:
 
-```{note}
-Restarting the VM means that you might need to reset the environment variables exported earlier.
+```bash
+multipass snapshot spark-tutorial -n env-setup
 ```
 
 Before continuing with this tutorial, make sure to start the VM again:
@@ -536,3 +536,12 @@ Before continuing with this tutorial, make sure to start the VM again:
 multipass start spark-tutorial
 ```
 
+Restarting the VM means that you need to re-export the environment variables set earlier in this tutorial:
+
+```bash
+multipass shell spark-tutorial
+export ACCESS_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d)
+export SECRET_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d)
+export S3_ENDPOINT=$(kubectl get service minio -n minio-operator -o jsonpath='{.spec.clusterIP}')
+export S3_BUCKET="spark-tutorial"
+```
