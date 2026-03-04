@@ -98,7 +98,7 @@ Once the integration is complete, `juju status` should display something similar
 
 ```text
 Model            Controller      Cloud/Region        Version  SLA          Timestamp
-spark-streaming  spark-tutorial  microk8s/localhost  3.6.4    unsupported  10:17:32Z
+spark-streaming  spark-tutorial  microk8s/localhost  3.6.14   unsupported  10:17:32Z
 
 App             Version  Status  Scale  Charm           Channel       Rev  Address         Exposed  Message
 kafka-k8s                active      1  kafka-k8s       3/stable      47  10.152.183.242   no       
@@ -351,4 +351,4 @@ If you observe carefully, you can see that new logs are appended roughly every t
 
 ```text
 ...
-2025-04-08T10:00:38.367Z [sparkd] Batch: 5
+2026-03-04T10:00:38.367Z [sparkd] Batch: 5

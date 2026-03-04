@@ -26,10 +26,10 @@ Welcome to
       ____              __
      / __/__  ___ _____/ /__
     _\ \/ _ \/ _ `/ __/  '_/
-   /__ / .__/\_,_/_/ /_/\_\   version 3.4.2
+   /__ / .__/\_,_/_/ /_/\_\   version 3.4.4
       /_/
 
-Using Python version 3.10.12 (main, Jan 17 2025 14:35:34)
+Using Python version 3.10.12 (main, Jan  8 2026 06:52:19)
 Spark context Web UI available at http://10.181.60.89:4040
 Spark context available as 'sc' (master = k8s://https://10.181.60.89:16443, app id = spark-79ab7a21242c4a81bc88c1f71348c102).
 SparkSession available as 'spark'.
@@ -313,7 +313,7 @@ kubectl logs $pod_name -n spark | grep "Number of tweets containing Ubuntu:"
 The result should look similar to the following:
 
 ```text
-2025-04-07T11:32:44.872Z [sparkd] Number of tweets containing Ubuntu: 54
+2026-03-04T11:32:44.872Z [sparkd] Number of tweets containing Ubuntu: 54
 ```
 
 By default, Apache Spark stores the logs of drivers and executors as pod logs in the local file systems, which are lost once the pods are deleted. Apache Spark can store these logs in a persistent object storage system, like S3, so that they can later be retrieved and visualized by a component called Spark History Server.

@@ -230,7 +230,7 @@ spark     0         2m49s
 
 kubectl get roles -n spark
 NAME         CREATED AT
-spark-role   2025-04-16T09:13:00Z
+spark-role   2026-03-04T09:13:00Z
 
 kubectl get rolebindings -n spark
 NAME                 ROLE              AGE
@@ -443,7 +443,7 @@ items:
     spark.hadoop.fs.s3a.secret.key: MTlBaVdWZENxMWZ1dHBYeUM0bmRSTlJ0M3Fid3ZydXFHdGZNNjl4ZA==
   kind: Secret
   metadata:
-    creationTimestamp: "2025-04-16T09:13:00Z"
+    creationTimestamp: "2026-03-04T09:13:00Z"
     name: spark8t-sa-conf-spark
     namespace: spark
     resourceVersion: "5555"

@@ -112,7 +112,7 @@ Wait until the status to be active for each charm:
 
 ```text
 Model              Controller  Cloud/Region        Version  SLA          Timestamp
-datalake           microk8s    microk8s/localhost  3.6.8    unsupported  16:43:19+02:00
+datalake           microk8s    microk8s/localhost  3.6.14   unsupported  16:43:19+02:00
 
 App              Version  Status  Scale  Charm           Channel        Rev  Address         Exposed  Message
 auth-db          14.15    active      1  postgresql-k8s  14/stable      495  10.152.183.19   no
