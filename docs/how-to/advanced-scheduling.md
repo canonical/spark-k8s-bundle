@@ -49,7 +49,9 @@ This guide will demonstrate how to allow pod to be scheduled on tainted nodes an
 - are scheduled on the nodes dedicated to running user workloads
 - are the only pods being scheduled there (unless another resource use the same toleration)
 
-## Scheduling jobs: deploying the Namespace Node Affinity Operator (recommended)
+## Scheduling jobs
+
+### Deploying the Namespace Node Affinity Operator (recommended)
 
 Charmed Apache Spark can be configured to schedule driver and executor pod on specific nodes.
 This section details how to set up and configure the advanced scheduling of Spark jobs to mutually segregate control-plane workloads from user workloads and allocate pods on mixed architectures clusters.
@@ -133,7 +135,7 @@ To restrict Spark jobs in `namespace_1` to only run on `arm64` nodes, use the fo
 Charmed Apache Spark provides multi-architecture rock images supporting amd64 and arm64.
 ```
 
-## Scheduling jobs: Defining a Pod template (alternative)
+### Defining a Pod template (alternative)
 
 While we recommend using Namespace Node Affinity Operator for common scenarios, one downside is that it cannot discriminate between driver and executor pods, should they have different hardware needs or resource quotas.
 [Enabling GPU acceleration](how-to-use-gpu) presents such a case, where we do not want to reserve costly resources for driver pods if they do not need it.\
@@ -186,8 +188,6 @@ Please note that the template files must be accessible from the 'spark-submit' c
 ## Scheduling Charmed Apache Spark components
 
 While the two previous sections already take care of segregating control-plane workloads from user-driven workloads, this guide details a few strategies on how to also separate the Charmed Apache Spark component from third party workloads (neither Charmed Apache Spark nor the Spark jobs) and take advantage of specific architectures.
-
-### Constraints
 
 To target a specific architecture, a Juju constraint can be applied to the Charmed Apache Spark model itself, or to each individual charm.
 To apply the constraint to the model, run:
