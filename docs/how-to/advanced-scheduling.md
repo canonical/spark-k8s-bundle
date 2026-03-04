@@ -44,7 +44,7 @@ kubectl describe node <node_name>
 
 to verify that taints and labels were properly applied to the node.
 
-This guide will demonstrate how to allow pod to be scheduled on tainted nodes and how to assign them to those nodes, ensuring that:
+This guide will demonstrate how to allow pods to be scheduled on tainted nodes and how to assign them to those nodes, ensuring that:
 
 - Spark driver and executor pods are scheduled on the nodes dedicated to running user workloads
 - Charmed Apache Spark components are scheduled on control-plane nodes
@@ -203,7 +203,7 @@ To apply the constraint to a single charm, run:
 juju deploy -m <charmed_spark_juju_model> kyuubi-k8s --trust --channel=3.5/edge --constraints="arch=arm64"
 ```
 
-A single Juju model can contains applications deployed over different architectures.
+A single Juju model can contain applications deployed over different architectures.
 
 ```{note}
 You may check if a charm supports a specific architecture on [Charmhub](https://charmhub.io/).
