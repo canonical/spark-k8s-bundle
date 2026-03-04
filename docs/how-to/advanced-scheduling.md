@@ -32,7 +32,17 @@ Tainting a node is achieved using the following:
 kubectl taint nodes <node_name> <key>=<value>:<effect>
 ```
 
-Finally, you may use `kubectl describe node <node_name>` to verify that taints and labels were properly applied to the node.
+```{note}
+We recommend exclusively using `NoSchedule` effects rather than `NoExecute` to avoid disrupting pre-existing workloads.
+```
+
+Finally, you may use
+
+```shell
+kubectl describe node <node_name>
+```
+
+to verify that taints and labels were properly applied to the node.
 
 This guide will demonstrate how to allow pod to be scheduled on tainted nodes and how to assign them to those nodes, ensuring that Spark pods:
 
@@ -65,7 +75,7 @@ Note that those namespaces need to exist before you label them.
 ```
 
 Then, you must also pass the WebHook configuration to be applied to the pods.
-The example below will apply a `nodeSelector` to the pods in the namespace to assign them to a node with the matching label and a toleration to allow them to run on said tainted node.
+The example below will apply a `nodeSelector` to the pods in the namespace to assign them to a node with the matching label and a toleration to run on said tainted node.
 
 ```yaml
 <namespace_1>: |
@@ -90,7 +100,14 @@ You may save this file under `namespaces_settings.yaml` and configure the charm 
 juju config namespace-node-affinity settings_yaml="$(<namespaces_settings.yaml)"
 ```
 
-This is it, you may now run a Spark job and see that the driver and executor pods are scheduled on the node(s) with the matching label, while the taint prevents other workloads from being scheduled there.
+This is it, you may now run a Spark job using the `spark-client` and see that the driver and executor pods are scheduled on the node(s) with the matching label, while the taint prevents other workloads from being scheduled there.
+
+```shell
+spark-client.spark-submit \
+    --username <service_account> --namespace <namespace_1> \
+    ...
+```
+
 You can verify that the Spark job pods are scheduled on the right node(s) by running:
 
 ```shell
@@ -170,6 +187,8 @@ Please note that the template files must be accessible from the 'spark-submit' c
 
 While the two previous sections already take care of segregating control-plane workloads from user-driven workloads, this guide details a few strategies on how to also separate the Charmed Apache Spark component from third party workloads (neither Charmed Apache Spark nor the Spark jobs) and take advantage of specific architectures.
 
+### Constraints
+
 To target a specific architecture, a Juju constraint can be applied to the Charmed Apache Spark model itself, or to each individual charm.
 To apply the constraint to the model, run:
 
@@ -181,7 +200,7 @@ All Juju applications to be deployed on said model will then use the constraint.
 To apply the constraint to a single charm, run:
 
 ```shell
-juju deploy -m <charmed_spark_juju_model> kyuubi-k8s --trust --channel=3.5/edge --constraints arch=arm64
+juju deploy -m <charmed_spark_juju_model> kyuubi-k8s --trust --channel=3.5/edge --constraints="arch=arm64"
 ```
 
 One Juju model of multiple applications can be deployed over different architectures.
@@ -190,4 +209,45 @@ One Juju model of multiple applications can be deployed over different architect
 You may check if a charm supports a specific architecture on [Charmhub](https://charmhub.io/).
 ```
 
-TODO: mention tags, juju-system workloads, 2-step deployment with namespace node affinity operator.
+Constraints tags may also be used to set affinity/anti-affinity of the charms' pods.
+Please note that they are no native Juju mechanisms for setting tolerations, so the deployments examples here are limited to **untainted** nodes.
+
+The following command:
+
+```shell
+juju deploy -m <charmed_spark_juju_model> kyuubi-k8s --constraints "tags=<label_key>=<label_value>"
+```
+
+results in a pod with a `nodeSelector` expression similar to what we did in the previous sections for the Spark jobs.
+
+This mechanism can be used to improve availability.
+To deploy three units of the Charmed Apache Kyuubi charm on three distinct nodes of a cluster, run:
+
+```shell
+export APP_NAME="kyuubi"
+juju deploy -m <charmed_spark_juju_model> kyuubi-k8s $APP_NAME -n 3 \
+ --constraints="tags=anti-pod.app.kubernetes.io/name=${APP_NAME},anti-pod.topology-key=kubernetes.io/hostname"
+```
+
+You may check with `kubectl get pod kyuubi-0 -n <charmed_spark_juju_model> -o yaml` that the proper anti-affinity rule was applied to the pod:
+
+```yaml
+...
+spec:
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - kyuubi
+          topologyKey: kubernetes.io/hostname
+...
+```
+
+```{warning}
+It is not possible to deploy a single charm on heterogeneous architectures.
+All units must be deployed on nodes of the same architecture.
+```
