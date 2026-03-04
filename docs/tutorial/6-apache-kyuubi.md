@@ -53,7 +53,7 @@ The output should contain the `spark-events` directory.
 
 Rather than deploying a fresh Integration Hub, we can reuse the one we already set up in the environment setup step.
 The Integration Hub lives in the `spark-integration-hub` Juju model; Kyuubi lives in `datalake`.
-Juju's [cross-model relations](https://juju.is/docs/juju/cross-model-integration) let charms in different models communicate by *offering* an endpoint from one model and *consuming* it from another.
+Juju's [cross-model relations](https://documentation.ubuntu.com/juju/3.6/reference/relation/#cross-model-relation) let charms in different models communicate by *offering* an endpoint from one model and *consuming* it from another.
 
 First, switch to the `spark-integration-hub` model and offer the Integration Hub's `spark-service-account` endpoint:
 
