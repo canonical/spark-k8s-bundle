@@ -434,7 +434,57 @@ metadata:
 
 </details>
 
-With that, the tutorial’s environment setup is complete!
+With that, the basic environment setup is complete!
+
+## Integration Hub
+
+Throughout this tutorial you will create service accounts in several Kubernetes namespaces.
+Running `add-config` to push S3 credentials to every new account manually would quickly become repetitive.
+The [Integration Hub for Apache Spark](https://charmhub.io/spark-integration-hub-k8s) automates this:
+once deployed and integrated with an S3-compatible storage, it automatically pushes the storage credentials
+to every service account that is managed by `spark-client` — including accounts created in the future.
+
+Let's deploy it now so that service accounts we create in later steps receive S3 credentials automatically.
+
+Create a dedicated Juju model for the Integration Hub:
+
+```bash
+juju add-model spark-integration-hub
+```
+
+Deploy the Integration Hub charm and an `s3-integrator` charm to supply it with the storage configuration:
+
+```bash
+juju deploy spark-integration-hub-k8s --channel 3/stable --trust
+juju deploy s3-integrator --channel 1/stable
+juju config s3-integrator bucket=spark-tutorial endpoint=http://$S3_ENDPOINT
+```
+
+Wait for both charms to reach `active/idle` status:
+
+```bash
+watch -c juju status --color
+```
+
+Once active, set the S3 credentials and integrate the two charms:
+
+```bash
+juju run s3-integrator/leader sync-s3-credentials \
+  access-key=$ACCESS_KEY secret-key=$SECRET_KEY
+juju integrate s3-integrator spark-integration-hub-k8s
+```
+
+Verify that the Integration Hub has automatically updated the `spark` service account:
+
+```bash
+spark-client.service-account-registry get-config \
+  --username spark --namespace spark
+```
+
+The output should include the same S3 configuration properties we set up manually earlier,
+now maintained by the Integration Hub.
+From this point on, any service account you create with `spark-client` will receive
+the S3 credentials automatically.
 
 ## (Optional) Create a snapshot
 

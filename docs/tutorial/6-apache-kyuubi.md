@@ -69,7 +69,10 @@ juju config s3-integrator bucket=spark-tutorial path="spark-events" endpoint=htt
 juju run s3-integrator/0 sync-s3-credentials access-key=$ACCESS_KEY secret-key=$SECRET_KEY
 ```
 
-We will deploy the [Spark Integration Hub K8s charm](https://charmhub.io/spark-integration-hub-k8s) to manage integrations and configure service accounts on Kubernetes.
+We will deploy a new instance of the [Spark Integration Hub K8s charm](https://charmhub.io/spark-integration-hub-k8s)
+in this model to manage integrations and configure service accounts for the Kyuubi deployment.
+This is the same pattern you used in the environment setup step, but here the Integration Hub
+is dedicated to the `datalake` model and integrated with its own `s3-integrator`.
 
 To deploy it and integrate with the object storage integrator charm:
 

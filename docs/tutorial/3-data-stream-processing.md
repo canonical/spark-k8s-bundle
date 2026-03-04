@@ -25,23 +25,22 @@ When you add a Juju model, a Kubernetes namespace of the same name is created au
 You can verify that by running `kubectl get namespaces` - you should see a namespace called `spark-streaming`.
 
 The service account `spark` that we created in the earlier section is in the `spark` namespace.
-Let's create a similar service account but now in the `spark-streaming` namespace.
-We can copy the existing config options from the old service account into the new service account.
-
-Get config from the old service account in the `spark` namespace and store it in a file:
-
-```shell
-spark-client.service-account-registry get-config \
-  --username spark --namespace spark > properties.conf
-```
-
-Create a new service account with the same name by in the `spark-streaming` namespace and load configurations from the file:
+Let's create a service account with the same name in the `spark-streaming` namespace:
 
 ```shell
 spark-client.service-account-registry create \
-  --username spark --namespace spark-streaming \
-  --properties-file properties.conf
+  --username spark --namespace spark-streaming
 ```
+
+The Integration Hub we deployed in the environment setup step will automatically push the S3 credentials
+to this new service account. Verify this before continuing:
+
+```shell
+spark-client.service-account-registry get-config \
+  --username spark --namespace spark-streaming
+```
+
+You should see the S3 configuration properties in the output.
 
 Now, let's create a minimal Apache Kafka and Apache ZooKeeper setup.
 This can be done quickly and easily using the [`zookeeper-k8s`](https://github.com/canonical/zookeeper-k8s-operator) and [`kafka-k8s`](https://charmhub.io/kafka-k8s) charms.

@@ -32,31 +32,29 @@ juju add-model history-server
 
 To enable monitoring via the Apache Spark History Server, we must first create a service account with the necessary configuration for Spark jobs to be able to store logs in an S3 bucket. We then need to deploy the History Server with Juju and configure it to read from the same S3 bucket that our Spark jobs write logs to.
 
-Since Juju has already created the namespace `history-server`, when we added the model with that name, let's create a new service account in this namespace. 
-We'll reuse the configuration options from the existing `spark` service account and add a few more configuration parameters in order to tell Apache Spark where to store and retrieve the logs.
+Since Juju has already created the namespace `history-server`, when we added the model with that name, let's create a new service account in this namespace.
+We need to configure it to write and read event logs from S3, in addition to the S3 credentials
+that the Integration Hub will supply automatically.
 
-First, get config from the old service account (in the `spark` namespace) and store it in a file:
-
-```bash
-spark-client.service-account-registry get-config \
-  --username spark --namespace spark > properties.conf
-```
-
-Add a few more configuration options for the storage of event logs:
-
-```bash
-echo "spark.eventLog.enabled=true" >> properties.conf
-echo "spark.eventLog.dir=s3a://spark-tutorial/spark-events/" >> properties.conf
-echo "spark.history.fs.logDirectory=s3a://spark-tutorial/spark-events/" >> properties.conf
-```
-
-Create a new service account (in the `history-server` namespace) and load configurations from the file:
+Create the service account:
 
 ```bash
 spark-client.service-account-registry create \
-  --username spark --namespace history-server \
-  --properties-file properties.conf
+  --username spark --namespace history-server
 ```
+
+Add the event logging configuration:
+
+```bash
+spark-client.service-account-registry add-config \
+  --username spark --namespace history-server \
+  --conf spark.eventLog.enabled=true \
+  --conf spark.eventLog.dir=s3a://spark-tutorial/spark-events/ \
+  --conf spark.history.fs.logDirectory=s3a://spark-tutorial/spark-events/
+```
+
+The Integration Hub automatically provides the S3 credentials, so you only need to add
+the event-logging properties on top of that.
 
 We've configured Apache Spark to write logs to the `spark-events` path in the `spark-tutorial` bucket.
 Now let's create that directory in S3, since it doesn't exist yet:

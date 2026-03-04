@@ -118,21 +118,15 @@ export PROMETHEUS_GATEWAY=$(juju status --format=json | jq -r '.applications."pr
 export PROMETHEUS_PORT=9091
 ```
 
-Now that we have the Prometheus gateway IP address and port, let's create a new service account in the `cos` namespace with all the configuration options that the `spark` service account in the `spark` namespace has, plus a few additional configuration options related to the Prometheus Pushgateway:
+Now that we have the Prometheus gateway IP address and port, let's create a new service account in the `cos` namespace.
+The Integration Hub will automatically supply the S3 credentials, so we only need to add
+the Prometheus-specific configuration on top:
 
-Get config from old service account and store in a file:
-
-```shell
-spark-client.service-account-registry get-config \
-  --username spark --namespace spark > properties.conf
-```
-
-Create a new service account and load configurations from the file:
+Create the service account:
 
 ```shell
 spark-client.service-account-registry create \
-  --username spark --namespace cos \
-  --properties-file properties.conf
+  --username spark --namespace cos
 ```
 
 Add configuration options related to Prometheus:
