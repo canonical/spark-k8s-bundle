@@ -57,7 +57,8 @@ The Integration Hub automatically provides the S3 credentials, so you only need 
 the event-logging properties on top of that.
 
 We've configured Apache Spark to write logs to the `spark-events` path in the `spark-tutorial` bucket.
-Now let's create that directory in S3, since it doesn't exist yet:
+If you followed the environment setup step, this directory was already created there.
+If not, create it now:
 
 ```bash
 aws s3api put-object --bucket spark-tutorial --key spark-events/

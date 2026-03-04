@@ -299,7 +299,7 @@ Save the Python code above in a file named `spark_streaming.py`.
 Copy this file from the Host machine to the VM:
 
 ```bash
-multipass transfer spark_streaming.py spark-tutorial-4:spark_streaming.py
+multipass transfer spark_streaming.py spark-tutorial:spark_streaming.py
 ```
 
 Then, from the VM, copy it to the S3:

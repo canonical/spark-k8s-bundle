@@ -106,7 +106,7 @@ The Prometheus Pushgateway in turn will then be integrated with Prometheus.
 Let's deploy the `prometheus-pushgateway-k8s` charm and integrate it with the `prometheus` charm:
 
 ```shell
-juju deploy prometheus-pushgateway-k8s --channel edge
+juju deploy prometheus-pushgateway-k8s --channel 1/stable
 juju integrate prometheus-pushgateway-k8s prometheus
 ```
 
@@ -159,7 +159,7 @@ Deploy the [cos-configuration-k8s](https://github.com/canonical/cos-configuratio
 
 juju deploy cos-configuration-k8s \
   --config git_repo=https://github.com/canonical/charmed-spark-rock \
-  --config git_branch=dashboard \
+  --config git_branch=dashboard-hackaton \
   --config git_depth=1 \
   --config grafana_dashboards_path=dashboards/prod/grafana/
 ```
@@ -232,13 +232,13 @@ traefik:traefik-route                         grafana:ingress                   
 
 ## Try dashboard
 
-Now that we have the observability stack up and running, let's run a simple Spark job so that the metric logs are pushed to the Prometheus gateway. For simplicity, we're going to use the same `count_ubuntu.py` script that we prepared in the earlier steps of this tutorial:
+Now that we have the observability stack up and running, let's run a simple Spark job so that the metric logs are pushed to the Prometheus gateway. For simplicity, we're going to use the same `count-ubuntu.py` script that we prepared in the earlier steps of this tutorial:
 
 ```bash
 spark-client.spark-submit \
     --username spark --namespace cos \
     --deploy-mode cluster \
-    s3a://spark-tutorial/count_ubuntu.py
+    s3a://spark-tutorial/count-ubuntu.py
 ```
 
 Once the job is completed, let's try to open the Grafana web UI and see some metrics. 

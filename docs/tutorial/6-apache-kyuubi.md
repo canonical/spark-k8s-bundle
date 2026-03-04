@@ -55,17 +55,17 @@ Rather than deploying a fresh Integration Hub, we can reuse the one we already s
 The Integration Hub lives in the `spark-integration-hub` Juju model; Kyuubi lives in `datalake`.
 Juju's [cross-model relations](https://juju.is/docs/juju/cross-model-integration) let charms in different models communicate by *offering* an endpoint from one model and *consuming* it from another.
 
-First, switch to the `spark-integration-hub` model and offer the Integration Hub's `spark-configurations` endpoint:
+First, switch to the `spark-integration-hub` model and offer the Integration Hub's `spark-service-account` endpoint:
 
 ```shell
 juju switch spark-integration-hub
-juju offer spark-integration-hub-k8s:spark-configurations
+juju offer spark-integration-hub-k8s:spark-service-account
 ```
 
 Juju confirms the offer with output similar to:
 
 ```text
-Application "spark-integration-hub-k8s" endpoints [spark-configurations] available at "admin/spark-integration-hub.spark-integration-hub-k8s"
+Application "spark-integration-hub-k8s" endpoints [spark-service-account] available at "admin/spark-integration-hub.spark-integration-hub-k8s"
 ```
 
 Now switch back to the `datalake` model and consume that offer, giving it the local alias `integration-hub`:

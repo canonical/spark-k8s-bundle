@@ -139,6 +139,23 @@ IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
 sudo microk8s enable metallb:$IPADDR-$IPADDR
 ```
 
+```{note}
+The command above configures MetalLB with a single IP address.
+This is sufficient for basic usage, but the full tutorial deploys two separate Traefik ingress controllers (one for History Server, one for COS) each of which requires its own `LoadBalancer` IP.
+If you intend to follow the complete tutorial through Step 5, configure a small IP range instead:
+
+```bash
+sudo microk8s enable metallb:$IPADDR-$(python3 -c "import ipaddress; print(ipaddress.ip_address('$IPADDR') + 3)")
+```
+
+Alternatively, if you already enabled MetalLB with a single IP and encounter a Traefik `blocked` unit with the message "Traefik load balancer is unable to obtain an IP", expand the pool by running:
+
+```bash
+kubectl patch ipaddresspool -n metallb-system default-addresspool \
+  --type='json' \
+  -p='[{"op": "replace", "path": "/spec/addresses", "value": ["'$IPADDR'-$(python3 -c "import ipaddress; print(ipaddress.ip_address('$IPADDR') + 3)")'"]}]'
+```
+
 Wait for the commands to finish running and check the list of enabled add-ons:
 
 ```bash
@@ -457,21 +474,25 @@ Deploy the Integration Hub charm and an `s3-integrator` charm to supply it with 
 ```bash
 juju deploy spark-integration-hub-k8s --channel 3/stable --trust
 juju deploy s3-integrator --channel 1/stable
-juju config s3-integrator bucket=spark-tutorial endpoint=http://$S3_ENDPOINT
+juju config s3-integrator bucket=spark-tutorial path=spark-events endpoint=http://$S3_ENDPOINT
+```
+
+```{note}
+The `path=spark-events` argument is required. Without it the Integration Hub charm will fail with a `KeyError: 'path'` error once the relation is established.
+```
+
+The `s3-integrator` will remain in `blocked` state until S3 credentials are provided. Set the credentials first, then integrate:
+
+```bash
+juju run s3-integrator/leader sync-s3-credentials \
+  access-key=$ACCESS_KEY secret-key=$SECRET_KEY
+juju integrate s3-integrator spark-integration-hub-k8s
 ```
 
 Wait for both charms to reach `active/idle` status:
 
 ```bash
 watch -c juju status --color
-```
-
-Once active, set the S3 credentials and integrate the two charms:
-
-```bash
-juju run s3-integrator/leader sync-s3-credentials \
-  access-key=$ACCESS_KEY secret-key=$SECRET_KEY
-juju integrate s3-integrator spark-integration-hub-k8s
 ```
 
 Verify that the Integration Hub has automatically updated the `spark` service account:
@@ -485,6 +506,24 @@ The output should include the same S3 configuration properties we set up manuall
 now maintained by the Integration Hub.
 From this point on, any service account you create with `spark-client` will receive
 the S3 credentials automatically.
+
+```{note}
+When `path=spark-events` is configured on `s3-integrator`, the Integration Hub automatically pushes
+additional Spark properties to every managed service account, including:
+
+* `spark.eventLog.enabled=true`
+* `spark.eventLog.dir=s3a://spark-tutorial/spark-events`
+* `spark.sql.warehouse.dir=s3a://spark-tutorial/warehouse`
+
+This means Spark jobs will attempt to write event logs and warehouse data to S3.
+Both directories must exist before any Spark job is submitted, otherwise the job will fail.
+Create them now:
+
+```bash
+aws s3api put-object --bucket spark-tutorial --key spark-events/
+aws s3api put-object --bucket spark-tutorial --key warehouse/
+```
+```
 
 ## (Optional) Create a snapshot
 
