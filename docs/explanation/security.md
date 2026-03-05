@@ -80,7 +80,7 @@ Charmed Apache Spark K8s runs on top of a set of Rockcraft-based images, all bas
 available in the [Apache Spark release page](https://launchpad.net/spark-releases), on top of Ubuntu 22.04.
 The images that can be found in the [Charmed Apache Spark rock images GitHub repository](https://github.com/canonical/charmed-spark-rock) are used as the base 
 images for pods both for Spark jobs and charms. 
-The following table summarises the relation between the component and its underlying base image.
+The following table summarizes the relation between the component and its underlying base image.
 
 | Component                          | Image                                                                                                       |
 |------------------------------------|-------------------------------------------------------------------------------------------------------------|
@@ -195,7 +195,7 @@ a cloud native Identity & Access Proxy (IAP) and Access Control Decision API abl
 and mutate incoming HTTP(s) requests, fully-integrated with the Canonical Identity Platform.
 
 Refer to the [how-to enable authorization in the Spark history server](how-to-spark-history-server-auth) guide
-for more information. From a permission-wise point of view, white lists of authorised users
+for more information. From a permission-wise point of view, white lists of authorized users
 can be provided using the Spark History Server
 [charm configuration option](https://charmhub.io/spark-history-server-k8s/configurations?channel=3.4/edge).
 
@@ -214,7 +214,7 @@ Refer to the
 [COS production deployments best practices](https://charmhub.io/topics/canonical-observability-stack/reference/best-practices)
 page for more information.
 
-For more information on how to enable and customise monitoring with COS,
+For more information on how to enable and customize monitoring with COS,
 see the [Monitoring](how-to-monitoring) guide.
 
 ## Additional resources

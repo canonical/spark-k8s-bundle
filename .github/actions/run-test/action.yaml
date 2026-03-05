@@ -46,7 +46,7 @@ inputs:
   juju-agent-version:
     description: "The version of the Juju agent to be used"
     required: false
-    default: 3.6.8
+    default: 3.6.14
     type: string
   azure-storage-account:
     description: "The Azure Storage account name to be used for test"
@@ -68,7 +68,7 @@ runs:
   using: "composite"
   steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Install pipx
       shell: bash
@@ -277,7 +277,7 @@ runs:
 
     - name: Upload the test result as artifact
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: integration-results-${{ inputs.tox-env }}-${{ inputs.k8s-distribution }}-${{ inputs.spark-version }}-${{ inputs.bundle-backend }}-${{ inputs.storage-backend }}-${{ inputs.cos-model }}-${{ inputs.juju-agent-version }}
         path: test-result.json

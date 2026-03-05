@@ -49,7 +49,7 @@ See our [Monitoring](how-to-monitoring) guide.
 
 We have guides for using Spark History Server with Charmed Apache Spark:
 
-* [Authentication and authorisation](how-to-spark-history-server-auth)
+* [Authentication and authorization](how-to-spark-history-server-auth)
 * [Expose web GUI](how-to-spark-history-server-expose-web-gui)
 
 ## Security

@@ -228,7 +228,7 @@ juju scale-application kyuubi-k8s 3
 
 Wait for the deployment to complete and check the model status with the `juju status` command.
 The `kyuubi-k8s` units are all in the `blocked` state now, with a message “Missing ZooKeeper integration”.
-That is because multi-node Apache Kyuubi deployments require Apache ZooKeeper for synchronisation.
+That is because multi-node Apache Kyuubi deployments require Apache ZooKeeper for synchronization.
 
 Now, deploy [Apache ZooKeeper K8s](https://charmhub.io/zookeeper-k8s) charm (three nodes, since we want high availability) and integrate it with Apache Kyuubi:
 

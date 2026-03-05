@@ -316,5 +316,5 @@ The result should look similar to the following:
 2025-04-07T11:32:44.872Z [sparkd] Number of tweets containing Ubuntu: 54
 ```
 
-By default, Apache Spark stores the logs of drivers and executors as pod logs in the local file systems, which are lost once the pods are deleted. Apache Spark can store these logs in a persistent object storage system, like S3, so that they can later be retrieved and visualised by a component called Spark History Server.
+By default, Apache Spark stores the logs of drivers and executors as pod logs in the local file systems, which are lost once the pods are deleted. Apache Spark can store these logs in a persistent object storage system, like S3, so that they can later be retrieved and visualized by a component called Spark History Server.
 
