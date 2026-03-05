@@ -43,30 +43,11 @@ spark-client.service-account-registry create \
   --username spark --namespace history-server
 ```
 
-Add the event logging configuration:
+The Integration Hub automatically provides the S3 credentials and event-logging
+configuration to every new service account, so no manual `add-config` step is needed.
 
-```bash
-spark-client.service-account-registry add-config \
-  --username spark --namespace history-server \
-  --conf spark.eventLog.enabled=true \
-  --conf spark.eventLog.dir=s3a://spark-tutorial/spark-events/ \
-  --conf spark.history.fs.logDirectory=s3a://spark-tutorial/spark-events/
-```
-
-The Integration Hub automatically provides the S3 credentials, so you only need to add
-the event-logging properties on top of that.
-
-We've configured Apache Spark to write logs to the `spark-events` path in the `spark-tutorial` bucket.
-If you followed the environment setup step, this directory was already created there.
-If not, create it now:
-
-```bash
-aws s3api put-object --bucket spark-tutorial --key spark-events/
-```
-
-```{note}
-Ensure the previous command ends with a `/` sign.
-```
+The `spark-events` directory in the `spark-tutorial` bucket was already created
+during the environment setup step.
 
 Next, deploy the [`spark-history-server-k8s`](https://github.com/canonical/spark-history-server-k8s-operator) charm into our Juju model:
 
