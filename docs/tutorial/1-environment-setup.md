@@ -135,30 +135,11 @@ sudo microk8s enable rbac
 sudo microk8s enable storage hostpath-storage
 
 sudo apt install -y jq
-IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
-sudo microk8s enable metallb:$IPADDR-$IPADDR
+
+IP_ADDR_START=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
+IP_ADDR_END=$(echo $IP_ADDR_START | awk -F. '{print $1"."$2"."$3"."$4+2}')
+sudo microk8s enable metallb:$IP_ADDR_START-$IP_ADDR_END
 ```
-
-<!-- 
-Two Traefik LoadBalancer services need MetalLB IPs later in this tutorial:
-
-- Step 4 — Traefik in the history-server model (Spark History Server ingress)
-- Step 5 — Traefik in the cos model (COS/Grafana ingress)
-
-Each Traefik unit requests a LoadBalancer service, so the pool needs at least 2 IPs.
-MetalLB announces assigned IPs via ARP on the node's network. The IPs must be
-routable from the machine itself (i.e. on the same L2 subnet as the VM).
-
-Recommended alternative:
-
-    IPADDR_START=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
-    IPADDR_END=$(echo $IPADDR_START | awk -F. '{print $1"."$2"."$3"."$4+2}')
-    sudo microk8s enable metallb:$IPADDR_START-$IPADDR_END
-
-This gives a range of 3 IPs: 2 for the Traefik services and 1 spare.
-There is a small chance the end IP exceeds 255 if the VM's last octet is >253,
-but the implementation is much simpler than using Python for proper arithmetic.
--->
 
 Wait for the commands to finish running and check the list of enabled add-ons:
 
