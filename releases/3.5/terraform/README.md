@@ -131,9 +131,9 @@ This means that using this structure, a new optional module just takes care of d
 | observability | cos-configuration-k8s        | 1/stable      | 65       |
 | observability | prometheus-pushgateway-k8s   | 1/stable      | 27       |
 | observability | prometheus-scrape-config-k8s | 1/stable      | 67       |
-| spark         | spark-history-server-k8s     | 3/stable      | 47       |
-| spark         | spark-integration-hub-k8s    | 3/stable      | 110      |
-| spark         | kyuubi-k8s                   | 3.5/stable    | 121      |
+| spark         | spark-history-server-k8s     | 3/stable      | 90       |
+| spark         | spark-integration-hub-k8s    | 3/stable      | 114      |
+| spark         | kyuubi-k8s                   | 3.5/stable    | 143      |
 | spark         | postgresql-k8s               | 14/stable     | 495      |
 | spark         | postgresql-k8s               | 14/stable     | 495      |
 | spark         | zookeeper-k8s                | 3/stable      | 78       |

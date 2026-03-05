@@ -12,9 +12,9 @@ terraform {
 
 locals {
   revisions = {
-    history_server  = 47
-    integration_hub = 110 # TODO(stable): Update once we get a new stable release compatible with juju 3.6.13+
-    kyuubi          = 122
+    history_server  = 90
+    integration_hub = 114
+    kyuubi          = 141
     kyuubi_users    = 495
     metastore       = 495
     zookeeper       = 78
@@ -31,14 +31,14 @@ locals {
   }
   images = {
     history_server = {
-      spark-history-server-image = "ghcr.io/canonical/charmed-spark@sha256:99e8494070af297e9cfb6965e5216abef33539ae36fde34cbcbd2d7acb433e60"
-    } # rev20, spark-version: 3.4.4 revision: 0ac21dd9c0dc624401db73ca53fa3399562308fb
+      spark-history-server-image = "ghcr.io/canonical/charmed-spark@sha256:c7eef66beaeff463fdb7b707c630c0574912df8b843d8e3169f358adee2ae706"
+    } # rev23, spark-version: 3.5.7, release date 2026-02-27
     integration_hub = {
-      integration-hub-image = "ghcr.io/canonical/spark-integration-hub@sha256:2e31e78ac9eb9509d2cbbc233fbb62efe34966b8f9bcf5d862e17e7182637c7e"
-    } # rev10
+      integration-hub-image = "ghcr.io/canonical/spark-integration-hub@sha256:c04d2d95874612883f6ead105d5f1dd74230370b23a08ea81175df81ba2e06fa"
+    } # rev11, release date 2026-03-02
     kyuubi = {
-      kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:c284924ff55152adc9a60000939d6ec604ec156ef4f4f9c9af90ef2cc501b1de"
-    } # rev13, spark-3.4.4, kyuubi 1.10.2 release date 11/09/25
+      kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:761a50ca0597825e5962c071a6575e7275e7eb04cae958d578bd7cc7f54fbb3e"
+    } # rev16, spark-3.4.4, kyuubi 1.10.3 release date 2026-02-27
     kyuubi_users = {
       postgresql-image = 165
     }
