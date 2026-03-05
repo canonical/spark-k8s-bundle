@@ -517,12 +517,8 @@ Before continuing with this tutorial, make sure to start the VM again:
 multipass start spark-tutorial
 ```
 
-Restarting the VM means that you need to re-export the environment variables set earlier in this tutorial:
+Once it starts, reconnect to the VM:
 
 ```bash
 multipass shell spark-tutorial
-export ACCESS_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d)
-export SECRET_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d)
-export S3_ENDPOINT=$(kubectl get service minio -n minio-operator -o jsonpath='{.spec.clusterIP}')
-export S3_BUCKET="spark-tutorial"
 ```

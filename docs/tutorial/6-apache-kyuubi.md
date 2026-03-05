@@ -11,16 +11,6 @@ Apache Kyuubi is a gateway to serverless SQL running on Kubernetes, bridging the
 
 This hands-on tutorial stage aims to help you learn how to use Charmed Apache Kyuubi K8s and become familiar with its available operations.
 
-## Environment variables
-
-At this step of the tutorial, you’ll need some environment variables that were set earlier during the environment setup stage.
-If you’ve restarted the VM and lost those variables, refresh them by running the following commands:
-
-```bash
-export ACCESS_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d)
-export SECRET_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d)
-export S3_ENDPOINT=$(kubectl get service minio -n minio-operator -o jsonpath='{.spec.clusterIP}')
-```
 
 ## Initial setup
 
