@@ -157,10 +157,10 @@ Deploy the [cos-configuration-k8s](https://github.com/canonical/cos-configuratio
 
 ```bash
 juju deploy cos-configuration-k8s \
-  --config git_repo=https://github.com/canonical/charmed-spark-rock \
-  --config git_branch=dashboard-hackaton \
+  --config git_repo=https://github.com/canonical/spark-k8s-bundle \
+  --config git_branch=main \
   --config git_depth=1 \
-  --config grafana_dashboards_path=dashboards/prod/grafana/
+  --config grafana_dashboards_path=releases/3.4/resources/grafana/
 ```
 
 Integrate the cos-configration-k8s charm to import the grafana dashboard:
