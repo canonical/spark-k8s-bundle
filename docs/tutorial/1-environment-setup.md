@@ -140,24 +140,24 @@ sudo microk8s enable metallb:$IPADDR-$IPADDR
 ```
 
 <!-- 
-```{note}
-The command above configures MetalLB with a single IP address.
-This is sufficient for basic usage, but the full tutorial deploys two separate Traefik ingress controllers (one for History Server, one for COS) each of which requires its own `LoadBalancer` IP.
-If you intend to follow the complete tutorial through Step 5, configure a small IP range instead:
+Two Traefik LoadBalancer services need MetalLB IPs later in this tutorial:
 
-````bash
-sudo microk8s enable metallb:$IPADDR-$(python3 -c "import ipaddress; print(ipaddress.ip_address('$IPADDR') + 3)")
-````
+- Step 4 — Traefik in the history-server model (Spark History Server ingress)
+- Step 5 — Traefik in the cos model (COS/Grafana ingress)
 
-```
+Each Traefik unit requests a LoadBalancer service, so the pool needs at least 2 IPs.
+MetalLB announces assigned IPs via ARP on the node's network. The IPs must be
+routable from the machine itself (i.e. on the same L2 subnet as the VM).
 
-Alternatively, if you already enabled MetalLB with a single IP and encounter a Traefik `blocked` unit with the message "Traefik load balancer is unable to obtain an IP", expand the pool by running:
+Recommended alternative:
 
-```bash
-kubectl patch ipaddresspool -n metallb-system default-addresspool \
-  --type='json' \
-  -p='[{"op": "replace", "path": "/spec/addresses", "value": ["'$IPADDR'-$(python3 -c "import ipaddress; print(ipaddress.ip_address('$IPADDR') + 3)")'"]}]'
-```
+    IPADDR_START=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
+    IPADDR_END=$(echo $IPADDR_START | awk -F. '{print $1"."$2"."$3"."$4+2}')
+    sudo microk8s enable metallb:$IPADDR_START-$IPADDR_END
+
+This gives a range of 3 IPs: 2 for the Traefik services and 1 spare.
+There is a small chance the end IP exceeds 255 if the VM's last octet is >253,
+but the implementation is much simpler than using Python for proper arithmetic.
 -->
 
 Wait for the commands to finish running and check the list of enabled add-ons:
