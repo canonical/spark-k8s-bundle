@@ -51,13 +51,14 @@ This guide will demonstrate how to allow pods to be scheduled on tainted nodes a
 
 ## Scheduling jobs
 
-### Deploying the Namespace Node Affinity Operator (recommended)
-
 Charmed Apache Spark can be configured to schedule driver and executor pod on specific nodes.
 This section details how to set up and configure the advanced scheduling of Spark jobs to mutually segregate control-plane workloads from user workloads and allocate pods on mixed architectures clusters.
 
-We can deploy the [Namespace Node Affinity Operator](https://github.com/canonical/namespace-node-affinity-operator) charm in the Juju model dedicated to running Charmed Apache Spark components.
-To do so, run the following command:
+### Deploying the Namespace Node Affinity Operator (recommended)
+
+The [Namespace Node Affinity Operator](https://github.com/canonical/namespace-node-affinity-operator) adds a given set of node affinities and/or tolerations to all pods deployed in a namespace.
+This is a great match for Charmed Apache Spark, since we recommend running user-driven workloads in dedicated namespace rather than in the Charmed Apache Spark Juju model's.\
+To deploy the Namespace Node Affinity Operator, run the following command:
 
 ```shell
 juju deploy -m <charmed_spark_juju_model> namespace-node-affinity --trust
@@ -70,7 +71,7 @@ First, you must label all namespaces that will contain the pods you want to chan
 kubectl label ns <namespace_1> namespace-node-affinity=enabled
 ```
 
-Repeat for all namespaces which will contain user-driven Spark service accounts.
+Repeat for all namespaces which will contain Spark service accounts.
 
 ```{note}
 Note that those namespaces need to exist before you label them.
@@ -99,7 +100,7 @@ The example below will apply a `nodeSelector` to the pods in the namespace to as
 You may save this file under `namespaces_settings.yaml` and configure the charm using:
 
 ```shell
-juju config namespace-node-affinity settings_yaml="$(<namespaces_settings.yaml)"
+juju config -m <charmed_spark_juju_model> namespace-node-affinity settings_yaml="$(<namespaces_settings.yaml)"
 ```
 
 This is it, you may now run a Spark job using the `spark-client` snap and see that the driver and executor pods are scheduled on the node(s) with the matching label, while the taint prevents other workloads from being scheduled there.
