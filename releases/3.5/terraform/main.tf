@@ -35,29 +35,31 @@ module "ssc" {
 }
 
 module "spark" {
-  depends_on                            = [juju_model.spark, module.ssc]
-  source                                = "./modules/spark"
-  model                                 = var.model
-  kyuubi_user                           = var.kyuubi_user
-  kyuubi_profile                        = var.kyuubi_profile
-  admin_password                        = var.admin_password
-  tls_private_key                       = var.tls_private_key
-  enable_dynamic_allocation             = var.enable_dynamic_allocation
-  kyuubi_k8s_node_selectors             = var.kyuubi_k8s_node_selectors
-  kyuubi_loadbalancer_extra_annotations = var.kyuubi_loadbalancer_extra_annotations
-  kyuubi_gpu_enable                     = var.kyuubi_gpu_enable
-  kyuubi_gpu_engine_executors_limit     = var.kyuubi_gpu_engine_executors_limit
-  kyuubi_gpu_pinned_memory              = var.kyuubi_gpu_pinned_memory
-  kyuubi_driver_pod_template            = var.kyuubi_driver_pod_template
-  kyuubi_executor_pod_template          = var.kyuubi_executor_pod_template
-  kyuubi_executor_cores                 = var.kyuubi_executor_cores
-  kyuubi_executor_memory                = var.kyuubi_executor_memory
-  driver_pod_template                   = var.driver_pod_template
-  executor_pod_template                 = var.executor_pod_template
-  tls_app_name                          = module.ssc.app_name
-  tls_certificates_endpoint             = module.ssc.provides.certificates
-  zookeeper_units                       = var.zookeeper_units
-  kyuubi_units                          = var.kyuubi_units
+  depends_on                                 = [juju_model.spark, module.ssc]
+  source                                     = "./modules/spark"
+  model                                      = var.model
+  kyuubi_user                                = var.kyuubi_user
+  kyuubi_profile                             = var.kyuubi_profile
+  admin_password                             = var.admin_password
+  tls_private_key                            = var.tls_private_key
+  enable_dynamic_allocation                  = var.enable_dynamic_allocation
+  kyuubi_k8s_node_selectors                  = var.kyuubi_k8s_node_selectors
+  kyuubi_loadbalancer_extra_annotations      = var.kyuubi_loadbalancer_extra_annotations
+  kyuubi_gpu_enable                          = var.kyuubi_gpu_enable
+  kyuubi_gpu_engine_executors_limit          = var.kyuubi_gpu_engine_executors_limit
+  kyuubi_gpu_pinned_memory                   = var.kyuubi_gpu_pinned_memory
+  kyuubi_driver_pod_template                 = var.kyuubi_driver_pod_template
+  kyuubi_executor_pod_template               = var.kyuubi_executor_pod_template
+  kyuubi_executor_cores                      = var.kyuubi_executor_cores
+  kyuubi_executor_memory                     = var.kyuubi_executor_memory
+  driver_pod_template                        = var.driver_pod_template
+  executor_pod_template                      = var.executor_pod_template
+  integration_hub_monitored_service_accounts = var.integration_hub_monitored_service_accounts
+
+  tls_app_name              = module.ssc.app_name
+  tls_certificates_endpoint = module.ssc.provides.certificates
+  zookeeper_units           = var.zookeeper_units
+  kyuubi_units              = var.kyuubi_units
 
   history_server_revision  = var.history_server_revision != null ? var.history_server_revision : local.revisions.history_server
   history_server_image     = var.history_server_image != null ? var.history_server_image : local.images.history_server

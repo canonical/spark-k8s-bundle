@@ -109,6 +109,12 @@ variable "executor_pod_template" {
   default     = null
 }
 
+variable "integration_hub_monitored_service_accounts" {
+  description = "Comma-separated patterns for namespaces and service accounts to monitor and update"
+  type        = string
+  default     = null
+}
+
 variable "zookeeper_units" {
   description = "Number of zookeeper units. 3 units are recommended for high availability."
   type        = number

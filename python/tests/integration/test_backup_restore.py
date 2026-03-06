@@ -245,8 +245,9 @@ class TestFirstDeployment:
     def test_active_status(self, juju: jubilant.Juju, spark_bundle: list[str]) -> None:
         """Test whether the bundle has deployed successfully."""
         juju.wait(
-            lambda status: jubilant.all_active(status)
-            and jubilant.all_agents_idle(status),
+            lambda status: (
+                jubilant.all_active(status) and jubilant.all_agents_idle(status)
+            ),
             delay=10,
         )
 
@@ -438,8 +439,9 @@ class TestNewDeployment:
     def test_active_status(self, juju: jubilant.Juju, spark_bundle: list[str]) -> None:
         """Test whether the bundle has deployed successfully."""
         juju.wait(
-            lambda status: jubilant.all_active(status)
-            and jubilant.all_agents_idle(status),
+            lambda status: (
+                jubilant.all_active(status) and jubilant.all_agents_idle(status)
+            ),
             delay=10,
         )
 
@@ -589,8 +591,9 @@ class TestNewDeployment:
         # Now re-integrate the metastore back to kyuubi
         juju.integrate(METASTORE_APP_NAME, f"{KYUUBI_APP_NAME}:metastore-db")
         juju.wait(
-            lambda status: jubilant.all_active(status)
-            and jubilant.all_agents_idle(status),
+            lambda status: (
+                jubilant.all_active(status) and jubilant.all_agents_idle(status)
+            ),
             delay=5,
         )
 
@@ -599,8 +602,9 @@ class TestNewDeployment:
     ) -> None:
         """Check if the admin password from the previous deployment was restored."""
         juju.wait(
-            lambda status: jubilant.all_active(status)
-            and jubilant.all_agents_idle(status),
+            lambda status: (
+                jubilant.all_active(status) and jubilant.all_agents_idle(status)
+            ),
             delay=5,
         )
         old_admin_password = context.pop("old_admin_password")
@@ -712,9 +716,15 @@ class TestNewDeployment:
                 logger.info("End of rules.")
 
                 for alert in [
-                    "KyuubiBufferPoolCapacityLow",
-                    "KyuubiJVMUptime",
+                    "KyuubiMissing",
+                    "KyuubiJvmMemoryFillingUp",
+                    "KyuubiHighAvailability",
+                    "KyuubiKeyStoreExpiration",
+                    "KyuubiJvmThreadsDeadLocked",
+                    "KyuubiEngineStartFailure",
                 ]:
+                    # Custom alerts defined in the kyuubi-k8s charm;
+                    # src/prometheus_alerts_rules/prometheus.yaml
                     assert any(
                         rule["name"] == alert
                         for group in alerts_data["data"]["groups"]
