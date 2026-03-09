@@ -12,7 +12,7 @@ terraform {
 
 locals {
   revisions = {
-    history_server  = 90
+    history_server  = 94
     integration_hub = 113
     kyuubi          = 140
     kyuubi_users    = 495
