@@ -173,9 +173,15 @@ def test_kyuubi_metrics_in_cos(cos: str) -> None:
             logger.info("End of rules.")
 
             for alert in [
-                "KyuubiBufferPoolCapacityLow",
-                "KyuubiJVMUptime",
+                "KyuubiMissing",
+                "KyuubiJvmMemoryFillingUp",
+                "KyuubiHighAvailability",
+                "KyuubiKeyStoreExpiration",
+                "KyuubiJvmThreadsDeadLocked",
+                "KyuubiEngineStartFailure",
             ]:
+                # Custom alerts defined in the kyuubi-k8s charm;
+                # src/prometheus_alerts_rules/prometheus.yaml
                 assert any(
                     rule["name"] == alert
                     for group in alerts_data["data"]["groups"]

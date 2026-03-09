@@ -136,6 +136,9 @@ resource "juju_application" "integration_hub" {
     },
     var.executor_pod_template == null ? {} : {
       executor-pod-template = var.executor_pod_template
+    },
+    var.integration_hub_monitored_service_accounts == null ? {} : {
+      monitored-service-accounts = var.integration_hub_monitored_service_accounts
     }
   )
 
