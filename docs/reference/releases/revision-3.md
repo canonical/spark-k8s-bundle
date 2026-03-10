@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    description: "Release notes for Charmed Apache Spark revision 2 featuring Apache Kyuubi, enhanced security, Azure support, and observability."
+    description: "Release notes for Charmed Apache Spark revision 3 featuring Apache Kyuubi, enhanced security, Azure support, and observability."
 ---
 
 (reference-releases-revision-X)=
@@ -20,7 +20,7 @@ Charmhub: [3.4/candidate](https://charmhub.io/kyuubi-k8s?channel=3.4/candidate),
 ### General
 
 - [[DPE-7941](https://warthogs.atlassian.net/browse/DPE-2858)] Add GPU Support
-- [[PRA-156](https://warthogs.atlassian.net/browse/PRA-156)] Add ARM support (experimental)
+- [[PRA-156](https://warthogs.atlassian.net/browse/PRA-156)] Add ARM support (experimental) - the feature will only be available on candidate risks
 - [[PRA-158](https://warthogs.atlassian.net/browse/PRA-158)] Components upgrade:
   - Spark version: 3.4.4-ubuntu7 and 3.5.7-ubuntu2
   - Kyuubi version: 1.10.3-ubuntu1 
