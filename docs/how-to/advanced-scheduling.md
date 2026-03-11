@@ -133,12 +133,33 @@ To restrict Spark jobs in `namespace_1` to only run on `arm64` nodes, use the fo
 ```
 
 ```{note}
-Charmed Apache Spark provides multi-architecture rock images supporting amd64 and arm64.
+Charmed Apache Spark provides multi-architecture manifests for rock images supporting amd64 and arm64.
+Therefore, your container runtime should be able to use the proper image based on the node architecture without any further intervention.
 ```
+
+Two Namespace Node Affinity Operator applications can work alongside one another to enforce distinct configurations on the driver and executor pods.
+The solution is to use the `excludedLabels` to avoid applying the driver pod configuration to the executor pods and vice-versa.
+Here is how to apply a toleration to the non-driver pods on the first Namespace Node Affinity Operator:
+
+```yaml
+<namespace>: |
+  excludedLabels:
+    spark-role: driver
+  tolerations:
+  - key: <taint_key>
+    operator: Equal
+    value: <taint_value>
+    effect: <taint_effect>
+```
+
+Respectively, doing the same thing on the second one by excluding `spark-role: executor` will result in a configuration applied to non-executor pods.
 
 ### Defining a Pod template (alternative)
 
-While we recommend using Namespace Node Affinity Operator for common scenarios, one downside is that it cannot discriminate between driver and executor pods, should they have different hardware needs or resource quotas.
+While we recommend using Namespace Node Affinity Operator for common scenarios, one downside is that it is limited to adding affinities and tolerations.
+Apache Spark on Kubernetes offers a native way of customising the deployments: [Pod templates](https://spark.apache.org/docs/latest/running-on-kubernetes.html#pod-template).
+
+Pod templates are more complex and versatile than the Namespace Node Affinity Operator configuration and can be used to schedule pods with different hardware needs or resource quotas.
 [Enabling GPU acceleration](how-to-use-gpu) presents such a case, where we do not want to reserve costly resources for driver pods if they do not need it.\
 This section presents an alternative way to schedule Spark jobs using Pod templates.
 
