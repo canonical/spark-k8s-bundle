@@ -37,6 +37,10 @@ jobs:
         exclude:
           - k8s-distribution: "microk8s"
             spark-version: "3.4.4"
+          - k8s-version: "k8s"
+            spark-version: "1.30"
+          - k8s-version: "k8s"
+            spark-version: "1.28"
         include:
           # Test integration-basic, with Spark 3.4
           - tox-env: integration-basic
