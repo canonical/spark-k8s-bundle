@@ -47,7 +47,7 @@ to verify that taints and labels were properly applied to the node.
 This guide will demonstrate how to allow pods to be scheduled on tainted nodes and how to assign them to those nodes, ensuring that:
 
 - Spark driver and executor pods are scheduled on the nodes dedicated to running user workloads
-- Charmed Apache Spark components are scheduled on control-plane nodes
+- Charmed Apache Spark components are scheduled on control-plane nodes and/or specific architecture
 
 ## Scheduling jobs
 
