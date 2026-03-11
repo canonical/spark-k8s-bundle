@@ -4,8 +4,8 @@ myst:
     description: "Release notes for Charmed Apache Spark revision 3 featuring Apache Kyuubi, enhanced security, Azure support, and observability."
 ---
 
-(reference-releases-revision-X)=
-# Charmed Apache Spark (revision X)
+(reference-releases-revision-3)=
+# Charmed Apache Spark (revision 3)
 
 Mar XX, 2026
 
