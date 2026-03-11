@@ -11,7 +11,7 @@ Mar XX, 2026
 
 We're excited to announce a new stable release for Charmed Spark.
 
-This release includes Apache Kyuubi, the Spark History Server, Spark Integration Hub, Spark Client Snap, Apache Spark OCI Images and a Charmed Spark Terraform Module to deliver a seamless, production-ready fully open-source datalake experience. The Charmed Apache Spark with Apache Kyuubi is available on [charmhub.io](https://charmhub.io) at the `3.4/stable` and `3.5/stable` channels.
+This release includes Apache Kyuubi, the Spark History Server, Spark Integration Hub, Spark Client Snap, Apache Spark OCI Images and a Charmed Spark Terraform Module to deliver a seamless, production-ready and fully open-source datalake experience. The Charmed Apache Spark with Apache Kyuubi is available on [charmhub.io](https://charmhub.io) at the `3.4/stable` and `3.5/stable` channels.
 
 Charmhub: [3.4/candidate](https://charmhub.io/kyuubi-k8s?channel=3.4/candidate), [3.5/candidate](https://charmhub.io/kyuubi-k8s?channel=3.5/candidate) | [Docs](https://charmhub.io/spark-k8s-bundle) | [Deploy guide](https://charmhub.io/spark-k8s-bundle/docs/h-deploy-kyuubi) | [System requirements](https://canonical.com/data/docs/postgresql/iaas/r-system-requirements)
 
