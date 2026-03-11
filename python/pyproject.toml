@@ -19,7 +19,7 @@ poetry-plugin-export = ">=1.9"
 python = ">=3.10,<4.0"
 spark8t = ">=0.0.10"
 boto3 = ">=1.36"
-pytest = ">=6.2"
+pytest = ">=9.0.2"
 azure-storage-blob = "^12.21.0"
 lightkube = ">=0.11"
 impyla = "^0.20.0"
@@ -68,7 +68,7 @@ optional = true
 [tool.poetry.group.benchmark.dependencies]
 great-tables = "^0.16.1"
 polars = "^1.23.0"
-pandas = "^2.2.3" # needed for great-tables' nanoplot
+pandas = "^3.0.1" # needed for great-tables' nanoplot
 
 [build-system]
 requires = ["poetry-core"]
