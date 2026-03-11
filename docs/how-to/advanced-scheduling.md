@@ -211,6 +211,8 @@ Please note that the template files must be accessible from the 'spark-submit' c
 
 While the two previous sections already take care of segregating control-plane workloads from user-driven workloads, this guide details a few strategies on how to also separate the Charmed Apache Spark component from third party workloads (neither Charmed Apache Spark nor the Spark jobs) and take advantage of specific architectures.
 
+### Using Juju commands
+
 To target a specific architecture, a Juju constraint can be applied to the Charmed Apache Spark model itself, or to each individual charm.
 To apply the constraint to the model, run:
 
@@ -232,7 +234,7 @@ You may check if a charm supports a specific architecture on [Charmhub](https://
 ```
 
 Constraints tags may also be used to set affinity/anti-affinity of the charms' pods.
-Please note that they are no native Juju mechanisms for setting tolerations, so the deployments examples here are limited to **untainted** nodes.
+Please note that they are no native Juju mechanisms for setting tolerations, so the deployments examples in this section are limited to **untainted** nodes.
 
 The following command:
 
@@ -272,4 +274,66 @@ spec:
 ```{warning}
 It is not possible to deploy a single charm on heterogeneous architectures.
 All units must be deployed on nodes of the same architecture.
+```
+
+### Deploying the Namespace Node Affinity Operator
+
+You can use Namespace Node Affinity Operator to add toleration to the Charmed Apache Spark components, similar to how we previously did it for the Apache Spark jobs themselves.
+The targeted nodes must first be untainted.
+
+Create a new Juju model:
+
+```shell
+juju add-model <charmed_spark_juju_model>
+```
+
+Then label the newly created namespace with:
+
+```shell
+kubectl label ns <charmed_spark_juju_model> namespace-node-affinity=enabled
+```
+
+Deploy the Namespace Node Affinity Operator:
+
+```shell
+juju deploy -m <charmed_spark_juju_model> namespace-node-affinity --trust
+```
+
+Once the charm is up and running, you may then taint the node:
+
+```shell
+kubectl taint node <node> <taint_key>=<taint_value>:<taint_effect>
+```
+
+In a new `settings.yaml` file, adapt the configuration below to your Juju model and node taint(s)/affinities:
+
+```yaml
+<charmed_spark_juju_model>: |
+  tolerations:
+  - key: <taint_key>
+    operator: Equal
+    value: <taint_value>
+    effect: <taint_effect>
+```
+
+You may now configure the operator to apply the respective toleration to any new charm:
+
+```shell
+juju config -m <charmed_spark_juju_model> namespace-node-affinity settings_yaml="$(<settings.yaml)"
+```
+
+This is it! Any new Juju application deployment will now get the desired tolerations and affinities:
+
+```shell
+juju deploy -m <charmed_spark_juju_model> s3-integrator s3
+```
+
+You can check that the configuration is properly applied using:
+
+```shell
+kubectl get pod s3-0 -n <charmed_spark_juju_model> -o yaml | yq '.spec.tolerations'
+```
+
+```{note}
+Please note that with the setup above, the modeloperator pod created by the addition of a new Juju model and the Namespace Node Affinity Operator might be deployed on a different node since they were scheduled before the Namespace Node Affinity Operator could apply the configuration.
 ```
