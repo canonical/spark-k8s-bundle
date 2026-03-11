@@ -26,7 +26,7 @@ Charmhub: [3.4/candidate](https://charmhub.io/kyuubi-k8s?channel=3.4/candidate),
   - Kyuubi version: 1.10.3-ubuntu1 
   - spark8t python library: 1.3.1
   - spark-rapids: 25.12.0
-- [[PRA-73](https://warthogs.atlassian.net/browse/PRA-73)] Update juju version to 3.6.14+
+- [[PRA-73](https://warthogs.atlassian.net/browse/PRA-73)] Update juju version to 3.6.13+
 - [[PRA-145](https://warthogs.atlassian.net/browse/PRA-145)] Validation on multiple K8s supported versions (refer to the requirements documentation for more info)
 - [[DPE-8681](https://warthogs.atlassian.net/browse/DPE-8681)] Testing and validation for MicroCeph instead of MinIO
 - Migrated from DPE to PRA Jira project
@@ -96,14 +96,14 @@ Charmhub: [3.4/candidate](https://charmhub.io/kyuubi-k8s?channel=3.4/candidate),
 
 ### Spark Integration Hub
 
-- [[PRA-73](https://warthogs.atlassian.net/browse/PRA-73)] Restore Juju 3.6.14+ compatibility (#172)
+- [[PRA-73](https://warthogs.atlassian.net/browse/PRA-73)] Restore Juju 3.6.13+ compatibility (#172)
 
 ```{note}
-Juju controller versions from `3.9.10` to `3.6.13` are affected by a [regression in Juju](https://github.com/juju/juju/issues/21312) that has been fixed in `3.6.14` that will not claim management over resources when tag appropriately.
-Support for Juju `3.6.14+` has been addressed by [this issue](https://github.com/canonical/spark-integration-hub-k8s-operator/issues/119) to now forcefully label 
+Juju controller versions from `3.9.10` to `3.6.12` are affected by a [regression in Juju](https://github.com/juju/juju/issues/21312) that has been fixed in `3.6.13` that will not claim management over resources when tag appropriately.
+Support for Juju `3.6.13+` has been addressed by [this issue](https://github.com/canonical/spark-integration-hub-k8s-operator/issues/119) to now forcefully label 
 resources managed by integration hub with `app.kubernetes.io/managed-by=spark8t`.
 
-When using Juju controller versions greater or equal to `3.6.14`, make sure you use a charm revision above `107` for `spark-integration-hub-k8s`. On Juju controller versions lower or equal to `3.6.9`, use charm revisions below `107`.
+When using Juju controller versions greater or equal to `3.6.13`, make sure you use a charm revision above `107` for `spark-integration-hub-k8s`. On Juju controller versions lower or equal to `3.6.9`, use charm revisions below `107`.
 ```
 
 ## Documentation improvements
@@ -138,14 +138,14 @@ The new artifacts have been fixing the following CVEs:
 
 |          Component          | Hardware architecture |    Channel    |                                                                                                          Artefact                                                                                                           | Revision | Minimum Juju version | Recommended Juju version |
 | :-------------------------: | :-------------------: |:-------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------:|:--------------------:|:------------------------:|
-| Apache Spark History Server |         AMD64         |  3/stable     |                                               [Charmed Apache Spark Image]() (Spark version: [3.5.7-ubuntu2](https://launchpad.net/spark-releases/+milestone/3.5.7-ubuntu2))                                                |    94    |      v.3.6.14+       |         v.3.6.14         |
-| Apache Spark History Server |         ARM64         |  3/candidate  |                                               [Charmed Apache Spark Image]() (Spark version: [3.5.7-ubuntu2](https://launchpad.net/spark-releases/+milestone/3.5.7-ubuntu2))                                                |    93    |      v.3.6.14+       |         v.3.6.14         |
-|    Spark Integration Hub    |         AMD64         |   3/stable    |                                                                                               [Integration Hub Image (11)]()                                                                                                |   113    |      v.3.6.14+       |         v.3.6.14         |
-|    Spark Integration Hub    |         ARM64         |  3/candidate  |                                                                                               [Integration Hub Image (11)]()                                                                                                |   114    |      v.3.6.14+       |         v.3.6.14         |
-|        Apache Kyuubi        |         AMD64         |  3.4/stable   | [Charmed Apache Kyuubi Image]() (Spark version: [3.4.4-ubuntu7](https://launchpad.net/spark-releases/+milestone/3.4.4-ubuntu7), Kyuubi version: [1.10.3-ubuntu1](https://launchpad.net/kyuubi-releases/1.x/1.10.3-ubuntu1)) |   140    |      v.3.6.14+       |         v.3.6.14         |
-|        Apache Kyuubi        |         ARM64         | 3.4/candidate | [Charmed Apache Kyuubi Image]() (Spark version: [3.4.4-ubuntu7](https://launchpad.net/spark-releases/+milestone/3.4.4-ubuntu7), Kyuubi version: [1.10.3-ubuntu1](https://launchpad.net/kyuubi-releases/1.x/1.10.3-ubuntu1)) |   141    |      v.3.6.14+       |         v.3.6.14         |
-|        Apache Kyuubi        |         AMD64         |  3.5/stable   | [Charmed Apache Kyuubi Image]() (Spark version: [3.5.7-ubuntu2](https://launchpad.net/spark-releases/+milestone/3.5.7-ubuntu2), Kyuubi version: [1.10.3-ubuntu1](https://launchpad.net/kyuubi-releases/1.x/1.10.3-ubuntu1)) |   142    |      v.3.6.14+       |         v.3.6.14         |
-|        Apache Kyuubi        |         ARM64         | 3.5/candidate | [Charmed Apache Kyuubi Image]() (Spark version: [3.5.7-ubuntu2](https://launchpad.net/spark-releases/+milestone/3.5.7-ubuntu2), Kyuubi version: [1.10.3-ubuntu1](https://launchpad.net/kyuubi-releases/1.x/1.10.3-ubuntu1)) |   143    |      v.3.6.14+       |         v.3.6.14         |
+| Apache Spark History Server |         AMD64         |  3/stable     |                                               [Charmed Apache Spark Image]() (Spark version: [3.5.7-ubuntu2](https://launchpad.net/spark-releases/+milestone/3.5.7-ubuntu2))                                                |    94    |      v.3.6.13+       |         v.3.6.14         |
+| Apache Spark History Server |         ARM64         |  3/candidate  |                                               [Charmed Apache Spark Image]() (Spark version: [3.5.7-ubuntu2](https://launchpad.net/spark-releases/+milestone/3.5.7-ubuntu2))                                                |    93    |      v.3.6.13+       |         v.3.6.14         |
+|    Spark Integration Hub    |         AMD64         |   3/stable    |                                                                                               [Integration Hub Image (11)]()                                                                                                |   113    |      v.3.6.13+       |         v.3.6.14         |
+|    Spark Integration Hub    |         ARM64         |  3/candidate  |                                                                                               [Integration Hub Image (11)]()                                                                                                |   114    |      v.3.6.13+       |         v.3.6.14         |
+|        Apache Kyuubi        |         AMD64         |  3.4/stable   | [Charmed Apache Kyuubi Image]() (Spark version: [3.4.4-ubuntu7](https://launchpad.net/spark-releases/+milestone/3.4.4-ubuntu7), Kyuubi version: [1.10.3-ubuntu1](https://launchpad.net/kyuubi-releases/1.x/1.10.3-ubuntu1)) |   140    |      v.3.6.13+       |         v.3.6.14         |
+|        Apache Kyuubi        |         ARM64         | 3.4/candidate | [Charmed Apache Kyuubi Image]() (Spark version: [3.4.4-ubuntu7](https://launchpad.net/spark-releases/+milestone/3.4.4-ubuntu7), Kyuubi version: [1.10.3-ubuntu1](https://launchpad.net/kyuubi-releases/1.x/1.10.3-ubuntu1)) |   141    |      v.3.6.13+       |         v.3.6.14         |
+|        Apache Kyuubi        |         AMD64         |  3.5/stable   | [Charmed Apache Kyuubi Image]() (Spark version: [3.5.7-ubuntu2](https://launchpad.net/spark-releases/+milestone/3.5.7-ubuntu2), Kyuubi version: [1.10.3-ubuntu1](https://launchpad.net/kyuubi-releases/1.x/1.10.3-ubuntu1)) |   142    |      v.3.6.13+       |         v.3.6.14         |
+|        Apache Kyuubi        |         ARM64         | 3.5/candidate | [Charmed Apache Kyuubi Image]() (Spark version: [3.5.7-ubuntu2](https://launchpad.net/spark-releases/+milestone/3.5.7-ubuntu2), Kyuubi version: [1.10.3-ubuntu1](https://launchpad.net/kyuubi-releases/1.x/1.10.3-ubuntu1)) |   143    |      v.3.6.13+       |         v.3.6.14         |
 |      Spark Client Snap      |         AMD64         |  3.4/stable   |                                                                Spark version: [3.4.4-ubuntu7](https://launchpad.net/spark-releases/+milestone/3.4.4-ubuntu7)                                                                |   100    |         N/A          |           N/A            |
 |      Spark Client Snap      |         ARM64         | 3.4/candidate |                                                                Spark version: [3.4.4-ubuntu7](https://launchpad.net/spark-releases/+milestone/3.4.4-ubuntu7)                                                                |   102    |         N/A          |           N/A            |
 |      Spark Client Snap      |         AMD64         |  3.5/stable   |                                                                Spark version: [3.5.7-ubuntu2](https://launchpad.net/spark-releases/+milestone/3.5.7-ubuntu2)                                                                |   101    |         N/A          |           N/A            |
