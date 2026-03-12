@@ -11,7 +11,7 @@ jobs:
     uses: ./.github/workflows/ci-checks.yaml
 
   integration-tests:
-    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}): spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju-agent-version }} | ${{ matrix.cos-model }}"
+    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju-agent-version }} | ${{ matrix.cos-model }}"
     runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
     # runs-on: ubuntu-22.04
     timeout-minutes: 120
@@ -23,12 +23,14 @@ jobs:
           - integration-sparkjob
           - integration-kyuubi
           - integration-backup-restore
-        bundle-backend: ["terraform"]
-        spark-version: ["3.4.4", "3.5.7"]
-        storage-backend: ["s3", "azure_storage"]
-        juju-snap-channel: ["3.6/stable"]
-        juju-agent-version: ["3.6.14"]
+        bundle-backend: [ "terraform" ]
+        spark-version: [ "3.4.4", "3.5.7" ]
+        storage-backend: [ "s3", "azure_storage" ]
+        juju-snap-channel: [ "3.6/stable" ]
+        juju-agent-version: [ "3.6.14" ]
         k8s-distribution: ["k8s", "microk8s"]
+        k8s-version:
+          - "1.32"
         exclude:
           - k8s-distribution: "microk8s"
             spark-version: "3.4.4"
@@ -39,6 +41,7 @@ jobs:
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.14"
             k8s-distribution: "k8s"
+            k8s-version: "1.32"
 
           # Test integration-basic, with Spark 3.5
           - tox-env: integration-basic
@@ -46,6 +49,7 @@ jobs:
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.14"
             k8s-distribution: "k8s"
+            k8s-version: "1.32"
 
           # Test bundle + COS with YAML backend just once
           - tox-env: integration-bundle
@@ -56,6 +60,7 @@ jobs:
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.14"
             k8s-distribution: "k8s"
+            k8s-version: "1.32"
 
           # Test COS just once with integration-sparkjob
           - tox-env: integration-sparkjob
@@ -91,6 +96,7 @@ jobs:
         uses: ./.github/actions/run-test
         with:
           k8s-distribution: ${{ matrix.k8s-distribution }}
+          k8s-version: ${{ matrix.k8s-version }}
           tox-env: ${{ matrix.tox-env }}
           bundle-backend: ${{ matrix.bundle-backend || 'terraform'}}
           spark-version: ${{ matrix.spark-version }}
