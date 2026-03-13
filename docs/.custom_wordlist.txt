@@ -45,6 +45,7 @@ loadbalancers
 metastore
 Multipass
 MyST
+nodeSelector
 Open Graph
 otf
 PDF
@@ -78,6 +79,7 @@ tex
 texlive
 TOC
 toctree
+tolerations
 txt
 uncommenting
 URL
