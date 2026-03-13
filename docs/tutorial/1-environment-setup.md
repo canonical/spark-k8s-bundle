@@ -135,8 +135,10 @@ sudo microk8s enable rbac
 sudo microk8s enable storage hostpath-storage
 
 sudo apt install -y jq
-IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
-sudo microk8s enable metallb:$IPADDR-$IPADDR
+
+IP_ADDR_START=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
+IP_ADDR_END=$(echo $IP_ADDR_START | awk -F. '{print $1"."$2"."$3"."$4+2}')
+sudo microk8s enable metallb:$IP_ADDR_START-$IP_ADDR_END
 ```
 
 Wait for the commands to finish running and check the list of enabled add-ons:
@@ -209,7 +211,7 @@ spark     0         2m49s
 
 kubectl get roles -n spark
 NAME         CREATED AT
-spark-role   2025-04-16T09:13:00Z
+spark-role   2026-03-04T09:13:00Z
 
 kubectl get rolebindings -n spark
 NAME                 ROLE              AGE
@@ -232,12 +234,12 @@ Welcome to
       ____              __
      / __/__  ___ _____/ /__
     _\ \/ _ \/ _ `/ __/  '_/
-   /__ / .__/\_,_/_/ /_/\_\   version 3.4.2
+   /__ / .__/\_,_/_/ /_/\_\   version 3.4.4
       /_/
 
-Using Python version 3.10.12 (main, Jan 17 2025 14:35:34)
-Spark context Web UI available at http://10.181.60.136:4040
-Spark context available as 'sc' (master = k8s://https://10.181.60.136:16443, app id = spark-627fb48be4da4315b3716e71a7613baf).
+Using Python version 3.10.12 (main, Jan  8 2026 06:52:19)
+Spark context Web UI available at http://10.189.154.233:4040
+Spark context available as 'sc' (master = k8s://https://10.189.154.233:16443, app id = spark-cf06b03549f54011a0ab612df8be335e).
 SparkSession available as 'spark'.
 >>> 
 ```
@@ -264,6 +266,7 @@ Juju can automatically detects all available clouds on our local machine (VM) wi
 You can verify this by running `juju clouds` command that should produce an output similar to the following:
 
 ```text
+Since Juju 3 is being run for the first time, it has downloaded the latest public cloud information.
 Only clouds with registered credentials are shown.
 There are more clouds, use --all to see them.
 You can bootstrap a new controller using one of these clouds...
@@ -288,7 +291,7 @@ The output of the command should be similar to:
 Use --refresh option with this command to see the latest information.
 
 Controller       Model  User   Access     Cloud/Region        Models  Nodes  HA  Version
-spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   -  3.6.5
+spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   -  3.6.14  
 ```
 
 The Juju setup is complete.
@@ -421,7 +424,7 @@ items:
     spark.hadoop.fs.s3a.secret.key: MTlBaVdWZENxMWZ1dHBYeUM0bmRSTlJ0M3Fid3ZydXFHdGZNNjl4ZA==
   kind: Secret
   metadata:
-    creationTimestamp: "2025-04-16T09:13:00Z"
+    creationTimestamp: "2026-03-04T09:13:00Z"
     name: spark8t-sa-conf-spark
     namespace: spark
     resourceVersion: "5555"
@@ -434,21 +437,78 @@ metadata:
 
 </details>
 
-With that, the tutorial’s environment setup is complete!
+With that, the basic environment setup is complete!
+
+## Integration Hub
+
+Throughout this tutorial you will create service accounts in several Kubernetes namespaces.
+Running `add-config` to push S3 credentials to every new account manually would quickly become repetitive.
+The [Integration Hub for Apache Spark](https://charmhub.io/spark-integration-hub-k8s) automates this:
+once deployed and integrated with an S3-compatible storage, it automatically pushes the storage credentials
+to every service account that is managed by `spark-client` — including accounts created in the future.
+
+Let's deploy it now so that service accounts we create in later steps receive S3 credentials automatically.
+
+Create a dedicated Juju model for the Integration Hub:
+
+```bash
+juju add-model spark-integration-hub
+```
+
+Deploy the Integration Hub charm and an `s3-integrator` charm to supply it with the storage configuration:
+
+```bash
+juju deploy spark-integration-hub-k8s --channel 3/stable --trust
+juju deploy s3-integrator --channel 1/stable
+juju config s3-integrator bucket=spark-tutorial path=spark-events endpoint=http://$S3_ENDPOINT
+```
+
+The `s3-integrator` will remain in `blocked` state until S3 credentials are provided. Set the credentials first, then integrate:
+
+```bash
+juju run s3-integrator/leader sync-s3-credentials \
+  access-key=$ACCESS_KEY secret-key=$SECRET_KEY
+juju integrate s3-integrator spark-integration-hub-k8s
+```
+
+Wait for both charms to reach `active/idle` status:
+
+```bash
+watch juju status --color
+```
+
+Verify that the Integration Hub has automatically updated the `spark` service account:
+
+```bash
+spark-client.service-account-registry get-config \
+  --username spark --namespace spark
+```
+
+The output should include the same S3 configuration properties we set up manually earlier,
+now maintained by the Integration Hub.
+From this point on, any service account you create with `spark-client` will receive
+the S3 credentials automatically.
+
+Create the `spark-events` and `warehouse` directories in S3:
+
+```bash
+aws s3api put-object --bucket spark-tutorial --key spark-events/
+aws s3api put-object --bucket spark-tutorial --key warehouse/
+```
 
 ## (Optional) Create a snapshot
 
-At this stage, you may want to create a [snapshot](https://documentation.ubuntu.com/multipass/en/latest/reference/command-line-interface/snapshot/#snapshot) of the current state, for which you need to stop the Multipass VM:
+At this stage, you may want to create a [snapshot](https://documentation.ubuntu.com/multipass/en/latest/reference/command-line-interface/snapshot/#snapshot) of the current state, for which you need to stop the Multipass VM. Exit the VM by pressing `CTRL + D` and stop it:
 
 ```bash
 multipass stop spark-tutorial
-multipass snapshot spark-tutorial -n env-setup
 ```
 
-This creates a snapshot name `env-setup` that we can use later to reset the environment. We will use it later for the Charmed Apache Kyuubi K8s deployment.
+Create a snapshot name `env-setup`.
+We will use it later to reset the environment for the Charmed Apache Kyuubi K8s deployment:
 
-```{note}
-Restarting the VM means that you might need to reset the environment variables exported earlier.
+```bash
+multipass snapshot spark-tutorial -n env-setup
 ```
 
 Before continuing with this tutorial, make sure to start the VM again:
@@ -457,3 +517,8 @@ Before continuing with this tutorial, make sure to start the VM again:
 multipass start spark-tutorial
 ```
 
+Once it starts, reconnect to the VM:
+
+```bash
+multipass shell spark-tutorial
+```

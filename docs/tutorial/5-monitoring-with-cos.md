@@ -106,7 +106,7 @@ The Prometheus Pushgateway in turn will then be integrated with Prometheus.
 Let's deploy the `prometheus-pushgateway-k8s` charm and integrate it with the `prometheus` charm:
 
 ```shell
-juju deploy prometheus-pushgateway-k8s --channel edge
+juju deploy prometheus-pushgateway-k8s --channel 1/stable
 juju integrate prometheus-pushgateway-k8s prometheus
 ```
 
@@ -118,21 +118,15 @@ export PROMETHEUS_GATEWAY=$(juju status --format=json | jq -r '.applications."pr
 export PROMETHEUS_PORT=9091
 ```
 
-Now that we have the Prometheus gateway IP address and port, let's create a new service account in the `cos` namespace with all the configuration options that the `spark` service account in the `spark` namespace has, plus a few additional configuration options related to the Prometheus Pushgateway:
+Now that we have the Prometheus gateway IP address and port, let's create a new service account in the `cos` namespace.
+The Integration Hub will automatically supply the S3 credentials, so we only need to add
+the Prometheus-specific configuration on top:
 
-Get config from old service account and store in a file:
-
-```shell
-spark-client.service-account-registry get-config \
-  --username spark --namespace spark > properties.conf
-```
-
-Create a new service account and load configurations from the file:
+Create the service account:
 
 ```shell
 spark-client.service-account-registry create \
-  --username spark --namespace cos \
-  --properties-file properties.conf
+  --username spark --namespace cos
 ```
 
 Add configuration options related to Prometheus:
@@ -162,12 +156,11 @@ For this tutorial, we are going to use a [basic Grafana dashboard](https://githu
 Deploy the [cos-configuration-k8s](https://github.com/canonical/cos-configuration-k8s-operator) charm for importing the grafana dashboard:
 
 ```bash
-
 juju deploy cos-configuration-k8s \
-  --config git_repo=https://github.com/canonical/charmed-spark-rock \
-  --config git_branch=dashboard \
+  --config git_repo=https://github.com/canonical/spark-k8s-bundle \
+  --config git_branch=main \
   --config git_depth=1 \
-  --config grafana_dashboards_path=dashboards/prod/grafana/
+  --config grafana_dashboards_path=releases/3.4/resources/grafana/
 ```
 
 Integrate the cos-configration-k8s charm to import the grafana dashboard:
@@ -176,9 +169,9 @@ Integrate the cos-configration-k8s charm to import the grafana dashboard:
 juju integrate cos-configuration-k8s grafana
 ```
 
-Once deployed and integrated, we can check the status of the juju model with the command `juju status --relations`, which should be similar to the following:
+Once deployed and integrated, we can check the status of the Juju model with the command `juju status --relations`, which should be similar to the following:
 
-```
+```text
 Model  Controller  Cloud/Region        Version  SLA          Timestamp
 cos    k8s         microk8s/localhost  3.1.7    unsupported  17:44:56+05:45
 
@@ -238,13 +231,13 @@ traefik:traefik-route                         grafana:ingress                   
 
 ## Try dashboard
 
-Now that we have the observability stack up and running, let's run a simple Spark job so that the metric logs are pushed to the Prometheus gateway. For simplicity, we're going to use the same `count_ubuntu.py` script that we prepared in the earlier steps of this tutorial:
+Now that we have the observability stack up and running, let's run a simple Spark job so that the metric logs are pushed to the Prometheus gateway. For simplicity, we're going to use the same `count-ubuntu.py` script that we prepared in the earlier steps of this tutorial:
 
 ```bash
 spark-client.spark-submit \
     --username spark --namespace cos \
     --deploy-mode cluster \
-    s3a://spark-tutorial/count_ubuntu.py
+    s3a://spark-tutorial/count-ubuntu.py
 ```
 
 Once the job is completed, let's try to open the Grafana web UI and see some metrics. 
@@ -274,4 +267,3 @@ This is the dashboard we configured earlier with `cos-configuration-k8s` charm:
 ![spark_dashboard](https://assets.ubuntu.com/v1/cf80fe96-spark_dashboard.png)
 
 Play around the dashboard and observe the various metrics like Block Manager memory, JVM Executor Memory, etc.
-
