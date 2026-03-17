@@ -484,7 +484,7 @@ The endpoint of the service is `https://s3.<S3_REGION>.amazonaws.com`.
 To create a folder on an existing bucket, just place an empty path object `spark-events`:
 
 ```shell
-aws s3api put-object --bucket <S3_BUCKET> --key spark-events
+aws s3api put-object --bucket <S3_BUCKET> --key spark-events/
 ```
 
 The S3-object storage should now be ready to be used by Spark jobs to store their logs. 
