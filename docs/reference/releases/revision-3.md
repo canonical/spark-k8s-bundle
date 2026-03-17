@@ -22,10 +22,10 @@ Charmhub: [3.4/candidate](https://charmhub.io/kyuubi-k8s?channel=3.4/candidate),
 - [[DPE-7941](https://warthogs.atlassian.net/browse/DPE-2858)] Add GPU Support
 - [[PRA-156](https://warthogs.atlassian.net/browse/PRA-156)] Add ARM support (experimental) - the feature will only be available on candidate risks
 - [[PRA-158](https://warthogs.atlassian.net/browse/PRA-158)] Components upgrade:
-  - Spark version: 3.4.4-ubuntu7 and 3.5.7-ubuntu2
+  - Apache Spark version: 3.4.4-ubuntu7 and 3.5.7-ubuntu2
   - Kyuubi version: 1.10.3-ubuntu1 
   - spark8t python library: 1.3.1
-  - spark-rapids: 25.12.0
+  - nvidia spark-rapids: 25.12.0
 - [[PRA-73](https://warthogs.atlassian.net/browse/PRA-73)] Update juju version to 3.6.13+
 - [[PRA-145](https://warthogs.atlassian.net/browse/PRA-145)] Validation on multiple K8s supported versions (refer to the requirements documentation for more info)
 - [[DPE-8681](https://warthogs.atlassian.net/browse/DPE-8681)] Testing and validation for MicroCeph instead of MinIO
