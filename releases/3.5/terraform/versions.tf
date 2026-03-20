@@ -12,7 +12,7 @@ terraform {
 
 locals {
   revisions = {
-    history_server  = 94
+    history_server  = 96
     integration_hub = 113
     kyuubi          = 142
     kyuubi_users    = 495
@@ -31,8 +31,8 @@ locals {
   }
   images = {
     history_server = {
-      spark-history-server-image = "ghcr.io/canonical/charmed-spark@sha256:c7eef66beaeff463fdb7b707c630c0574912df8b843d8e3169f358adee2ae706"
-    } # rev23, spark-version: 3.5.7, release date 2026-02-27
+      spark-history-server-image = "ghcr.io/canonical/charmed-spark@sha256:f7f387a76ba2f3b6cfc34a35f36c0f4ae85bfa78c8c9d4bfa06ba86401b95d70"
+    } # rev24,  spark-version: 3.5.7, release date 16/03/2026 
     integration_hub = {
       integration-hub-image = "ghcr.io/canonical/spark-integration-hub@sha256:c04d2d95874612883f6ead105d5f1dd74230370b23a08ea81175df81ba2e06fa"
     } # rev11, release date 2026-03-02
