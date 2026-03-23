@@ -27,7 +27,7 @@ jobs:
         spark-version: [ "3.4.4", "3.5.7" ]
         storage-backend: [ "s3", "azure_storage" ]
         juju-snap-channel: [ "3.6/stable" ]
-        juju-agent-version: [ "3.6.14" ]
+        juju-agent-version: [ "3.6.19" ]
         k8s-distribution: ["k8s", "microk8s"]
         k8s-version:
           - "1.32"
@@ -39,7 +39,7 @@ jobs:
           - tox-env: integration-basic
             spark-version: 3.4.4
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
+            juju-agent-version: "3.6.19"
             k8s-distribution: "k8s"
             k8s-version: "1.32"
 
@@ -47,7 +47,7 @@ jobs:
           - tox-env: integration-basic
             spark-version: 3.5.7
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
+            juju-agent-version: "3.6.19"
             k8s-distribution: "k8s"
             k8s-version: "1.32"
 
@@ -58,7 +58,7 @@ jobs:
             storage-backend: s3
             spark-version: 3.4.4
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
+            juju-agent-version: "3.6.19"
             k8s-distribution: "k8s"
             k8s-version: "1.32"
 
@@ -67,7 +67,7 @@ jobs:
             bundle-backend: terraform
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
+            juju-agent-version: "3.6.19"
             cos-model: cos
 
           # Test COS just once with integration-kyuubi
@@ -75,7 +75,7 @@ jobs:
             bundle-backend: terraform
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
+            juju-agent-version: "3.6.19"
             cos-model: cos
 
           # Test COS just once with integration-backup-restore
@@ -83,7 +83,7 @@ jobs:
             bundle-backend: terraform
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
+            juju-agent-version: "3.6.19"
             cos-model: cos
 
     needs:
