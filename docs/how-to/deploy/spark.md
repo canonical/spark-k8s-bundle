@@ -12,6 +12,26 @@ Spark workloads on K8s, providing integration with object storage, monitoring an
 For an overview on the different components that form Charmed Apache Spark, please refer to the
 [components overview](explanation-component-overview) page.
 
+## Minimum required components
+
+A functional Charmed Apache Spark deployment requires the following components:
+
+| Component | Description |
+|---|---|
+| **Integration Hub** (`spark-integration-hub-k8s`) | Central hub that manages Spark service account configurations via Juju relations. Required. |
+| **Object storage integrator** (`s3-integrator` or `azure-storage-integrator`) | Provides credentials and configuration for persistent storage. Required. |
+| **Object storage backend** | An S3-compatible (e.g. MinIO, AWS S3) or Azure storage account. Required. |
+
+The following components are optional but recommended for production:
+
+| Component | Description |
+|---|---|
+| **Spark History Server** (`spark-history-server-k8s`) | Web UI for analyzing Spark job logs. |
+| **Apache Kyuubi** (`kyuubi-k8s`) | JDBC/ODBC endpoint for SQL queries on Spark. Requires `postgresql-k8s` for authentication. |
+| **COS integration** (`grafana-agent-k8s`, `prometheus-pushgateway-k8s`, etc.) | Monitoring and alerting via Canonical Observability Stack. See [Enable monitoring](how-to-monitoring). |
+
+For a detailed description of each component, see the [Components overview](explanation-component-overview).
+
 ## Prerequisites
 
 Since Charmed Apache Spark will be managed by Juju, make sure that:
@@ -218,6 +238,48 @@ The following table provides the description of the different configuration opti
 | `s3.endpoint` | Endpoint of the S3-compatible object storage backend, in the form of `http(s)//host:port`.                                            |
 | `s3.bucket`   | Name of the S3 bucket to be used for storing logs and data                                                                            |
 | `cos_model`   | (Optional) Name of the model where COS is deployed. If omitted, the resource of the cos-integration submodules will not be deployed   |
+
+#### Example: Full setup with MicroK8s and MinIO
+
+For a full Charmed Apache Spark deployment on MicroK8s with MinIO as the S3 backend
+and COS monitoring enabled, create a file named `spark.tfvars.json`:
+
+```json
+{
+  "s3": {
+    "bucket": "spark-data",
+    "endpoint": "http://10.152.183.220:9000"
+  },
+  "model": "spark",
+  "cos_model": "cos"
+}
+```
+
+Then deploy with:
+
+```shell
+terraform init
+terraform apply -var-file=spark.tfvars.json
+```
+
+After the deployment settles, provide the S3 credentials:
+
+```shell
+juju run s3/leader sync-s3-credentials \
+  access-key=<minio-access-key> secret-key=<minio-secret-key>
+```
+
+To deploy **without monitoring**, simply omit the `cos_model` key:
+
+```json
+{
+  "s3": {
+    "bucket": "spark-data",
+    "endpoint": "http://10.152.183.220:9000"
+  },
+  "model": "spark"
+}
+```
 
 ```{caution}
 The Juju Terraform provider does not yet support cross-controller relations with COS.

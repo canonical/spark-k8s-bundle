@@ -14,9 +14,11 @@ For more information about Charmed Apache Spark and COS integration, refer to th
 
 Once COS is correctly deployed, to enable monitoring it is necessary to:
 
-1. Integrate and configure the COS bundle with Charmed Apache Spark
-2. Configure the Apache Spark service account
-3. (Optional) Integrate the optional components of Charmed Apache Spark (such as the Spark History Server charm and Charmed Apache Kyuubi) with the COS bundle
+1. Set up cross-model offers from the COS model
+2. Deploy `grafana-agent-k8s` in the Spark model and integrate it with COS
+3. Deploy and integrate the monitoring components (Pushgateway, scrape config, etc.) with Charmed Apache Spark
+4. Configure the Apache Spark service account
+5. (Optional) Integrate the optional components of Charmed Apache Spark (such as the Spark History Server charm and Charmed Apache Kyuubi) with the COS bundle
 
 ## Integrating/configuring with COS
 
@@ -26,6 +28,72 @@ COS as well as to configure the monitoring artifacts.
 The deployments of these resources can be enabled/disabled using either overlays
 (for Juju bundles) or input variables (for Terraform bundles).
 Please refer to the [how-to deploy](how-to-deploy-spark) guide for more information.
+
+### Set up cross-model offers and deploy `grafana-agent-k8s`
+
+If you are deploying monitoring components manually (i.e. not using a Juju bundle overlay
+or Terraform module), you need to set up cross-model offers from the COS model and deploy
+`grafana-agent-k8s` in the Spark model.
+
+First, create cross-model offers in the COS model:
+
+```shell
+juju switch <cos_model>
+juju offer grafana:grafana-dashboard grafana-dashboards
+juju offer prometheus:receive-remote-write prometheus-receive-remote-write
+juju offer loki:logging loki-logging
+```
+
+Then, switch to the Spark model and deploy `grafana-agent-k8s`:
+
+```shell
+juju switch <spark_model>
+juju deploy grafana-agent-k8s --channel 1/stable --trust
+```
+
+Consume the cross-model offers:
+
+```shell
+juju consume <cos_controller>:admin/<cos_model>.grafana-dashboards
+juju consume <cos_controller>:admin/<cos_model>.prometheus-receive-remote-write
+juju consume <cos_controller>:admin/<cos_model>.loki-logging
+```
+
+Integrate `grafana-agent-k8s` with the consumed offers:
+
+```shell
+juju integrate grafana-agent-k8s grafana-dashboards
+juju integrate grafana-agent-k8s prometheus-receive-remote-write
+juju integrate grafana-agent-k8s loki-logging
+```
+
+Next, deploy the Prometheus Pushgateway, scrape configuration, and COS configuration charms:
+
+```shell
+juju deploy prometheus-pushgateway-k8s --channel 1/stable
+juju deploy prometheus-scrape-config-k8s scrape-config --channel 1/stable \
+  --config scrape_interval=10s
+juju deploy cos-configuration-k8s \
+  --config git_repo=https://github.com/canonical/spark-k8s-bundle \
+  --config git_branch=main \
+  --config git_depth=1 \
+  --config grafana_dashboards_path=releases/3.4/resources/grafana/
+```
+
+Integrate them:
+
+```shell
+juju integrate scrape-config:configurable-scrape-jobs prometheus-pushgateway-k8s:metrics-endpoint
+juju integrate scrape-config:metrics-endpoint grafana-agent-k8s:metrics-endpoint
+juju integrate cos-configuration-k8s:grafana-dashboards grafana-agent-k8s:grafana-dashboards-consumer
+juju integrate prometheus-pushgateway-k8s:push-endpoint spark-integration-hub-k8s:cos
+juju integrate grafana-agent-k8s:logging-consumer loki-logging:logging
+```
+
+```{note}
+If you deploy the Charmed Apache Spark bundle with the [COS overlay](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/yaml/overlays/cos-integration.yaml.j2)
+or using the Terraform module with `cos_model` set, all of the above is handled automatically.
+```
 
 After the deployment settles on an `active/idle` state, you can make sure that
 Grafana is correctly set up with dedicated dashboards.
@@ -104,11 +172,35 @@ and check that the following property:
 spark.metrics.conf.driver.sink.prometheus.pushgateway-address=<PROMETHEUS_GATEWAY_ADDRESS>:<PROMETHEUS_PORT>
 ```
 
-is configured with the correct values. The Prometheus Pushgateway address and port should be can be
+is configured with the correct values. The Prometheus Pushgateway address and port should be
 consistent with what is exposed by Juju, e.g.:
 
 ```shell
 PROMETHEUS_GATEWAY=$(juju status --format=yaml | yq ".applications.prometheus-pushgateway-k8s.address")
+```
+
+```{important}
+The `spark.metrics.conf.*` settings injected by the Integration Hub use the `PrometheusSink`
+class, which is included in the Charmed Apache Spark OCI image. These settings are designed
+for **cluster mode** (`--deploy-mode cluster`), where the driver runs inside a K8s pod using
+that image.
+
+When running in **client mode** (e.g. `spark-client.pyspark` or `spark-client.spark-shell`),
+the driver runs on the local machine, where the `PrometheusSink` class is not available.
+This causes a `ClassNotFoundException` for
+`org.apache.spark.banzaicloud.metrics.sink.PrometheusSink`.
+
+To avoid this error, override the metrics settings when launching a client-mode session:
+
+   spark-client.pyspark \
+     --username <username> --namespace <namespace> \
+     --conf spark.metrics.conf.driver.sink.prometheus.class= \
+     --conf spark.metrics.conf.executor.sink.prometheus.class=
+
+Alternatively, if you do not need Spark job metrics, you can remove the Pushgateway
+relation from the Integration Hub:
+
+   juju remove-relation spark-integration-hub-k8s prometheus-pushgateway-k8s
 ```
 
 ```{note}

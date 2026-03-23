@@ -229,6 +229,22 @@ traefik:peers                                 traefik:peers                     
 traefik:traefik-route                         grafana:ingress                               traefik_route              regular  
 ```
 
+```{important}
+The `spark.metrics.conf.*` settings configured above use the `PrometheusSink` class from the
+Charmed Apache Spark OCI image. These settings work only in **cluster mode**
+(`--deploy-mode cluster`), where both the driver and executors run inside K8s pods.
+
+If you run Spark in **client mode** (e.g. `spark-client.pyspark` or `spark-client.spark-shell`),
+the driver runs on the local machine where the `PrometheusSink` class is unavailable, resulting
+in a `ClassNotFoundException`. To use client-mode sessions with this service account, override
+the metrics class:
+
+   spark-client.pyspark \
+     --username spark --namespace cos \
+     --conf spark.metrics.conf.driver.sink.prometheus.class= \
+     --conf spark.metrics.conf.executor.sink.prometheus.class=
+```
+
 ## Try dashboard
 
 Now that we have the observability stack up and running, let's run a simple Spark job so that the metric logs are pushed to the Prometheus gateway. For simplicity, we're going to use the same `count-ubuntu.py` script that we prepared in the earlier steps of this tutorial:
