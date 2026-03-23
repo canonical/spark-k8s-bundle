@@ -17,6 +17,8 @@ Charmhub: [3.4/candidate](https://charmhub.io/kyuubi-k8s?channel=3.4/candidate),
 
 ## Features
 
+Below we summarized the features that have been added in this new release, divided into "General" features that provide modifications across the various components of the solutions, and more specific features of the single component.  
+
 ### General
 
 - [[DPE-7941](https://warthogs.atlassian.net/browse/DPE-2858)] Add GPU Support
@@ -55,6 +57,7 @@ Charmhub: [3.4/candidate](https://charmhub.io/kyuubi-k8s?channel=3.4/candidate),
 - [[PRA-113](https://warthogs.atlassian.net/browse/PRA-113)] Add a config option to specify custom Spark image (#134)
 - [[PRA-30](https://warthogs.atlassian.net/browse/PRA-30)] Add monitored-service-accounts configuration option (#120)
 - [[DPE-7840](https://warthogs.atlassian.net/browse/DPE-7840)] Share manifest of the K8s resources over the spark service account relation (#99)
+- [[PRA-199](https://warthogs.atlassian.net/browse/PRA-199)[PRA-220](https://warthogs.atlassian.net/browse/PRA-220)] Add support for s3 certificates and fix secret deletion (#180)
 
 ### Spark Client snap
 
@@ -64,9 +67,10 @@ Charmhub: [3.4/candidate](https://charmhub.io/kyuubi-k8s?channel=3.4/candidate),
 
 - [[PRA-158](https://warthogs.atlassian.net/browse/PRA-158)] Component bumps (#217)
 - [[DPE-7941](https://warthogs.atlassian.net/browse/DPE-7941)] Add gpu executor pod template to Kyuubi image (#165)
+- [[PRA-189](https://warthogs.atlassian.net/browse/PRA-189)] Check for environment variable expansion (#221)
 - Download Hive from mirror (#163)
 - Perform disk cleanup at the start of all workflows (#190)
-- Run trivy scan on 3.5/edge and 3.4/edge (#151) (#171)
+- Run Trivy scan on 3.5/edge and 3.4/edge (#151) (#171)
 
 ### Charmed Spark Terraform Module
 
@@ -77,6 +81,8 @@ Charmhub: [3.4/candidate](https://charmhub.io/kyuubi-k8s?channel=3.4/candidate),
 
 ## Bug fixes
 
+Below we summarized the bugfixes that have been added in this new release, divided by the specific components impacted.
+
 ### Spark History Server
 
 - [[PRA-140](https://warthogs.atlassian.net/browse/PRA-140)] Block charm in case of missing object storage path (#145)
@@ -85,6 +91,7 @@ Charmhub: [3.4/candidate](https://charmhub.io/kyuubi-k8s?channel=3.4/candidate),
 
 - [[PRA-134](https://warthogs.atlassian.net/browse/PRA-134)] Add py4j dependency to PYTHONPATH in rock image (#180)
 - [[PRA-136](https://warthogs.atlassian.net/browse/PRA-136)] Release tag not found (#182) (#185) (#186)
+- [[PRA-222](https://warthogs.atlassian.net/browse/PRA-222)] Add additional labels to rocks (#225)
 
 ### Charmed Spark Terraform Module
 
@@ -94,19 +101,15 @@ Charmhub: [3.4/candidate](https://charmhub.io/kyuubi-k8s?channel=3.4/candidate),
 
 ## Breaking changes
 
+Below we summarized the breaking changes introduced by this new release, divided by the specific components impacted.
+
 ### Spark Integration Hub
 
 - [[PRA-73](https://warthogs.atlassian.net/browse/PRA-73)] Restore Juju 3.6.13+ compatibility (#172)
 
-```{note}
-Juju controller versions from `3.9.10` to `3.6.12` are affected by a [regression in Juju](https://github.com/juju/juju/issues/21312) that has been fixed in `3.6.13` that will not claim management over resources when tag appropriately.
-Support for Juju `3.6.13+` has been addressed by [this issue](https://github.com/canonical/spark-integration-hub-k8s-operator/issues/119) to now forcefully label 
-resources managed by integration hub with `app.kubernetes.io/managed-by=spark8t`.
-
-When using Juju controller versions greater or equal to `3.6.13`, make sure you use a charm revision above `107` for `spark-integration-hub-k8s`. On Juju controller versions lower or equal to `3.6.9`, use charm revisions below `107`.
-```
-
 ## Documentation improvements
+
+The current release also features the following documentation changes:
 
 - Polish the terminology capitalisation (#188)
 - Add auto-generated metadata description (#186)
@@ -123,7 +126,7 @@ When using Juju controller versions greater or equal to `3.6.13`, make sure you 
 - Initial documentation migration to RTD (#148)
 - Add Kyuubi docs (#134)
 
-## Security (TO BE COMPLETED)
+## Security
 
 The new artifacts have been fixing the following CVEs:
 
@@ -135,6 +138,8 @@ The new artifacts have been fixing the following CVEs:
 | Kyuubi    | Medium   | CVE-2024-47535, CVE-2025-25193, CVE-2025-58057, CVE-2025-67735, CVE-2025-68161, CVE-2026-1002 |
 
 ## Compatibility
+
+The following table summarize the compatibility matrix of the solution:
 
 |          Component          | Hardware architecture |    Channel    |                                                                                                          Artefact                                                                                                           | Revision | Minimum Juju version | Recommended Juju version |
 | :-------------------------: | :-------------------: |:-------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------:|:--------------------:|:------------------------:|
@@ -150,3 +155,11 @@ The new artifacts have been fixing the following CVEs:
 |      Spark Client Snap      |         ARM64         | 3.4/candidate |                                                                Spark version: [3.4.4-ubuntu7](https://launchpad.net/spark-releases/+milestone/3.4.4-ubuntu7)                                                                |   102    |         N/A          |           N/A            |
 |      Spark Client Snap      |         AMD64         |  3.5/stable   |                                                                Spark version: [3.5.7-ubuntu2](https://launchpad.net/spark-releases/+milestone/3.5.7-ubuntu2)                                                                |   101    |         N/A          |           N/A            |
 |      Spark Client Snap      |         ARM64         | 3.5/candidate |                                                                Spark version: [3.5.7-ubuntu2](https://launchpad.net/spark-releases/+milestone/3.5.7-ubuntu2)                                                                |    99    |         N/A          |           N/A            |
+
+```{note}
+Juju controller versions from `3.9.10` to `3.6.12` are affected by a [regression in Juju](https://github.com/juju/juju/issues/21312) that has been fixed in `3.6.13` that will not claim management over resources when tag appropriately.
+Support for Juju `3.6.13+` has been addressed by [this issue](https://github.com/canonical/spark-integration-hub-k8s-operator/issues/119) to now forcefully label 
+resources managed by integration hub with `app.kubernetes.io/managed-by=spark8t`.
+
+When using Juju controller versions greater or equal to `3.6.13`, make sure you use a charm revision above `107` for `spark-integration-hub-k8s`. On Juju controller versions lower or equal to `3.6.9`, use charm revisions below `107`.
+```

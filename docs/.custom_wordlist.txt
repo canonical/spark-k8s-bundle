@@ -81,7 +81,7 @@ texlive
 TOC
 toctree
 tolerations
-trivy
+Trivy
 txt
 uncommenting
 URL
