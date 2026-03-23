@@ -81,7 +81,7 @@ Below we summarized the features that have been added in this new release, divid
 
 ## Bug fixes
 
-Below we summarized the bugfixes that have been added in this new release, divided by the specific components impacted.
+Below we summarized the bug fixes that have been added in this new release, divided by the specific components impacted.
 
 ### Spark History Server
 
