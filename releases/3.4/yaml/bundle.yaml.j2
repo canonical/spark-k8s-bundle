@@ -72,10 +72,10 @@ applications:
   integration-hub:
     charm: spark-integration-hub-k8s
     channel: 3/stable
-    revision: 113
+    revision: 119
     resources:
-      # rev 11, release date 2026-03-02
-      integration-hub-image: ghcr.io/canonical/spark-integration-hub@sha256:c04d2d95874612883f6ead105d5f1dd74230370b23a08ea81175df81ba2e06fa
+      # rev 13, release date 19/03/2026
+      integration-hub-image: ghcr.io/canonical/spark-integration-hub@@sha256:a0439da3e6a9433a0db9501c8ea7b28ba3652af9a9ec22fcc2ad1b0197d48134
     scale: 1
     constraints: arch=amd64
     trust: true
