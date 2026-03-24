@@ -52,7 +52,7 @@ jobs:
           juju-channel: ${{ matrix.juju.snap_channel }}
           provider: microk8s
           channel: "${{ matrix.k8s-version }}-strict/stable"
-          bootstrap-options: "--agent-version ${{ matrix.juju.agent }}"
+          # bootstrap-options: "--agent-version ${{ matrix.juju.agent }}"
           microk8s-group: snap_microk8s
           microk8s-addons: "hostpath-storage rbac dns metallb:10.64.140.43-10.64.140.49"
       - name: Patch juju installation
