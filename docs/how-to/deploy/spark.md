@@ -239,47 +239,22 @@ The following table provides the description of the different configuration opti
 | `s3.bucket`   | Name of the S3 bucket to be used for storing logs and data                                                                            |
 | `cos_model`   | (Optional) Name of the model where COS is deployed. If omitted, the resource of the cos-integration submodules will not be deployed   |
 
-#### Example: Full setup with MicroK8s and MinIO
+#### Example `.tfvars.json`
 
-For a full Charmed Apache Spark deployment on MicroK8s with MinIO as the S3 backend
-and COS monitoring enabled, create a file named `spark.tfvars.json`:
+A full deployment with COS monitoring:
 
 ```json
 {
   "s3": {
-    "bucket": "spark-data",
-    "endpoint": "http://10.152.183.220:9000"
+    "bucket": "<bucket_name>",
+    "endpoint": "<s3_endpoint>"
   },
   "model": "spark",
   "cos_model": "cos"
 }
 ```
 
-Then deploy with:
-
-```shell
-terraform init
-terraform apply -var-file=spark.tfvars.json
-```
-
-After the deployment settles, provide the S3 credentials:
-
-```shell
-juju run s3/leader sync-s3-credentials \
-  access-key=<minio-access-key> secret-key=<minio-secret-key>
-```
-
-To deploy **without monitoring**, simply omit the `cos_model` key:
-
-```json
-{
-  "s3": {
-    "bucket": "spark-data",
-    "endpoint": "http://10.152.183.220:9000"
-  },
-  "model": "spark"
-}
-```
+To deploy without monitoring, omit the `cos_model` key.
 
 ```{caution}
 The Juju Terraform provider does not yet support cross-controller relations with COS.

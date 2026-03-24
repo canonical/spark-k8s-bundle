@@ -192,18 +192,15 @@ spark.metrics.conf.executor.sink.prometheus.metrics-name-replacement=\$2
 ```
 
 ```{important}
-These `spark.metrics.conf.*` settings use the `PrometheusSink` class that is only available
-in the Charmed Apache Spark OCI image. They work in **cluster mode**
-(`--deploy-mode cluster`), where the driver runs inside a K8s pod using that image.
-
-In **client mode** (e.g. `spark-client.pyspark`, `spark-client.spark-shell`), the driver
-runs locally where this class is not present, causing a `ClassNotFoundException`. To run
-client-mode sessions without errors, override the metrics class settings:
+These metrics settings only work in **cluster mode** (`--deploy-mode cluster`).
+In **client mode** (e.g. `pyspark`, `spark-shell`), the `PrometheusSink` class is not
+available locally, causing a `ClassNotFoundException`. Disable the sink by setting
+the class to an empty value:
 
    spark-client.pyspark \
      --username <username> --namespace <namespace> \
-     --conf spark.metrics.conf.driver.sink.prometheus.class= \
-     --conf spark.metrics.conf.executor.sink.prometheus.class=
+     --conf spark.metrics.conf.driver.sink.prometheus.class="" \
+     --conf spark.metrics.conf.executor.sink.prometheus.class=""
 ```
 
 ## Additional configurations
