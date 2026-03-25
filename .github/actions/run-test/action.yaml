@@ -144,7 +144,7 @@ runs:
         # Set the versions
         yq -i e '.providers.k8s.channel = "${{ inputs.k8s-version }}-classic/stable"' concierge.yaml
         yq -i e '.juju.channel = "${{ inputs.juju-snap-channel }}"' concierge.yaml
-        yq -i e '.juju.agent-version = "${{ inputs.juju-agent-version }}"' concierge.yaml
+        yq -i e '.juju.agent-version = "3.6.19"' concierge.yaml
         
         sudo concierge prepare --trace
         cd ..
