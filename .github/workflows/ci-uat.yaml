@@ -61,7 +61,7 @@ jobs:
           CONTROLLER_NAME=$(juju controllers --format yaml | yq .current-controller)
           juju destroy-controller $CONTROLLER_NAME --destroy-storage --no-prompt --destroy-all-models
           sudo snap refresh juju --revision 33784
-          juju bootstrap microk8s $CONTROLLER_NAME --agent-version "${{ matrix.juju.agent }}"
+          sudo juju bootstrap microk8s $CONTROLLER_NAME --agent-version "${{ matrix.juju.agent }}"
 
       - name: Install tox & poetry
         run: |
