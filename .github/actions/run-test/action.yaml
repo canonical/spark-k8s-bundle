@@ -156,7 +156,18 @@ runs:
         CONTROLLER_NAME=$(juju controllers --format yaml | yq .current-controller)
         juju destroy-controller $CONTROLLER_NAME --destroy-storage --no-prompt --destroy-all-models
         sudo snap refresh juju --revision 33784
+
+    - name: Re-install controller (MicroK8s)
+      shell: bash
+      if: "${{ inputs.k8s-distribution == 'microk8s' }}"
+      run: |
         sudo -i -u ubuntu juju bootstrap microk8s $CONTROLLER_NAME --agent-version "${{ inputs.juju-agent-version }}"
+
+    - name: Re-install controller (K8s)
+      shell: bash
+      if: "${{ inputs.k8s-distribution == 'k8s' }}"
+      run: |
+        sudo -u ubuntu juju bootstrap k8s $CONTROLLER_NAME --verbose --agent-version "${{ inputs.juju-agent-version }}" --model-default 'logging-config=<root>=INFO; unit=DEBUG' --bootstrap-constraints root-disk=4G
 
     - id: setup-python
       name: Setup Python
