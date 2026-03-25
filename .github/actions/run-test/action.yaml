@@ -150,6 +150,7 @@ runs:
         cd ..
 
     - name: Patch juju installation
+      shell: bash
       run: |
         sudo snap install yq
         CONTROLLER_NAME=$(juju controllers --format yaml | yq .current-controller)
