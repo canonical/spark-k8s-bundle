@@ -149,6 +149,14 @@ runs:
         sudo concierge prepare --trace
         cd ..
 
+    - name: Patch juju installation
+      run: |
+        sudo snap install yq
+        CONTROLLER_NAME=$(juju controllers --format yaml | yq .current-controller)
+        juju destroy-controller $CONTROLLER_NAME --destroy-storage --no-prompt --destroy-all-models
+        sudo snap refresh juju --revision 33784
+        sudo -i -u ubuntu juju bootstrap microk8s $CONTROLLER_NAME --agent-version "${{ inputs.juju-agent-version }}"
+
     - id: setup-python
       name: Setup Python
       uses: actions/setup-python@v5.0.0
