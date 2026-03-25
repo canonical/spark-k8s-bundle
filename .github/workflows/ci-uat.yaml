@@ -26,8 +26,8 @@ jobs:
           - s3
         #  - azure_storage
         juju:
-          - snap_channel: "3.6/stable"
-            agent: "3.6.14"
+          - snap_channel: "3.6/candidate"
+            agent: "3.6.20"
         k8s-version:
         #   - "1.28"
           - "1.30"
@@ -55,13 +55,6 @@ jobs:
           # bootstrap-options: "--agent-version ${{ matrix.juju.agent }}"
           microk8s-group: snap_microk8s
           microk8s-addons: "hostpath-storage rbac dns metallb:10.64.140.43-10.64.140.49"
-      - name: Patch juju installation
-        run: |
-          sudo snap install yq
-          CONTROLLER_NAME=$(juju controllers --format yaml | yq .current-controller)
-          juju destroy-controller $CONTROLLER_NAME --destroy-storage --no-prompt --destroy-all-models
-          sudo snap refresh juju --revision 33784
-          juju bootstrap microk8s $CONTROLLER_NAME --agent-version "${{ matrix.juju.agent }}"
 
       - name: Install tox & poetry
         run: |
