@@ -26,8 +26,8 @@ jobs:
           - s3
         #  - azure_storage
         juju:
-          - snap_channel: "3.6/stable"
-            agent: "3.6.14"
+          - snap_channel: "3.6/candidate"
+            agent: "3.6.20"
         k8s-version:
         #   - "1.28"
           - "1.30"
