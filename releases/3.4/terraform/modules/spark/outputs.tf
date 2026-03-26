@@ -6,6 +6,7 @@ output "charms" {
   value = {
     history_server  = juju_application.history_server.name
     integration_hub = juju_application.integration_hub.name
+    kyuubi          = juju_application.kyuubi.name
     kyuubi_users    = juju_application.kyuubi_users.name
     metastore       = juju_application.metastore.name
   }

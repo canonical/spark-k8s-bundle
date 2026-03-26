@@ -17,60 +17,60 @@ resource "juju_application" "history_server" {
   constraints = "arch=amd64"
 }
 
-# resource "juju_application" "kyuubi" {
-#   name  = "kyuubi"
-#   model = data.juju_model.spark.name
-#
-#   charm {
-#     name     = "kyuubi-k8s"
-#     channel  = "3.4/stable"
-#     revision = var.kyuubi_revision
-#   }
-#
-#   resources = var.kyuubi_image
-#
-#   config = merge(
-#     {
-#       enable-dynamic-allocation  = var.enable_dynamic_allocation
-#       expose-external            = "loadbalancer"
-#       gpu-enable                 = var.kyuubi_gpu_enable
-#       gpu-engine-executors-limit = var.kyuubi_gpu_engine_executors_limit
-#       gpu-pinned-memory          = var.kyuubi_gpu_pinned_memory
-#       namespace                  = data.juju_model.spark.name
-#       profile                    = var.kyuubi_profile
-#       service-account            = var.kyuubi_user
-#     },
-#     var.kyuubi_k8s_node_selectors == null ? {} : {
-#       k8s-node-selectors = var.kyuubi_k8s_node_selectors
-#     },
-#     var.kyuubi_loadbalancer_extra_annotations == null ? {} : {
-#       loadbalancer-extra-annotations = var.kyuubi_loadbalancer_extra_annotations
-#     },
-#     var.tls_private_key == null ? {} : {
-#       tls-client-private-key = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
-#     },
-#     var.admin_password == null ? {} : {
-#       system-users = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
-#     },
-#     var.kyuubi_executor_cores == null ? {} : {
-#       executor-cores = var.kyuubi_executor_cores
-#     },
-#     var.kyuubi_executor_memory == null ? {} : {
-#       executor-memory = var.kyuubi_executor_memory
-#     },
-#     var.kyuubi_driver_pod_template == null ? {} : {
-#       driver-pod-template = var.kyuubi_driver_pod_template
-#     },
-#     var.kyuubi_executor_pod_template == null ? {} : {
-#       executor-pod-template = var.kyuubi_executor_pod_template
-#     }
-#   )
-#
-#   units = var.kyuubi_units
-#   trust = true
-#
-#   constraints = "arch=amd64"
-# }
+resource "juju_application" "kyuubi" {
+  name  = "kyuubi"
+  model = data.juju_model.spark.name
+
+  charm {
+    name     = "kyuubi-k8s"
+    channel  = "3.4/stable"
+    revision = var.kyuubi_revision
+  }
+
+  resources = var.kyuubi_image
+
+  config = merge(
+    {
+      enable-dynamic-allocation  = var.enable_dynamic_allocation
+      expose-external            = "loadbalancer"
+      gpu-enable                 = var.kyuubi_gpu_enable
+      gpu-engine-executors-limit = var.kyuubi_gpu_engine_executors_limit
+      gpu-pinned-memory          = var.kyuubi_gpu_pinned_memory
+      namespace                  = data.juju_model.spark.name
+      profile                    = var.kyuubi_profile
+      service-account            = var.kyuubi_user
+    },
+    var.kyuubi_k8s_node_selectors == null ? {} : {
+      k8s-node-selectors = var.kyuubi_k8s_node_selectors
+    },
+    var.kyuubi_loadbalancer_extra_annotations == null ? {} : {
+      loadbalancer-extra-annotations = var.kyuubi_loadbalancer_extra_annotations
+    },
+    var.tls_private_key == null ? {} : {
+      tls-client-private-key = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
+    },
+    var.admin_password == null ? {} : {
+      system-users = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
+    },
+    var.kyuubi_executor_cores == null ? {} : {
+      executor-cores = var.kyuubi_executor_cores
+    },
+    var.kyuubi_executor_memory == null ? {} : {
+      executor-memory = var.kyuubi_executor_memory
+    },
+    var.kyuubi_driver_pod_template == null ? {} : {
+      driver-pod-template = var.kyuubi_driver_pod_template
+    },
+    var.kyuubi_executor_pod_template == null ? {} : {
+      executor-pod-template = var.kyuubi_executor_pod_template
+    }
+  )
+
+  units = var.kyuubi_units
+  trust = true
+
+  constraints = "arch=amd64"
+}
 
 resource "juju_application" "kyuubi_users" {
   name  = "kyuubi-users"

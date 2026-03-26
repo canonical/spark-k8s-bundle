@@ -179,48 +179,48 @@ resource "juju_integration" "history_server_grafana_agent_metrics" {
   }
 }
 #
-# resource "juju_integration" "kyuubi_grafana_agent_metrics" {
-#   model = data.juju_model.spark.name
-#
-#   application {
-#     name     = var.spark_charms.kyuubi
-#     endpoint = "metrics-endpoint"
-#   }
-#
-#   application {
-#     name     = juju_application.grafana_agent.name
-#     endpoint = "metrics-endpoint"
-#   }
-# }
-#
-# resource "juju_integration" "kyuubi_grafana_agent_dashboards" {
-#   model = data.juju_model.spark.name
-#
-#   application {
-#     name     = var.spark_charms.kyuubi
-#     endpoint = "grafana-dashboard"
-#   }
-#
-#   application {
-#     name     = juju_application.grafana_agent.name
-#     endpoint = "grafana-dashboards-consumer"
-#   }
-# }
-#
-# resource "juju_integration" "kyuubi_grafana_agent_logging" {
-#   model = data.juju_model.spark.name
-#
-#   application {
-#     name     = var.spark_charms.kyuubi
-#     endpoint = "logging"
-#   }
-#
-#   application {
-#     name     = juju_application.grafana_agent.name
-#     endpoint = "logging-provider"
-#   }
-# }
-#
+resource "juju_integration" "kyuubi_grafana_agent_metrics" {
+  model = data.juju_model.spark.name
+
+  application {
+    name     = var.spark_charms.kyuubi
+    endpoint = "metrics-endpoint"
+  }
+
+  application {
+    name     = juju_application.grafana_agent.name
+    endpoint = "metrics-endpoint"
+  }
+}
+
+resource "juju_integration" "kyuubi_grafana_agent_dashboards" {
+  model = data.juju_model.spark.name
+
+  application {
+    name     = var.spark_charms.kyuubi
+    endpoint = "grafana-dashboard"
+  }
+
+  application {
+    name     = juju_application.grafana_agent.name
+    endpoint = "grafana-dashboards-consumer"
+  }
+}
+
+resource "juju_integration" "kyuubi_grafana_agent_logging" {
+  model = data.juju_model.spark.name
+
+  application {
+    name     = var.spark_charms.kyuubi
+    endpoint = "logging"
+  }
+
+  application {
+    name     = juju_application.grafana_agent.name
+    endpoint = "logging-provider"
+  }
+}
+
 resource "juju_integration" "integration_hub_grafana_agent_logging" {
   model = data.juju_model.spark.name
 
