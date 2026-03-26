@@ -115,7 +115,7 @@ runs:
         juju-channel: ${{ inputs.juju-snap-channel }}
         provider: microk8s
         channel: "${{ inputs.k8s-version }}-strict/stable"
-        bootstrap-options: "--agent-version ${{ inputs.juju-agent-version }}"
+        bootstrap-options: "--agent-version 3.6.19"
         microk8s-group: snap_microk8s
         microk8s-addons: "hostpath-storage rbac dns metallb:10.64.140.43-10.64.140.49"
 
