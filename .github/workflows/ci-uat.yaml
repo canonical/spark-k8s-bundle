@@ -14,7 +14,7 @@ jobs:
   integration-tests:
     name: "UATs (MicroK8s:${{ matrix.k8s-version }}): spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju.agent }} "
     runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
-    timeout-minutes: 120
+    timeout-minutes: 150
     strategy:
       fail-fast: false
       matrix:
@@ -119,7 +119,7 @@ jobs:
           rm image.tar
       - id: tests-integration
         name: Run Integration Tests
-        timeout-minutes: 90
+        timeout-minutes: 60
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
