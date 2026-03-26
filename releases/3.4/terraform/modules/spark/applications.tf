@@ -1,21 +1,21 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-# resource "juju_application" "history_server" {
-#   name  = "history-server"
-#   model = data.juju_model.spark.name
-#
-#   charm {
-#     name     = "spark-history-server-k8s"
-#     channel  = "3/stable"
-#     revision = var.history_server_revision
-#   }
-#
-#   resources = var.history_server_image
-#   units     = 1
-#
-#   constraints = "arch=amd64"
-# }
+resource "juju_application" "history_server" {
+  name  = "history-server"
+  model = data.juju_model.spark.name
+
+  charm {
+    name     = "spark-history-server-k8s"
+    channel  = "3/stable"
+    revision = var.history_server_revision
+  }
+
+  resources = var.history_server_image
+  units     = 1
+
+  constraints = "arch=amd64"
+}
 
 # resource "juju_application" "kyuubi" {
 #   name  = "kyuubi"
@@ -117,38 +117,38 @@ resource "juju_application" "metastore" {
   constraints = "arch=amd64"
 }
 
-# resource "juju_application" "integration_hub" {
-#   name  = "integration-hub"
-#   model = data.juju_model.spark.name
-#
-#   charm {
-#     name     = "spark-integration-hub-k8s"
-#     channel  = "3/stable"
-#     revision = var.integration_hub_revision
-#   }
-#
-#   config = merge(
-#     {
-#       enable-dynamic-allocation = var.enable_dynamic_allocation
-#     },
-#     var.driver_pod_template == null ? {} : {
-#       driver-pod-template = var.driver_pod_template
-#     },
-#     var.executor_pod_template == null ? {} : {
-#       executor-pod-template = var.executor_pod_template
-#     },
-#     var.integration_hub_monitored_service_accounts == null ? {} : {
-#       monitored-service-accounts = var.integration_hub_monitored_service_accounts
-#     }
-#   )
-#
-#   resources = var.integration_hub_image
-#
-#   units = 1
-#   trust = true
-#
-#   constraints = "arch=amd64"
-# }
+resource "juju_application" "integration_hub" {
+  name  = "integration-hub"
+  model = data.juju_model.spark.name
+
+  charm {
+    name     = "spark-integration-hub-k8s"
+    channel  = "3/stable"
+    revision = var.integration_hub_revision
+  }
+
+  config = merge(
+    {
+      enable-dynamic-allocation = var.enable_dynamic_allocation
+    },
+    var.driver_pod_template == null ? {} : {
+      driver-pod-template = var.driver_pod_template
+    },
+    var.executor_pod_template == null ? {} : {
+      executor-pod-template = var.executor_pod_template
+    },
+    var.integration_hub_monitored_service_accounts == null ? {} : {
+      monitored-service-accounts = var.integration_hub_monitored_service_accounts
+    }
+  )
+
+  resources = var.integration_hub_image
+
+  units = 1
+  trust = true
+
+  constraints = "arch=amd64"
+}
 
 # resource "juju_application" "zookeeper" {
 #   name  = "zookeeper"

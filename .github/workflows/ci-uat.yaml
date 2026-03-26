@@ -36,10 +36,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
-      - name: Setup tmate session
-        uses: canonical/action-tmate@main
-        with:
-          detached: true
       - id: setup-python
         name: Setup Python
         uses: actions/setup-python@v5.0.0
@@ -163,6 +159,12 @@ jobs:
           if [[ -n "${{ inputs.cos-model }}" ]]; then
             juju-crashdump --model "${{ inputs.cos-model }}"
           fi
+      - name: Setup tmate session
+        if: ${{ failure() }}
+        uses: canonical/action-tmate@main
+        with:
+          detached: true
+
       - id: debug-info
         name: Debug info
         shell: bash
