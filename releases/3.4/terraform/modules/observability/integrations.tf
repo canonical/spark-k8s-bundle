@@ -123,114 +123,114 @@ resource "juju_integration" "grafana_agent_loki" {
     ]
   }
 }
-resource "juju_integration" "pushgateway_integration_hub" {
-  model = data.juju_model.spark.name
-
-  application {
-    name     = juju_application.pushgateway.name
-    endpoint = "push-endpoint"
-  }
-
-  application {
-    name     = var.spark_charms.integration_hub
-    endpoint = "cos"
-  }
-}
-
-resource "juju_integration" "history_server_grafana_agent_dashboard" {
-  model = data.juju_model.spark.name
-
-  application {
-    name     = var.spark_charms.history_server
-    endpoint = "grafana-dashboard"
-  }
-
-  application {
-    name     = juju_application.grafana_agent.name
-    endpoint = "grafana-dashboards-consumer"
-  }
-}
-
-resource "juju_integration" "history_server_grafana_agent_logging" {
-  model = data.juju_model.spark.name
-
-  application {
-    name     = var.spark_charms.history_server
-    endpoint = "logging"
-  }
-
-  application {
-    name     = juju_application.grafana_agent.name
-    endpoint = "logging-provider"
-  }
-}
-
-resource "juju_integration" "history_server_grafana_agent_metrics" {
-  model = data.juju_model.spark.name
-
-  application {
-    name     = var.spark_charms.history_server
-    endpoint = "metrics-endpoint"
-  }
-
-  application {
-    name     = juju_application.grafana_agent.name
-    endpoint = "metrics-endpoint"
-  }
-}
-
-resource "juju_integration" "kyuubi_grafana_agent_metrics" {
-  model = data.juju_model.spark.name
-
-  application {
-    name     = var.spark_charms.kyuubi
-    endpoint = "metrics-endpoint"
-  }
-
-  application {
-    name     = juju_application.grafana_agent.name
-    endpoint = "metrics-endpoint"
-  }
-}
-
-resource "juju_integration" "kyuubi_grafana_agent_dashboards" {
-  model = data.juju_model.spark.name
-
-  application {
-    name     = var.spark_charms.kyuubi
-    endpoint = "grafana-dashboard"
-  }
-
-  application {
-    name     = juju_application.grafana_agent.name
-    endpoint = "grafana-dashboards-consumer"
-  }
-}
-
-resource "juju_integration" "kyuubi_grafana_agent_logging" {
-  model = data.juju_model.spark.name
-
-  application {
-    name     = var.spark_charms.kyuubi
-    endpoint = "logging"
-  }
-
-  application {
-    name     = juju_application.grafana_agent.name
-    endpoint = "logging-provider"
-  }
-}
-
-resource "juju_integration" "integration_hub_grafana_agent_logging" {
-  model = data.juju_model.spark.name
-
-  application {
-    name     = var.spark_charms.integration_hub
-    endpoint = "logging"
-  }
-
-  application {
-    name     = juju_application.grafana_agent.name
-    endpoint = "logging-provider"
-  }
-}
+# resource "juju_integration" "pushgateway_integration_hub" {
+#   model = data.juju_model.spark.name
+#
+#   application {
+#     name     = juju_application.pushgateway.name
+#     endpoint = "push-endpoint"
+#   }
+#
+#   application {
+#     name     = var.spark_charms.integration_hub
+#     endpoint = "cos"
+#   }
+# }
+#
+# resource "juju_integration" "history_server_grafana_agent_dashboard" {
+#   model = data.juju_model.spark.name
+#
+#   application {
+#     name     = var.spark_charms.history_server
+#     endpoint = "grafana-dashboard"
+#   }
+#
+#   application {
+#     name     = juju_application.grafana_agent.name
+#     endpoint = "grafana-dashboards-consumer"
+#   }
+# }
+#
+# resource "juju_integration" "history_server_grafana_agent_logging" {
+#   model = data.juju_model.spark.name
+#
+#   application {
+#     name     = var.spark_charms.history_server
+#     endpoint = "logging"
+#   }
+#
+#   application {
+#     name     = juju_application.grafana_agent.name
+#     endpoint = "logging-provider"
+#   }
+# }
+#
+# resource "juju_integration" "history_server_grafana_agent_metrics" {
+#   model = data.juju_model.spark.name
+#
+#   application {
+#     name     = var.spark_charms.history_server
+#     endpoint = "metrics-endpoint"
+#   }
+#
+#   application {
+#     name     = juju_application.grafana_agent.name
+#     endpoint = "metrics-endpoint"
+#   }
+# }
+#
+# resource "juju_integration" "kyuubi_grafana_agent_metrics" {
+#   model = data.juju_model.spark.name
+#
+#   application {
+#     name     = var.spark_charms.kyuubi
+#     endpoint = "metrics-endpoint"
+#   }
+#
+#   application {
+#     name     = juju_application.grafana_agent.name
+#     endpoint = "metrics-endpoint"
+#   }
+# }
+#
+# resource "juju_integration" "kyuubi_grafana_agent_dashboards" {
+#   model = data.juju_model.spark.name
+#
+#   application {
+#     name     = var.spark_charms.kyuubi
+#     endpoint = "grafana-dashboard"
+#   }
+#
+#   application {
+#     name     = juju_application.grafana_agent.name
+#     endpoint = "grafana-dashboards-consumer"
+#   }
+# }
+#
+# resource "juju_integration" "kyuubi_grafana_agent_logging" {
+#   model = data.juju_model.spark.name
+#
+#   application {
+#     name     = var.spark_charms.kyuubi
+#     endpoint = "logging"
+#   }
+#
+#   application {
+#     name     = juju_application.grafana_agent.name
+#     endpoint = "logging-provider"
+#   }
+# }
+#
+# resource "juju_integration" "integration_hub_grafana_agent_logging" {
+#   model = data.juju_model.spark.name
+#
+#   application {
+#     name     = var.spark_charms.integration_hub
+#     endpoint = "logging"
+#   }
+#
+#   application {
+#     name     = juju_application.grafana_agent.name
+#     endpoint = "logging-provider"
+#   }
+# }
