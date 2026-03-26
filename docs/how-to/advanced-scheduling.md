@@ -42,18 +42,17 @@ Verify that taints and labels were properly applied to the node:
 kubectl describe node <node_name>
 ```
 
-
 This guide shows how to schedule pods on tainted nodes and assign them to specific nodes, ensuring that:
 
 - Spark Driver and Executor pods are scheduled on the nodes dedicated to running user workloads
 - Charmed Apache Spark components are scheduled on control-plane nodes and/or specific architecture
 
-## Scheduling jobs
+## How to schedule jobs
 
 Charmed Apache Spark can be configured to schedule Driver and Executor pod on specific nodes.
 This section details how to set up and configure the advanced scheduling of Spark jobs to mutually segregate control-plane workloads from user workloads and allocate pods on mixed architectures clusters.
 
-### Deploying the Namespace Node Affinity Operator (recommended)
+### Deploy the Namespace Node Affinity Operator (recommended)
 
 The [Namespace Node Affinity Operator](https://github.com/canonical/namespace-node-affinity-operator) adds a given set of node affinities and/or tolerations to all pods deployed in a namespace.
 This works well with Charmed Apache Spark, because user workloads are best run in a dedicated namespace rather than in the namespace used by the Charmed Apache Spark Juju model.
@@ -153,7 +152,7 @@ To apply a toleration to the non Driver (ergo, Executor) pods on the first Names
 
 Respectively, doing the same thing on the second one by excluding `spark-role: executor` will result in a configuration applied to non Executor pods.
 
-###  (Alternative) Defining a Pod template
+### (Alternative) Define a Pod template
 
 While we recommend using Namespace Node Affinity Operator for common scenarios, one downside is that it is limited to adding affinities and tolerations.
 Apache Spark on Kubernetes offers a native way of customising the deployments: [Pod templates](https://spark.apache.org/docs/latest/running-on-kubernetes.html#pod-template).
@@ -206,11 +205,11 @@ The [Integration Hub charm](how-to-service-accounts-integration-hub) can be used
 Please note that the template files must be accessible from the 'spark-submit' command, **not** from where the pods are actually running.
 ```
 
-## Scheduling Charmed Apache Spark components
+## How to schedule Charmed Apache Spark components
 
 While the two previous sections already take care of segregating control-plane workloads from user-driven workloads, this guide details a few strategies on how to also separate the Charmed Apache Spark component from third party workloads (neither Charmed Apache Spark nor the Spark jobs) and take advantage of specific architectures.
 
-### Using Juju commands
+### Use Juju commands
 
 To target a specific architecture, a Juju constraint can be applied to the Charmed Apache Spark model itself, or to each individual charm.
 To apply the constraint to the model, run:
@@ -235,13 +234,11 @@ You may check if a charm supports a specific architecture on [Charmhub](https://
 Constraints tags may also be used to set affinity/anti-affinity of the charms' pods.
 Please note that they are no native Juju mechanisms for setting tolerations, so the deployments examples in this section are limited to **untainted** nodes.
 
-The following command:
+To deploy a charmed operator with a `nodeSelector` expression similar to what we did in the previous sections for the Spark jobs, run:
 
 ```shell
 juju deploy -m <charmed_spark_juju_model> kyuubi-k8s --constraints "tags=<label_key>=<label_value>"
 ```
-
-results in a pod with a `nodeSelector` expression similar to what we did in the previous sections for the Spark jobs.
 
 The same mechanism can be used to improve service availability.
 To deploy three units of the Charmed Apache Kyuubi charm on three distinct nodes of a cluster, run:
@@ -275,7 +272,7 @@ It is not possible to deploy a single charm on heterogeneous architectures.
 All units must be deployed on nodes of the same architecture.
 ```
 
-### Deploying the Namespace Node Affinity Operator
+### Deploy the Namespace Node Affinity Operator
 
 You can use Namespace Node Affinity Operator to add toleration to the Charmed Apache Spark components, similar to how we previously did it for the Apache Spark jobs themselves.
 The targeted nodes must first be untainted.
@@ -298,7 +295,7 @@ Deploy the Namespace Node Affinity Operator:
 juju deploy -m <charmed_spark_juju_model> namespace-node-affinity --trust
 ```
 
-Once the charm is up and running, you may then taint the node:
+Once the charm is up and running, taint the node:
 
 ```shell
 kubectl taint node <node> <taint_key>=<taint_value>:<taint_effect>
@@ -315,7 +312,7 @@ In a new `settings.yaml` file, adapt the configuration below to your Juju model 
     effect: <taint_effect>
 ```
 
-You may now configure the operator to apply the respective toleration to any new charm:
+Configure the operator to apply the respective toleration to any new charm:
 
 ```shell
 juju config -m <charmed_spark_juju_model> namespace-node-affinity settings_yaml="$(<settings.yaml)"
