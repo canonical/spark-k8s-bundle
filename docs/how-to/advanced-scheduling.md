@@ -11,7 +11,7 @@ myst:
 This guide shows how to configure Charmed Apache Spark with Kubernetes mechanisms such as node affinity and toleration to optimize infrastructure governance and performance.
 
 Those mechanisms are used to decouple control plane operations from user-driven workloads, ensuring system services remain stable on cost-effective instance.
-Spark executors can benefit from specialized hardware (high-memory nodes, custom hardware resources such as GPU, specific architecture) while maintaining the flexibility to scale idle resources to zero.
+Spark Executor pods can benefit from specialized hardware (high-memory nodes, custom hardware resources such as GPU, specific architecture) while maintaining the flexibility to scale idle resources to zero.
 
 ## Prerequisites
 
@@ -45,12 +45,12 @@ kubectl describe node <node_name>
 
 This guide shows how to schedule pods on tainted nodes and assign them to specific nodes, ensuring that:
 
-- Spark driver and executor pods are scheduled on the nodes dedicated to running user workloads
+- Spark Driver and Executor pods are scheduled on the nodes dedicated to running user workloads
 - Charmed Apache Spark components are scheduled on control-plane nodes and/or specific architecture
 
 ## Scheduling jobs
 
-Charmed Apache Spark can be configured to schedule driver and executor pod on specific nodes.
+Charmed Apache Spark can be configured to schedule Driver and Executor pod on specific nodes.
 This section details how to set up and configure the advanced scheduling of Spark jobs to mutually segregate control-plane workloads from user workloads and allocate pods on mixed architectures clusters.
 
 ### Deploying the Namespace Node Affinity Operator (recommended)
@@ -102,7 +102,7 @@ Save this file as `namespaces_settings.yaml`, then configure the charm:
 juju config -m <charmed_spark_juju_model> namespace-node-affinity settings_yaml="$(<namespaces_settings.yaml)"
 ```
 
-To verify the configuration, run a Spark job using the `spark-client` snap. The driver and executor pods are scheduled on nodes with the matching label, while the taint prevents other workloads from being scheduled on those nodes.
+To verify the configuration, run a Spark job using the `spark-client` snap. The Driver and Executor pods are scheduled on nodes with the matching label, while the taint prevents other workloads from being scheduled on those nodes.
 
 ```shell
 spark-client.spark-submit \
@@ -136,9 +136,9 @@ Charmed Apache Spark provides multi-architecture manifests for rock images suppo
 Therefore, your container runtime should be able to use the proper image based on the node architecture without any further intervention.
 ```
 
-Two Namespace Node Affinity Operator applications can work alongside one another to enforce distinct configurations on the driver and executor pods.
-The solution is to use the `excludedLabels` to avoid applying the driver pod configuration to the executor pods and vice-versa.
-To apply a toleration to the non-driver pods on the first Namespace Node Affinity Operator:
+Two Namespace Node Affinity Operator applications can work alongside one another to enforce distinct configurations on the Driver and Executor pods.
+The solution is to use the `excludedLabels` to avoid applying the Driver pod configuration to the Executor pods and vice-versa.
+To apply a toleration to the non Driver (ergo, Executor) pods on the first Namespace Node Affinity Operator:
 
 ```yaml
 <namespace>: |
@@ -151,7 +151,7 @@ To apply a toleration to the non-driver pods on the first Namespace Node Affinit
     effect: <taint_effect>
 ```
 
-Respectively, doing the same thing on the second one by excluding `spark-role: executor` will result in a configuration applied to non-executor pods.
+Respectively, doing the same thing on the second one by excluding `spark-role: executor` will result in a configuration applied to non Executor pods.
 
 ###  (Alternative) Defining a Pod template
 
@@ -159,7 +159,7 @@ While we recommend using Namespace Node Affinity Operator for common scenarios, 
 Apache Spark on Kubernetes offers a native way of customising the deployments: [Pod templates](https://spark.apache.org/docs/latest/running-on-kubernetes.html#pod-template).
 
 Pod templates are more complex and versatile than the Namespace Node Affinity Operator configuration and can be used to schedule pods with different hardware needs or resource quotas.
-[Enabling GPU acceleration](how-to-use-gpu) presents such a case, where we do not want to reserve costly resources for driver pods if they do not need it.\
+[Enabling GPU acceleration](how-to-use-gpu) presents such a case, where we do not want to reserve costly resources for Driver pods if they do not need it.\
 This section presents an alternative way to schedule Spark jobs using Pod templates.
 
 The example below is the equivalent of the first `namespaces_settings.yaml` presented in the previous section, as it applies a `nodeSelector` and a toleration matching a previously applied taint:
@@ -187,10 +187,10 @@ spark-client.spark-submit \
     ...
 ```
 
-You may omit one of the two Spark properties above, or point to a different file in each property to schedule driver and executors pods differently.
+You may omit one of the two Spark properties above, or point to a different file in each property to schedule Driver and Executors pods differently.
 
 Pod templates can also be used to schedule pods on specific architecture.
-The example below will schedule the driver and/or executors pods (depending on the Spark property used) only on `arm64` nodes.
+The example below will schedule the Driver and/or Executors pods (depending on the Spark property used) only on `arm64` nodes.
 
 ```yaml
 apiVersion: v1
