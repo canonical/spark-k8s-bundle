@@ -6,27 +6,27 @@ myst:
 
 (how-to-advanced-scheduling)=
 
-# Advanced scheduling
+# How to use advanced scheduling
 
-You can optimize infrastructure governance and performance by configuring Charmed Apache Spark with Kubernetes mechanisms, such as node affinity and toleration.
+This guide shows how to configure Charmed Apache Spark with Kubernetes mechanisms such as node affinity and toleration to optimize infrastructure governance and performance.
 
 Those mechanisms are used to decouple control plane operations from user-driven workloads, ensuring system services remain stable on cost-effective instance.
 Spark executors can benefit from specialized hardware (high-memory nodes, custom hardware resources such as GPU, specific architecture) while maintaining the flexibility to scale idle resources to zero.
 
 ## Prerequisites
 
-This section assumes that Charmed Apache Spark is deployed on a multi-nodes Kubernetes cluster.
-Advanced scheduling is achieved using [nodeSelector](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector), [Affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity) and [Taints](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/).
+This guide assumes that Charmed Apache Spark is deployed on a multi-node Kubernetes cluster.
 
-`nodeSelector` and affinities are notably applied to Kubernetes labels while taints are applied to the nodes themselves.
+To configure advanced scheduling, use [nodeSelector](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector), [affinity rules](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity), and [taints](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/).
+`nodeSelector` and affinity rules work with Kubernetes labels, while taints are applied directly to nodes.
 
-You may apply a label to a node using the following command:
+To apply a label to a node:
 
 ```shell
 kubectl label nodes <node_name> <key>=<value>
 ```
 
-Tainting a node is achieved using the following:
+To taint a node:
 
 ```shell
 kubectl taint nodes <node_name> <key>=<value>:<effect>
@@ -36,15 +36,14 @@ kubectl taint nodes <node_name> <key>=<value>:<effect>
 We recommend exclusively using `NoSchedule` effects rather than `NoExecute` to avoid disrupting pre-existing workloads.
 ```
 
-Finally, you may use
+Verify that taints and labels were properly applied to the node:
 
 ```shell
 kubectl describe node <node_name>
 ```
 
-to verify that taints and labels were properly applied to the node.
 
-This guide will demonstrate how to allow pods to be scheduled on tainted nodes and how to assign them to those nodes, ensuring that:
+This guide shows how to schedule pods on tainted nodes and assign them to specific nodes, ensuring that:
 
 - Spark driver and executor pods are scheduled on the nodes dedicated to running user workloads
 - Charmed Apache Spark components are scheduled on control-plane nodes and/or specific architecture
@@ -57,7 +56,7 @@ This section details how to set up and configure the advanced scheduling of Spar
 ### Deploying the Namespace Node Affinity Operator (recommended)
 
 The [Namespace Node Affinity Operator](https://github.com/canonical/namespace-node-affinity-operator) adds a given set of node affinities and/or tolerations to all pods deployed in a namespace.
-This is a great match for Charmed Apache Spark, since we recommend running user-driven workloads in dedicated namespace rather than in the Charmed Apache Spark Juju model's.\
+This works well with Charmed Apache Spark, because user workloads are best run in a dedicated namespace rather than in the namespace used by the Charmed Apache Spark Juju model.
 To deploy the Namespace Node Affinity Operator, run the following command:
 
 ```shell
@@ -65,7 +64,7 @@ juju deploy -m <charmed_spark_juju_model> namespace-node-affinity --trust
 ```
 
 By default, the WebHook is not configured to modify pods in any namespace.
-First, you must label all namespaces that will contain the pods you want to change the affinities/tolerations using:
+First, label each namespace that contains pods you want the webhook to modify by applying node affinity and toleration settings:
 
 ```shell
 kubectl label ns <namespace_1> namespace-node-affinity=enabled
@@ -77,8 +76,8 @@ Repeat for all namespaces which will contain Spark service accounts.
 Note that those namespaces need to exist before you label them.
 ```
 
-Then, you must also pass the WebHook configuration to be applied to the pods.
-The example below will apply a `nodeSelector` to the pods in the namespace to assign them to a node with the matching label and a toleration to run on said tainted node.
+Then, provide the webhook configuration to apply to pods in those namespaces.
+The following example applies a `nodeSelector` to pods in the namespace so that they are scheduled onto nodes with the specified label. It also adds a toleration so that the pods can run on nodes with the specified taint.
 
 ```yaml
 <namespace_1>: |
@@ -97,13 +96,13 @@ The example below will apply a `nodeSelector` to the pods in the namespace to as
   ...
 ```
 
-You may save this file under `namespaces_settings.yaml` and configure the charm using:
+Save this file as `namespaces_settings.yaml`, then configure the charm:
 
 ```shell
 juju config -m <charmed_spark_juju_model> namespace-node-affinity settings_yaml="$(<namespaces_settings.yaml)"
 ```
 
-This is it, you may now run a Spark job using the `spark-client` snap and see that the driver and executor pods are scheduled on the node(s) with the matching label, while the taint prevents other workloads from being scheduled there.
+To verify the configuration, run a Spark job using the `spark-client` snap. The driver and executor pods are scheduled on nodes with the matching label, while the taint prevents other workloads from being scheduled on those nodes.
 
 ```shell
 spark-client.spark-submit \
@@ -133,13 +132,13 @@ To restrict Spark jobs in `namespace_1` to only run on `arm64` nodes, use the fo
 ```
 
 ```{note}
-Charmed Apache Spark provides multi-architecture manifests for rock images supporting amd64 and arm64.
+Charmed Apache Spark provides multi-architecture manifests for rock images supporting `amd64` and `arm64`.
 Therefore, your container runtime should be able to use the proper image based on the node architecture without any further intervention.
 ```
 
 Two Namespace Node Affinity Operator applications can work alongside one another to enforce distinct configurations on the driver and executor pods.
 The solution is to use the `excludedLabels` to avoid applying the driver pod configuration to the executor pods and vice-versa.
-Here is how to apply a toleration to the non-driver pods on the first Namespace Node Affinity Operator:
+To apply a toleration to the non-driver pods on the first Namespace Node Affinity Operator:
 
 ```yaml
 <namespace>: |
@@ -154,7 +153,7 @@ Here is how to apply a toleration to the non-driver pods on the first Namespace 
 
 Respectively, doing the same thing on the second one by excluding `spark-role: executor` will result in a configuration applied to non-executor pods.
 
-### Defining a Pod template (alternative)
+###  (Alternative) Defining a Pod template
 
 While we recommend using Namespace Node Affinity Operator for common scenarios, one downside is that it is limited to adding affinities and tolerations.
 Apache Spark on Kubernetes offers a native way of customising the deployments: [Pod templates](https://spark.apache.org/docs/latest/running-on-kubernetes.html#pod-template).
