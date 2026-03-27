@@ -9,6 +9,7 @@ output "charms" {
     kyuubi          = juju_application.kyuubi.name
     kyuubi_users    = juju_application.kyuubi_users.name
     metastore       = juju_application.metastore.name
+    zookeeper       = juju_application.zookeeper.name
   }
 }
 

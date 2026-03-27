@@ -150,41 +150,41 @@ resource "juju_application" "integration_hub" {
   constraints = "arch=amd64"
 }
 
-# resource "juju_application" "zookeeper" {
-#   name  = "zookeeper"
-#   model = data.juju_model.spark.name
-#
-#   charm {
-#     name     = "zookeeper-k8s"
-#     channel  = "3/stable"
-#     revision = var.zookeeper_revision
-#   }
-#
-#   storage_directives = {
-#     zookeeper = var.zookeeper_size
-#   }
-#
-#
-#   resources = var.zookeeper_image
-#
-#   units       = var.zookeeper_units
-#   constraints = "arch=amd64"
-# }
+resource "juju_application" "zookeeper" {
+  name  = "zookeeper"
+  model = data.juju_model.spark.name
 
-# resource "juju_application" "data_integrator" {
-#   name  = "data-integrator"
-#   model = data.juju_model.spark.name
-#
-#   charm {
-#     name     = "data-integrator"
-#     channel  = "latest/stable"
-#     revision = var.data_integrator_revision
-#   }
-#
-#   config = {
-#     database-name = "integrator"
-#   }
-#
-#   units       = 1
-#   constraints = "arch=amd64"
-# }
+  charm {
+    name     = "zookeeper-k8s"
+    channel  = "3/stable"
+    revision = var.zookeeper_revision
+  }
+
+  storage_directives = {
+    zookeeper = var.zookeeper_size
+  }
+
+
+  resources = var.zookeeper_image
+
+  units       = var.zookeeper_units
+  constraints = "arch=amd64"
+}
+
+resource "juju_application" "data_integrator" {
+  name  = "data-integrator"
+  model = data.juju_model.spark.name
+
+  charm {
+    name     = "data-integrator"
+    channel  = "latest/stable"
+    revision = var.data_integrator_revision
+  }
+
+  config = {
+    database-name = "integrator"
+  }
+
+  units       = 1
+  constraints = "arch=amd64"
+}
