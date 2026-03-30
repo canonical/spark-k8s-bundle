@@ -62,7 +62,7 @@ To deploy the Namespace Node Affinity Operator, run the following command:
 juju deploy -m <charmed_spark_juju_model> namespace-node-affinity --trust
 ```
 
-By default, the WebHook is not configured to modify pods in any namespace.
+By default, the webhook is not configured to modify pods in any namespace.
 First, label each namespace that contains pods you want the webhook to modify by applying node affinity and toleration settings:
 
 ```shell
