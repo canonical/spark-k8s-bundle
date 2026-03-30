@@ -59,7 +59,7 @@ This works well with Charmed Apache Spark, because user workloads are best run i
 To deploy the Namespace Node Affinity Operator, run the following command:
 
 ```shell
-juju deploy -m <charmed_spark_juju_model> namespace-node-affinity --trust
+juju deploy namespace-node-affinity --trust
 ```
 
 By default, the webhook is not configured to modify pods in any namespace.
@@ -98,7 +98,7 @@ The following example applies a `nodeSelector` to pods in the namespace so that 
 Save this file as `namespaces_settings.yaml`, then configure the charm:
 
 ```shell
-juju config -m <charmed_spark_juju_model> namespace-node-affinity settings_yaml="$(<namespaces_settings.yaml)"
+juju config namespace-node-affinity settings_yaml="$(<namespaces_settings.yaml)"
 ```
 
 To verify the configuration, run a Spark job using the `spark-client` snap. The driver and executor pods are scheduled on nodes with the matching label, while the taint prevents other workloads from being scheduled on those nodes.
