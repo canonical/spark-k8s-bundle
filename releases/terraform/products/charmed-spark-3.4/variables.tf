@@ -1,0 +1,395 @@
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+# Juju
+
+variable "admin_password" {
+  description = "The password for the admin user."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
+variable "alertmanager_size" {
+  description = "Storage size for the alertmanager database"
+  type        = string
+  default     = "10G"
+}
+
+variable "azure_storage" {
+  description = "Azure Object storage information"
+  type = object({
+    container       = optional(string, "azurecontainer")
+    storage_account = optional(string, "azurestorageaccount")
+    secret_key      = optional(string, "azurestoragesecret")
+    protocol        = optional(string, "abfss")
+  })
+  default = {}
+}
+
+variable "azure_storage_revision" {
+  description = "Charm revision for azure-storage-integrator"
+  type        = number
+  default     = null
+}
+
+variable "certificate_common_name" {
+  description = "Common name for the certificate to be used in self-signed"
+  type        = string
+  default     = "charmed-spark"
+}
+
+variable "cos" {
+  description = "Observability settings"
+  type = object({
+    model    = optional(string, "cos")
+    deployed = optional(string, "bundled")
+    offers = optional(object({
+      dashboard = optional(string, null),
+      metrics   = optional(string, null),
+      logging   = optional(string, null)
+    }), {}),
+    tls = optional(object({
+      cert = optional(string, "")
+      key  = optional(string, "")
+      ca   = optional(string, "")
+    }), {})
+  })
+  default = { model = "cos", deployed = "bundled", offers = {}, tls = {} }
+
+  validation {
+    condition     = contains(["external", "bundled", "no"], var.cos.deployed)
+    error_message = "Valid values for var: cos.deployed are (external, bundled, no)"
+  }
+
+  validation {
+    condition = var.cos.deployed != "external" || alltrue([
+      var.cos.offers.dashboard != null,
+      var.cos.offers.metrics != null,
+      var.cos.offers.logging != null,
+    ])
+    error_message = "When using external cos, please define all offers variables"
+  }
+
+}
+
+variable "cos_configuration_revision" {
+  description = "Charm revision for cos-configuration-k8s"
+  type        = number
+  default     = null
+}
+
+variable "create_model" {
+  description = "Should terraform create the Juju models? If set to false, assume the models are created by a different mechanism."
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "data_integrator_revision" {
+  description = "Charm revision for data-integrator"
+  type        = number
+  default     = null
+}
+
+variable "driver_pod_template" {
+  description = "Define K8s driver pod from a file accessible to the `spark-submit` process."
+  type        = string
+  default     = null
+}
+
+variable "enable_dynamic_allocation" {
+  description = "Enable dynamic allocation of pods for Spark jobs."
+  type        = bool
+  default     = false
+}
+
+variable "executor_pod_template" {
+  description = "Define K8s executor pod from a file accessible to the `spark-submit` process."
+  type        = string
+  default     = null
+}
+
+variable "grafana_agent_revision" {
+  description = "Charm revision for grafana-agent-k8s"
+  type        = number
+  default     = null
+}
+
+variable "grafana_size" {
+  description = "Storage size for the grafana database"
+  type        = string
+  default     = "10G"
+}
+
+variable "history_server_image" {
+  description = "Image for spark-history-server-k8s"
+  type        = map(string)
+  default     = null
+}
+
+variable "history_server_revision" {
+  description = "Charm revision for spark-history-server-k8s"
+  type        = number
+  default     = null
+}
+
+variable "integration_hub_image" {
+  description = "Image for spark-integration-hub-k8s"
+  type        = map(string)
+  default     = null
+}
+
+variable "integration_hub_monitored_service_accounts" {
+  description = "Comma-separated patterns for namespaces and service accounts to monitor and update"
+  type        = string
+  default     = null
+}
+
+variable "integration_hub_revision" {
+  description = "Charm revision for spark-integration-hub-k8s"
+  type        = number
+  default     = null
+}
+
+variable "K8S_CLOUD" {
+  type        = string
+  description = "The kubernetes juju cloud name."
+  default     = "microk8s"
+}
+
+variable "K8S_CREDENTIAL" {
+  type        = string
+  description = "The name of the kubernetes juju credential."
+  default     = "microk8s"
+}
+
+variable "kyuubi_driver_pod_template" {
+  description = "Define K8s driver pod from a file accessible in the object storage."
+  type        = string
+  default     = null
+}
+
+variable "kyuubi_executor_cores" {
+  description = "Set kyuubi executor pods cpu cores."
+  type        = number
+  default     = null
+}
+
+variable "kyuubi_executor_memory" {
+  description = "Set kyuubi executor pods memory (in GB)."
+  type        = number
+  default     = null
+}
+
+variable "kyuubi_executor_pod_template" {
+  description = "Define K8s executor pod from a file accessible in the object storage."
+  type        = string
+  default     = null
+}
+
+variable "kyuubi_gpu_enable" {
+  description = "Enable GPU acceleration for SparkSQLEngine."
+  type        = bool
+  default     = false
+}
+
+variable "kyuubi_gpu_engine_executors_limit" {
+  description = "Limit the number of GPUs an engine can schedule executor pods on."
+  type        = number
+  default     = 1
+}
+
+variable "kyuubi_gpu_pinned_memory" {
+  description = "Set the host memory (in GB) per executor reserved for fast data transfer on GPUs."
+  type        = number
+  default     = 1
+}
+
+variable "kyuubi_image" {
+  description = "Image for kyuubi-k8s"
+  type        = map(string)
+  default     = null
+}
+
+variable "kyuubi_k8s_node_selectors" {
+  description = "Comma separated label:value selectors for K8s pods in Kyuubi."
+  type        = string
+  default     = null
+}
+
+variable "kyuubi_loadbalancer_extra_annotations" {
+  description = "Optional extra annotations to be supplied to the load balancer service in Kyuubi."
+  type        = string
+  default     = null
+}
+
+variable "kyuubi_profile" {
+  description = "The profile to be used for Kyuubi; should be one of 'testing', 'staging' and 'production'."
+  type        = string
+  nullable    = false
+  default     = "production"
+}
+
+variable "kyuubi_revision" {
+  description = "Charm revision for kyuubi-k8s"
+  type        = number
+  default     = null
+}
+
+variable "kyuubi_units" {
+  description = "Number of Kyuubi units. 3 units are recommended for high availability."
+  type        = number
+  default     = 3
+  nullable    = false
+}
+
+variable "kyuubi_user" {
+  description = "Define the user to be used for running Kyuubi enginers"
+  type        = string
+  default     = "kyuubi-spark-engine"
+}
+
+variable "kyuubi_users_image" {
+  description = "Image for postgresql-k8s (auth-db)"
+  type        = map(string)
+  default     = null
+}
+
+variable "kyuubi_users_revision" {
+  description = "Charm revision for postgresql-k8s (auth-db)"
+  type        = number
+  default     = null
+}
+
+variable "kyuubi_users_size" {
+  description = "Storage size for the Kyuubi users database"
+  type        = string
+  default     = "1G"
+}
+
+variable "loki_active_index_directory_size" {
+  description = "Storage size for the active index directory for Loki"
+  type        = string
+  default     = "10G"
+}
+
+variable "loki_chunks_size" {
+  description = "Storage size for the Loki chucks storage"
+  type        = string
+  default     = "500G"
+}
+
+variable "metastore_image" {
+  description = "Image for postgresql-k8s (metastore)"
+  type        = map(string)
+  default     = null
+}
+
+variable "metastore_revision" {
+  description = "Charm revision for postgresql-k8s (metastore)"
+  type        = number
+  default     = null
+}
+
+variable "metastore_size" {
+  description = "Storage size for the metastore database"
+  type        = string
+  default     = "10G"
+}
+
+variable "model" {
+  description = "The name of the juju model to deploy Spark to"
+  type        = string
+  default     = "spark"
+}
+
+variable "model_uuid" {
+  description = "Optional existing Juju model UUID to deploy Spark to. If provided, model creation is skipped in higher-level modules."
+  type        = string
+  default     = null
+}
+
+variable "prometheus_size" {
+  description = "Storage size for the Prometheus database"
+  type        = string
+  default     = "500G"
+}
+
+variable "pushgateway_revision" {
+  description = "Charm revision for prometheus-pushgateway-k8s"
+  type        = number
+  default     = null
+}
+
+variable "s3" {
+  description = "S3 Bucket information"
+  type = object({
+    bucket   = optional(string, "spark-test")
+    endpoint = optional(string, "https://s3.amazonaws.com")
+    region   = optional(string, "us-east-1")
+  })
+  default = {}
+}
+
+variable "s3_revision" {
+  description = "Charm revision for s3-integrator"
+  type        = number
+  default     = null
+}
+
+variable "scrape_config_revision" {
+  description = "Charm revision for prometheus-scrape-config-k8s"
+  type        = number
+  default     = null
+}
+
+variable "storage_backend" {
+  type        = string
+  description = "Storage backend to be used"
+
+  validation {
+    condition     = contains(["azure_storage", "s3"], var.storage_backend)
+    error_message = "Valid values for var: test_variable are (s3, azure_storage)."
+  }
+
+  default = "s3"
+}
+
+variable "tls_private_key" {
+  description = "The file path of the private key to use for TLS certificates."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
+variable "traefik_size" {
+  description = "Storage size for the Traefik storage"
+  type        = string
+  default     = "10G"
+}
+
+variable "zookeeper_image" {
+  description = "Image for zookeeper-k8s"
+  type        = map(string)
+  default     = null
+}
+
+variable "zookeeper_revision" {
+  description = "Charm revision for zookeeper-k8s"
+  type        = number
+  default     = null
+}
+
+variable "zookeeper_size" {
+  description = "Storage size for the metastore database"
+  type        = string
+  default     = "10G"
+}
+
+variable "zookeeper_units" {
+  description = "Define the number of zookeeper units. 3 units are recommended for high availability."
+  type        = number
+  default     = 3
+  nullable    = false
+}
