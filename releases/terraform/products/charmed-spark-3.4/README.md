@@ -17,7 +17,7 @@
 | <a name="module_azure_storage"></a> [azure\_storage](#module\_azure\_storage) | ./charms/azure-storage-integrator | n/a |
 | <a name="module_bundled_cos"></a> [bundled\_cos](#module\_bundled\_cos) | ./products/cos | n/a |
 | <a name="module_observability"></a> [observability](#module\_observability) | ./components/observability | n/a |
-| <a name="module_s3"></a> [s3](#module\_s3) | ./charms/s3-integrator | n/a |
+| <a name="module_s3"></a> [s3](#module\_s3) | ./charms/s3-integrator-v1 | n/a |
 | <a name="module_spark"></a> [spark](#module\_spark) | ./components/spark-3.4 | n/a |
 | <a name="module_ssc"></a> [ssc](#module\_ssc) | git::https://github.com/canonical/self-signed-certificates-operator//terraform | rev326 |
 

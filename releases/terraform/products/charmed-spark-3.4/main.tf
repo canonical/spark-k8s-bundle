@@ -2,145 +2,251 @@
 # See LICENSE file for licensing details.
 
 resource "juju_model" "spark" {
-  count      = (var.model_uuid == null && var.create_model == true) ? 1 : 0
-  name       = var.model
+  count = (var.model_uuid == null && var.create_model == true) ? 1 : 0
+
+  name       = var.spark_model_name
   credential = var.K8S_CREDENTIAL
   cloud {
     name = var.K8S_CLOUD
   }
 }
 
-resource "juju_model" "cos" {
-  count      = var.cos.deployed == "bundled" && var.model_uuid == null && var.create_model == true ? 1 : 0
-  name       = var.cos.model
-  credential = var.K8S_CREDENTIAL
-  cloud {
-    name = var.K8S_CLOUD
-  }
-}
+# resource "juju_model" "cos" {
+#   count = var.cos.deployed == "bundled" && var.model_uuid == null && var.create_model == true ? 1 : 0
 
-locals {
-  active_model = coalesce(var.model_uuid, var.model)
-}
-
-data "juju_model" "spark" {
-  name = var.model
-}
+#   name       = var.cos.model
+#   credential = var.K8S_CREDENTIAL
+#   cloud {
+#     name = var.K8S_CLOUD
+#   }
+# }
 
 module "ssc" {
-  depends_on  = [juju_model.spark]
-  source      = "git::https://github.com/canonical/self-signed-certificates-operator//terraform?ref=rev586"
-  model_uuid  = coalesce(var.model_uuid, data.juju_model.spark.id)
-  app_name    = "certificates"
-  channel     = "1/stable"
-  revision    = 317
-  constraints = "arch=amd64"
-  base        = "ubuntu@24.04"
-  units       = 1
+  depends_on = [juju_model.spark]
+  source     = "git::https://github.com/canonical/self-signed-certificates-operator//terraform?ref=rev586"
+  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
+
+  base    = "ubuntu@24.04"
+  channel = "1/stable"
   config = {
     ca-common-name = var.certificate_common_name
   }
+  constraints = "arch=amd64"
+  revision    = local.revisions.ssc
+  units       = 1
+
 }
 
-module "spark" {
-  depends_on                                 = [juju_model.spark, module.ssc]
-  source                                     = "../../components/spark-3.4"
-  model                                      = local.active_model
-  kyuubi_user                                = var.kyuubi_user
-  kyuubi_profile                             = var.kyuubi_profile
-  admin_password                             = var.admin_password
-  tls_private_key                            = var.tls_private_key
-  enable_dynamic_allocation                  = var.enable_dynamic_allocation
-  kyuubi_k8s_node_selectors                  = var.kyuubi_k8s_node_selectors
-  kyuubi_loadbalancer_extra_annotations      = var.kyuubi_loadbalancer_extra_annotations
-  kyuubi_gpu_enable                          = var.kyuubi_gpu_enable
-  kyuubi_gpu_engine_executors_limit          = var.kyuubi_gpu_engine_executors_limit
-  kyuubi_gpu_pinned_memory                   = var.kyuubi_gpu_pinned_memory
-  kyuubi_driver_pod_template                 = var.kyuubi_driver_pod_template
-  kyuubi_executor_pod_template               = var.kyuubi_executor_pod_template
-  kyuubi_executor_cores                      = var.kyuubi_executor_cores
-  kyuubi_executor_memory                     = var.kyuubi_executor_memory
-  driver_pod_template                        = var.driver_pod_template
-  executor_pod_template                      = var.executor_pod_template
-  integration_hub_monitored_service_accounts = var.integration_hub_monitored_service_accounts
+module "kyuubi_users" {
+  depends_on = [juju_model.spark]
+  source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev774"
+  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
 
-  tls_app_name              = module.ssc.app_name
-  tls_certificates_endpoint = module.ssc.provides.certificates
-  zookeeper_units           = var.zookeeper_units
-  kyuubi_units              = var.kyuubi_units
+  app_name    = "kyuubi-users"
+  base        = "ubuntu@22.04"
+  channel     = "14/stable"
+  constraints = "arch=amd64"
+  revision    = local.revisions.kyuubi_users
+  resources = {
+    postgresql-image = local.images.kyuubi_users
+  }
+  storage_directives = {
+    pgdata = var.kyuubi_users_size
+  }
+  units = 1
+}
 
-  history_server_revision  = var.history_server_revision != null ? var.history_server_revision : local.revisions.history_server
-  history_server_image     = var.history_server_image != null ? var.history_server_image : local.images.history_server
-  integration_hub_revision = var.integration_hub_revision != null ? var.integration_hub_revision : local.revisions.integration_hub
-  integration_hub_image    = var.integration_hub_image != null ? var.integration_hub_image : local.images.integration_hub
-  kyuubi_revision          = var.kyuubi_revision != null ? var.kyuubi_revision : local.revisions.kyuubi
-  kyuubi_image             = var.kyuubi_image != null ? var.kyuubi_image : local.images.kyuubi
-  kyuubi_users_revision    = var.kyuubi_users_revision != null ? var.kyuubi_users_revision : local.revisions.kyuubi_users
-  kyuubi_users_image       = var.kyuubi_users_image != null ? var.kyuubi_users_image : local.images.kyuubi_users
-  metastore_revision       = var.metastore_revision != null ? var.metastore_revision : local.revisions.metastore
-  metastore_image          = var.metastore_image != null ? var.metastore_image : local.images.metastore
-  zookeeper_revision       = var.zookeeper_revision != null ? var.zookeeper_revision : local.revisions.zookeeper
-  zookeeper_image          = var.zookeeper_image != null ? var.zookeeper_image : local.images.zookeeper
-  data_integrator_revision = var.data_integrator_revision != null ? var.data_integrator_revision : local.revisions.data_integrator
+module "metastore" {
+  depends_on = [juju_model.spark]
+  source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev774"
+  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
 
-  kyuubi_users_size = var.kyuubi_users_size
-  metastore_size    = var.metastore_size
-  zookeeper_size    = var.zookeeper_size
+  app_name    = "metastore"
+  base        = "ubuntu@22.04"
+  channel     = "14/stable"
+  constraints = "arch=amd64"
+  revision    = local.revisions.metastore
+  resources = {
+    postgresql-image = local.images.metastore
+  }
+  storage_directives = {
+    pgdata = var.metastore_size
+  }
+  units = 1
+}
+
+
+module "zk" {
+  depends_on = [juju_model.spark]
+  source     = "../../charms/zookeeper"
+  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
+
+  base        = "ubuntu@22.04"
+  channel     = "3/stable"
+  constraints = "arch=amd64"
+  revision    = local.revisions.zookeeper
+  resources = {
+    zookeeper-image = local.images.zookeeper
+  }
+  units = var.zookeeper_units
+}
+
+module "data_integrator" {
+  depends_on = [juju_model.spark]
+  source     = "../../charms/data-integrator"
+  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
+
+  base        = "ubuntu@24.04"
+  channel     = "latest/stable"
+  constraints = "arch=amd64"
+  revision    = local.revisions.data_integrator
 }
 
 module "azure_storage" {
-  depends_on    = [module.spark]
-  count         = var.storage_backend == "azure_storage" ? 1 : 0
-  source = "../../charms/azure-storage-integrator"
-  model_uuid    = local.active_model
-  spark_charms  = module.spark.charms
-  azure_storage = var.azure_storage
+  depends_on = [juju_model.spark]
+  count      = var.storage_backend == "azure_storage" ? 1 : 0
+  source     = "../../charms/azure-storage-integrator"
+  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
 
-  azure_storage_revision = var.azure_storage_revision != null ? var.azure_storage_revision : local.revisions.azure_storage
+  azure_storage_secret_key = var.azure_storage.secret_key
+  base                     = "ubuntu@22.04"
+  channel                  = "latest/edge"
+  config = {
+    connection-protocol = var.azure_storage.protocol
+    container           = var.azure_storage.container
+    storage_account     = var.azure_storage.storage_account
+  }
+  constraints = "arch=amd64"
+  revision    = local.revisions.azure_storage
 }
 
 module "s3" {
-  depends_on   = [module.spark]
-  count        = var.storage_backend == "s3" ? 1 : 0
-  source = "../../charms/s3-integrator"
-  model_uuid   = local.active_model
-  spark_charms = module.spark.charms
-  s3           = var.s3
+  depends_on = [juju_model.spark]
+  count      = var.storage_backend == "s3" ? 1 : 0
+  source     = "../../charms/s3-integrator-v1"
+  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
 
-  s3_revision = var.s3_revision != null ? var.s3_revision : local.revisions.s3
+  base    = "ubuntu@22.04"
+  channel = "1/stable"
+  config = {
+    bucket   = var.s3.bucket
+    endpoint = var.s3.endpoint
+    region   = var.s3.region
+  }
+  constraints = "arch=amd64"
+  revision    = local.revisions.s3
 }
 
-module "bundled_cos" {
-  depends_on   = [juju_model.cos]
-  count        = var.cos.deployed == "bundled" ? 1 : 0
-  source = "../cos"
-  model        = var.cos.model
-  cos_tls_ca   = var.cos.tls.ca
-  cos_tls_cert = var.cos.tls.cert
-  cos_tls_key  = var.cos.tls.key
+# module "bundled_cos" {
+#   depends_on   = [juju_model.cos]
+#   count        = var.cos.deployed == "bundled" ? 1 : 0
+#   source       = "../cos"
+#   model_uuid   = juju_model.cos.uuid
+#   cos_tls_ca   = var.cos.tls.ca
+#   cos_tls_cert = var.cos.tls.cert
+#   cos_tls_key  = var.cos.tls.key
 
-  alertmanager_size                = var.alertmanager_size
-  grafana_size                     = var.grafana_size
-  loki_active_index_directory_size = var.loki_active_index_directory_size
-  loki_chunks_size                 = var.loki_chunks_size
-  prometheus_size                  = var.prometheus_size
-  traefik_size                     = var.traefik_size
+#   alertmanager_size                = var.alertmanager_size
+#   grafana_size                     = var.grafana_size
+#   loki_active_index_directory_size = var.loki_active_index_directory_size
+#   loki_chunks_size                 = var.loki_chunks_size
+#   prometheus_size                  = var.prometheus_size
+#   traefik_size                     = var.traefik_size
+# }
+
+module "spark" {
+  depends_on = [
+    juju_model.spark,
+    module.azure_storage,
+    module.data_integrator,
+    module.kyuubi_users,
+    module.metastore,
+    module.s3,
+    module.ssc,
+    module.zk
+  ]
+  source     = "../../components/spark-3.4"
+  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
+
+  history_server  = {}
+  integration_hub = {}
+  kyuubi          = {}
+
+  # kyuubi_user                                = var.kyuubi_user
+  # kyuubi_profile                             = var.kyuubi_profile
+  # admin_password                             = var.admin_password
+  # tls_private_key                            = var.tls_private_key
+  # enable_dynamic_allocation                  = var.enable_dynamic_allocation
+  # kyuubi_k8s_node_selectors                  = var.kyuubi_k8s_node_selectors
+  # kyuubi_loadbalancer_extra_annotations      = var.kyuubi_loadbalancer_extra_annotations
+  # kyuubi_gpu_enable                          = var.kyuubi_gpu_enable
+  # kyuubi_gpu_engine_executors_limit          = var.kyuubi_gpu_engine_executors_limit
+  # kyuubi_gpu_pinned_memory                   = var.kyuubi_gpu_pinned_memory
+  # kyuubi_driver_pod_template                 = var.kyuubi_driver_pod_template
+  # kyuubi_executor_pod_template               = var.kyuubi_executor_pod_template
+  # kyuubi_executor_cores                      = var.kyuubi_executor_cores
+  # kyuubi_executor_memory                     = var.kyuubi_executor_memory
+  # driver_pod_template                        = var.driver_pod_template
+  # executor_pod_template                      = var.executor_pod_template
+  # integration_hub_monitored_service_accounts = var.integration_hub_monitored_service_accounts
+
+  tls_endpoint = {
+    name     = module.ssc.app_name
+    endpoint = module.ssc.provides.certificates
+  }
+
+  metastore_endpoint = {
+    name     = module.metastore.app_name
+    endpoint = module.metastore.provides.database
+  }
+
+  users_db_endpoint = {
+    name     = module.kyuubi_users.app_name
+    endpoint = module.kyuubi_users.provides.database
+  }
+
+  zookeeper_endpoint = {
+    name     = module.zk.application.name
+    endpoint = module.zk.provides.zookeeper
+  }
+
+  data_integrator_endpoint = {
+    name     = module.data_integrator.application.name
+    endpoint = module.data_integrator.requires.kyuubi
+  }
+
+  object_storage_endpoint = {
+    name     = module.s3 != null ? module.s3[0].application.name : module.azure_storage[0].application.name
+    endpoint = module.s3 != null ? module.s3[0].provides.s3_credentials : module.azure_storage[0].provides.azure_storage_credentials
+  }
+
+  # kyuubi_units = var.kyuubi_units
+
+  # history_server_revision  = var.history_server_revision != null ? var.history_server_revision : local.revisions.history_server
+  # history_server_image     = var.history_server_image != null ? var.history_server_image : local.images.history_server
+  # integration_hub_revision = var.integration_hub_revision != null ? var.integration_hub_revision : local.revisions.integration_hub
+  # integration_hub_image    = var.integration_hub_image != null ? var.integration_hub_image : local.images.integration_hub
+  # kyuubi_revision          = var.kyuubi_revision != null ? var.kyuubi_revision : local.revisions.kyuubi
+  # kyuubi_image             = var.kyuubi_image != null ? var.kyuubi_image : local.images.kyuubi
+
 }
 
 
-module "observability" {
-  depends_on       = [module.spark, module.bundled_cos]
-  count            = var.cos.deployed == "no" ? 0 : 1
-  source = "../../components/observability"
-  dashboards_offer = var.cos.deployed == "external" ? var.cos.offers.dashboard : one(module.bundled_cos[*].dashboards_offer)
-  logging_offer    = var.cos.deployed == "external" ? var.cos.offers.logging : one(module.bundled_cos[*].logging_offer)
-  metrics_offer    = var.cos.deployed == "external" ? var.cos.offers.metrics : one(module.bundled_cos[*].metrics_offer)
-  spark_model      = var.model
-  model_uuid       = local.active_model
-  spark_charms     = module.spark.charms
 
-  grafana_agent_revision     = var.grafana_agent_revision != null ? var.grafana_agent_revision : local.revisions.grafana_agent
-  cos_configuration_revision = var.cos_configuration_revision != null ? var.cos_configuration_revision : local.revisions.cos_configuration
-  pushgateway_revision       = var.pushgateway_revision != null ? var.pushgateway_revision : local.revisions.pushgateway
-  scrape_config_revision     = var.scrape_config_revision != null ? var.scrape_config_revision : local.revisions.scrape_config
-}
+
+# module "observability" {
+#   depends_on       = [module.spark, module.bundled_cos]
+#   count            = var.cos.deployed == "no" ? 0 : 1
+#   source           = "../../components/observability"
+#   dashboards_offer = var.cos.deployed == "external" ? var.cos.offers.dashboard : one(module.bundled_cos[*].dashboards_offer)
+#   logging_offer    = var.cos.deployed == "external" ? var.cos.offers.logging : one(module.bundled_cos[*].logging_offer)
+#   metrics_offer    = var.cos.deployed == "external" ? var.cos.offers.metrics : one(module.bundled_cos[*].metrics_offer)
+#   spark_model      = var.model
+#   model_uuid       = local.active_model
+#   spark_charms     = module.spark.charms
+
+#   grafana_agent_revision     = var.grafana_agent_revision != null ? var.grafana_agent_revision : local.revisions.grafana_agent
+#   cos_configuration_revision = var.cos_configuration_revision != null ? var.cos_configuration_revision : local.revisions.cos_configuration
+#   pushgateway_revision       = var.pushgateway_revision != null ? var.pushgateway_revision : local.revisions.pushgateway
+#   scrape_config_revision     = var.scrape_config_revision != null ? var.scrape_config_revision : local.revisions.scrape_config
+# }

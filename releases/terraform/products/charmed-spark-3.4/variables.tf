@@ -164,6 +164,17 @@ variable "K8S_CREDENTIAL" {
   default     = "microk8s"
 }
 
+variable "juju_controller" {
+  description = "Controller information: endpoint, username, password and CA certificate."
+  type = object({
+    endpoint = string
+    username = string
+    password = string
+    ca       = string
+  })
+  default = null
+}
+
 variable "kyuubi_driver_pod_template" {
   description = "Define K8s driver pod from a file accessible in the object storage."
   type        = string
@@ -280,6 +291,12 @@ variable "loki_chunks_size" {
   default     = "500G"
 }
 
+variable "logging_config" {
+  description = "Logging configuration to be used."
+  type        = string
+  default     = ""
+}
+
 variable "metastore_image" {
   description = "Image for postgresql-k8s (metastore)"
   type        = map(string)
@@ -298,10 +315,10 @@ variable "metastore_size" {
   default     = "10G"
 }
 
-variable "model" {
+variable "spark_model_name" {
   description = "The name of the juju model to deploy Spark to"
   type        = string
-  default     = "spark"
+  default     = "spark-test"
 }
 
 variable "model_uuid" {
@@ -320,6 +337,16 @@ variable "pushgateway_revision" {
   description = "Charm revision for prometheus-pushgateway-k8s"
   type        = number
   default     = null
+}
+
+variable "proxy" {
+  description = "Proxy information for the deployment."
+  type = object({
+    http     = optional(string, "")
+    https    = optional(string, "")
+    no_proxy = optional(string, "")
+  })
+  default = {}
 }
 
 variable "s3" {

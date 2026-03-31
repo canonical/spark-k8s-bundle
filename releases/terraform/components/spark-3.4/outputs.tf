@@ -6,29 +6,58 @@ output "charms" {
   value = {
     history_server  = juju_application.history_server.name
     kyuubi          = juju_application.kyuubi.name
-    kyuubi_users    = juju_application.kyuubi_users.name
-    metastore       = juju_application.metastore.name
     integration_hub = juju_application.integration_hub.name
-    zookeeper       = juju_application.zookeeper.name
-    certificates    = var.tls_app_name
   }
 }
 
 output "components" {
   description = "List of the deployed applications for this component module."
   value = [
-    { name = juju_application.history_server.name, type = "history_server" },
-    { name = juju_application.kyuubi.name, type = "kyuubi" },
-    { name = juju_application.kyuubi_users.name, type = "kyuubi_users" },
-    { name = juju_application.metastore.name, type = "metastore" },
-    { name = juju_application.integration_hub.name, type = "integration_hub" },
-    { name = juju_application.zookeeper.name, type = "zookeeper" },
+    juju_application.history_server,
+    juju_application.integration_hub,
+    juju_application.kyuubi,
   ]
+}
+
+output "provides" {
+  description = "Map of all the provides endpoints."
+  value = {
+    integration_hub_spark_service_account = {
+      name     = juju_application.integration_hub.name
+      endpoint = "spark-service-account"
+    }
+    # TODO: Kyuubi
+  }
+}
+
+output "requires" {
+  description = "Map of the requires endpoints."
+  value = {
+    kyuubi_certificates = {
+      name     = juju_application.kyuubi.name
+      endpoint = "certificates"
+    }
+    kyuubi_metastore_db = {
+      name     = juju_application.kyuubi.name
+      endpoint = "metastore-db"
+    }
+    kyuubi_auth_db = {
+      name     = juju_application.kyuubi.name
+      endpoint = "auth-db"
+    }
+    kyuubi_zookeeper = {
+      name     = juju_application.kyuubi.name
+      endpoint = "zookeeper"
+    }
+    kyuubi_jdbc = {
+      name     = juju_application.kyuubi.name
+      endpoint = "jdbc"
+    }
+  }
 }
 
 output "offers" {
   value = {
     hub_service_account = juju_offer.integration_hub
-    metastore_database  = juju_offer.metastore
   }
 }
