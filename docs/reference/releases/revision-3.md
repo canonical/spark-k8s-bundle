@@ -37,47 +37,47 @@ Below we summarized the features that have been added in this new release, divid
 ### Kyuubi
 
 - [[PRA-158](https://warthogs.atlassian.net/browse/PRA-158)] Kyuubi version update to 1.10.3-ubuntu1
-- [[DPE-8542](https://warthogs.atlassian.net/browse/DPE-8542),[DPE-8549](https://warthogs.atlassian.net/browse/DPE-8549)] Rework health check (#150) (#151)
-- [[DPE-8342](https://warthogs.atlassian.net/browse/DPE-8342)] Rework metrics alerts (#142) (#146)
-- [[DPE-8288](https://warthogs.atlassian.net/browse/DPE-8288)] Implement new dashboard from upstream (#144) (#145)
-- [[DPE-8376](https://warthogs.atlassian.net/browse/PRA-8376)] Charm consolidation (#147)
+- [[DPE-8542](https://warthogs.atlassian.net/browse/DPE-8542),[DPE-8549](https://warthogs.atlassian.net/browse/DPE-8549)] Rework health check ([#150](https://github.com/canonical/kyuubi-k8s-operator/pull/150)) ([#151](https://github.com/canonical/kyuubi-k8s-operator/pull/151))
+- [[DPE-8342](https://warthogs.atlassian.net/browse/DPE-8342)] Rework metrics alerts ([#142](https://github.com/canonical/kyuubi-k8s-operator/pull/142)) ([#146](https://github.com/canonical/kyuubi-k8s-operator/pull/146))
+- [[DPE-8288](https://warthogs.atlassian.net/browse/DPE-8288)] Implement new dashboard from upstream ([#144](https://github.com/canonical/kyuubi-k8s-operator/pull/144)) ([#145](https://github.com/canonical/kyuubi-k8s-operator/pull/145))
+- [[DPE-8376](https://warthogs.atlassian.net/browse/PRA-8376)] Charm consolidation ([#147](https://github.com/canonical/kyuubi-k8s-operator/pull/147))
 
 ### Spark History Server
 
-- [[PRA-200](https://warthogs.atlassian.net/browse/PRA-200)] Explicit proxy support for S3-compliant storage (#143)
-- [[DPE-8481](https://warthogs.atlassian.net/browse/DPE-8481)] Add integration with oauth2proxy (#123)
-- Enforce type checking (#146)
+- [[PRA-200](https://warthogs.atlassian.net/browse/PRA-200)] Explicit proxy support for S3-compliant storage ([#143](https://github.com/canonical/spark-history-server-k8s-operator/pull/143))
+- [[DPE-8481](https://warthogs.atlassian.net/browse/DPE-8481)] Add integration with oauth2proxy ([#123](https://github.com/canonical/spark-history-server-k8s-operator/pull/123))
+- Enforce type checking ([#146](https://github.com/canonical/spark-history-server-k8s-operator/pull/146))
 
 ### Spark Integration Hub
 
-- [[PRA-158](https://warthogs.atlassian.net/browse/PRA-158)] Update OCI resource to latest release (#181)
-- [[PRA-200](https://warthogs.atlassian.net/browse/PRA-200)] Explicit proxy support for S3-compliant storage (#171)
-- [[PRA-156](https://warthogs.atlassian.net/browse/PRA-156)] Fix broken release check due to multiple platforms (#158)
-- [[PRA-152](https://warthogs.atlassian.net/browse/PRA-152)] Serialize asterisk characters when generating resource manifest (#144)
-- [[PRA-113](https://warthogs.atlassian.net/browse/PRA-113)] Add a config option to specify custom Spark image (#134)
-- [[PRA-30](https://warthogs.atlassian.net/browse/PRA-30)] Add monitored-service-accounts configuration option (#120)
-- [[DPE-7840](https://warthogs.atlassian.net/browse/DPE-7840)] Share manifest of the K8s resources over the spark service account relation (#99)
-- [[PRA-199](https://warthogs.atlassian.net/browse/PRA-199)[PRA-220](https://warthogs.atlassian.net/browse/PRA-220)] Add support for s3 certificates and fix secret deletion (#180)
+- [[PRA-158](https://warthogs.atlassian.net/browse/PRA-158)] Update OCI resource to latest release ([#181](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/181))
+- [[PRA-200](https://warthogs.atlassian.net/browse/PRA-200)] Explicit proxy support for S3-compliant storage ([#171](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/171))
+- [[PRA-156](https://warthogs.atlassian.net/browse/PRA-156)] Fix broken release check due to multiple platforms ([#158](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/158))
+- [[PRA-152](https://warthogs.atlassian.net/browse/PRA-152)] Serialize asterisk characters when generating resource manifest ([#144](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/144))
+- [[PRA-113](https://warthogs.atlassian.net/browse/PRA-113)] Add a config option to specify custom Spark image ([#134](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/134))
+- [[PRA-30](https://warthogs.atlassian.net/browse/PRA-30)] Add monitored-service-accounts configuration option ([#120](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/120))
+- [[DPE-7840](https://warthogs.atlassian.net/browse/DPE-7840)] Share manifest of the K8s resources over the spark service account relation ([#99](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/99))
+- [[PRA-199](https://warthogs.atlassian.net/browse/PRA-199)[PRA-220](https://warthogs.atlassian.net/browse/PRA-220)] Add support for s3 certificates and fix secret deletion ([#180](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/180))
 
 ### Spark Client snap
 
-- [[DPE-7923](https://warthogs.atlassian.net/browse/DPE-7923)] Suppress AWS Java SDK v1 warning message in snap (#131)
+- [[DPE-7923](https://warthogs.atlassian.net/browse/DPE-7923)] Suppress AWS Java SDK v1 warning message in snap ([#131](https://github.com/canonical/spark-client-snap/pull/131))
 
 ### Charmed Spark OCI Images
 
-- [[PRA-158](https://warthogs.atlassian.net/browse/PRA-158)] Component bumps (#217)
-- [[DPE-7941](https://warthogs.atlassian.net/browse/DPE-7941)] Add gpu executor pod template to Kyuubi image (#165)
-- [[PRA-189](https://warthogs.atlassian.net/browse/PRA-189)] Check for environment variable expansion (#221)
-- Download Hive from mirror (#163)
-- Perform disk cleanup at the start of all workflows (#190)
-- Run Trivy scan on 3.5/edge and 3.4/edge (#151) (#171)
+- [[PRA-158](https://warthogs.atlassian.net/browse/PRA-158)] Component bumps ([#217](https://github.com/canonical/charmed-spark-rock/pull/217))
+- [[DPE-7941](https://warthogs.atlassian.net/browse/DPE-7941)] Add gpu executor pod template to Kyuubi image ([#165](https://github.com/canonical/charmed-spark-rock/pull/165))
+- [[PRA-189](https://warthogs.atlassian.net/browse/PRA-189)] Check for environment variable expansion ([#221](https://github.com/canonical/charmed-spark-rock/pull/221))
+- Download Hive from mirror ([#163](https://github.com/canonical/charmed-spark-rock/pull/163))
+- Perform disk cleanup at the start of all workflows ([#190](https://github.com/canonical/charmed-spark-rock/pull/190))
+- Run Trivy scan on 3.5/edge and 3.4/edge ([#151](https://github.com/canonical/charmed-spark-rock/pull/151)) ([#171](https://github.com/canonical/charmed-spark-rock/pull/171))
 
 ### Charmed Spark Terraform Module
 
-- [[DPE-7943](https://warthogs.atlassian.net/browse/DPE-7943)] Improve stability of UAT and CI tests (#142)
-- [[DPE-7722](https://warthogs.atlassian.net/browse/DPE-7722)] Enable Reference Architecture (AKS) testing (#136) (#173)
-- [[DPE-6777](https://warthogs.atlassian.net/browse/DPE-6777] Demo update based on Kyuubi GA (#131)
-- [MISC] Pin cos-configuration-k8s to rev65 on YAML bundle (#156)
+- [[DPE-7943](https://warthogs.atlassian.net/browse/DPE-7943)] Improve stability of UAT and CI tests ([#142](https://github.com/canonical/spark-k8s-bundle/pull/142))
+- [[DPE-7722](https://warthogs.atlassian.net/browse/DPE-7722)] Enable Reference Architecture (AKS) testing ([#136](https://github.com/canonical/spark-k8s-bundle/pull/136)) ([#173](https://github.com/canonical/spark-k8s-bundle/pull/173))
+- [[DPE-6777](https://warthogs.atlassian.net/browse/DPE-6777] Demo update based on Kyuubi GA ([#131](https://github.com/canonical/spark-k8s-bundle/pull/131))
+- [MISC] Pin cos-configuration-k8s to rev65 on YAML bundle ([#156](https://github.com/canonical/spark-k8s-bundle/pull/156))
 
 ## Bug fixes
 
@@ -85,19 +85,19 @@ Below we summarized the bug fixes that have been added in this new release, divi
 
 ### Spark History Server
 
-- [[PRA-140](https://warthogs.atlassian.net/browse/PRA-140)] Block charm in case of missing object storage path (#145)
+- [[PRA-140](https://warthogs.atlassian.net/browse/PRA-140)] Block charm in case of missing object storage path ([#145](https://github.com/canonical/spark-history-server-k8s-operator/pull/145))
 
 ### Charmed Spark OCI Images
 
-- [[PRA-134](https://warthogs.atlassian.net/browse/PRA-134)] Add py4j dependency to PYTHONPATH in rock image (#180)
-- [[PRA-136](https://warthogs.atlassian.net/browse/PRA-136)] Release tag not found (#182) (#185) (#186)
-- [[PRA-222](https://warthogs.atlassian.net/browse/PRA-222)] Add additional labels to rocks (#225)
+- [[PRA-134](https://warthogs.atlassian.net/browse/PRA-134)] Add py4j dependency to PYTHONPATH in rock image ([#180](https://github.com/canonical/charmed-spark-rock/pull/180))
+- [[PRA-136](https://warthogs.atlassian.net/browse/PRA-136)] Release tag not found ([#182](https://github.com/canonical/charmed-spark-rock/pull/182)) ([#185](https://github.com/canonical/charmed-spark-rock/pull/185)) ([#186](https://github.com/canonical/charmed-spark-rock/pull/186))
+- [[PRA-222](https://warthogs.atlassian.net/browse/PRA-222)] Add additional labels to rocks ([#225](https://github.com/canonical/charmed-spark-rock/pull/225))
 
 ### Charmed Spark Terraform Module
 
-- [[PRA-163](https://warthogs.atlassian.net/browse/PRA-163)] Remove wrong quote (#191)
-- [[DPE-8292](https://warthogs.atlassian.net/browse/DPE-8292)] Add missing offers in Spark 3.5 (#144)
-- fix: Pin terraform provider to <1.0.0 (#167)
+- [[PRA-163](https://warthogs.atlassian.net/browse/PRA-163)] Remove wrong quote ([#191](https://github.com/canonical/spark-k8s-bundle/pull/191))
+- [[DPE-8292](https://warthogs.atlassian.net/browse/DPE-8292)] Add missing offers in Spark 3.5 ([#144](https://github.com/canonical/spark-k8s-bundle/pull/144))
+- fix: Pin terraform provider to <1.0.0 ([#167](https://github.com/canonical/spark-k8s-bundle/pull/167))
 
 ## Breaking changes
 
@@ -105,26 +105,26 @@ Below we summarized the breaking changes introduced by this new release, divided
 
 ### Spark Integration Hub
 
-- [[PRA-73](https://warthogs.atlassian.net/browse/PRA-73)] Restore Juju 3.6.13+ compatibility (#172)
+- [[PRA-73](https://warthogs.atlassian.net/browse/PRA-73)] Restore Juju 3.6.13+ compatibility ([#172](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/172))
 
 ## Documentation improvements
 
 The current release also features the following documentation changes:
 
-- Polish the terminology capitalisation (#188)
-- Add auto-generated metadata description (#186)
-- Fix the docs badge in README (#187)
-- Home page remodeling (#181)
-- Update home page (#163)
-- Clarify how to use self-signed S3 endpoints (#164)
-- Add landing pages (#159)
-- Add cookie consent request (#157)
-- Update the cookie banner design (#193)
-- Update spelling to US English (#196)
-- Add redirects for RTD docs (#160)
-- Update documentation on Security page to reflect new UX (#158)
-- Initial documentation migration to RTD (#148)
-- Add Kyuubi docs (#134)
+- Polish the terminology capitalisation ([#188](https://github.com/canonical/spark-k8s-bundle/pull/188))
+- Add auto-generated metadata description ([#186](https://github.com/canonical/spark-k8s-bundle/pull/186))
+- Fix the docs badge in README ([#187](https://github.com/canonical/spark-k8s-bundle/pull/187))
+- Home page remodeling ([#181](https://github.com/canonical/spark-k8s-bundle/pull/181))
+- Update home page ([#163](https://github.com/canonical/spark-k8s-bundle/pull/163))
+- Clarify how to use self-signed S3 endpoints ([#164](https://github.com/canonical/spark-k8s-bundle/pull/164))
+- Add landing pages ([#159](https://github.com/canonical/spark-k8s-bundle/pull/159))
+- Add cookie consent request ([#157](https://github.com/canonical/spark-k8s-bundle/pull/157))
+- Update the cookie banner design ([#193](https://github.com/canonical/spark-k8s-bundle/pull/193))
+- Update spelling to US English ([#196](https://github.com/canonical/spark-k8s-bundle/pull/196))
+- Add redirects for RTD docs ([#160](https://github.com/canonical/spark-k8s-bundle/pull/160))
+- Update documentation on Security page to reflect new UX ([#158](https://github.com/canonical/spark-k8s-bundle/pull/158))
+- Initial documentation migration to RTD ([#148](https://github.com/canonical/spark-k8s-bundle/pull/148))
+- Add Kyuubi docs ([#134](https://github.com/canonical/spark-k8s-bundle/pull/134))
 
 ## Security
 
