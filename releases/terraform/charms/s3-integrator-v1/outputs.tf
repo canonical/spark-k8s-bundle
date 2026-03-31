@@ -1,15 +1,15 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
-# 
+
 output "application" {
   description = "Object representing the deployed application."
-  value       = juju_application.azure_storage
+  value       = juju_application.s3_integrator
 }
 
 output "offers" {
   description = "Map of all offers exposed by the single charm."
   value = {
-    azure_storage_credentials = juju_offer.azure_storage_credentials.url
+    s3_credentials = juju_offer.s3_credentials.url
   }
 }
 
@@ -17,7 +17,6 @@ output "offers" {
 output "provides" {
   description = "Provides endpoints."
   value = {
-    azure_storage_credentials = "azure-storage-credentials"
+    s3_credentials = "s3-credentials"
   }
 }
-

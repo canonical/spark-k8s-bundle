@@ -4,7 +4,7 @@
 variable "app_name" {
   description = "Name to give the deployed application."
   type        = string
-  default     = "azure-storage-integrator"
+  default     = "s3-integrator"
   nullable    = false
 }
 
@@ -18,19 +18,23 @@ variable "base" {
 variable "channel" {
   description = "Channel of the charm."
   type        = string
-  default     = "latest/edge" # TODO: Update to stable once we have the new release
+  default     = "1/stable"
   nullable    = false
 }
 
 variable "config" {
   description = "Map for configuration options."
   type = object({
-    connection-protocol = optional(string, "abfss")
-    container           = optional(string, "azurecontainer")
-    endpoint            = optional(string, "")
-    path                = optional(string, "spark-events")
-    resource-group      = optional(string, "azurerg")
-    storage_account     = optional(string, "azurestorageaccount")
+    attributes                          = optional(string, "")
+    bucket                              = optional(string, "spark-bucket")
+    endpoint                            = optional(string, "https://s3.amazonaws.com")
+    experimental-delete-older-than-days = optional(number, 14)
+    path                                = optional(string, "path/")
+    region                              = optional(string, "us-east-1")
+    s3-api-version                      = optional(string, "2")
+    s3-uri-style                        = optional(string, "2")
+    storage-class                       = optional(string, "")
+    tls-ca-chain                        = optional(string, "")
   })
   default = {
   }
@@ -60,12 +64,4 @@ variable "units" {
   description = "Unit count."
   type        = number
   default     = 1
-}
-
-# We should eventually handle this differently 
-variable "azure_storage_secret_key" {
-  description = "Secret key to the Azure Storage account."
-  type        = string
-  nullable    = false
-  sensitive   = true
 }
