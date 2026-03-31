@@ -21,8 +21,8 @@ Below we summarized the features that have been added in this new release, divid
 
 ### General
 
-- [[DPE-7941](https://warthogs.atlassian.net/browse/DPE-2858)] Add GPU Support. Please refer to the [How to use GPU](/how-to/use-gpu) userguide for more information. 
-- [[PRA-156](https://warthogs.atlassian.net/browse/PRA-156)] Add ARM support (experimental) - the feature will only be available on candidate risks. To deploy on ARM achitecture, use `set-model-constraints` when creating models or specify the architecture using `--constraints` at deploy time. More information can be found in the [Advanced Scheduling](/how-to/advanced-scheduling) userguide
+- [[DPE-7941](https://warthogs.atlassian.net/browse/DPE-2858)] Add GPU Support. Please refer to the [How to use GPU](/how-to/use-gpu) user guide for more information. 
+- [[PRA-156](https://warthogs.atlassian.net/browse/PRA-156)] Add ARM support (experimental) - the feature will only be available on candidate risks. To deploy on ARM architecture, use `set-model-constraints` when creating models or specify the architecture using `--constraints` at deploy time. More information can be found in the [Advanced Scheduling](/how-to/advanced-scheduling) user guide
 - [[PRA-158](https://warthogs.atlassian.net/browse/PRA-158)] Components upgrade:
   - Apache Spark version: 3.4.4-ubuntu7 and 3.5.7-ubuntu2
   - Kyuubi version: 1.10.3-ubuntu1 
