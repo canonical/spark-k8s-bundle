@@ -24,7 +24,7 @@ output "models" {
   description = "Maps of the models and the components deployed in each model."
   value = [{
     model_uuid = var.model_uuid
-    components = merge(concat(
+    components = merge(
       module.spark.components,
       {
         zookeeper = module.zookeeper.application
@@ -41,13 +41,13 @@ output "models" {
       {
         kyuubi_users = module.kyuubi_users.app_name # TODO: expose application
       },
-      module.azure_storage == null ? {} : {
+      module.azure_storage == [] ? {} : {
         azure_storage = module.azure_storage[0].application
       },
-      module.s3 == null ? {} : {
+      module.s3 == [] ? {} : {
         s3 = module.s3[0].application
       }
-    ))
+    )
     }
   ]
 }

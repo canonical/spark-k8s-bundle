@@ -3,17 +3,9 @@
 
 # Define juju resources (model, secrets, storage)
 
-locals {
-  target_model_uuid = var.model_uuid
-}
-
-# data "juju_model" "spark" {
-#   name = var.model
-# }
-
 resource "juju_secret" "system_users_and_private_key_secret" {
   count      = var.tls_private_key == null && var.admin_password == null ? 0 : 1
-  model_uuid = local.target_model_uuid
+  model_uuid = var.model_uuid
   name       = "system_users_and_private_key_secret"
   value = merge(
     var.admin_password == null ? {} : {
@@ -28,7 +20,7 @@ resource "juju_secret" "system_users_and_private_key_secret" {
 
 resource "juju_access_secret" "system_users_and_private_key_secret_access" {
   count      = var.tls_private_key == null && var.admin_password == null ? 0 : 1
-  model_uuid = local.target_model_uuid
+  model_uuid = var.model_uuid
   applications = [
     juju_application.kyuubi.name
   ]

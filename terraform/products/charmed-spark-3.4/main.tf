@@ -11,16 +11,6 @@ resource "juju_model" "spark" {
   }
 }
 
-# resource "juju_model" "cos" {
-#   count = var.cos.deployed == "bundled" && var.model_uuid == null && var.create_model == true ? 1 : 0
-
-#   name       = var.cos.model
-#   credential = var.K8S_CREDENTIAL
-#   cloud {
-#     name = var.K8S_CLOUD
-#   }
-# }
-
 module "ssc" {
   depends_on = [juju_model.spark]
   source     = "git::https://github.com/canonical/self-signed-certificates-operator//terraform?ref=rev586"
@@ -108,13 +98,13 @@ module "azure_storage" {
   source     = "../../charms/azure-storage-integrator"
   model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
 
-  azure_storage_secret_key = var.azure_storage.secret_key
+  azure_storage_secret_key = var.azure_storage_config.secret_key
   base                     = "ubuntu@22.04"
   channel                  = "latest/edge"
   config = {
-    connection-protocol = var.azure_storage.protocol
-    container           = var.azure_storage.container
-    storage_account     = var.azure_storage.storage_account
+    connection-protocol = var.azure_storage_config.protocol
+    container           = var.azure_storage_config.container
+    storage_account     = var.azure_storage_config.storage_account
   }
   constraints = "arch=amd64"
   revision    = local.revisions.azure_storage
@@ -129,30 +119,14 @@ module "s3" {
   base    = "ubuntu@22.04"
   channel = "1/stable"
   config = {
-    bucket   = var.s3.bucket
-    endpoint = var.s3.endpoint
-    region   = var.s3.region
+    bucket   = var.s3_config.bucket
+    endpoint = var.s3_config.endpoint
+    region   = var.s3_config.region
   }
   constraints = "arch=amd64"
   revision    = local.revisions.s3
 }
 
-# module "bundled_cos" {
-#   depends_on   = [juju_model.cos]
-#   count        = var.cos.deployed == "bundled" ? 1 : 0
-#   source       = "../cos"
-#   model_uuid   = juju_model.cos.uuid
-#   cos_tls_ca   = var.cos.tls.ca
-#   cos_tls_cert = var.cos.tls.cert
-#   cos_tls_key  = var.cos.tls.key
-
-#   alertmanager_size                = var.alertmanager_size
-#   grafana_size                     = var.grafana_size
-#   loki_active_index_directory_size = var.loki_active_index_directory_size
-#   loki_chunks_size                 = var.loki_chunks_size
-#   prometheus_size                  = var.prometheus_size
-#   traefik_size                     = var.traefik_size
-# }
 
 module "spark" {
   depends_on = [
@@ -168,27 +142,25 @@ module "spark" {
   source     = "../../components/spark-3.4"
   model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
 
-  history_server  = {}
-  integration_hub = {}
-  kyuubi          = {}
-
-  # kyuubi_user                                = var.kyuubi_user
-  # kyuubi_profile                             = var.kyuubi_profile
-  # admin_password                             = var.admin_password
-  # tls_private_key                            = var.tls_private_key
-  # enable_dynamic_allocation                  = var.enable_dynamic_allocation
-  # kyuubi_k8s_node_selectors                  = var.kyuubi_k8s_node_selectors
-  # kyuubi_loadbalancer_extra_annotations      = var.kyuubi_loadbalancer_extra_annotations
-  # kyuubi_gpu_enable                          = var.kyuubi_gpu_enable
-  # kyuubi_gpu_engine_executors_limit          = var.kyuubi_gpu_engine_executors_limit
-  # kyuubi_gpu_pinned_memory                   = var.kyuubi_gpu_pinned_memory
-  # kyuubi_driver_pod_template                 = var.kyuubi_driver_pod_template
-  # kyuubi_executor_pod_template               = var.kyuubi_executor_pod_template
-  # kyuubi_executor_cores                      = var.kyuubi_executor_cores
-  # kyuubi_executor_memory                     = var.kyuubi_executor_memory
-  # driver_pod_template                        = var.driver_pod_template
-  # executor_pod_template                      = var.executor_pod_template
-  # integration_hub_monitored_service_accounts = var.integration_hub_monitored_service_accounts
+  history_server = {
+    config      = var.history_server_config,
+    constraints = "arch=amd64",
+    revision    = var.history_server_revision != null ? var.history_server_revision : local.revisions.history_server,
+    resources   = { spark-history-server-image = var.history_server_image != null ? var.history_server_image : local.images.history_server }
+  }
+  integration_hub = {
+    config      = var.integration_hub_config,
+    constraints = "arch=amd64",
+    revision    = var.integration_hub_revision != null ? var.integration_hub_revision : local.revisions.integration_hub,
+    resources   = { integration-hub-image = var.integration_hub_image != null ? var.integration_hub_image : local.images.integration_hub }
+  }
+  kyuubi = {
+    config      = var.kyuubi_config,
+    constraints = "arch=amd64",
+    revision    = var.kyuubi_revision != null ? var.kyuubi_revision : local.revisions.kyuubi,
+    resources   = { kyuubi-image = var.kyuubi_image != null ? var.kyuubi_image : local.images.kyuubi }
+    units       = var.kyuubi_units
+  }
 
   tls_endpoint = {
     name     = module.ssc.app_name
@@ -219,16 +191,6 @@ module "spark" {
     name     = module.s3 != null ? module.s3[0].application.name : module.azure_storage[0].application.name
     endpoint = module.s3 != null ? module.s3[0].provides.s3_credentials : module.azure_storage[0].provides.azure_storage_credentials
   }
-
-  # kyuubi_units = var.kyuubi_units
-
-  # history_server_revision  = var.history_server_revision != null ? var.history_server_revision : local.revisions.history_server
-  # history_server_image     = var.history_server_image != null ? var.history_server_image : local.images.history_server
-  # integration_hub_revision = var.integration_hub_revision != null ? var.integration_hub_revision : local.revisions.integration_hub
-  # integration_hub_image    = var.integration_hub_image != null ? var.integration_hub_image : local.images.integration_hub
-  # kyuubi_revision          = var.kyuubi_revision != null ? var.kyuubi_revision : local.revisions.kyuubi
-  # kyuubi_image             = var.kyuubi_image != null ? var.kyuubi_image : local.images.kyuubi
-
 }
 
 
