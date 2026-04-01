@@ -5,29 +5,20 @@ from __future__ import annotations
 import ast
 import json
 import logging
-import os
 import re
 import shutil
 import subprocess
-import textwrap
 import urllib.parse
 from contextlib import contextmanager
-from dataclasses import dataclass
 from pathlib import Path
-from random import choices
-from string import hexdigits
-from typing import Callable, Generic, TypeVar, cast
+from typing import cast
 
 import httpx
-import jinja2
 import jubilant
-import yaml
 
 from spark_test.core.s3 import Credentials
 from tests.integration.types import KyuubiCredentials
 
-T = TypeVar("T")
-S = TypeVar("S")
 SECRET_NAME_PREFIX = "integrator-hub-conf-"
 COS_ALIAS = "cos"
 JMX_EXPORTER_PORT = 9101
@@ -39,17 +30,11 @@ HA_ZNODE_NAME = "/kyuubi"
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class Bundle(Generic[T]):
-    main: T
-    overlays: list[T]
-
-    def map(self, f: Callable[[T], S]) -> "Bundle[S]":
-        return Bundle(main=f(self.main), overlays=[f(item) for item in self.overlays])
-
-
 def set_s3_credentials(
-    juju: jubilant.Juju, credentials: Credentials, application_name="s3", num_unit=0
+    juju: jubilant.Juju,
+    credentials: Credentials,
+    application_name="s3-integrator",
+    num_unit=0,
 ) -> None:
     """Use the charm action to start a password rotation."""
     params = {
@@ -175,70 +160,6 @@ def get_postgresql_credentials(
     return {"username": "operator", "password": results["password"], "host": address}
 
 
-def render_bundle(bundle, context=None, **kwcontext) -> Path:
-    """Render a templated bundle using Jinja2.
-
-    This can be used to populate built charm paths or config values.
-
-    :param bundle (str or Path): Path to bundle file or YAML content.
-    :param context (dict): Optional context mapping.
-    :param **kwcontext: Additional optional context as keyword args.
-
-    Returns the Path for the rendered bundle.
-    Adapted from pytest_operator.
-    """
-    bundles_dst_dir = Path(".build") / "bundles"
-    bundles_dst_dir.mkdir(exist_ok=True, parents=True)
-    if context is None:
-        context = {}
-    context.update(kwcontext)
-    if re.search(r".yaml(.j2)?$", str(bundle)):
-        bundle_path = Path(bundle)
-        bundle_text = bundle_path.read_text()
-        if bundle_path.suffix == ".j2":
-            bundle_name = bundle_path.stem
-        else:
-            bundle_name = bundle_path.name
-    else:
-        bundle_text = textwrap.dedent(bundle).strip()
-        infix = "".join(choices(hexdigits, k=4))
-        bundle_name = f"spark-{infix}.yaml"
-    logger.info(f"Rendering bundle {bundle_name}")
-    rendered = jinja2.Template(bundle_text).render(**context)
-    dst = bundles_dst_dir / bundle_name
-    dst.write_text(rendered)
-    return dst
-
-
-def render_yaml(file: Path, data: dict) -> dict:
-    if os.path.splitext(file)[1] == ".j2":
-        bundle_file = render_bundle(file, **{str(k): str(v) for k, v in data.items()})
-    else:
-        bundle_file = file
-
-    return yaml.safe_load(bundle_file.read_text())
-
-
-def _local(pointer) -> str:
-    return (
-        f"./{pointer.relative_to(Path.cwd())}"
-        if isinstance(pointer, Path)
-        else str(pointer)
-    )
-
-
-def deploy_bundle(juju: jubilant.Juju, bundle: Bundle) -> str:
-    deploy_command = [
-        "deploy",
-        "--trust",
-        _local(bundle.main),
-    ] + sum([["--overlay", _local(overlay)] for overlay in bundle.overlays], [])
-
-    stdout = juju.cli(*deploy_command)
-
-    return stdout
-
-
 @contextmanager
 def local_tmp_folder(name: str = "tmp"):
     if (tmp_folder := Path.cwd() / name).exists():
@@ -248,13 +169,6 @@ def local_tmp_folder(name: str = "tmp"):
     yield tmp_folder
 
     shutil.rmtree(tmp_folder)
-
-
-def generate_tmp_file(data: dict, tmp_folder: Path) -> Path:
-    import uuid
-
-    (file := tmp_folder / f"{uuid.uuid4().hex}.yaml").write_text(yaml.dump(data))
-    return file
 
 
 def get_secret_data(namespace: str, service_account: str):

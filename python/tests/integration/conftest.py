@@ -4,8 +4,6 @@
 from __future__ import annotations
 
 import base64
-import contextlib
-import json
 import logging
 import os
 import shutil
@@ -17,9 +15,8 @@ import uuid
 from contextlib import contextmanager
 from pathlib import Path
 from subprocess import PIPE, Popen, TimeoutExpired, check_output
-from typing import Generator, cast
+from typing import cast
 
-import httpx
 import jubilant
 import pytest
 from dotenv import load_dotenv
@@ -27,19 +24,15 @@ from spark8t.domain import PropertyFile
 from tenacity import retry, stop_after_attempt
 
 from spark_test.core.azure_storage import Container
-from spark_test.core.bundle import BundleBackendEnum
 from spark_test.core.bundle.terraform import TerraformBackend
-from spark_test.core.bundle.yaml import YamlBackend
 from spark_test.core.s3 import Bucket
 from spark_test.fixtures.azure_storage import azure_credentials, container  # noqa
 from spark_test.fixtures.pod import spark_image  # noqa
 from spark_test.fixtures.s3 import bucket, credentials  # noqa
 from spark_test.fixtures.service_account import service_account  # noqa
-from tests import RELEASE_DIR
+from tests import IE_TEST_DIR, PRODUCTS_DIR, TERRAFORM_DIR
 
 from .helpers import (
-    Bundle,
-    deploy_bundle,
     local_tmp_folder,
     set_s3_credentials,
 )
@@ -75,18 +68,6 @@ def pytest_addoption(parser):
         help="Path to the release to be used in integration tests",
     )
     parser.addoption(
-        "--bundle",
-        required=False,
-        help="Path to a particular bundle. Using single files for YAML bundles "
-        "and directories for terraforms.",
-    )
-    parser.addoption(
-        "--overlay",
-        action="append",
-        type=str,
-        help="Path to the overlay to be used with the bundle.",
-    )
-    parser.addoption(
         "--cos-model",
         required=False,
         type=str,
@@ -96,16 +77,6 @@ def pytest_addoption(parser):
         help="When provided, it deploys COS as well. "
         "If the model already exists, we assume COS had already been "
         "deployed.",
-    )
-    parser.addoption(
-        "--backend",
-        nargs="?",
-        choices=["yaml", "terraform"],
-        const="yaml",
-        default="yaml",
-        type=str,
-        help="Which backend to use for bundle. Supported values are either "
-        "yaml (default) or terraform.",
     )
     parser.addoption(
         "--spark-version",
@@ -215,12 +186,6 @@ def cos_model(request) -> None | str:
 
 
 @pytest.fixture(scope="module")
-def backend(request) -> None | str:
-    """The backend which is to be used to deploy the bundle."""
-    return request.config.getoption("--backend")
-
-
-@pytest.fixture(scope="module")
 def spark_version(request) -> str:
     """The backend which is to be used to deploy the bundle."""
     return request.config.getoption("--spark-version") or "3.4.4"
@@ -314,37 +279,8 @@ def integration_test(request):
         )
 
 
-@contextlib.contextmanager
-def switch_model(juju: jubilant.Juju, model: str) -> Generator[jubilant.Juju]:
-    """Context manager to switch to a specific Juju model temporarily.
-
-    When the context manager exists, juju is switched back to the old model (if there was any).
-
-    Provides a :class:`Juju` instance to operate on.
-
-    Args:
-        juju: The instance of `jubilant.Juju` class to operate on.
-        model: Name of the model that juju needs to be switched to.
-
-    Returns:
-        The same `juju` instance that was passed to it.
-    """
-    try:
-        status = juju.cli("status", "--format", "json", include_model=False)
-        old_model = json.loads(status)["model"]["name"]
-    except jubilant.CLIError:
-        old_model = None
-
-    juju.cli("switch", model, include_model=False)
-
-    yield juju
-
-    if old_model:
-        juju.cli("switch", old_model, include_model=False)
-
-
 @pytest.fixture(scope=determine_scope)
-def cos(cos_model: str, backend: str, request: pytest.FixtureRequest):
+def cos(cos_model: str, request: pytest.FixtureRequest):
     """
     Deploy COS bundle depending upon the value of cos_model fixture, and yield its value.
     """
@@ -360,34 +296,6 @@ def cos(cos_model: str, backend: str, request: pytest.FixtureRequest):
         yield cos_model
     except jubilant.CLIError:
         cos.add_model(cos_model)
-
-        if backend == BundleBackendEnum.YAML.value:
-            base_url = "https://raw.githubusercontent.com/canonical/cos-lite-bundle/main/overlays"
-
-            overlays = ["offers-overlay.yaml", "testing-overlay.yaml"]
-
-            def create_file(path: Path, response: httpx.Response):
-                path.write_text(response.content.decode("utf-8"))
-                return path
-
-            with local_tmp_folder("tmp-cos") as tmp_folder:
-                logger.info(tmp_folder)
-
-                cos_bundle = Bundle[str | Path](
-                    main="cos-lite",
-                    overlays=[
-                        create_file(tmp_folder / overlay, response)
-                        for overlay in overlays
-                        if (response := httpx.get(f"{base_url}/{overlay}"))
-                        if response.status_code == 200
-                    ],
-                )
-
-                deploy_bundle(cos, cos_bundle)
-
-                with switch_model(cos, cos_model) as switched_cos:
-                    switched_cos.offer("traefik", endpoint="ingress")
-                cos.wait(lambda status: jubilant.all_active(status, "traefik"))
 
         yield cos_model
     finally:
@@ -534,7 +442,6 @@ def private_key(tempdir: Path) -> str:
 @pytest.fixture(scope=determine_scope)
 def spark_bundle(
     request,
-    backend,
     tempdir,
     spark_version,
     juju,
@@ -545,97 +452,59 @@ def spark_bundle(
     private_key,
     storage_sizes,
 ):
-    """Deploy the Spark K8s bundle, with appropriate backend and object storage."""
+    """Deploy the Spark K8s bundle using Terraform."""
     short_version = ".".join(spark_version.split(".")[:2])
-    release_path = RELEASE_DIR / short_version / backend
+    # module_path = PRODUCTS_DIR / f"charmed-spark-{short_version}"
 
-    if backend == BundleBackendEnum.TERRAFORM.value:
-        bundle = TerraformBackend(tempdir=tempdir, module_path=release_path)
-        base_vars = {
-            "kyuubi_user": "kyuubi-test-user",
-            "kyuubi_profile": "testing",
-            "model": cast(str, juju.model),
-            "storage_backend": storage_backend,
-            "create_model": False,
-            "zookeeper_units": 1,
-            "admin_password": admin_password,
-            "tls_private_key": private_key,
+    # TODO: Customize entry point based on test setup
+    with (IE_TEST_DIR / "integration" / "resources" / "main.tf").open(
+        "r", encoding="utf-8"
+    ) as f:
+        entrypoint_content = f.read()
+
+    bundle = TerraformBackend(
+        tempdir=tempdir,
+        terraform_root=TERRAFORM_DIR,
+        entrypoint_content=entrypoint_content,
+    )
+    base_vars = {
+        "kyuubi_config": {"service-account": "kyuubi-test-user", "profile": "testing"},
+        "model_uuid": cast(str, juju.show_model().model_uuid),
+        "storage_backend": storage_backend,
+        "create_model": False,
+        "zookeeper_units": 1,
+        "admin_password": admin_password,
+        "tls_private_key": private_key,
+    }
+    cos_vars = (
+        {
+            "cos": {
+                "model": cos,
+                "deployed": "bundled",
+            }
         }
-        cos_vars = (
-            {
-                "cos": {
-                    "model": cos,
-                    "deployed": "bundled",
-                }
-            }
-            if cos
-            else {"cos": {"deployed": "no"}}
-        )
-        if storage_backend == "azure_storage":
-            storage_unit = cast(Container, object_storage)
-            storage_vars = {
-                "azure_storage": {
-                    "storage_account": storage_unit.credentials.storage_account,
-                    "container": storage_unit.container_name,
-                    "secret_key": storage_unit.credentials.secret_key,
-                }
-            }
-        else:
-            storage_unit = cast(Bucket, object_storage)
-
-            storage_vars = {
-                "s3": {
-                    "bucket": storage_unit.bucket_name,
-                    "endpoint": storage_unit.s3.meta.endpoint_url,
-                }
-            }
-
-    elif backend == BundleBackendEnum.YAML.value:
-        bundle_yaml_filename = (
-            "bundle-azure-storage.yaml.j2"
-            if storage_backend == "azure_storage"
-            else "bundle.yaml.j2"
-        )
-        bundle_file = release_path / bundle_yaml_filename
-        overlays = (
-            [release_path / "overlays" / "cos-integration.yaml.j2"] if cos else []
-        )
-        bundle = YamlBackend(
-            model=juju.model,
-            tempdir=tempdir,
-            bundle_file=bundle_file,
-            overlays=overlays,
-        )
-
-        base_vars = {
-            "namespace": cast(str, juju.model),
-            "service_account": "kyuubi-test-user",
-            "zookeeper_units": 1,
-            "kyuubi_profile": "testing",
-        }
-        cos_vars = (
-            {"cos_controller": juju.status().model.controller, "cos_model": cos}
-            if cos
-            else {}
-        )
-        if storage_backend == "azure_storage":
-            storage_unit = cast(Container, object_storage)
-            storage_vars = {
+        if cos
+        else {"cos": {"deployed": "no"}}
+    )
+    if storage_backend == "azure_storage":
+        storage_unit = cast(Container, object_storage)
+        storage_vars = {
+            "azure_storage": {
                 "storage_account": storage_unit.credentials.storage_account,
                 "container": storage_unit.container_name,
+                "secret_key": storage_unit.credentials.secret_key,
             }
-        else:
-            storage_unit = cast(Bucket, object_storage)
-
-            storage_vars = {
-                "s3_endpoint": storage_unit.s3.meta.endpoint_url,
-                "bucket": storage_unit.bucket_name,
-            }
-
+        }
     else:
-        raise NotImplementedError(
-            f"The backend {backend} is not supported for deploying bundle."
-        )
+        storage_unit = cast(Bucket, object_storage)
+
+        storage_vars = {
+            "s3_config": {
+                "bucket": storage_unit.bucket_name,
+                "endpoint": storage_unit.s3.meta.endpoint_url,
+                "path": "spark-events/",
+            }
+        }
 
     vars = base_vars | cos_vars | storage_vars | storage_sizes
 
@@ -649,7 +518,7 @@ def spark_bundle(
         juju.config("azure-storage", {"credentials": secret_uri})
     else:
         credentials = request.getfixturevalue("credentials")
-        juju.wait(lambda status: jubilant.all_agents_idle(status, "s3"))
+        juju.wait(lambda status: jubilant.all_agents_idle(status, "s3-integrator"))
         set_s3_credentials(juju, credentials=credentials)
 
     logger.info("Waiting for spark deployment to settle down")
