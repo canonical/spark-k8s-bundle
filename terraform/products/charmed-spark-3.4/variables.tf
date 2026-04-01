@@ -2,7 +2,7 @@
 # See LICENSE file for licensing details.
 
 variable "admin_password" {
-  description = "The password for the admin user."
+  description = "The password for the Kyuubi admin user."
   type        = string
   sensitive   = true
   default     = null
@@ -12,9 +12,9 @@ variable "admin_password" {
 variable "azure_storage_config" {
   description = "Azure Object storage information"
   type = object({
-    container       = optional(string, "azurecontainer")
-    storage_account = optional(string, "azurestorageaccount")
-    secret_key      = optional(string, "azurestoragesecret")
+    container       = optional(string)
+    storage_account = optional(string)
+    secret_key      = optional(string)
     protocol        = optional(string, "abfss")
   })
   default = {}
@@ -174,7 +174,7 @@ variable "metastore_size" {
 variable "spark_model_name" {
   description = "The name of the juju model to deploy Spark to"
   type        = string
-  default     = "spark-test"
+  default     = "spark"
 }
 
 variable "model_uuid" {
@@ -194,11 +194,18 @@ variable "proxy" {
 }
 
 variable "s3_config" {
-  description = "S3 Bucket information"
+  description = "S3 integrator configuration"
   type = object({
-    bucket   = optional(string, "spark-test")
-    endpoint = optional(string, "https://s3.amazonaws.com")
-    region   = optional(string, "us-east-1")
+    attributes                          = optional(string)
+    bucket                              = optional(string)
+    endpoint                            = optional(string)
+    experimental-delete-older-than-days = optional(number)
+    path                                = optional(string)
+    region                              = optional(string)
+    s3-api-version                      = optional(string)
+    s3-uri-style                        = optional(string)
+    storage-class                       = optional(string)
+    tls-ca-chain                        = optional(string)
   })
   default = {}
 }

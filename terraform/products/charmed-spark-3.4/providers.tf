@@ -1,6 +1,5 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-provider "juju" {
-  # Configure the Juju provider if needed (e.g., `controller`, `model`, `username`, etc.).
-}
+# Provider configuration for charmed-spark-3.4.
+# Provider blocks, if any, should be defined here.

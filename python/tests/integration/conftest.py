@@ -502,11 +502,12 @@ def spark_bundle(
             "s3_config": {
                 "bucket": storage_unit.bucket_name,
                 "endpoint": storage_unit.s3.meta.endpoint_url,
-                "path": "spark-events/",
+                "path": "spark-events",
             }
         }
 
     vars = base_vars | cos_vars | storage_vars | storage_sizes
+    logger.info(f"Applying vars: {vars}")
 
     deployed_applications = bundle.apply(vars=vars)
     if storage_backend == "azure_storage":

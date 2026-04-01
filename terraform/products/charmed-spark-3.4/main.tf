@@ -14,7 +14,7 @@ resource "juju_model" "spark" {
 module "ssc" {
   depends_on = [juju_model.spark]
   source     = "git::https://github.com/canonical/self-signed-certificates-operator//terraform?ref=rev586"
-  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
 
   base    = "ubuntu@24.04"
   channel = "1/stable"
@@ -30,7 +30,7 @@ module "ssc" {
 module "kyuubi_users" {
   depends_on = [juju_model.spark]
   source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev774"
-  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
 
   app_name    = "kyuubi-users"
   base        = "ubuntu@22.04"
@@ -49,7 +49,7 @@ module "kyuubi_users" {
 module "metastore" {
   depends_on = [juju_model.spark]
   source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev774"
-  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
 
   app_name    = "metastore"
   base        = "ubuntu@22.04"
@@ -69,7 +69,7 @@ module "metastore" {
 module "zookeeper" {
   depends_on = [juju_model.spark]
   source     = "../../charms/zookeeper"
-  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
 
   base        = "ubuntu@22.04"
   channel     = "3/stable"
@@ -84,7 +84,7 @@ module "zookeeper" {
 module "data_integrator" {
   depends_on = [juju_model.spark]
   source     = "../../charms/data-integrator"
-  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
 
   base        = "ubuntu@24.04"
   channel     = "latest/stable"
@@ -96,7 +96,7 @@ module "azure_storage" {
   depends_on = [juju_model.spark]
   count      = var.storage_backend == "azure_storage" ? 1 : 0
   source     = "../../charms/azure-storage-integrator"
-  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
 
   azure_storage_secret_key = var.azure_storage_config.secret_key
   base                     = "ubuntu@22.04"
@@ -114,15 +114,11 @@ module "s3" {
   depends_on = [juju_model.spark]
   count      = var.storage_backend == "s3" ? 1 : 0
   source     = "../../charms/s3-integrator-v1"
-  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
 
-  base    = "ubuntu@22.04"
-  channel = "1/stable"
-  config = {
-    bucket   = var.s3_config.bucket
-    endpoint = var.s3_config.endpoint
-    region   = var.s3_config.region
-  }
+  base        = "ubuntu@22.04"
+  channel     = "1/stable"
+  config      = var.s3_config
   constraints = "arch=amd64"
   revision    = local.revisions.s3
 }
@@ -140,7 +136,7 @@ module "spark" {
     module.zookeeper
   ]
   source     = "../../components/spark-3.4"
-  model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
 
   history_server = {
     config      = var.history_server_config,

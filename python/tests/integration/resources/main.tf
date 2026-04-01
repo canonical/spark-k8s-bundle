@@ -40,8 +40,7 @@ variable "storage_backend" {
 }
 
 variable "admin_password" {
-  type      = string
-  sensitive = true
+  type = string
 }
 
 variable "kyuubi_config" {
@@ -53,9 +52,21 @@ variable "s3_config" {
 }
 
 variable "tls_private_key" {
-  type      = string
-  sensitive = true
-  default   = null
+  type    = string
+  default = null
+}
+
+variable "zookeeper_units" {
+  type = number
+}
+variable "kyuubi_users_size" {
+  type = string
+}
+variable "metastore_size" {
+  type = string
+}
+variable "zookeeper_size" {
+  type = string
 }
 
 resource "juju_model" "spark" {
@@ -72,12 +83,16 @@ module "spark" {
   depends_on = [juju_model.spark]
   source     = "./products/charmed-spark-3.4"
 
-  model_uuid      = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
-  create_model    = false
+  model_uuid   = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
+  create_model = false
 
-  admin_password  = var.admin_password
-  kyuubi_config   = var.kyuubi_config
-  s3_config       = var.s3_config
-  storage_backend = var.storage_backend
-  tls_private_key = var.tls_private_key
+  admin_password    = var.admin_password
+  kyuubi_config     = var.kyuubi_config
+  kyuubi_users_size = var.kyuubi_users_size
+  metastore_size    = var.metastore_size
+  s3_config         = var.s3_config
+  storage_backend   = var.storage_backend
+  tls_private_key   = var.tls_private_key
+  zookeeper_size    = var.zookeeper_size
+  zookeeper_units   = var.zookeeper_units
 }

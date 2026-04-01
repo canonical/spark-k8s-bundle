@@ -160,7 +160,7 @@ def test_job_logs_are_persisted(
         access_key = confs.props["spark.hadoop.fs.s3a.access.key"]
         secret_key = confs.props["spark.hadoop.fs.s3a.secret.key"]
         endpoint = confs.props["spark.hadoop.fs.s3a.endpoint"]
-        log_match = re.match(r"s3a://(?P<bucket>.*)/(?P<path>.*)", log_folder)
+        log_match = re.match(r"s3a://(?P<bucket>.+)/(?P<path>.+)", log_folder)
         assert log_match is not None
         bucket_name = log_match.group("bucket")
         session = boto3.session.Session(

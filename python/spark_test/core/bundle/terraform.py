@@ -9,7 +9,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from . import BundleBackend, BundleBackendEnum, DEPLOYED
+from . import BundleBackend, BundleBackendEnum
 
 
 class TerraformBackend(BundleBackend):

@@ -25,19 +25,18 @@ variable "channel" {
 variable "config" {
   description = "Map for configuration options."
   type = object({
-    attributes                          = optional(string, "")
-    bucket                              = optional(string, "spark-bucket")
-    endpoint                            = optional(string, "https://s3.amazonaws.com")
-    experimental-delete-older-than-days = optional(number, 14)
-    path                                = optional(string, "path/")
-    region                              = optional(string, "us-east-1")
-    s3-api-version                      = optional(string, "2")
-    s3-uri-style                        = optional(string, "2")
-    storage-class                       = optional(string, "")
-    tls-ca-chain                        = optional(string, "")
+    attributes                          = optional(string)
+    bucket                              = optional(string)
+    endpoint                            = optional(string)
+    experimental-delete-older-than-days = optional(number)
+    path                                = optional(string)
+    region                              = optional(string)
+    s3-api-version                      = optional(string)
+    s3-uri-style                        = optional(string)
+    storage-class                       = optional(string)
+    tls-ca-chain                        = optional(string)
   })
-  default = {
-  }
+  default = {}
 }
 
 

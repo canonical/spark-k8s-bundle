@@ -26,14 +26,13 @@ variable "config" {
   description = "Map for configuration options."
   type = object({
     connection-protocol = optional(string, "abfss")
-    container           = optional(string, "azurecontainer")
-    endpoint            = optional(string, "")
-    path                = optional(string, "spark-events")
-    resource-group      = optional(string, "azurerg")
-    storage_account     = optional(string, "azurestorageaccount")
+    container           = optional(string)
+    endpoint            = optional(string)
+    path                = optional(string)
+    resource-group      = optional(string)
+    storage_account     = optional(string)
   })
-  default = {
-  }
+  default = {}
 }
 
 
