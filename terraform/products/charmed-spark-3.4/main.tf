@@ -76,7 +76,7 @@ module "metastore" {
 }
 
 
-module "zk" {
+module "zookeeper" {
   depends_on = [juju_model.spark]
   source     = "../../charms/zookeeper"
   model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
@@ -163,7 +163,7 @@ module "spark" {
     module.metastore,
     module.s3,
     module.ssc,
-    module.zk
+    module.zookeeper
   ]
   source     = "../../components/spark-3.4"
   model_uuid = juju_model.spark != null ? juju_model.spark[0].uuid : var.model_uuid
@@ -206,8 +206,8 @@ module "spark" {
   }
 
   zookeeper_endpoint = {
-    name     = module.zk.application.name
-    endpoint = module.zk.provides.zookeeper
+    name     = module.zookeeper.application.name
+    endpoint = module.zookeeper.provides.zookeeper
   }
 
   data_integrator_endpoint = {
