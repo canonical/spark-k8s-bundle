@@ -30,7 +30,7 @@ from spark_test.fixtures.azure_storage import azure_credentials, container  # no
 from spark_test.fixtures.pod import spark_image  # noqa
 from spark_test.fixtures.s3 import bucket, credentials  # noqa
 from spark_test.fixtures.service_account import service_account  # noqa
-from tests import IE_TEST_DIR, PRODUCTS_DIR, TERRAFORM_DIR
+from tests import IE_TEST_DIR, TERRAFORM_DIR
 
 from .helpers import (
     local_tmp_folder,
@@ -453,7 +453,7 @@ def spark_bundle(
     storage_sizes,
 ):
     """Deploy the Spark K8s bundle using Terraform."""
-    short_version = ".".join(spark_version.split(".")[:2])
+    # short_version = ".".join(spark_version.split(".")[:2])
     # module_path = PRODUCTS_DIR / f"charmed-spark-{short_version}"
 
     # TODO: Customize entry point based on test setup
