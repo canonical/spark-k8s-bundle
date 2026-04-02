@@ -35,8 +35,7 @@ resource "juju_access_secret" "azure_storage_secret_access" {
 }
 
 resource "juju_offer" "azure_storage_credentials" {
-  name             = "azure-storage-credentials"
   model_uuid       = var.model_uuid
-  application_name = var.app_name
+  application_name = juju_application.azure_storage.name
   endpoints        = ["azure-storage-credentials"]
 }
