@@ -187,6 +187,11 @@ module "spark" {
     name     = module.s3 != [] ? module.s3[0].application.name : module.azure_storage[0].application.name
     endpoint = module.s3 != [] ? module.s3[0].provides.s3_credentials : module.azure_storage[0].provides.azure_storage_credentials
   }
+
+  admin_password  = var.admin_password
+  tls_private_key = var.tls_private_key
+
+
 }
 
 
