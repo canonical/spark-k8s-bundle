@@ -47,8 +47,14 @@ variable "kyuubi_config" {
   type = map(any)
 }
 
+variable "azure_storage_config" {
+  type    = map(any)
+  default = {}
+}
+
 variable "s3_config" {
-  type = map(any)
+  type    = map(any)
+  default = {}
 }
 
 variable "tls_private_key" {
@@ -86,13 +92,14 @@ module "spark" {
   model_uuid   = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
   create_model = false
 
-  admin_password    = var.admin_password
-  kyuubi_config     = var.kyuubi_config
-  kyuubi_users_size = var.kyuubi_users_size
-  metastore_size    = var.metastore_size
-  s3_config         = var.s3_config
-  storage_backend   = var.storage_backend
-  tls_private_key   = var.tls_private_key
-  zookeeper_size    = var.zookeeper_size
-  zookeeper_units   = var.zookeeper_units
+  admin_password       = var.admin_password
+  kyuubi_config        = var.kyuubi_config
+  kyuubi_users_size    = var.kyuubi_users_size
+  metastore_size       = var.metastore_size
+  azure_storage_config = var.azure_storage_config
+  s3_config            = var.s3_config
+  storage_backend      = var.storage_backend
+  tls_private_key      = var.tls_private_key
+  zookeeper_size       = var.zookeeper_size
+  zookeeper_units      = var.zookeeper_units
 }

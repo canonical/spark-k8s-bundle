@@ -489,7 +489,7 @@ def spark_bundle(
     if storage_backend == "azure_storage":
         storage_unit = cast(Container, object_storage)
         storage_vars = {
-            "azure_storage": {
+            "azure_storage_config": {
                 "storage_account": storage_unit.credentials.storage_account,
                 "container": storage_unit.container_name,
                 "secret_key": storage_unit.credentials.secret_key,
