@@ -184,8 +184,8 @@ module "spark" {
   }
 
   object_storage_endpoint = {
-    name     = module.s3 != null ? module.s3[0].application.name : module.azure_storage[0].application.name
-    endpoint = module.s3 != null ? module.s3[0].provides.s3_credentials : module.azure_storage[0].provides.azure_storage_credentials
+    name     = module.s3 != [] ? module.s3[0].application.name : module.azure_storage[0].application.name
+    endpoint = module.s3 != [] ? module.s3[0].provides.s3_credentials : module.azure_storage[0].provides.azure_storage_credentials
   }
 }
 
