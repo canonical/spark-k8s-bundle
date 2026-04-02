@@ -334,7 +334,7 @@ def assert_logs(loki_address: str) -> None:
 
 
 def get_kyuubi_ca_cert(
-    juju: jubilant.Juju, certificates_app_name: str = "certificates"
+    juju: jubilant.Juju, certificates_app_name: str = "self-signed-certificates"
 ) -> str:
     """Get the CA certificate used by Kyuubi"""
     status = juju.status()

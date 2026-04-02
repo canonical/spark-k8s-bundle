@@ -262,7 +262,9 @@ class TestFirstDeployment:
         """Test that the admin user is able to connect."""
         credentials = get_kyuubi_credentials(juju)
         credentials.update({"username": "admin", "password": admin_password})
-        ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+        ca_cert = get_kyuubi_ca_cert(
+            juju, certificates_app_name="self-signed-certificates"
+        )
         kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
 
         assert "default" in kyuubi_client.databases
@@ -274,7 +276,9 @@ class TestFirstDeployment:
     def test_database_operations(self, juju: jubilant.Juju) -> None:
         """Test some read / write operations on the database."""
         credentials = get_kyuubi_credentials(juju)
-        ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+        ca_cert = get_kyuubi_ca_cert(
+            juju, certificates_app_name="self-signed-certificates"
+        )
         kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
 
         db = kyuubi_client.get_database(TEST_DB_NAME)
@@ -610,7 +614,9 @@ class TestNewDeployment:
         old_admin_password = context.pop("old_admin_password")
         credentials = get_kyuubi_credentials(juju)
         credentials.update({"username": "admin", "password": old_admin_password})
-        ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+        ca_cert = get_kyuubi_ca_cert(
+            juju, certificates_app_name="self-signed-certificates"
+        )
         kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
 
         assert "default" in kyuubi_client.databases
@@ -654,7 +660,9 @@ class TestNewDeployment:
         """Test some read / write operations on the database."""
         juju.wait(jubilant.all_active, delay=3)
         credentials = get_kyuubi_credentials(juju)
-        ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+        ca_cert = get_kyuubi_ca_cert(
+            juju, certificates_app_name="self-signed-certificates"
+        )
         kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
 
         assert TEST_DB_NAME in kyuubi_client.databases
@@ -678,7 +686,9 @@ class TestNewDeployment:
         """Test that the new rows of data are being inserted on top of what's already there."""
         juju.wait(jubilant.all_active, delay=3)
         credentials = get_kyuubi_credentials(juju)
-        ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+        ca_cert = get_kyuubi_ca_cert(
+            juju, certificates_app_name="self-signed-certificates"
+        )
 
         kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
 

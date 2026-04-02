@@ -70,7 +70,9 @@ def test_jdbc_endpoint(juju: jubilant.Juju) -> None:
 
     logger.info("Get certificate from self-signed-certificates operator")
     status = juju.status()
-    self_signed_certificate_unit = next(iter(status.apps["certificates"].units.keys()))
+    self_signed_certificate_unit = next(
+        iter(status.apps["self-signed-certificates"].units.keys())
+    )
     task = juju.run(self_signed_certificate_unit, "get-issued-certificates")
     assert task.return_code == 0
 
