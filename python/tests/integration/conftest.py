@@ -497,7 +497,6 @@ def spark_bundle(
         }
     else:
         storage_unit = cast(Bucket, object_storage)
-
         storage_vars = {
             "s3_config": {
                 "bucket": storage_unit.bucket_name,
@@ -507,17 +506,10 @@ def spark_bundle(
         }
 
     vars = base_vars | cos_vars | storage_vars | storage_sizes
-    logger.info(f"Applying vars: {vars}")
+    logger.info(f"Applying vars: {vars.keys()}")
 
     deployed_applications = bundle.apply(vars=vars)
-    if storage_backend == "azure_storage":
-        credentials = request.getfixturevalue("azure_credentials")
-        secret_uri = juju.add_secret(
-            "iamsecret", {"secret-key": credentials.secret_key}
-        )
-        juju.cli("grant-secret", secret_uri, "azure-storage")
-        juju.config("azure-storage", {"credentials": secret_uri})
-    else:
+    if storage_backend == "s3":
         credentials = request.getfixturevalue("credentials")
         juju.wait(lambda status: jubilant.all_agents_idle(status, "s3-integrator"))
         set_s3_credentials(juju, credentials=credentials)
