@@ -104,7 +104,7 @@ module "azure_storage" {
   config = {
     connection-protocol = var.azure_storage_config.protocol
     container           = var.azure_storage_config.container
-    storage_account     = var.azure_storage_config.storage_account
+    storage-account     = var.azure_storage_config.storage_account
   }
   constraints = "arch=amd64"
   revision    = local.revisions.azure_storage

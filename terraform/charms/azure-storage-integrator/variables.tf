@@ -30,7 +30,7 @@ variable "config" {
     endpoint            = optional(string)
     path                = optional(string)
     resource-group      = optional(string)
-    storage_account     = optional(string)
+    storage-account     = optional(string)
   })
   default = {}
 }
