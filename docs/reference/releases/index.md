@@ -10,12 +10,12 @@ myst:
 Charmed Apache Spark has the following stable revisions:
 
 * [2](reference-releases-revision-2)
-* [X](reference-releases-revision-X)
+* [3](reference-releases-revision-3)
 
 ```{toctree}
 :titlesonly:
 :hidden:
 
 Revision 2<revision-2.md>
-Revision X<revision-x.md>
+Revision 3<revision-3.md>
 ```
