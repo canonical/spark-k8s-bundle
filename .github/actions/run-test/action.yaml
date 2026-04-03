@@ -115,7 +115,7 @@ runs:
         juju-channel: ${{ inputs.juju-snap-channel }}
         provider: microk8s
         channel: "${{ inputs.k8s-version }}-strict/stable"
-        bootstrap-options: "--agent-version ${{ inputs.juju-agent-version }}"
+        bootstrap-options: "--agent-version 3.6.19"
         microk8s-group: snap_microk8s
         microk8s-addons: "hostpath-storage rbac dns metallb:10.64.140.43-10.64.140.49"
 
@@ -144,10 +144,30 @@ runs:
         # Set the versions
         yq -i e '.providers.k8s.channel = "${{ inputs.k8s-version }}-classic/stable"' concierge.yaml
         yq -i e '.juju.channel = "${{ inputs.juju-snap-channel }}"' concierge.yaml
-        yq -i e '.juju.agent-version = "${{ inputs.juju-agent-version }}"' concierge.yaml
+        yq -i e '.juju.agent-version = "3.6.19"' concierge.yaml
         
         sudo concierge prepare --trace
         cd ..
+
+    - name: Patch juju installation
+      shell: bash
+      run: |
+        sudo snap install yq
+        CONTROLLER_NAME=$(juju controllers --format yaml | yq .current-controller)
+        juju destroy-controller $CONTROLLER_NAME --destroy-storage --no-prompt --destroy-all-models
+        sudo snap refresh juju --revision 33784
+
+    - name: Re-install controller (MicroK8s)
+      shell: bash
+      if: "${{ inputs.k8s-distribution == 'microk8s' }}"
+      run: |
+        sudo -i -u ubuntu juju bootstrap microk8s $CONTROLLER_NAME --agent-version "${{ inputs.juju-agent-version }}"
+
+    - name: Re-install controller (K8s)
+      shell: bash
+      if: "${{ inputs.k8s-distribution == 'k8s' }}"
+      run: |
+        sudo -u ubuntu juju bootstrap k8s $CONTROLLER_NAME --verbose --agent-version "${{ inputs.juju-agent-version }}" --model-default 'logging-config=<root>=INFO; unit=DEBUG' --bootstrap-constraints root-disk=4G
 
     - id: setup-python
       name: Setup Python
