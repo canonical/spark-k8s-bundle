@@ -9,20 +9,20 @@ myst:
 
 Mar XX, 2026
 
-We're excited to announce a new stable release for Charmed Spark.
+We're excited to announce a new stable release for Charmed Apache Spark.
 
-This release includes Apache Kyuubi, the Spark History Server, Spark Integration Hub, Spark Client Snap, Apache Spark OCI Images and a Charmed Spark Terraform Module to deliver a seamless, production-ready and fully open-source datalake experience. The Charmed Apache Spark with Apache Kyuubi is available on [charmhub.io](https://charmhub.io) at the `3.4/stable` and `3.5/stable` channels.
+This release includes support for Apache Kyuubi, the Apache Spark History Server, Spark Integration Hub, Apache Spark Client Snap, Canonical security maintained OCI images for Apache Spark and a Charmed Apache Spark Terraform Module to deliver a seamless, production-ready and fully open-source datalake experience. Charmed Apache Spark with Apache Kyuubi is available on [charmhub.io](https://charmhub.io) at the `3.4/stable` and `3.5/stable` channels.
 
 Charmhub: [3.4/candidate](https://charmhub.io/kyuubi-k8s?channel=3.4/candidate), [3.5/candidate](https://charmhub.io/kyuubi-k8s?channel=3.5/candidate) | [Docs](https://canonical-charmed-spark.readthedocs-hosted.com/) | [Deploy guide](https://canonical-charmed-spark.readthedocs-hosted.com/main/how-to/deploy/) | [System requirements](https://canonical-charmed-spark.readthedocs-hosted.com/main/reference/requirements/)
 
 ## Features
 
-Below we summarized the features that have been added in this new release, divided into "General" features that provide modifications across the various components of the solutions, and more specific features of the single component. 
+This release includes general updates across the solution, as well as changes to individual components.
 
 ### General
 
 - [[DPE-7941](https://warthogs.atlassian.net/browse/DPE-2858)] Add GPU Support. Please refer to the [How to use GPU](/how-to/use-gpu) user guide for more information. 
-- [[PRA-156](https://warthogs.atlassian.net/browse/PRA-156)] Add ARM support (experimental) - the feature will only be available on candidate risks. To deploy on ARM architecture, use `set-model-constraints` when creating models or specify the architecture using `--constraints` at deploy time. More information can be found in the [Advanced Scheduling](/how-to/advanced-scheduling) user guide
+- [[PRA-156](https://warthogs.atlassian.net/browse/PRA-156)] Add ARM support (experimental) - the feature will only be available on candidate risks for now. To deploy on ARM architecture, use the juju `set-model-constraints` command line switch when creating juju models or specify the architecture using the juju `--constraints` command line switch at deploy time. More information can be found in the [Advanced Scheduling](/how-to/advanced-scheduling) user guide
 - [[PRA-158](https://warthogs.atlassian.net/browse/PRA-158)] Components upgrade:
   - Apache Spark version: 3.4.4-ubuntu7 and 3.5.7-ubuntu2
   - Kyuubi version: 1.10.3-ubuntu1 
@@ -34,15 +34,15 @@ Below we summarized the features that have been added in this new release, divid
 - Migrated from DPE to PRA Jira project
 - General updates of Python dependencies, craft build tools, CI workflows and Github actions
 
-### Kyuubi
+### Apache Kyuubi
 
-- [[PRA-158](https://warthogs.atlassian.net/browse/PRA-158)] Kyuubi version update to 1.10.3-ubuntu1
+- [[PRA-158](https://warthogs.atlassian.net/browse/PRA-158)] Apache Kyuubi version update to 1.10.3-ubuntu1
 - [[DPE-8542](https://warthogs.atlassian.net/browse/DPE-8542),[DPE-8549](https://warthogs.atlassian.net/browse/DPE-8549)] Rework health check ([#150](https://github.com/canonical/kyuubi-k8s-operator/pull/150)) ([#151](https://github.com/canonical/kyuubi-k8s-operator/pull/151))
 - [[DPE-8342](https://warthogs.atlassian.net/browse/DPE-8342)] Rework metrics alerts ([#142](https://github.com/canonical/kyuubi-k8s-operator/pull/142)) ([#146](https://github.com/canonical/kyuubi-k8s-operator/pull/146))
 - [[DPE-8288](https://warthogs.atlassian.net/browse/DPE-8288)] Implement new dashboard from upstream ([#144](https://github.com/canonical/kyuubi-k8s-operator/pull/144)) ([#145](https://github.com/canonical/kyuubi-k8s-operator/pull/145))
 - [[DPE-8376](https://warthogs.atlassian.net/browse/PRA-8376)] Charm consolidation ([#147](https://github.com/canonical/kyuubi-k8s-operator/pull/147))
 
-### Spark History Server
+### Apache Spark History Server
 
 - [[PRA-200](https://warthogs.atlassian.net/browse/PRA-200)] Explicit proxy support for S3-compliant storage ([#143](https://github.com/canonical/spark-history-server-k8s-operator/pull/143))
 - [[DPE-8481](https://warthogs.atlassian.net/browse/DPE-8481)] Add integration with oauth2proxy ([#123](https://github.com/canonical/spark-history-server-k8s-operator/pull/123))
@@ -59,11 +59,11 @@ Below we summarized the features that have been added in this new release, divid
 - [[DPE-7840](https://warthogs.atlassian.net/browse/DPE-7840)] Share manifest of the K8s resources over the spark service account relation ([#99](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/99))
 - [[PRA-199](https://warthogs.atlassian.net/browse/PRA-199)[PRA-220](https://warthogs.atlassian.net/browse/PRA-220)] Add support for s3 certificates and fix secret deletion ([#180](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/180))
 
-### Spark Client snap
+### Apache Spark Client snap
 
 - [[DPE-7923](https://warthogs.atlassian.net/browse/DPE-7923)] Suppress AWS Java SDK v1 warning message in snap ([#131](https://github.com/canonical/spark-client-snap/pull/131))
 
-### Charmed Spark OCI Images
+### Canonical security maintained OCI Images for Apache Spark
 
 - [[PRA-158](https://warthogs.atlassian.net/browse/PRA-158)] Component bumps ([#217](https://github.com/canonical/charmed-spark-rock/pull/217))
 - [[DPE-7941](https://warthogs.atlassian.net/browse/DPE-7941)] Add gpu executor pod template to Kyuubi image ([#165](https://github.com/canonical/charmed-spark-rock/pull/165))
@@ -72,7 +72,7 @@ Below we summarized the features that have been added in this new release, divid
 - Perform disk cleanup at the start of all workflows ([#190](https://github.com/canonical/charmed-spark-rock/pull/190))
 - Run Trivy scan on 3.5/edge and 3.4/edge ([#151](https://github.com/canonical/charmed-spark-rock/pull/151)) ([#171](https://github.com/canonical/charmed-spark-rock/pull/171))
 
-### Charmed Spark Terraform Module
+### Charmed Apache Spark Terraform Module
 
 - [[DPE-7943](https://warthogs.atlassian.net/browse/DPE-7943)] Improve stability of UAT and CI tests ([#142](https://github.com/canonical/spark-k8s-bundle/pull/142))
 - [[DPE-7722](https://warthogs.atlassian.net/browse/DPE-7722)] Enable Reference Architecture (AKS) testing ([#136](https://github.com/canonical/spark-k8s-bundle/pull/136)) ([#173](https://github.com/canonical/spark-k8s-bundle/pull/173))
@@ -81,19 +81,19 @@ Below we summarized the features that have been added in this new release, divid
 
 ## Bug fixes
 
-Below we summarized the bug fixes that have been added in this new release, divided by the specific components impacted.
+This release includes bug fixes grouped by component.
 
-### Spark History Server
+### Apache Spark History Server
 
 - [[PRA-140](https://warthogs.atlassian.net/browse/PRA-140)] Block charm in case of missing object storage path ([#145](https://github.com/canonical/spark-history-server-k8s-operator/pull/145))
 
-### Charmed Spark OCI Images
+### Canonical security maintained OCI Images for Apache Spark
 
 - [[PRA-134](https://warthogs.atlassian.net/browse/PRA-134)] Add py4j dependency to PYTHONPATH in rock image ([#180](https://github.com/canonical/charmed-spark-rock/pull/180))
 - [[PRA-136](https://warthogs.atlassian.net/browse/PRA-136)] Release tag not found ([#182](https://github.com/canonical/charmed-spark-rock/pull/182)) ([#185](https://github.com/canonical/charmed-spark-rock/pull/185)) ([#186](https://github.com/canonical/charmed-spark-rock/pull/186))
 - [[PRA-222](https://warthogs.atlassian.net/browse/PRA-222)] Add additional labels to rocks ([#225](https://github.com/canonical/charmed-spark-rock/pull/225))
 
-### Charmed Spark Terraform Module
+### Charmed Apache Spark Terraform Module
 
 - [[PRA-163](https://warthogs.atlassian.net/browse/PRA-163)] Remove wrong quote ([#191](https://github.com/canonical/spark-k8s-bundle/pull/191))
 - [[DPE-8292](https://warthogs.atlassian.net/browse/DPE-8292)] Add missing offers in Spark 3.5 ([#144](https://github.com/canonical/spark-k8s-bundle/pull/144))
@@ -101,7 +101,7 @@ Below we summarized the bug fixes that have been added in this new release, divi
 
 ## Breaking changes
 
-Below we summarized the breaking changes introduced by this new release, divided by the specific components impacted.
+This release includes breaking changes grouped by component.
 
 ### Spark Integration Hub
 
