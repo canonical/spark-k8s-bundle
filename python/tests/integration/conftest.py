@@ -493,6 +493,7 @@ def spark_bundle(
                 "storage_account": storage_unit.credentials.storage_account,
                 "container": storage_unit.container_name,
                 "secret_key": storage_unit.credentials.secret_key,
+                "path": "spark-events",
             }
         }
     else:

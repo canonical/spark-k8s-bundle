@@ -13,9 +13,10 @@ variable "azure_storage_config" {
   description = "Azure Object storage information"
   type = object({
     container       = optional(string)
-    storage_account = optional(string)
-    secret_key      = optional(string)
+    path            = optional(string)
     protocol        = optional(string, "abfss")
+    secret_key      = optional(string)
+    storage_account = optional(string)
   })
   default = {}
 }
