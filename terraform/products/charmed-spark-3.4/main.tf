@@ -174,20 +174,9 @@ module "spark" {
     endpoint = module.kyuubi_users.provides.database
   }
 
-  zookeeper_endpoint = {
-    name     = module.zookeeper.application.name
-    endpoint = module.zookeeper.provides.zookeeper
-  }
-
-  data_integrator_endpoint = {
-    name     = module.data_integrator.application.name
-    endpoint = module.data_integrator.requires.kyuubi
-  }
-
-  object_storage_endpoint = {
-    name     = module.s3 != [] ? module.s3[0].application.name : module.azure_storage[0].application.name
-    endpoint = module.s3 != [] ? module.s3[0].provides.s3_credentials : module.azure_storage[0].provides.azure_storage_credentials
-  }
+  zookeeper_endpoint       = module.zookeeper.provides.zookeeper
+  data_integrator_endpoint = module.data_integrator.requires.kyuubi
+  object_storage_endpoint  = module.s3 != [] ? module.s3[0].provides.s3_credentials : module.azure_storage[0].provides.azure_storage_credentials
 
   admin_password  = var.admin_password
   tls_private_key = var.tls_private_key

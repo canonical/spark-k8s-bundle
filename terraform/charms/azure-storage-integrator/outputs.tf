@@ -17,7 +17,10 @@ output "offers" {
 output "provides" {
   description = "Provides endpoints."
   value = {
-    azure_storage_credentials = "azure-storage-credentials"
+    azure_storage_credentials = {
+      name     = juju_application.azure_storage.name
+      endpoint = "azure-storage-credentials"
+    }
   }
 }
 

@@ -14,6 +14,9 @@ output "provides" {
 output "requires" {
   description = "Map of all the required endpoints."
   value = {
-    kyuubi = "kyuubi"
+    kyuubi = {
+      name     = juju_application.data_integrator.name
+      endpoint = "kyuubi"
+    }
   }
 }

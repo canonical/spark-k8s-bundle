@@ -9,7 +9,10 @@ output "application" {
 output "provides" {
   description = "Map of all the provided endpoints."
   value = {
-    zookeeper = "zookeeper"
+    zookeeper = {
+      name     = juju_application.zookeeper.name
+      endpoint = "zookeeper"
+    }
   }
 }
 
