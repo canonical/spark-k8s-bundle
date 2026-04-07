@@ -13,17 +13,33 @@ output "components" {
 output "requires" {
   description = "Map of the requires endpoints."
   value = {
-    kyuubi_certificates = {
-      name     = juju_application.kyuubi.name
-      endpoint = "certificates"
+    history_server_logging = {
+      name     = juju_application.history_server.name
+      endpoint = "logging"
     }
-    kyuubi_metastore_db = {
-      name     = juju_application.kyuubi.name
-      endpoint = "metastore-db"
+    integration_hub_cos = {
+      name     = juju_application.integration_hub.name
+      endpoint = "cos"
+    }
+    integration_hub_logging = {
+      name     = juju_application.integration_hub.name
+      endpoint = "logging"
     }
     kyuubi_auth_db = {
       name     = juju_application.kyuubi.name
       endpoint = "auth-db"
+    }
+    kyuubi_certificates = {
+      name     = juju_application.kyuubi.name
+      endpoint = "certificates"
+    }
+    kyuubi_logging = {
+      name     = juju_application.kyuubi.name
+      endpoint = "logging"
+    }
+    kyuubi_metastore_db = {
+      name     = juju_application.kyuubi.name
+      endpoint = "metastore-db"
     }
     kyuubi_zookeeper = {
       name     = juju_application.kyuubi.name
@@ -35,6 +51,14 @@ output "requires" {
 output "provides" {
   description = "Map of all the provides endpoints."
   value = {
+    history_server_dashboard = {
+      name     = juju_application.history_server.name
+      endpoint = "grafana-dashboard"
+    }
+    history_server_metrics = {
+      name     = juju_application.history_server.name
+      endpoint = "metrics-endpoint"
+    }
     integration_hub_service_account = {
       name     = juju_application.integration_hub.name
       endpoint = "spark-service-account"
@@ -42,6 +66,14 @@ output "provides" {
     kyuubi_jdbc = {
       name     = juju_application.kyuubi.name
       endpoint = "jdbc"
+    }
+    kyuubi_metrics = {
+      name     = juju_application.kyuubi.name
+      endpoint = "metrics-endpoint"
+    }
+    kyuubi_dashboard = {
+      name     = juju_application.kyuubi.name
+      endpoint = "grafana-dashboard"
     }
   }
 }

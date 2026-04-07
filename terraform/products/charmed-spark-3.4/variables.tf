@@ -40,6 +40,16 @@ variable "create_model" {
   nullable    = false
 }
 
+variable "cos_offers" {
+  description = "Observability stack offers."
+  type = object({
+    dashboard = string
+    logging   = string
+    metrics   = string
+  })
+  default = null
+}
+
 variable "data_integrator_revision" {
   description = "Charm revision for data-integrator"
   type        = number

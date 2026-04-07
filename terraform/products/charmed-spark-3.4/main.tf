@@ -191,26 +191,24 @@ module "spark" {
 
   admin_password  = var.admin_password
   tls_private_key = var.tls_private_key
-
-
 }
 
+module "observability" {
+  depends_on = [juju_model.spark, module.spark]
+  count      = var.cos_offers == null ? 0 : 1
+  source     = "../../components/observability"
+  model_uuid = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
 
+  dashboards_offer = var.cos_offers.dashboard
+  logging_offer    = var.cos_offers.logging
+  metrics_offer    = var.cos_offers.metrics
 
-
-# module "observability" {
-#   depends_on       = [module.spark, module.bundled_cos]
-#   count            = var.cos.deployed == "no" ? 0 : 1
-#   source           = "../../components/observability"
-#   dashboards_offer = var.cos.deployed == "external" ? var.cos.offers.dashboard : one(module.bundled_cos[*].dashboards_offer)
-#   logging_offer    = var.cos.deployed == "external" ? var.cos.offers.logging : one(module.bundled_cos[*].logging_offer)
-#   metrics_offer    = var.cos.deployed == "external" ? var.cos.offers.metrics : one(module.bundled_cos[*].metrics_offer)
-#   spark_model      = var.model
-#   model_uuid       = local.active_model
-#   spark_charms     = module.spark.charms
-
-#   grafana_agent_revision     = var.grafana_agent_revision != null ? var.grafana_agent_revision : local.revisions.grafana_agent
-#   cos_configuration_revision = var.cos_configuration_revision != null ? var.cos_configuration_revision : local.revisions.cos_configuration
-#   pushgateway_revision       = var.pushgateway_revision != null ? var.pushgateway_revision : local.revisions.pushgateway
-#   scrape_config_revision     = var.scrape_config_revision != null ? var.scrape_config_revision : local.revisions.scrape_config
-# }
+  history_server_logging_endpoint   = module.spark.requires.history_server_logging
+  history_server_metrics_endpoint   = module.spark.provides.history_server_metrics
+  history_server_dashboard_endpoint = module.spark.provides.history_server_dashboard
+  integration_hub_cos_endpoint      = module.spark.requires.integration_hub_cos
+  integration_hub_logging_endpoint  = module.spark.requires.integration_hub_logging
+  kyuubi_logging_endpoint           = module.spark.requires.kyuubi_logging
+  kyuubi_metrics_endpoint           = module.spark.provides.kyuubi_metrics
+  kyuubi_dashboard_endpoint         = module.spark.provides.kyuubi_dashboard
+}
