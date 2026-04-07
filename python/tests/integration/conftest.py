@@ -282,7 +282,7 @@ def integration_test(request):
 @pytest.fixture(scope=determine_scope)
 def cos(cos_model: str, request: pytest.FixtureRequest):
     """
-    Deploy COS bundle depending upon the value of cos_model fixture, and yield its value.
+    Handle COS Juju model lifecycle and yield its uuid.
     """
     if not cos_model:
         yield None
@@ -296,8 +296,7 @@ def cos(cos_model: str, request: pytest.FixtureRequest):
         yield cos_model
     except jubilant.CLIError:
         cos.add_model(cos_model)
-
-        yield cos_model
+        yield cast(str, cos.show_model().model_uuid)
     finally:
         debug_log = cos.debug_log(limit=50)
         status = cos.cli("status")
@@ -453,14 +452,12 @@ def spark_bundle(
     storage_sizes,
 ):
     """Deploy the Spark K8s bundle using Terraform."""
-    # short_version = ".".join(spark_version.split(".")[:2])
-    # module_path = PRODUCTS_DIR / f"charmed-spark-{short_version}"
+    short_version = ".".join(spark_version.split(".")[:2])
 
-    # TODO: Customize entry point based on test setup
     with (IE_TEST_DIR / "integration" / "resources" / "main.tf").open(
         "r", encoding="utf-8"
     ) as f:
-        entrypoint_content = f.read()
+        entrypoint_content = f.read().replace("<spark_flavor>", short_version)
 
     bundle = TerraformBackend(
         tempdir=tempdir,
@@ -476,16 +473,8 @@ def spark_bundle(
         "admin_password": admin_password,
         "tls_private_key": private_key,
     }
-    cos_vars = (
-        {
-            "cos": {
-                "model": cos,
-                "deployed": "bundled",
-            }
-        }
-        if cos
-        else {"cos": {"deployed": "no"}}
-    )
+    cos_vars = {"cos_model_uuid": cos} if cos else {}
+
     if storage_backend == "azure_storage":
         storage_unit = cast(Container, object_storage)
         storage_vars = {

@@ -26,6 +26,11 @@ variable "K8S_CREDENTIAL" {
   default = "microk8s"
 }
 
+variable "cos_model_uuid" {
+  type    = string
+  default = null
+}
+
 variable "spark_model_name" {
   type    = string
   default = "spark-test-model"
@@ -75,9 +80,16 @@ variable "zookeeper_size" {
   type = string
 }
 
-resource "juju_model" "spark" {
-  count = (var.model_uuid == null && var.create_model == true) ? 1 : 0
+module "cos" {
+  count = var.cos_model_uuid == null ? 0 : 1
+  # TODO: Pin to tag once available
+  source     = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=cd55b1d"
+  model_uuid = var.cos_model_uuid
+  # channel    = "1/stable"
+}
 
+resource "juju_model" "spark" {
+  count      = (var.model_uuid == null && var.create_model == true) ? 1 : 0
   name       = var.spark_model_name
   credential = var.K8S_CREDENTIAL
   cloud {
@@ -86,8 +98,8 @@ resource "juju_model" "spark" {
 }
 
 module "spark" {
-  depends_on = [juju_model.spark]
-  source     = "./products/charmed-spark-3.4"
+  depends_on = [juju_model.spark, module.cos]
+  source     = "./products/charmed-spark-<spark_flavor>" # filled by test fixture
 
   model_uuid   = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
   create_model = false
@@ -102,4 +114,10 @@ module "spark" {
   tls_private_key      = var.tls_private_key
   zookeeper_size       = var.zookeeper_size
   zookeeper_units      = var.zookeeper_units
+
+  cos_offers = module.cos != [] ? {
+    dashboard = module.cos[0].offers.grafana_dashboards.url
+    logging   = module.cos[0].offers.loki_logging.url
+    metrics   = module.cos[0].offers.prometheus_receive_remote_write.url
+  } : null
 }
