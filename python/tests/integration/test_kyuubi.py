@@ -160,11 +160,11 @@ def test_kyuubi_metrics_in_cos(cos: str) -> None:
     # We should leave time for Prometheus data to be published
     for attempt in Retrying(stop=stop_after_attempt(10), wait=wait_fixed(30)):
         with attempt:
-            cos_address = get_cos_address(cos_model_name=cos)
-            assert published_prometheus_data(cos, cos_address, "kyuubi_jvm_uptime")
+            cos_address = get_cos_address(cos_model_name="cos")
+            assert published_prometheus_data("cos", cos_address, "kyuubi_jvm_uptime")
 
             # Alerts got published to Prometheus
-            alerts_data = published_prometheus_alerts(cos, cos_address)
+            alerts_data = published_prometheus_alerts("cos", cos_address)
             assert alerts_data is not None
             logger.info(f"Alerts data: {alerts_data}")
 
@@ -191,14 +191,14 @@ def test_kyuubi_metrics_in_cos(cos: str) -> None:
                 )
 
             # Grafana dashboard got published
-            dashboards_info = published_grafana_dashboards(cos)
+            dashboards_info = published_grafana_dashboards("cos")
             assert dashboards_info is not None
             logger.info(f"Dashboard info {dashboards_info}")
             assert any(board["title"] == "Kyuubi" for board in dashboards_info)
 
             # Loki logs are ingested
             logs = published_loki_logs(
-                cos,
+                "cos",
                 cos_address,
                 "juju_application",
                 KYUUBI_APP_NAME,
