@@ -166,7 +166,7 @@ jobs:
           if [[ -n "${{ inputs.cos-model }}" ]]; then
             juju-crashdump --model "${{ inputs.cos-model }}"
           fi
-	  
+
       - id: debug-info
         name: Debug info
         shell: bash
