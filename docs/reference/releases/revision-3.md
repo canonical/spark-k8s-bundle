@@ -57,7 +57,7 @@ This release includes general updates across the solution, as well as changes to
 - [[PRA-113](https://warthogs.atlassian.net/browse/PRA-113)] Add a config option to specify custom Apache Spark image ([#134](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/134))
 - [[PRA-30](https://warthogs.atlassian.net/browse/PRA-30)] Add monitored-service-accounts configuration option ([#120](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/120))
 - [[DPE-7840](https://warthogs.atlassian.net/browse/DPE-7840)] Share manifest of the K8s resources over the spark service account relation ([#99](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/99))
-- [[PRA-199](https://warthogs.atlassian.net/browse/PRA-199)[PRA-220](https://warthogs.atlassian.net/browse/PRA-220)] Add support for s3 certificates and fix secret deletion ([#180](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/180))
+- [[PRA-199](https://warthogs.atlassian.net/browse/PRA-199),[PRA-220](https://warthogs.atlassian.net/browse/PRA-220)] Add support for s3 certificates and fix secret deletion ([#180](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/180))
 
 ### Apache Spark Client snap
 
@@ -76,7 +76,7 @@ This release includes general updates across the solution, as well as changes to
 
 - [[DPE-7943](https://warthogs.atlassian.net/browse/DPE-7943)] Improve stability of UAT and CI tests ([#142](https://github.com/canonical/spark-k8s-bundle/pull/142))
 - [[DPE-7722](https://warthogs.atlassian.net/browse/DPE-7722)] Enable Reference Architecture (AKS) testing ([#136](https://github.com/canonical/spark-k8s-bundle/pull/136)) ([#173](https://github.com/canonical/spark-k8s-bundle/pull/173))
-- [[DPE-6777](https://warthogs.atlassian.net/browse/DPE-6777] Demo update based on Charmed Apache Kyuubi GA ([#131](https://github.com/canonical/spark-k8s-bundle/pull/131))
+- [[DPE-6777](https://warthogs.atlassian.net/browse/DPE-6777)] Demo update based on Charmed Apache Kyuubi GA ([#131](https://github.com/canonical/spark-k8s-bundle/pull/131))
 - [MISC] Pin cos-configuration-k8s to rev65 on YAML bundle ([#156](https://github.com/canonical/spark-k8s-bundle/pull/156))
 
 ## Bug fixes
