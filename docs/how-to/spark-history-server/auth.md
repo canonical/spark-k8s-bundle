@@ -27,11 +27,12 @@ To enable authentication we rely on the [Canonical Identity Bundle](https://char
 The bundle can be deployed following this [guide](https://charmhub.io/topics/canonical-identity-platform/tutorials/e2e-tutorial) that will deploy all components required by the Identity Bundle.
 
 In particular the following charms will be deployed:
-- [Charmed Ory Hydra](https://charmhub.io/hydra): the OAuth/OIDC server
-- [Charmed Ory Kratos](https://charmhub.io/kratos): the user management and authentication component
-- [Login UI operator](https://github.com/canonical/identity-platform-login-ui-operator): a middleware which routes calls between the different services and serves the login/error pages
-- [Charmed Postgresql](https://charmhub.io/postgresql): the SQL database of choice
-- [Charmed Traefik](https://charmhub.io/traefik-k8s): which will be used for ingress
+- [Charmed Ory Hydra](https://charmhub.io/hydra): the OAuth/OIDC server.
+- [Charmed Ory Kratos](https://charmhub.io/kratos): the user management and authentication component.
+- [Login UI operator](https://charmhub.io/identity-platform-login-ui-operator): a middleware which routes calls between the different services and serves the login/error pages.
+- [Kratos External Idp Integrator](https://charmhub.io/kratos-external-idp-integrator):for integrating with external idp providers.
+- [Charmed Postgresql](https://charmhub.io/postgresql-k8s): the SQL database of choice.
+- [Charmed Traefik](https://charmhub.io/traefik-k8s): which will be used for ingress.
 - [Self Signed Certificates](https://charmhub.io/self-signed-certificates): for managing the TLS certificates that our ingress will use.
 
 One required step is to configure which identity provider we want to use. 
@@ -46,11 +47,11 @@ juju config kratos-external-idp-integrator microsoft_tenant_id=<YOUR_TENANT_ID> 
 More information about supported identity providers and other useful information can be found in the
 [How to manage external identity providers guide](https://discourse.charmhub.io/t/how-to-manage-external-identity-providers/11910).
 
-The relation between the Spark History Server and the Identity bundle is handled by the Charmed OAuth2 Proxy charm that is offered by the Canonical Identity Team.
+The relation between the Spark History Server and the Identity bundle is handled by the Charmed OAuth2 Proxy charm that is provided by the Canonical Identity Team.
 This charm enables the protection of endpoints that are behind an ingress, more specifically Traefik.
 
-## Enabling Authentication with Charmed OAuth2 Proxy
 
+## Enabling Authentication with Charmed OAuth2 Proxy
 
 In order to set up the proxy, you first need to expose the forward-auth offer, enable the feature in Charmed Traefik, and integrate it the Spark History server charm via the ingress relation.
 
@@ -100,6 +101,6 @@ juju config spark-history-server-k8s authorized-users="user1@canonical.com, user
 
 ## Oauthkeeper integration (DEPRECATED)
 
-Previously, in order to enable authentication we relied on another charm named `oathkeeper`. This integration has been removed in favour of a more modern and reliable solution that is the Charmed OAuth2 Proxy.
+Previously, in order to enable authentication we relied on another charm named `oathkeeper`. This charm has been deprecated in favour of a more modern and reliable solution that is the Charmed OAuth2 Proxy.
 
-If the authentication was performed with the `oathkeeper`charm we suggested to move the to the `oauth2-proxy` charm. In order to do so we suggest to remove the integration with the `oathkeeeper` charm and then update the Identity Bundle following the instruction above, and continue with the integration with the `oauth2-proxy` charm.
+If the authentication was performed by using the `oathkeeper`charm we suggested to move the to the `oauth2-proxy` charm. In order to do so, the first step consist of removing the integration with the `oathkeeeper` charm and then update the Identity Bundle components following the instruction provided above. Eventually, continue with the integration with the `oauth2-proxy` charm.
