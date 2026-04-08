@@ -4,7 +4,7 @@
 locals {
   revisions = {
     cos_configuration = 65
-    grafana_agent     = 121
+    grafana_agent     = 164
     pushgateway       = 27
     scrape_config     = 67
   }
