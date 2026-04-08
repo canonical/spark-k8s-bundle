@@ -83,9 +83,9 @@ variable "zookeeper_size" {
 module "cos" {
   count = var.cos_model_uuid == null ? 0 : 1
   # TODO: Pin to tag once available
-  source     = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=cd55b1d"
-  model_uuid = var.cos_model_uuid
-  # channel    = "1/stable"
+  source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=cd55b1d"
+  model_uuid   = var.cos_model_uuid
+  internal_tls = false
 }
 
 resource "juju_model" "spark" {
