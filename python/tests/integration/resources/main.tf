@@ -121,3 +121,7 @@ module "spark" {
     metrics   = module.cos[0].offers.prometheus_receive_remote_write.url
   } : null
 }
+
+output "model" {
+  value = module.spark.model
+}

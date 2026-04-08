@@ -14,15 +14,15 @@ output "offers" {
 output "metadata" {
   description = "Metadata of the product deployment."
   value = {
-    version     = "3.4"
+    version     = "3.5"
     deployed_at = timestamp()
     updated_at  = timestamp()
   }
 }
 
-output "models" {
-  description = "Maps of the models and the components deployed in each model."
-  value = [{
+output "model" {
+  description = "Map of the key of the model and the components deployed in the model."
+  value = {
     model_uuid = var.model_uuid
     components = merge(
       module.spark.components,
@@ -46,8 +46,8 @@ output "models" {
       },
       module.s3 == [] ? {} : {
         s3 = module.s3[0].application
-      }
+      },
+      module.observability == [] ? {} : module.observability[0].components
     )
-    }
-  ]
+  }
 }

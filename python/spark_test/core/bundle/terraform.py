@@ -44,7 +44,9 @@ class TerraformBackend(BundleBackend):
             self.execute(
                 ["terraform", "apply", "-auto-approve", "-var-file", tfvars_file.name]
             )
-        self.deployed_applications = []  # FIXME: Parse components output
+        self.deployed_applications = list(
+            self.outputs["model"]["value"]["components"].keys()
+        )
         return self.deployed_applications
 
     def destroy(self):
