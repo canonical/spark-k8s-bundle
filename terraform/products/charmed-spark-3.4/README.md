@@ -84,6 +84,6 @@
 | Name | Description |
 |------|-------------|
 | <a name="output_metadata"></a> [metadata](#output\_metadata) | Metadata of the product deployment. |
-| <a name="output_models"></a> [models](#output\_models) | Maps of the models and the components deployed in each model. |
+| <a name="output_model"></a> [model](#output\_model) | Map of the key of the model and the components deployed in the model. |
 | <a name="output_offers"></a> [offers](#output\_offers) | The name and url of the various offers being exposed |
 <!-- END_TF_DOCS -->
