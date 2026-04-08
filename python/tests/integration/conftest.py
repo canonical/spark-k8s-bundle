@@ -119,15 +119,6 @@ def pytest_addoption(parser):
         help="This, together with the `--model` parameter, ensures that all functions "
         "marked with the` skip_if_deployed` tag are skipped.",
     )
-    parser.addoption(
-        "--storage-sizes",
-        choices=["small", "medium"],
-        nargs="?",
-        const="small",
-        default="small",
-        type=str,
-        help="Setting for the storage.",
-    )
 
 
 def determine_scope(fixture_name, config):
@@ -220,36 +211,6 @@ def bucket_name():
 @pytest.fixture(scope="module")
 def container_name(test_uuid):
     return f"spark-container-{test_uuid}"
-
-
-@pytest.fixture(scope="module")
-def storage_sizes(request) -> dict[str, str]:
-    """The name of the model in which COS is either already deployed or is to be deployed."""
-    option = request.config.getoption("--storage-sizes")
-    if option == "small":
-        return {
-            "kyuubi_users_size": "500M",
-            "metastore_size": "500M",
-            "zookeeper_size": "10G",
-            "alertmanager_size": "100M",
-            "grafana_size": "100M",
-            "loki_active_index_directory_size": "100M",
-            "loki_chunks_size": "500M",
-            "prometheus_size": "500M",
-            "traefik_size": "100M",
-        }
-    else:
-        return {
-            "kyuubi_users_size": "1G",
-            "metastore_size": "10G",
-            "zookeeper_size": "10G",
-            "alertmanager_size": "10G",
-            "grafana_size": "10G",
-            "loki_active_index_directory_size": "10G",
-            "loki_chunks_size": "500G",
-            "prometheus_size": "500G",
-            "traefik_size": "10G",
-        }
 
 
 @pytest.fixture
@@ -449,7 +410,6 @@ def spark_bundle(
     object_storage,
     admin_password,
     private_key,
-    storage_sizes,
 ):
     """Deploy the Spark K8s bundle using Terraform."""
     short_version = ".".join(spark_version.split(".")[:2])
@@ -469,7 +429,6 @@ def spark_bundle(
         "model_uuid": cast(str, juju.show_model().model_uuid),
         "storage_backend": storage_backend,
         "create_model": False,
-        "zookeeper_units": 1,
         "admin_password": admin_password,
         "tls_private_key": private_key,
     }
@@ -495,7 +454,7 @@ def spark_bundle(
             }
         }
 
-    vars = base_vars | cos_vars | storage_vars | storage_sizes
+    vars = base_vars | cos_vars | storage_vars
     logger.info(f"Applying vars: {vars.keys()}")
 
     deployed_applications = bundle.apply(vars=vars)

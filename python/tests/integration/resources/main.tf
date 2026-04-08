@@ -67,19 +67,6 @@ variable "tls_private_key" {
   default = null
 }
 
-variable "zookeeper_units" {
-  type = number
-}
-variable "kyuubi_users_size" {
-  type = string
-}
-variable "metastore_size" {
-  type = string
-}
-variable "zookeeper_size" {
-  type = string
-}
-
 module "cos" {
   count = var.cos_model_uuid == null ? 0 : 1
   # TODO: Pin to tag once available
@@ -105,15 +92,15 @@ module "spark" {
   create_model = false
 
   admin_password       = var.admin_password
-  kyuubi_config        = var.kyuubi_config
-  kyuubi_users_size    = var.kyuubi_users_size
-  metastore_size       = var.metastore_size
   azure_storage_config = var.azure_storage_config
+  kyuubi_config        = var.kyuubi_config
+  kyuubi_users_size    = "500M"
+  metastore_size       = "500M"
   s3_config            = var.s3_config
   storage_backend      = var.storage_backend
   tls_private_key      = var.tls_private_key
-  zookeeper_size       = var.zookeeper_size
-  zookeeper_units      = var.zookeeper_units
+  zookeeper_size       = "10G"
+  zookeeper_units      = 1
 
   cos_offers = module.cos != [] ? {
     dashboard = module.cos[0].offers.grafana_dashboards.url
