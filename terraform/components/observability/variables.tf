@@ -9,27 +9,21 @@ variable "model_uuid" {
 
 variable "cos_configuration" {
   type = object({
-    app_name    = optional(string, "cos-configuration")
-    base        = optional(string, "ubuntu@22.04")
-    channel     = optional(string, "1/stable")
-    config      = optional(map(string), {})
+    app_name = optional(string, "cos-configuration")
+    base     = optional(string, "ubuntu@22.04")
+    channel  = optional(string, "1/stable")
+    config = optional(map(string), {
+      git_branch              = "main"
+      git_depth               = 1
+      git_repo                = "https://github.com/canonical/spark-k8s-bundle"
+      grafana_dashboards_path = "resources/grafana/"
+    })
     constraints = optional(string, "arch=amd64")
     resources   = optional(map(string), {})
     revision    = optional(number)
     units       = optional(number, 1)
   })
-  default = {
-    app_name    = "cos-configuration"
-    base        = "ubuntu@22.04"
-    constraints = "arch=amd64"
-    config = {
-      git_branch              = "main"
-      git_depth               = 1
-      git_repo                = "https://github.com/canonical/spark-k8s-bundle"
-      grafana_dashboards_path = "resources/grafana/"
-    }
-    units = 1
-  }
+  default = {}
 }
 
 variable "grafana_agent" {
@@ -43,57 +37,40 @@ variable "grafana_agent" {
     revision    = optional(number)
     units       = optional(number, 1)
   })
-  default = {
-    app_name    = "grafana-agent"
-    base        = "ubuntu@22.04"
-    constraints = "arch=amd64"
-    units       = 1
-  }
+  default = {}
 }
 
 variable "pushgateway" {
   type = object({
-    app_name           = optional(string, "pushgateway")
-    base               = optional(string, "ubuntu@22.04")
-    channel            = optional(string, "1/stable")
-    config             = optional(map(string), {})
-    constraints        = optional(string, "arch=amd64")
-    resources          = optional(map(string), {})
-    revision           = optional(number)
-    storage_directives = optional(map(string))
-    units              = optional(number, 1)
-  })
-  default = {
-    app_name    = "pushgateway"
-    base        = "ubuntu@22.04"
-    constraints = "arch=amd64"
-    storage_directives = {
-      pushgateway-store = "10G"
-    }
-    units = 1
-  }
-}
-
-variable "scrape_config" {
-  type = object({
-    app_name    = optional(string, "scrape-config")
+    app_name    = optional(string, "pushgateway")
     base        = optional(string, "ubuntu@22.04")
     channel     = optional(string, "1/stable")
     config      = optional(map(string), {})
     constraints = optional(string, "arch=amd64")
     resources   = optional(map(string), {})
     revision    = optional(number)
+    storage_directives = optional(map(string), {
+      pushgateway-store = "10G"
+    })
+    units = optional(number, 1)
+  })
+  default = {}
+}
+
+variable "scrape_config" {
+  type = object({
+    app_name = optional(string, "scrape-config")
+    base     = optional(string, "ubuntu@22.04")
+    channel  = optional(string, "1/stable")
+    config = optional(map(string), {
+      scrape_interval = "10s"
+    })
+    constraints = optional(string, "arch=amd64")
+    resources   = optional(map(string), {})
+    revision    = optional(number)
     units       = optional(number, 1)
   })
-  default = {
-    app_name = "scrape-config"
-    base     = "ubuntu@22.04"
-    config = {
-      scrape_interval = "10s"
-    }
-    constraints = "arch=amd64"
-    units       = 1
-  }
+  default = {}
 }
 
 variable "dashboards_offer" {
