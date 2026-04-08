@@ -352,11 +352,11 @@ def test_history_server_metrics_in_cos(
         with attempt:
             cos_address = get_cos_address(cos_model_name=COS)
             assert published_prometheus_data(
-                cos, cos_address, "jmx_scrape_duration_seconds"
+                COS, cos_address, "jmx_scrape_duration_seconds"
             )
 
             # Alerts got published to Prometheus
-            alerts_data = published_prometheus_alerts(cos, cos_address)
+            alerts_data = published_prometheus_alerts(COS, cos_address)
             assert alerts_data is not None
             logger.info(f"Alerts data: {alerts_data}")
 
