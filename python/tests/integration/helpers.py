@@ -20,7 +20,7 @@ from spark_test.core.s3 import Credentials
 from tests.integration.types import KyuubiCredentials
 
 SECRET_NAME_PREFIX = "integrator-hub-conf-"
-COS_ALIAS = "cos"
+COS = "cos"
 JMX_EXPORTER_PORT = 9101
 JMX_CC_PORT = 9102
 ZOOKEEPER_PORT = 2181
