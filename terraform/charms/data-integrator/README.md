@@ -1,27 +1,34 @@
-## Requirements
+# Data-integrator charm terraform module
+
+To be contributed upstream.
+
+## Module reference
+
+<!-- BEGIN_TF_DOCS -->
+### Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.0.0 |
 | <a name="requirement_juju"></a> [juju](#requirement\_juju) | >=1.0.0 |
 
-## Providers
+### Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_juju"></a> [juju](#provider\_juju) | >=1.0.0 |
 
-## Modules
+### Modules
 
 No modules.
 
-## Resources
+### Resources
 
 | Name | Type |
 |------|------|
 | [juju_application.data_integrator](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
 
-## Inputs
+### Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
@@ -34,10 +41,11 @@ No modules.
 | <a name="input_revision"></a> [revision](#input\_revision) | Revision number of the charm. | `number` | `null` | no |
 | <a name="input_units"></a> [units](#input\_units) | Unit count. | `number` | `1` | no |
 
-## Outputs
+### Outputs
 
 | Name | Description |
 |------|-------------|
 | <a name="output_application"></a> [application](#output\_application) | Object representing the deployed application. |
 | <a name="output_provides"></a> [provides](#output\_provides) | Map of all the provided endpoints. |
 | <a name="output_requires"></a> [requires](#output\_requires) | Map of all the required endpoints. |
+<!-- END_TF_DOCS -->

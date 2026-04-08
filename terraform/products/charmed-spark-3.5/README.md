@@ -1,17 +1,22 @@
-## Requirements
+# Charmed Apache Spark (3.5) product terraform module
+
+## Module reference
+
+<!-- BEGIN_TF_DOCS -->
+### Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.0.0 |
 | <a name="requirement_juju"></a> [juju](#requirement\_juju) | >=1.0.0 |
 
-## Providers
+### Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_juju"></a> [juju](#provider\_juju) | 1.3.1 |
 
-## Modules
+### Modules
 
 | Name | Source | Version |
 |------|--------|---------|
@@ -25,13 +30,13 @@
 | <a name="module_ssc"></a> [ssc](#module\_ssc) | git::https://github.com/canonical/self-signed-certificates-operator//terraform | rev586 |
 | <a name="module_zookeeper"></a> [zookeeper](#module\_zookeeper) | ../../charms/zookeeper | n/a |
 
-## Resources
+### Resources
 
 | Name | Type |
 |------|------|
 | [juju_model.spark](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/model) | resource |
 
-## Inputs
+### Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
@@ -74,10 +79,11 @@
 | <a name="input_zookeeper_size"></a> [zookeeper\_size](#input\_zookeeper\_size) | Storage size for the metastore database | `string` | `"10G"` | no |
 | <a name="input_zookeeper_units"></a> [zookeeper\_units](#input\_zookeeper\_units) | Define the number of zookeeper units. 3 units are recommended for high availability. | `number` | `3` | no |
 
-## Outputs
+### Outputs
 
 | Name | Description |
 |------|-------------|
 | <a name="output_metadata"></a> [metadata](#output\_metadata) | Metadata of the product deployment. |
 | <a name="output_models"></a> [models](#output\_models) | Maps of the models and the components deployed in each model. |
 | <a name="output_offers"></a> [offers](#output\_offers) | The name and url of the various offers being exposed |
+<!-- END_TF_DOCS -->

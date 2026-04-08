@@ -1,21 +1,28 @@
-## Requirements
+# Azure storage integrator charm terraform module
+
+To be contributed upstream.
+
+## Module reference
+
+<!-- BEGIN_TF_DOCS -->
+### Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.0.0 |
 | <a name="requirement_juju"></a> [juju](#requirement\_juju) | >=1.0.0 |
 
-## Providers
+### Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_juju"></a> [juju](#provider\_juju) | 1.3.1 |
 
-## Modules
+### Modules
 
 No modules.
 
-## Resources
+### Resources
 
 | Name | Type |
 |------|------|
@@ -24,7 +31,7 @@ No modules.
 | [juju_offer.azure_storage_credentials](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/offer) | resource |
 | [juju_secret.azure_storage_secret](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/secret) | resource |
 
-## Inputs
+### Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
@@ -32,16 +39,17 @@ No modules.
 | <a name="input_azure_storage_secret_key"></a> [azure\_storage\_secret\_key](#input\_azure\_storage\_secret\_key) | Secret key to the Azure Storage account. | `string` | n/a | yes |
 | <a name="input_base"></a> [base](#input\_base) | The operating system on which to deploy | `string` | `"ubuntu@22.04"` | no |
 | <a name="input_channel"></a> [channel](#input\_channel) | Channel of the charm. | `string` | `"latest/edge"` | no |
-| <a name="input_config"></a> [config](#input\_config) | Map for configuration options. | <pre>object({<br/>    connection-protocol = optional(string, "abfss")<br/>    container           = optional(string, "azurecontainer")<br/>    endpoint            = optional(string, "")<br/>    path                = optional(string, "spark-events")<br/>    resource-group      = optional(string, "azurerg")<br/>    storage_account     = optional(string, "azurestorageaccount")<br/>  })</pre> | `{}` | no |
+| <a name="input_config"></a> [config](#input\_config) | Map for configuration options. | <pre>object({<br/>    connection-protocol = optional(string, "abfss")<br/>    container           = optional(string)<br/>    endpoint            = optional(string)<br/>    path                = optional(string)<br/>    resource-group      = optional(string)<br/>    storage-account     = optional(string)<br/>  })</pre> | `{}` | no |
 | <a name="input_constraints"></a> [constraints](#input\_constraints) | String listing constraints for this application. | `string` | `null` | no |
 | <a name="input_model_uuid"></a> [model\_uuid](#input\_model\_uuid) | Reference to an existing model uuid. | `string` | n/a | yes |
 | <a name="input_revision"></a> [revision](#input\_revision) | Revision number of the charm. | `number` | `null` | no |
 | <a name="input_units"></a> [units](#input\_units) | Unit count. | `number` | `1` | no |
 
-## Outputs
+### Outputs
 
 | Name | Description |
 |------|-------------|
 | <a name="output_application"></a> [application](#output\_application) | Object representing the deployed application. |
 | <a name="output_offers"></a> [offers](#output\_offers) | Map of all offers exposed by the single charm. |
 | <a name="output_provides"></a> [provides](#output\_provides) | Provides endpoints. |
+<!-- END_TF_DOCS -->

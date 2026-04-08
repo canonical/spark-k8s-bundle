@@ -1,21 +1,35 @@
-## Requirements
+# Observability component terraform module
+
+Bundles the following charms:
+- Grafana-agent
+- COS-configuration
+- Prometheus Pushgateway
+- Prometheus-scrape-config
+
+While we do not maintain those charms, we have specific requirements for them.
+As such, it is easier to define our own component module for now.
+
+## Module reference
+
+<!-- BEGIN_TF_DOCS -->
+### Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.0.0 |
 | <a name="requirement_juju"></a> [juju](#requirement\_juju) | >=1.0.0 |
 
-## Providers
+### Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_juju"></a> [juju](#provider\_juju) | 1.3.1 |
 
-## Modules
+### Modules
 
 No modules.
 
-## Resources
+### Resources
 
 | Name | Type |
 |------|------|
@@ -41,13 +55,13 @@ No modules.
 | [juju_offer.loki_logging](https://registry.terraform.io/providers/juju/juju/latest/docs/data-sources/offer) | data source |
 | [juju_offer.prometheus_receive_remote_write](https://registry.terraform.io/providers/juju/juju/latest/docs/data-sources/offer) | data source |
 
-## Inputs
+### Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_cos_configuration"></a> [cos\_configuration](#input\_cos\_configuration) | n/a | <pre>object({<br/>    app_name    = optional(string, "cos-configuration")<br/>    base        = optional(string, "ubuntu@22.04")<br/>    channel     = optional(string, "1/stable")<br/>    config      = optional(map(string), {})<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>  })</pre> | <pre>{<br/>  "app_name": "cos-configuration",<br/>  "base": "ubuntu@22.04",<br/>  "config": {<br/>    "git_branch": "main",<br/>    "git_depth": 1,<br/>    "git_repo": "https://github.com/canonical/spark-k8s-bundle",<br/>    "grafana_dashboards_path": "resources/grafana/"<br/>  },<br/>  "constraints": "arch=amd64",<br/>  "units": 1<br/>}</pre> | no |
+| <a name="input_cos_configuration"></a> [cos\_configuration](#input\_cos\_configuration) | n/a | <pre>object({<br/>    app_name = optional(string, "cos-configuration")<br/>    base     = optional(string, "ubuntu@22.04")<br/>    channel  = optional(string, "1/stable")<br/>    config = optional(map(string), {<br/>      git_branch              = "main"<br/>      git_depth               = 1<br/>      git_repo                = "https://github.com/canonical/spark-k8s-bundle"<br/>      grafana_dashboards_path = "resources/grafana/"<br/>    })<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>  })</pre> | `{}` | no |
 | <a name="input_dashboards_offer"></a> [dashboards\_offer](#input\_dashboards\_offer) | URL of the `grafana_dashboard` interface offer. | `string` | n/a | yes |
-| <a name="input_grafana_agent"></a> [grafana\_agent](#input\_grafana\_agent) | n/a | <pre>object({<br/>    app_name    = optional(string, "grafana-agent")<br/>    base        = optional(string, "ubuntu@22.04")<br/>    channel     = optional(string, "1/stable")<br/>    config      = optional(map(string), {})<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>  })</pre> | <pre>{<br/>  "app_name": "grafana-agent",<br/>  "base": "ubuntu@22.04",<br/>  "constraints": "arch=amd64",<br/>  "units": 1<br/>}</pre> | no |
+| <a name="input_grafana_agent"></a> [grafana\_agent](#input\_grafana\_agent) | n/a | <pre>object({<br/>    app_name    = optional(string, "grafana-agent")<br/>    base        = optional(string, "ubuntu@22.04")<br/>    channel     = optional(string, "1/stable")<br/>    config      = optional(map(string), {})<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>  })</pre> | `{}` | no |
 | <a name="input_history_server_dashboard_endpoint"></a> [history\_server\_dashboard\_endpoint](#input\_history\_server\_dashboard\_endpoint) | In-model endpoint for the History Server dashboard integration. | <pre>object({<br/>    name     = string<br/>    endpoint = string<br/>  })</pre> | n/a | yes |
 | <a name="input_history_server_logging_endpoint"></a> [history\_server\_logging\_endpoint](#input\_history\_server\_logging\_endpoint) | In-model endpoint for the History Server logging integration. | <pre>object({<br/>    name     = string<br/>    endpoint = string<br/>  })</pre> | n/a | yes |
 | <a name="input_history_server_metrics_endpoint"></a> [history\_server\_metrics\_endpoint](#input\_history\_server\_metrics\_endpoint) | In-model endpoint for the History Server metrics integration. | <pre>object({<br/>    name     = string<br/>    endpoint = string<br/>  })</pre> | n/a | yes |
@@ -59,13 +73,14 @@ No modules.
 | <a name="input_logging_offer"></a> [logging\_offer](#input\_logging\_offer) | URL of the `loki_push_api` interface offer. | `string` | n/a | yes |
 | <a name="input_metrics_offer"></a> [metrics\_offer](#input\_metrics\_offer) | URL of the `prometheus_remote_write` interface offer. | `string` | n/a | yes |
 | <a name="input_model_uuid"></a> [model\_uuid](#input\_model\_uuid) | Reference to an existing model uuid. | `string` | n/a | yes |
-| <a name="input_pushgateway"></a> [pushgateway](#input\_pushgateway) | n/a | <pre>object({<br/>    app_name           = optional(string, "pushgateway")<br/>    base               = optional(string, "ubuntu@22.04")<br/>    channel            = optional(string, "1/stable")<br/>    config             = optional(map(string), {})<br/>    constraints        = optional(string, "arch=amd64")<br/>    resources          = optional(map(string), {})<br/>    revision           = optional(number)<br/>    storage_directives = optional(map(string))<br/>    units              = optional(number, 1)<br/>  })</pre> | <pre>{<br/>  "app_name": "pushgateway",<br/>  "base": "ubuntu@22.04",<br/>  "constraints": "arch=amd64",<br/>  "storage_directives": {<br/>    "pushgateway-store": "10G"<br/>  },<br/>  "units": 1<br/>}</pre> | no |
-| <a name="input_scrape_config"></a> [scrape\_config](#input\_scrape\_config) | n/a | <pre>object({<br/>    app_name    = optional(string, "scrape-config")<br/>    base        = optional(string, "ubuntu@22.04")<br/>    channel     = optional(string, "1/stable")<br/>    config      = optional(map(string), {})<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>  })</pre> | <pre>{<br/>  "app_name": "scrape-config",<br/>  "base": "ubuntu@22.04",<br/>  "config": {<br/>    "scrape_interval": "10s"<br/>  },<br/>  "constraints": "arch=amd64",<br/>  "units": 1<br/>}</pre> | no |
+| <a name="input_pushgateway"></a> [pushgateway](#input\_pushgateway) | n/a | <pre>object({<br/>    app_name    = optional(string, "pushgateway")<br/>    base        = optional(string, "ubuntu@22.04")<br/>    channel     = optional(string, "1/stable")<br/>    config      = optional(map(string), {})<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number)<br/>    storage_directives = optional(map(string), {<br/>      pushgateway-store = "10G"<br/>    })<br/>    units = optional(number, 1)<br/>  })</pre> | `{}` | no |
+| <a name="input_scrape_config"></a> [scrape\_config](#input\_scrape\_config) | n/a | <pre>object({<br/>    app_name = optional(string, "scrape-config")<br/>    base     = optional(string, "ubuntu@22.04")<br/>    channel  = optional(string, "1/stable")<br/>    config = optional(map(string), {<br/>      scrape_interval = "10s"<br/>    })<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>  })</pre> | `{}` | no |
 
-## Outputs
+### Outputs
 
 | Name | Description |
 |------|-------------|
 | <a name="output_components"></a> [components](#output\_components) | List of the deployed applications for this component module. |
 | <a name="output_provides"></a> [provides](#output\_provides) | Map of all the provided endpoints. |
 | <a name="output_requires"></a> [requires](#output\_requires) | Map of the required endpoints. |
+<!-- END_TF_DOCS -->

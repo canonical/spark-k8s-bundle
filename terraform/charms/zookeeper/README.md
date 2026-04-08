@@ -1,27 +1,34 @@
-## Requirements
+# ZooKeeper charm terraform module
+
+To be contributed upstream.
+
+## Module reference
+
+<!-- BEGIN_TF_DOCS -->
+### Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.0.0 |
 | <a name="requirement_juju"></a> [juju](#requirement\_juju) | >=1.0.0 |
 
-## Providers
+### Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_juju"></a> [juju](#provider\_juju) | 1.3.1 |
 
-## Modules
+### Modules
 
 No modules.
 
-## Resources
+### Resources
 
 | Name | Type |
 |------|------|
 | [juju_application.zookeeper](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
 
-## Inputs
+### Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
@@ -36,10 +43,11 @@ No modules.
 | <a name="input_storage_size"></a> [storage\_size](#input\_storage\_size) | Storage size for the zookeeper data. | `string` | `"10G"` | no |
 | <a name="input_units"></a> [units](#input\_units) | Unit count. 3 units are recommended for high availability. | `number` | `3` | no |
 
-## Outputs
+### Outputs
 
 | Name | Description |
 |------|-------------|
 | <a name="output_application"></a> [application](#output\_application) | Object representing the deployed application. |
 | <a name="output_provides"></a> [provides](#output\_provides) | Map of all the provided endpoints. |
 | <a name="output_requires"></a> [requires](#output\_requires) | Map of all the required endpoints. |
+<!-- END_TF_DOCS -->
