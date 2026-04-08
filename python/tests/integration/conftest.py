@@ -205,7 +205,7 @@ def juju(request: pytest.FixtureRequest):
         test_passed = False
 
     if model is not None and not keep_models and test_passed:
-        juju.destroy_model(model_name, release_storage=True)
+        juju.destroy_model(model_name, release_storage=True, force=True)
 
 
 @pytest.fixture(scope="module")
