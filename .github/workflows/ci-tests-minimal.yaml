@@ -23,7 +23,7 @@ jobs:
           - integration-sparkjob
           - integration-kyuubi
           - integration-backup-restore
-        spark-version: [ "3.4.4" ] #, "3.5.7" ]
+        spark-version: [ "3.4.4", "3.5.7" ]
         storage-backend: [ "s3", "azure_storage" ]
         juju-snap-channel: [ "3.6/stable" ]
         juju-agent-version: [ "3.6.14" ]
