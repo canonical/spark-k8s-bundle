@@ -5,7 +5,7 @@ myst:
 ---
 
 (how-to-spark-history-server-auth)=
-# Enable authorization and authentication with the Spark History Server charm
+# Enable authentication and authorization with the Spark History Server charm
 
 Charmed Apache Spark includes the Spark History Server charm, which lets users monitor
 application workflows and logs. By default, Spark History Server does not provide
@@ -29,6 +29,7 @@ Deploy it by following this
 which installs all required Identity Platform components.
 
 The deployment includes these charms:
+
 - [Charmed Ory Hydra](https://charmhub.io/hydra): the OAuth/OIDC server.
 - [Charmed Ory Kratos](https://charmhub.io/kratos): user management and authentication.
 - [Login UI operator](https://charmhub.io/identity-platform-login-ui-operator): middleware that routes requests between services and serves login/error pages.
@@ -53,17 +54,15 @@ The connection between Spark History Server and the Identity Platform is handled
 the Charmed OAuth2 Proxy charm. OAuth2 Proxy protects endpoints exposed through
 ingress (Traefik).
 
+## Enable authentication with Charmed OAuth2 Proxy
 
-## Enabling Authentication with Charmed OAuth2 Proxy
-
-To set up OAuth2 Proxy, first expose the forward-auth offer, enable the feature in
-Traefik, and integrate it with Spark History Server through the ingress relation.
+To set up OAuth2 Proxy, first enable the feature in Traefik, expose the forward-auth
+offer, and integrate it with Spark History Server through the ingress relation.
 
 ```bash
 juju config traefik-public enable_experimental_forward_auth=True
 juju offer traefik-public:experimental-forward-auth forward-auth
 juju integrate spark-history-server-k8s admin/core.ingress
-
 ```
 
 Next, deploy OAuth2 Proxy and integrate it with Traefik using the exposed offer:
@@ -74,12 +73,14 @@ juju integrate oauth2-proxy-k8s:forward-auth admin/core.forward-auth
 ```
 
 Then integrate Spark History Server with OAuth2 Proxy:
+
 ```bash
 juju integrate oauth2-proxy-k8s spark-history-server-k8s:oauth2-proxy
 ```
 
 Finally, integrate OAuth2 Proxy with the Identity Platform OIDC provider
 (Charmed Hydra):
+
 ```bash
 juju integrate oauth2-proxy-k8s:oauth hydra
 ```
@@ -94,7 +95,6 @@ When you open the URL exposed by Traefik, you are redirected to your configured
 identity provider for authentication. After successful login, you can access the
 Spark History Server endpoint.
 
-
 ## Authorization Management
 
 By default, all authenticated users can access Spark History Server. To restrict
@@ -104,7 +104,6 @@ comma-separated list:
 ```bash
 juju config spark-history-server-k8s authorized-users="user1@canonical.com, user3@canonical.com"
 ```
-
 
 ## Oathkeeper integration (deprecated)
 
