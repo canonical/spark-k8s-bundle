@@ -101,16 +101,17 @@ module "spark" {
   model_uuid   = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
   create_model = false
 
-  admin_password       = var.admin_password
-  azure_storage_config = var.azure_storage_config
-  kyuubi_config        = var.kyuubi_config
-  kyuubi_users_size    = "500M"
-  metastore_size       = "500M"
-  s3_config            = var.s3_config
-  storage_backend      = var.storage_backend
-  tls_private_key      = var.tls_private_key
-  zookeeper_size       = "10G"
-  zookeeper_units      = 1
+  admin_password           = var.admin_password
+  azure_storage_config     = var.azure_storage_config
+  azure_storage_secret_key = var.azure_storage_secret_key
+  kyuubi_config            = var.kyuubi_config
+  kyuubi_users_size        = "500M"
+  metastore_size           = "500M"
+  s3_config                = var.s3_config
+  storage_backend          = var.storage_backend
+  tls_private_key          = var.tls_private_key
+  zookeeper_size           = "10G"
+  zookeeper_units          = 1
 
   cos_offers = module.cos != [] ? {
     dashboard = module.cos[0].offers.grafana_dashboards.url
