@@ -34,7 +34,9 @@
 
 | Name | Type |
 |------|------|
+| [juju_access_secret.azure_storage_secret_access](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/access_secret) | resource |
 | [juju_model.spark](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/model) | resource |
+| [juju_secret.azure_storage_secret](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/secret) | resource |
 
 ### Inputs
 
@@ -43,8 +45,9 @@
 | <a name="input_K8S_CLOUD"></a> [K8S\_CLOUD](#input\_K8S\_CLOUD) | The kubernetes juju cloud name. | `string` | `"microk8s"` | no |
 | <a name="input_K8S_CREDENTIAL"></a> [K8S\_CREDENTIAL](#input\_K8S\_CREDENTIAL) | The name of the kubernetes juju credential. | `string` | `"microk8s"` | no |
 | <a name="input_admin_password"></a> [admin\_password](#input\_admin\_password) | The password for the Kyuubi admin user. | `string` | `null` | no |
-| <a name="input_azure_storage_config"></a> [azure\_storage\_config](#input\_azure\_storage\_config) | Azure Object storage information | <pre>object({<br/>    container       = optional(string)<br/>    path            = optional(string)<br/>    protocol        = optional(string, "abfss")<br/>    secret_key      = optional(string)<br/>    storage_account = optional(string)<br/>  })</pre> | `{}` | no |
+| <a name="input_azure_storage_config"></a> [azure\_storage\_config](#input\_azure\_storage\_config) | Azure Object storage information | <pre>object({<br/>    container       = optional(string)<br/>    credentials     = optional(string)<br/>    path            = optional(string)<br/>    protocol        = optional(string, "abfss")<br/>    storage_account = optional(string)<br/>  })</pre> | `{}` | no |
 | <a name="input_azure_storage_revision"></a> [azure\_storage\_revision](#input\_azure\_storage\_revision) | Charm revision for azure-storage-integrator | `number` | `null` | no |
+| <a name="input_azure_storage_secret_key"></a> [azure\_storage\_secret\_key](#input\_azure\_storage\_secret\_key) | Secret key to the Azure Storage account. | `string` | `null` | no |
 | <a name="input_certificate_common_name"></a> [certificate\_common\_name](#input\_certificate\_common\_name) | Common name for the certificate to be used in self-signed | `string` | `"charmed-spark"` | no |
 | <a name="input_cos_offers"></a> [cos\_offers](#input\_cos\_offers) | Observability stack offers. | <pre>object({<br/>    dashboard = string<br/>    logging   = string<br/>    metrics   = string<br/>  })</pre> | `null` | no |
 | <a name="input_create_model"></a> [create\_model](#input\_create\_model) | Should terraform create the Juju models? If set to false, assume the models are created by a different mechanism. | `bool` | `true` | no |

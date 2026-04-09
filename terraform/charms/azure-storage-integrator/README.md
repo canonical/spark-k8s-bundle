@@ -26,20 +26,17 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [juju_access_secret.azure_storage_secret_access](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/access_secret) | resource |
 | [juju_application.azure_storage](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
 | [juju_offer.azure_storage_credentials](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/offer) | resource |
-| [juju_secret.azure_storage_secret](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/secret) | resource |
 
 ### Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_app_name"></a> [app\_name](#input\_app\_name) | Name to give the deployed application. | `string` | `"azure-storage-integrator"` | no |
-| <a name="input_azure_storage_secret_key"></a> [azure\_storage\_secret\_key](#input\_azure\_storage\_secret\_key) | Secret key to the Azure Storage account. | `string` | n/a | yes |
 | <a name="input_base"></a> [base](#input\_base) | The operating system on which to deploy | `string` | `"ubuntu@22.04"` | no |
 | <a name="input_channel"></a> [channel](#input\_channel) | Channel of the charm. | `string` | `"latest/edge"` | no |
-| <a name="input_config"></a> [config](#input\_config) | Map for configuration options. | <pre>object({<br/>    connection-protocol = optional(string, "abfss")<br/>    container           = optional(string)<br/>    endpoint            = optional(string)<br/>    path                = optional(string)<br/>    resource-group      = optional(string)<br/>    storage-account     = optional(string)<br/>  })</pre> | `{}` | no |
+| <a name="input_config"></a> [config](#input\_config) | Map for configuration options. | <pre>object({<br/>    connection-protocol = optional(string, "abfss")<br/>    container           = optional(string)<br/>    credentials         = optional(string)<br/>    endpoint            = optional(string)<br/>    path                = optional(string)<br/>    resource-group      = optional(string)<br/>    storage-account     = optional(string)<br/>  })</pre> | `{}` | no |
 | <a name="input_constraints"></a> [constraints](#input\_constraints) | String listing constraints for this application. | `string` | `null` | no |
 | <a name="input_model_uuid"></a> [model\_uuid](#input\_model\_uuid) | Reference to an existing model uuid. | `string` | n/a | yes |
 | <a name="input_revision"></a> [revision](#input\_revision) | Revision number of the charm. | `number` | `null` | no |

@@ -60,6 +60,13 @@ variable "azure_storage_config" {
   default = {}
 }
 
+variable "azure_storage_secret_key" {
+  description = "Secret key to the Azure Storage account."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
 variable "s3_config" {
   type    = map(any)
   default = {}

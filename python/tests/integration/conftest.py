@@ -440,9 +440,9 @@ def spark_bundle(
             "azure_storage_config": {
                 "storage_account": storage_unit.credentials.storage_account,
                 "container": storage_unit.container_name,
-                "secret_key": storage_unit.credentials.secret_key,
                 "path": "spark-events",
-            }
+            },
+            "azure_storage_secret_key": storage_unit.credentials.secret_key,
         }
     else:
         storage_unit = cast(Bucket, object_storage)

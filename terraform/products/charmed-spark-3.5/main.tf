@@ -92,23 +92,43 @@ module "data_integrator" {
   revision    = local.revisions.data_integrator
 }
 
-module "azure_storage" {
+resource "juju_secret" "azure_storage_secret" {
   depends_on = [juju_model.spark]
+  count      = var.storage_backend == "azure_storage" ? 1 : 0
+  model_uuid = var.model_uuid
+  name       = "azure_storage_secret"
+  value = {
+    secret-key = var.azure_storage_secret_key
+  }
+  info = "This is the secret key for the Azure storage account"
+}
+
+module "azure_storage" {
+  depends_on = [juju_model.spark, juju_secret.azure_storage_secret]
   count      = var.storage_backend == "azure_storage" ? 1 : 0
   source     = "../../charms/azure-storage-integrator"
   model_uuid = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
 
-  azure_storage_secret_key = var.azure_storage_config.secret_key
-  base                     = "ubuntu@22.04"
-  channel                  = "latest/edge"
-  config = {
-    connection-protocol = var.azure_storage_config.protocol
-    container           = var.azure_storage_config.container
-    path                = var.azure_storage_config.path
-    storage-account     = var.azure_storage_config.storage_account
-  }
+  base    = "ubuntu@22.04"
+  channel = "latest/edge"
+  config = merge(
+    {
+      credentials = "secret:${juju_secret.azure_storage_secret[0].secret_id}"
+    },
+    var.azure_storage_config
+  )
   constraints = "arch=amd64"
   revision    = local.revisions.azure_storage
+}
+
+resource "juju_access_secret" "azure_storage_secret_access" {
+  depends_on = [juju_model.spark, juju_secret.azure_storage_secret, module.azure_storage]
+  count      = var.storage_backend == "azure_storage" ? 1 : 0
+  model_uuid = var.model_uuid
+  applications = [
+    module.azure_storage[0].application.name
+  ]
+  secret_id = juju_secret.azure_storage_secret[0].secret_id
 }
 
 module "s3" {
@@ -136,7 +156,7 @@ module "spark" {
     module.ssc,
     module.zookeeper
   ]
-  source     = "../../components/spark-3.4"
+  source     = "../../components/spark-3.5"
   model_uuid = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
 
   history_server = {

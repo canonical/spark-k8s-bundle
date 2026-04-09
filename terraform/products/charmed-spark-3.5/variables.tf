@@ -13,9 +13,9 @@ variable "azure_storage_config" {
   description = "Azure Object storage information"
   type = object({
     container       = optional(string)
+    credentials     = optional(string)
     path            = optional(string)
     protocol        = optional(string, "abfss")
-    secret_key      = optional(string)
     storage_account = optional(string)
   })
   default = {}
@@ -24,6 +24,13 @@ variable "azure_storage_config" {
 variable "azure_storage_revision" {
   description = "Charm revision for azure-storage-integrator"
   type        = number
+  default     = null
+}
+
+variable "azure_storage_secret_key" {
+  description = "Secret key to the Azure Storage account."
+  type        = string
+  sensitive   = true
   default     = null
 }
 

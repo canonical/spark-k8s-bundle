@@ -27,6 +27,7 @@ variable "config" {
   type = object({
     connection-protocol = optional(string, "abfss")
     container           = optional(string)
+    credentials         = optional(string)
     endpoint            = optional(string)
     path                = optional(string)
     resource-group      = optional(string)
@@ -59,12 +60,4 @@ variable "units" {
   description = "Unit count."
   type        = number
   default     = 1
-}
-
-# We should eventually handle this differently 
-variable "azure_storage_secret_key" {
-  description = "Secret key to the Azure Storage account."
-  type        = string
-  nullable    = false
-  sensitive   = true
 }
