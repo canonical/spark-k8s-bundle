@@ -50,13 +50,6 @@ variable "kyuubi" {
   default = {}
 }
 
-variable "admin_password" {
-  description = "The password for the admin user."
-  type        = string
-  sensitive   = true
-  default     = null
-}
-
 variable "data_integrator_endpoint" {
   description = "In-model endpoint for the data-integrator application."
   type = object({
@@ -79,13 +72,6 @@ variable "tls_endpoint" {
     name     = string
     endpoint = string
   })
-}
-
-variable "tls_private_key" {
-  description = "The private key to be used for TLS certificates."
-  type        = string
-  sensitive   = true
-  default     = null
 }
 
 variable "users_db_endpoint" {

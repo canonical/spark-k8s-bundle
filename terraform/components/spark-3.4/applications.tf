@@ -52,16 +52,7 @@ resource "juju_application" "kyuubi" {
     revision = var.kyuubi.revision != null ? var.kyuubi.revision : local.revisions.kyuubi
   }
 
-  config = merge(
-    {
-      expose-external = "loadbalancer",
-    },
-    length(juju_secret.system_users_and_private_key_secret) > 0 ? {
-      system-users           = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}",
-      tls-client-private-key = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
-    } : {},
-    var.kyuubi.config
-  )
+  config      = var.kyuubi.config
   constraints = var.kyuubi.constraints
   resources = merge({
     kyuubi-image = local.images.kyuubi

@@ -144,10 +144,26 @@ module "s3" {
   revision    = local.revisions.s3
 }
 
+resource "juju_secret" "system_users_and_private_key_secret" {
+  depends_on = [juju_model.spark]
+  count      = var.tls_private_key == null && var.admin_password == null ? 0 : 1
+  model_uuid = var.model_uuid
+  name       = "system_users_and_private_key_secret"
+  value = merge(
+    var.admin_password == null ? {} : {
+      admin = var.admin_password
+    },
+    var.tls_private_key == null ? {} : {
+      private-key = var.tls_private_key
+    }
+  )
+  info = "This secret contains password for admin user and the TLS private key."
+}
 
 module "spark" {
   depends_on = [
     juju_model.spark,
+    juju_secret.system_users_and_private_key_secret,
     module.azure_storage,
     module.data_integrator,
     module.kyuubi_users,
@@ -172,7 +188,16 @@ module "spark" {
     resources   = { integration-hub-image = var.integration_hub_image != null ? var.integration_hub_image : local.images.integration_hub }
   }
   kyuubi = {
-    config      = var.kyuubi_config,
+    config = merge(
+      {
+        expose-external = "loadbalancer",
+      },
+      length(juju_secret.system_users_and_private_key_secret) > 0 ? {
+        system-users           = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}",
+        tls-client-private-key = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
+      } : {},
+      var.kyuubi_config
+    )
     constraints = "arch=amd64",
     revision    = var.kyuubi_revision != null ? var.kyuubi_revision : local.revisions.kyuubi,
     resources   = { kyuubi-image = var.kyuubi_image != null ? var.kyuubi_image : local.images.kyuubi }
@@ -197,9 +222,20 @@ module "spark" {
   zookeeper_endpoint       = module.zookeeper.provides.zookeeper
   data_integrator_endpoint = module.data_integrator.requires.kyuubi
   object_storage_endpoint  = module.s3 != [] ? module.s3[0].provides.s3_credentials : module.azure_storage[0].provides.azure_storage_credentials
+}
 
-  admin_password  = var.admin_password
-  tls_private_key = var.tls_private_key
+resource "juju_access_secret" "system_users_and_private_key_secret_access" {
+  depends_on = [
+    juju_model.spark,
+    juju_secret.system_users_and_private_key_secret,
+    module.spark
+  ]
+  count      = var.tls_private_key == null && var.admin_password == null ? 0 : 1
+  model_uuid = var.model_uuid
+  applications = [
+    module.spark.components.kyuubi.name
+  ]
+  secret_id = juju_secret.system_users_and_private_key_secret[0].secret_id
 }
 
 module "observability" {

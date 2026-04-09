@@ -35,8 +35,10 @@
 | Name | Type |
 |------|------|
 | [juju_access_secret.azure_storage_secret_access](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/access_secret) | resource |
+| [juju_access_secret.system_users_and_private_key_secret_access](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/access_secret) | resource |
 | [juju_model.spark](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/model) | resource |
 | [juju_secret.azure_storage_secret](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/secret) | resource |
+| [juju_secret.system_users_and_private_key_secret](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/secret) | resource |
 
 ### Inputs
 
