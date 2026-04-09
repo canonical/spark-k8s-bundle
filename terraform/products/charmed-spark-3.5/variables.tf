@@ -16,7 +16,7 @@ variable "azure_storage_config" {
     credentials     = optional(string)
     path            = optional(string)
     protocol        = optional(string, "abfss")
-    storage_account = optional(string)
+    storage-account = optional(string)
   })
   default = {}
 }

@@ -438,7 +438,7 @@ def spark_bundle(
         storage_unit = cast(Container, object_storage)
         storage_vars = {
             "azure_storage_config": {
-                "storage_account": storage_unit.credentials.storage_account,
+                "storage-account": storage_unit.credentials.storage_account,
                 "container": storage_unit.container_name,
                 "path": "spark-events",
             },

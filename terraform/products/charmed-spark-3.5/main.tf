@@ -112,10 +112,10 @@ module "azure_storage" {
   base    = "ubuntu@22.04"
   channel = "latest/edge"
   config = merge(
+    var.azure_storage_config,
     {
       credentials = "secret:${juju_secret.azure_storage_secret[0].secret_id}"
-    },
-    var.azure_storage_config
+    }
   )
   constraints = "arch=amd64"
   revision    = local.revisions.azure_storage
