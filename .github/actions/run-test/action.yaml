@@ -63,6 +63,11 @@ inputs:
     required: false
     default: ""
     type: string
+  architecture:
+    description: "Target architecture for the test run"
+    required: false
+    default: "amd64"
+    type: string
 
 runs:
   using: "composite"
