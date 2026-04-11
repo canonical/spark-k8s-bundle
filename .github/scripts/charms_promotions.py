@@ -50,12 +50,12 @@ class Charm:
                 if "permission-required" in output or "permission-required" in err_output:
                     raise PermissionError(self.name)
                 else:
-                    raise RuntimeError(charm.name, shlex.join(err.cmd), err)
+                    raise RuntimeError(self.name, shlex.join(err.cmd), err)
 
             self._status = json.loads(output.stdout.decode("utf-8"))
 
         items = [
-            mapping["base"] | release
+            {"base": mapping["base"]} | release
             for track in self._status
             for mapping in track["mappings"]
             for release in mapping["releases"]

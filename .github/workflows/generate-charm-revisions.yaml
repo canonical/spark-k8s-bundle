@@ -48,7 +48,7 @@ jobs:
 
       - name: Generate revisions.yaml
         env:
-          CHARMCRAFT_AUTH: ${{ secrets.CHARMCRAFT_AUTH }}
+          CHARMCRAFT_AUTH: ${{ secrets.CHARMHUB_TOKEN }}
         run: |
           cp specs.yaml .github/scripts && cd .github/scripts 
           python3 generate_revisions_from_specs.py \
