@@ -55,6 +55,8 @@ jobs:
             --specs-file specs.yaml \
             --output-file revisions.yaml \
             --risk ${{ inputs.risk }}
+          cat revisions.yaml
+          cp revisions.yaml ../../revisions.yaml
 
       - name: Upload revisions.yaml artifact
         uses: actions/upload-artifact@v4
