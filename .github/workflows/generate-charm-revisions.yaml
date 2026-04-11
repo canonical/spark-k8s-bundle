@@ -10,6 +10,10 @@ on:
         description: "Risk level used to resolve charm revisions"
         required: true
         type: string
+    outputs:
+      tfvars-artifact-name:
+        description: "Name of the artifact containing generated tfvars"
+        value: ${{ jobs.generate-revisions.outputs.tfvars-artifact-name }}
   workflow_dispatch:
     inputs:
       risk:
@@ -28,6 +32,8 @@ jobs:
     name: Generate revisions.yaml
     runs-on: ubuntu-22.04
     timeout-minutes: 10
+    outputs:
+      tfvars-artifact-name: ${{ steps.artifact-name.outputs.value }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -59,8 +65,13 @@ jobs:
           cp revisions.yaml ../../revisions.yaml
 
       - name: Upload revisions.yaml artifact
+        id: upload-revisions
         uses: actions/upload-artifact@v4
         with:
           name: charms-${{ inputs.risk }}
           path: revisions.yaml
           if-no-files-found: error
+
+      - name: Expose artifact name
+        id: artifact-name
+        run: echo "value=charms-${{ inputs.risk }}" >> "$GITHUB_OUTPUT"

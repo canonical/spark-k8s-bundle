@@ -58,6 +58,11 @@ inputs:
     required: false
     default: ""
     type: string
+  tfvars-file:
+    description: "Optional artifact name containing a tfvars file to pass to pytest"
+    required: false
+    default: ""
+    type: string
 
 runs:
   using: "composite"
@@ -222,6 +227,14 @@ runs:
           sudo snap install terraform --classic
         fi
 
+    - id: download-tfvars
+      name: Download tfvars artifact
+      if: ${{ inputs.tfvars-file != '' }}
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.tfvars-file }}
+        path: tfvars-artifacts
+
     - id: tests-integration
       name: Run Integration Tests
       shell: bash
@@ -229,9 +242,20 @@ runs:
         AZURE_STORAGE_ACCOUNT: ${{ inputs.azure-storage-account }}
         AZURE_STORAGE_KEY: ${{ inputs.azure-storage-key }}
       run: |
+        TFVARS_ARG=""
+        if [[ -n "${{ inputs.tfvars-file }}" ]]; then
+          TFVARS_PATH="$(find tfvars-artifacts -type f | head -n1)"
+          if [[ -z "$TFVARS_PATH" ]]; then
+            echo "ERROR: no tfvars file found in artifact '${{ inputs.tfvars-file }}'."
+            find tfvars-artifacts -type f || true
+            exit 1
+          fi
+          TFVARS_ARG="--tfvars-file $TFVARS_PATH"
+        fi
+
         juju add-model spark-bundle-test
         juju list-models
-        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }}
+        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }} $TFVARS_ARG
         echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
 
     - id: collect-logs
