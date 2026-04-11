@@ -45,7 +45,7 @@ jobs:
         env:
           CHARMCRAFT_AUTH: ${{ secrets.CHARMCRAFT_AUTH }}
         run: |
-          cd .github/scripts
+          cp specs.yaml .github/scripts && cd .github/scripts 
           python3 generate_revisions_from_specs.py \
             --specs-file specs.yaml \
             --output-file revisions.yaml \
