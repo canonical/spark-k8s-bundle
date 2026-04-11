@@ -255,7 +255,15 @@ runs:
             find tfvars-artifacts -type f || true
             exit 1
           fi
-          TFVARS_ARG="--tfvars-file $TFVARS_PATH"
+
+          version=${{ inputs.spark-version }}
+          major_minor="${version%.*}"   # -> 3.5
+          arch="${{ inputs.architecture }}"
+
+          # Extract nested mapping under amd64 and "<major>.<minor>"
+          yq ".${arch}.\"${major_minor}\"" $TFVARS_PATH > python/revisions.yaml
+
+          TFVARS_ARG="--tfvars-file revisions.yaml"
         fi
 
         juju add-model spark-bundle-test
