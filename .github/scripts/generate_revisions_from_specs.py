@@ -1,21 +1,26 @@
+"""Generate a revisions mapping file from a specs definition."""
+
 import argparse
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
-
 from charms_promotions import Charm
 
 
 @dataclass(frozen=True)
 class CharmSpec:
+    """Charm release entry from specs."""
+
     name: str
     channel: str
 
 
 @dataclass(frozen=True)
 class Specs:
+    """Top-level specs model."""
+
     architectures: list[str]
     releases: dict[str, list[CharmSpec]]
     revision_mapping: dict[str, str]
@@ -29,6 +34,7 @@ def normalize_channel(channel: str, risk: str) -> str:
 
 
 def parse_specs(specs_file: Path) -> Specs:
+    """Load and validate specs YAML, returning a typed Specs object."""
     with specs_file.open("r", encoding="utf-8") as file_obj:
         data = yaml.safe_load(file_obj)
 
@@ -38,10 +44,13 @@ def parse_specs(specs_file: Path) -> Specs:
     architectures = data.get("architectures")
     releases = data.get("releases")
     revision_mapping = data.get("revision_mapping")
-    
 
-    if not isinstance(architectures, list) or not all(isinstance(a, str) for a in architectures):
-        raise ValueError("Invalid specs format: architectures must be a list of strings")
+    if not isinstance(architectures, list) or not all(
+        isinstance(a, str) for a in architectures
+    ):
+        raise ValueError(
+            "Invalid specs format: architectures must be a list of strings"
+        )
 
     if not isinstance(releases, dict):
         raise ValueError("Invalid specs format: releases must be a mapping")
@@ -60,9 +69,7 @@ def parse_specs(specs_file: Path) -> Specs:
     parsed_releases: dict[str, list[CharmSpec]] = {}
     for release, charms in releases.items():
         if not isinstance(charms, list):
-            raise ValueError(
-                f"Invalid specs format: releases.{release} must be a list"
-            )
+            raise ValueError(f"Invalid specs format: releases.{release} must be a list")
 
         parsed_entries: list[CharmSpec] = []
         for entry in charms:
@@ -90,6 +97,7 @@ def parse_specs(specs_file: Path) -> Specs:
 
 
 def resolve_revision(charm: Charm) -> int:
+    """Resolve a single revision for a charm/channel/architecture tuple."""
     items = charm.get_status()
 
     if not items:
@@ -115,6 +123,7 @@ def resolve_revision(charm: Charm) -> int:
 
 
 def build_output(specs: Specs, risk: str) -> dict:
+    """Build the output mapping keyed by architecture, release, and mapped revision key."""
     output = {}
     revision_mapping = specs.revision_mapping
 
@@ -129,9 +138,7 @@ def build_output(specs: Specs, risk: str) -> dict:
                 mapped_name = revision_mapping.get(charm_name)
 
                 if not mapped_name:
-                    raise ValueError(
-                        f"Missing revision mapping for charm={charm_name}"
-                    )
+                    raise ValueError(f"Missing revision mapping for charm={charm_name}")
 
                 charm = Charm(
                     name=charm_name,
@@ -146,6 +153,7 @@ def build_output(specs: Specs, risk: str) -> dict:
 
 
 def main() -> int:
+    """CLI entrypoint."""
     parser = argparse.ArgumentParser(
         description=(
             "Parse specs.yaml and fetch charm revisions by architecture/release/channel "
@@ -154,13 +162,13 @@ def main() -> int:
     )
     parser.add_argument(
         "--specs-file",
-        default="scripts/specs.yaml",
-        help="Input specs file (default: scripts/specs.yaml)",
+        default="specs.yaml",
+        help="Input specs file (default: specs.yaml)",
     )
     parser.add_argument(
         "--output-file",
-        default="scripts/revisions.yaml",
-        help="Output YAML file (default: scripts/revisions.yaml)",
+        default="revisions.yaml",
+        help="Output YAML file (default: revisions.yaml)",
     )
     parser.add_argument(
         "--risk",

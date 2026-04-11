@@ -1,3 +1,5 @@
+"""Utilities for parsing charm status and promoting charm revisions."""
+
 import json
 import re
 import shlex
@@ -12,9 +14,17 @@ import yaml
 
 RISKS = {"edge": 1, "beta": 2, "candidate": 3, "stable": 4}
 
-class Charm:
 
-    def __init__(self, name: str, revision: Optional[int]=None, channel: Optional[str]=None, architecture: Optional[str] = None):
+class Charm:
+    """Representation of a charm with helpers to query status and promote revisions."""
+
+    def __init__(
+        self,
+        name: str,
+        revision: Optional[int] = None,
+        channel: Optional[str] = None,
+        architecture: Optional[str] = None,
+    ):
         self.name = name
         self.revision = revision
         self.channel = channel
@@ -23,13 +33,20 @@ class Charm:
         self._status: Optional[dict] = None
 
     def __str__(self):
+        """Return a readable charm representation."""
         return f"{self.name}:{self.channel}({self.revision})"
 
     def __repr__(self):
+        """Return the canonical debug representation."""
         return self.__str__()
 
-    def get_status(self, channel: Optional[str] = None, revision: Optional[int] = None, architecture: Optional[str] = None):
-
+    def get_status(
+        self,
+        channel: Optional[str] = None,
+        revision: Optional[int] = None,
+        architecture: Optional[str] = None,
+    ):
+        """Return matching status entries for this charm."""
         if not channel:
             channel = self.channel
         if not revision:
@@ -38,21 +55,29 @@ class Charm:
             architecture = self.architecture
 
         if not self._status:
-
-            output = subprocess.run(
+            result = subprocess.run(
                 ["charmcraft", "status", self.name, "--format", "json"],
-                capture_output=True
+                capture_output=True,
             )
 
-            if output.returncode != 0:
-                err_output = (output.stderr or b"").decode("utf-8", errors="replace").strip()
-                output = (output.stdout or b"").decode("utf-8", errors="replace").strip()
-                if "permission-required" in output or "permission-required" in err_output:
+            if result.returncode != 0:
+                err_output = (
+                    (result.stderr or b"").decode("utf-8", errors="replace").strip()
+                )
+                std_output = (
+                    (result.stdout or b"").decode("utf-8", errors="replace").strip()
+                )
+                if (
+                    "permission-required" in std_output
+                    or "permission-required" in err_output
+                ):
                     raise PermissionError(self.name)
                 else:
-                    raise RuntimeError(self.name, shlex.join(err.cmd), err)
+                    raise RuntimeError(
+                        self.name, shlex.join(result.args), err_output or std_output
+                    )
 
-            self._status = json.loads(output.stdout.decode("utf-8"))
+            self._status = json.loads(result.stdout.decode("utf-8"))
 
         items = [
             {"base": mapping["base"]} | release
@@ -60,26 +85,29 @@ class Charm:
             for mapping in track["mappings"]
             for release in mapping["releases"]
             if mapping["base"]
-            if (not channel or channel == release["channel"]) and (
-                        not revision or revision == release["revision"]) and (
-                        not architecture or architecture == mapping["base"]["architecture"]
-                        )
+            if (not channel or channel == release["channel"])
+            and (not revision or revision == release["revision"])
+            and (not architecture or architecture == mapping["base"]["architecture"])
         ]
 
         return items
 
-
     def promote_version(self, risk: str, dry_run: bool = True):
+        """Promote a charm revision to a higher-risk channel."""
         if risk not in RISKS.keys():
             raise ValueError("The risk is not recognized")
 
         if not self.channel:
-            raise ValueError("channel field is not specified, that is required for promotion")
+            raise ValueError(
+                "channel field is not specified, that is required for promotion"
+            )
 
         items = self.get_status(revision=self.revision, channel=self.channel)
 
         if len(items) > 1:
-            raise ValueError(f"Multiple tracks match the provide revision and channel combination: {items}")
+            raise ValueError(
+                f"Multiple tracks match the provide revision and channel combination: {items}"
+            )
 
         if len(items) == 0:
             raise ValueError(f"No match found for charm {self}")
@@ -97,12 +125,16 @@ class Charm:
 
         channel_to = str(_channel.parent / risk)
 
-        cmds = (
-                ["charmcraft", "release", self.name, f"--channel={channel_to}",
-                 f"--revision={self.revision}"] +
-                [f"--resource={resource['name']}:{resource['revision']}" for
-                 resource in item["resources"]]
-        )
+        cmds = [
+            "charmcraft",
+            "release",
+            self.name,
+            f"--channel={channel_to}",
+            f"--revision={self.revision}",
+        ] + [
+            f"--resource={resource['name']}:{resource['revision']}"
+            for resource in item["resources"]
+        ]
 
         if dry_run:
             return "INFO: (dry-run mode) " + shlex.join(cmds)
@@ -110,41 +142,49 @@ class Charm:
         return subprocess.check_output(cmds).decode("utf-8")
 
 
-class Format(str,Enum):
+class Format(str, Enum):
+    """Supported status input formats."""
+
     TEXT = "text"
     YAML = "yaml"
 
+
 @dataclass
 class Bundle:
+    """Collection of charms parsed from status content."""
 
     charms: list[Charm]
 
     @classmethod
     def from_status(cls, content: str, format: Format | str = Format.TEXT):
-        parsers = {
-            Format.TEXT: TextParser,
-            Format.YAML: YAMLParser
-        }
+        """Parse status content into a Bundle."""
+        parsers = {Format.TEXT: TextParser, Format.YAML: YAMLParser}
         normalized_format = Format(format)
 
         return parsers[normalized_format].parse(content)
 
 
 class YAMLParser:
+    """Parser for Juju YAML status output."""
 
     @staticmethod
     def parse(content: str):
+        """Parse YAML status content and return a Bundle."""
         data = yaml.safe_load(content)
 
-        return Bundle([
-            Charm(app["charm-name"], int(app["charm-rev"]), app.get("charm-channel"))
-            for _, app in data["applications"].items()
-        ])
+        return Bundle(
+            [
+                Charm(
+                    app["charm-name"], int(app["charm-rev"]), app.get("charm-channel")
+                )
+                for _, app in data["applications"].items()
+            ]
+        )
 
 
 class TextParser:
     """
-    Parse a juju status output to find the charms deployed and their metadata (channel, revision, etc)
+    Parse a juju status output to find the charms deployed and their metadata (channel, revision, etc).
 
     The `parse` method is used to extract the list of charms, returned as a Bundle class.
     The reason why simpler parsing methods could not be used, is that the output format of a juju status is
@@ -166,17 +206,20 @@ class TextParser:
 
     @staticmethod
     def extract_first_word(mystring):
+        """Extract the first token, preserving leading spaces in the match."""
         m = TextParser.word_with_leading_spaces.match(mystring)
         if m:
-            return mystring[m.start():m.end()]
+            return mystring[m.start() : m.end()]
         return ""
 
     @staticmethod
     def parse_line(line, indices):
+        """Split a line using fixed-width index ranges."""
         return [line[start:end].strip() for start, end in indices]
 
     @staticmethod
     def parse(content: str):
+        """Parse text status output and return a Bundle."""
         lines = content.splitlines()
 
         white_spaces = re.compile(r"\s+\s+")
@@ -208,8 +251,8 @@ class TextParser:
         header = table_lines[0]
 
         # First guess of width based on headers
-        ends=[s.end() for s in white_spaces.finditer(header)]
-        indices = list(zip([0]+ends, ends+[-1]))
+        ends = [s.end() for s in white_spaces.finditer(header)]
+        indices = list(zip([0] + ends, ends + [-1], strict=False))
 
         # Columns names
         columns = TextParser.parse_line(header, indices)
@@ -219,32 +262,43 @@ class TextParser:
         # of the columns header (text aligned right)
         widths = [len(column) for column in columns]
         for line in table_lines[1:]:
-
-            widths = list(map(max,zip(
-                widths,
-                [len(TextParser.extract_first_word(line[start:end])) for start, end in indices]
-            )))
+            widths = list(
+                map(
+                    max,
+                    zip(
+                        widths,
+                        [
+                            len(TextParser.extract_first_word(line[start:end]))
+                            for start, end in indices
+                        ],
+                        strict=False,
+                    ),
+                )
+            )
 
         # New guess
-        ends = [start+width for (start,_), width in zip(indices, widths)]
+        ends = [
+            start + width for (start, _), width in zip(indices, widths, strict=False)
+        ]
 
-        indices = list(zip([0]+ends[:-1], ends[:-1]+[-1]))
+        indices = list(zip([0] + ends[:-1], ends[:-1] + [-1], strict=False))
 
         data = [
-            dict(zip(columns, TextParser.parse_line(line, indices)))
+            dict(zip(columns, TextParser.parse_line(line, indices), strict=False))
             for line in table_lines[1:]
             if line.strip()
         ]
 
-        return Bundle([
-            Charm(item["Charm"], int(item["Rev"]), item["Channel"])
-            for item in data
-            if item["Charm"]
-        ])
+        return Bundle(
+            [
+                Charm(item["Charm"], int(item["Rev"]), item["Channel"])
+                for item in data
+                if item["Charm"]
+            ]
+        )
 
 
 if __name__ == "__main__":
-
     import argparse
 
     parser = argparse.ArgumentParser()
@@ -265,7 +319,9 @@ if __name__ == "__main__":
     )
     parser.set_defaults(dry_run=True)
     parser.add_argument("--format", choices=("text", "yaml"), default="text")
-    parser.add_argument("--promote-to", choices=("beta", "candidate", "stable"), default="beta")
+    parser.add_argument(
+        "--promote-to", choices=("beta", "candidate", "stable"), default="beta"
+    )
     parser.add_argument("--exclude", nargs="*", default=["mysql-k8s"])
     args = parser.parse_args()
 
@@ -273,15 +329,17 @@ if __name__ == "__main__":
         bundle = Bundle.from_status(fid.read(), args.format)
 
     for charm in bundle.charms:
-        if not charm.name in args.exclude:
+        if charm.name not in args.exclude:
             try:
                 print(charm.promote_version(args.promote_to, args.dry_run))
             except ValueError as err:
-                print(f"ERROR: skipping {charm.name} due to failure in promotion. Reason: {type(err).__name__} - Details: {','.join(err.args)}")
-            except PermissionError as err:
                 print(
-                        f"WARNING: skipping '{charm.name}' due to missing permissions. Add it to --exclude to avoid this warning.",
-                        file=sys.stderr,
+                    f"ERROR: skipping {charm.name} due to failure in promotion. Reason: {type(err).__name__} - Details: {','.join(err.args)}"
+                )
+            except PermissionError:
+                print(
+                    f"WARNING: skipping '{charm.name}' due to missing permissions. Add it to --exclude to avoid this warning.",
+                    file=sys.stderr,
                 )
             except RuntimeError as err:
                 print(
@@ -289,4 +347,7 @@ if __name__ == "__main__":
                     file=sys.stderr,
                 )
         else:
-            print(f"WARNING: excluding charm {charm.name} (see --exclude flag)", file=sys.stderr)
+            print(
+                f"WARNING: excluding charm {charm.name} (see --exclude flag)",
+                file=sys.stderr,
+            )

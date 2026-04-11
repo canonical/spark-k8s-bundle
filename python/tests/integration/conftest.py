@@ -206,14 +206,14 @@ def test_uuid(request) -> str:
 def tfvars(request) -> dict:
     """External Terraform variables loaded from a file."""
     tfvars_file = request.config.getoption("--tfvars-file")
-    
+
     if not tfvars_file:
         return {}
-    
+
     file_path = Path(tfvars_file)
     if not file_path.exists():
         raise FileNotFoundError(f"Terraform variables file not found: {tfvars_file}")
-    
+
     # Load JSON or YAML file
     with file_path.open("r", encoding="utf-8") as f:
         try:
@@ -222,11 +222,13 @@ def tfvars(request) -> dict:
             else:
                 data = yaml.safe_load(f)
         except (json.JSONDecodeError, yaml.YAMLError) as err:
-            raise ValueError(f"Failed to parse Terraform variables file: {err}")
-    
+            raise ValueError(
+                f"Failed to parse Terraform variables file: {err}"
+            ) from err
+
     if not isinstance(data, dict):
         raise ValueError("Terraform variables file must contain a JSON/YAML mapping")
-    
+
     return data
 
 
