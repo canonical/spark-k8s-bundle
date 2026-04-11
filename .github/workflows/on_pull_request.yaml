@@ -20,3 +20,5 @@ jobs:
     name: Run CI tests on a PR
     uses: ./.github/workflows/generate-charm-revisions.yaml
     secrets: inherit
+    with:
+      risk: beta
