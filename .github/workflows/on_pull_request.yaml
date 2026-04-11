@@ -21,12 +21,12 @@ jobs:
     uses: ./.github/workflows/generate-charm-revisions.yaml
     secrets: inherit
     with:
-      risk: beta
+      risk: edge
 
   tests:
     name: Run CI tests on a PR
     needs: generate-revisions
-    uses: ./.github/workflows/ci-tests-single-kyuubi.yaml
+    uses: ./.github/workflows/ci-tests-minimal.yaml
     secrets: inherit
     with:
       tfvars-file: ${{ needs.generate-revisions.outputs.tfvars-artifact-name }}
