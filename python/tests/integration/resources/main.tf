@@ -77,6 +77,24 @@ variable "tls_private_key" {
   default = null
 }
 
+variable "history_server_revision" {
+  description = "Charm revision for spark-history-server-k8s"
+  type        = number
+  default     = null
+}
+
+variable "kyuubi_revision" {
+  description = "Charm revision for kyuubi-k8s"
+  type        = number
+  default     = null
+}
+
+variable "integration_hub_revision" {
+  description = "Charm revision for spark-integration-hub-k8s"
+  type        = number
+  default     = null
+}
+
 module "cos" {
   count = var.cos_model_uuid == null ? 0 : 1
   # TODO: Pin to tag once available
@@ -104,7 +122,10 @@ module "spark" {
   admin_password           = var.admin_password
   azure_storage_config     = var.azure_storage_config
   azure_storage_secret_key = var.azure_storage_secret_key
+  history_server_revision  = var.history_server_revision
+  integration_hub_revision = var.integration_hub_revision
   kyuubi_config            = var.kyuubi_config
+  kyuubi_revision          = var.kyuubi_revision
   kyuubi_users_size        = "500M"
   metastore_size           = "500M"
   s3_config                = var.s3_config
