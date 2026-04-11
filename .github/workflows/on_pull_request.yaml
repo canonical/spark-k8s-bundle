@@ -16,7 +16,17 @@ on:
       - '**.md'
 
 jobs:
+  generate-revisions:
+    name: Generate tfvars revisions
+    uses: ./.github/workflows/generate-charm-revisions.yaml
+    secrets: inherit
+    with:
+      risk: edge
+
   tests:
     name: Run CI tests on a PR
+    needs: generate-revisions
     uses: ./.github/workflows/ci-tests-minimal.yaml
     secrets: inherit
+    with:
+      tfvars-file: ${{ needs.generate-revisions.outputs.tfvars-artifact-name }}

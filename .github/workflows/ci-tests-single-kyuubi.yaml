@@ -1,7 +1,7 @@
 # Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-name: Run CI tests
+name: Run CI single test
 
 on:
   workflow_call:
@@ -17,65 +17,27 @@ jobs:
     uses: ./.github/workflows/ci-checks.yaml
 
   integration-tests:
-    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark-${{ matrix.spark-version }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju-agent-version }} | ${{ matrix.cos-model }}"
+    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark-${{ matrix.spark-version }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju-agent-version }}"
     runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
-    # runs-on: ubuntu-22.04
     timeout-minutes: 120
     strategy:
-      max-parallel: 15
+      max-parallel: 1
       fail-fast: false
       matrix:
         tox-env:
-          - integration-sparkjob
           - integration-kyuubi
-          - integration-backup-restore
-        spark-version: [ "3.4.4", "3.5.7" ]
-        storage-backend: [ "s3", "azure_storage" ]
-        juju-snap-channel: [ "3.6/stable" ]
-        juju-agent-version: [ "3.6.14" ]
-        k8s-distribution: ["k8s", "microk8s"]
+        spark-version:
+          - "3.5.7"
+        storage-backend:
+          - "s3"
+        juju-snap-channel:
+          - "3.6/stable"
+        juju-agent-version:
+          - "3.6.14"
+        k8s-distribution:
+          - "k8s"
         k8s-version:
           - "1.32"
-        exclude:
-          - k8s-distribution: "microk8s"
-            spark-version: "3.4.4"
-        include:
-          # Test integration-basic, with Spark 3.4
-          - tox-env: integration-basic
-            spark-version: 3.4.4
-            juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
-            k8s-distribution: "k8s"
-            k8s-version: "1.32"
-
-          # Test integration-basic, with Spark 3.5
-          - tox-env: integration-basic
-            spark-version: 3.5.7
-            juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
-            k8s-distribution: "k8s"
-            k8s-version: "1.32"
-
-          # Test COS just once with integration-sparkjob
-          - tox-env: integration-sparkjob
-            storage-backend: s3
-            juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
-            cos-model: cos
-
-          # Test COS just once with integration-kyuubi
-          - tox-env: integration-kyuubi
-            storage-backend: s3
-            juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
-            cos-model: cos
-
-          # Test COS just once with integration-backup-restore
-          - tox-env: integration-backup-restore
-            storage-backend: s3
-            juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
-            cos-model: cos
 
     needs:
       - checks
@@ -90,13 +52,12 @@ jobs:
           k8s-version: ${{ matrix.k8s-version }}
           tox-env: ${{ matrix.tox-env }}
           spark-version: ${{ matrix.spark-version }}
-          storage-backend: ${{ matrix.storage-backend || 's3'}}
-          cos-model: ${{ matrix.cos-model }}
+          storage-backend: ${{ matrix.storage-backend }}
           juju-snap-channel: ${{ matrix.juju-snap-channel }}
           juju-agent-version: ${{ matrix.juju-agent-version }}
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
-          pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
+          pytest-args: --keep-models
           tfvars-file: ${{ inputs.tfvars-file }}
 
   aggregate-results:
