@@ -20,7 +20,7 @@ following steps. This guide assumes you already deployed Charmed Apache Spark as
 described in the [Charmed Apache Spark deployment guide](how-to-deploy-spark),
 including a Spark History Server charm configured with an object storage backend.
 
-## Deploy the Identity bundle
+### Deploy the Identity bundle
 
 Authentication is provided by the
 [Canonical Identity Bundle](https://charmhub.io/topics/canonical-identity-platform).
@@ -60,16 +60,16 @@ To set up OAuth2 Proxy, first enable the feature in Traefik, expose the forward-
 offer, and integrate it with Spark History Server through the ingress relation.
 
 ```bash
-juju config traefik-public enable_experimental_forward_auth=True
-juju offer traefik-public:experimental-forward-auth forward-auth
-juju integrate spark-history-server-k8s admin/core.ingress
+juju config traefik-public enable_experimental_forward_auth=True -m <IDENTITY_MODEL>
+juju offer traefik-public:experimental-forward-auth forward-auth -m <IDENTITY_MODEL>
+juju integrate spark-history-server-k8s admin/<IDENTITY_MODEL>.ingress
 ```
 
 Next, deploy OAuth2 Proxy and integrate it with Traefik using the exposed offer:
 
 ```bash
 juju deploy oauth2-proxy-k8s --channel latest/stable --trust
-juju integrate oauth2-proxy-k8s:forward-auth admin/core.forward-auth
+juju integrate oauth2-proxy-k8s:forward-auth admin/<IDENTITY_MODEL>.forward-auth
 ```
 
 Then integrate Spark History Server with OAuth2 Proxy:
@@ -88,7 +88,7 @@ juju integrate oauth2-proxy-k8s:oauth hydra
 After integration completes, get the endpoint by running:
 
 ```bash
-juju run traefik-public/leader show-proxied-endpoints
+juju run traefik-public/leader show-proxied-endpoints -m <IDENTITY_MODEL>
 ```
 
 When you open the URL exposed by Traefik, you are redirected to your configured
