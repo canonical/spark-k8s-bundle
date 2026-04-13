@@ -82,7 +82,8 @@ Finally, integrate OAuth2 Proxy with the Identity Platform OIDC provider
 (Charmed Hydra):
 
 ```bash
-juju integrate oauth2-proxy-k8s:oauth hydra
+juju offer hydra:oauth oauth -m <IDENTITY_MODEL>
+juju integrate oauth2-proxy-k8s:oauth admin/<IDENTITY_MODEL>.oauth
 ```
 
 After integration completes, get the endpoint by running:
