@@ -47,7 +47,7 @@
 | <a name="input_K8S_CLOUD"></a> [K8S\_CLOUD](#input\_K8S\_CLOUD) | The kubernetes juju cloud name. | `string` | `"microk8s"` | no |
 | <a name="input_K8S_CREDENTIAL"></a> [K8S\_CREDENTIAL](#input\_K8S\_CREDENTIAL) | The name of the kubernetes juju credential. | `string` | `"microk8s"` | no |
 | <a name="input_admin_password"></a> [admin\_password](#input\_admin\_password) | The password for the Kyuubi admin user. | `string` | `null` | no |
-| <a name="input_azure_storage_config"></a> [azure\_storage\_config](#input\_azure\_storage\_config) | Azure Object storage information | <pre>object({<br/>    container       = optional(string)<br/>    credentials     = optional(string)<br/>    path            = optional(string)<br/>    protocol        = optional(string, "abfss")<br/>    storage_account = optional(string)<br/>  })</pre> | `{}` | no |
+| <a name="input_azure_storage_config"></a> [azure\_storage\_config](#input\_azure\_storage\_config) | Azure Object storage information | <pre>object({<br/>    container       = optional(string)<br/>    credentials     = optional(string)<br/>    path            = optional(string)<br/>    protocol        = optional(string, "abfss")<br/>    storage-account = optional(string)<br/>  })</pre> | `{}` | no |
 | <a name="input_azure_storage_revision"></a> [azure\_storage\_revision](#input\_azure\_storage\_revision) | Charm revision for azure-storage-integrator | `number` | `null` | no |
 | <a name="input_azure_storage_secret_key"></a> [azure\_storage\_secret\_key](#input\_azure\_storage\_secret\_key) | Secret key to the Azure Storage account. | `string` | `null` | no |
 | <a name="input_certificate_common_name"></a> [certificate\_common\_name](#input\_certificate\_common\_name) | Common name for the certificate to be used in self-signed | `string` | `"charmed-spark"` | no |
@@ -89,6 +89,6 @@
 | Name | Description |
 |------|-------------|
 | <a name="output_metadata"></a> [metadata](#output\_metadata) | Metadata of the product deployment. |
-| <a name="output_model"></a> [model](#output\_model) | Map of the key of the model and the components deployed in the model. |
+| <a name="output_models"></a> [models](#output\_models) | Map of the key of the model and the components deployed in the model. |
 | <a name="output_offers"></a> [offers](#output\_offers) | The name and url of the various offers being exposed |
 <!-- END_TF_DOCS -->

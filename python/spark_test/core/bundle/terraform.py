@@ -45,7 +45,7 @@ class TerraformBackend(BundleBackend):
                 ["terraform", "apply", "-auto-approve", "-var-file", tfvars_file.name]
             )
         self.deployed_applications = list(
-            self.outputs["model"]["value"]["components"].keys()
+            self.outputs["models"]["value"]["components"].keys()
         )
         return self.deployed_applications
 

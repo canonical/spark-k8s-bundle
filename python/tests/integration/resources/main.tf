@@ -120,6 +120,6 @@ module "spark" {
   } : null
 }
 
-output "model" {
-  value = module.spark.model
+output "models" {
+  value = module.spark.models
 }

@@ -20,7 +20,7 @@ output "metadata" {
   }
 }
 
-output "model" {
+output "models" {
   description = "Map of the key of the model and the components deployed in the model."
   value = {
     model_uuid = var.model_uuid
