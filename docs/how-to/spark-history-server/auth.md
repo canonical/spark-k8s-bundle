@@ -102,7 +102,7 @@ access, configure an allow-list of authorized users. Provide email addresses as 
 comma-separated list:
 
 ```bash
-juju config spark-history-server-k8s authorized-users="user1@canonical.com, user3@canonical.com"
+juju config spark-history-server-k8s authorized-users="user1@canonical.com,user3@canonical.com"
 ```
 
 ## Oathkeeper integration (deprecated)
