@@ -1,0 +1,77 @@
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+name: Generate charm revisions
+
+on:
+  workflow_call:
+    inputs:
+      risk:
+        description: "Risk level used to resolve charm revisions"
+        required: true
+        type: string
+    outputs:
+      tfvars-artifact-name:
+        description: "Name of the artifact containing generated tfvars"
+        value: ${{ jobs.generate-revisions.outputs.tfvars-artifact-name }}
+  workflow_dispatch:
+    inputs:
+      risk:
+        description: "Risk level used to resolve charm revisions"
+        required: true
+        default: beta
+        type: choice
+        options:
+          - edge
+          - beta
+          - candidate
+          - stable
+
+jobs:
+  generate-revisions:
+    name: Generate revisions.yaml
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    outputs:
+      tfvars-artifact-name: ${{ steps.artifact-name.outputs.value }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          architecture: x64
+
+      - name: Install charmcraft
+        run: |
+          sudo snap install charmcraft --classic
+          charmcraft version
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Generate revisions.yaml
+        env:
+          CHARMCRAFT_AUTH: ${{ secrets.CHARMHUB_TOKEN }}
+        run: |
+          cp specs.yaml .github/scripts && cd .github/scripts 
+          python3 generate_revisions_from_specs.py \
+            --specs-file specs.yaml \
+            --output-file revisions.yaml \
+            --risk ${{ inputs.risk }}
+          cat revisions.yaml
+          cp revisions.yaml ../../revisions.yaml
+
+      - name: Upload revisions.yaml artifact
+        id: upload-revisions
+        uses: actions/upload-artifact@v4
+        with:
+          name: charms-${{ inputs.risk }}
+          path: revisions.yaml
+          if-no-files-found: error
+
+      - name: Expose artifact name
+        id: artifact-name
+        run: echo "value=charms-${{ inputs.risk }}" >> "$GITHUB_OUTPUT"

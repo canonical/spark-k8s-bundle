@@ -23,11 +23,6 @@ inputs:
     default: 3.4.4
     required: false
     type: string
-  bundle-backend:
-    description: "The backend to use to deploy the bundle"
-    default: yaml
-    required: false
-    type: string
   storage-backend:
     description: "The object storage backend to be used"
     default: s3
@@ -62,6 +57,16 @@ inputs:
     description: "Extra arguments to be passed to pytest command"
     required: false
     default: ""
+    type: string
+  tfvars-file:
+    description: "Optional artifact name containing a tfvars file to pass to pytest"
+    required: false
+    default: ""
+    type: string
+  architecture:
+    description: "Target architecture for the test run"
+    required: false
+    default: "amd64"
     type: string
 
 runs:
@@ -227,6 +232,14 @@ runs:
           sudo snap install terraform --classic
         fi
 
+    - id: download-tfvars
+      name: Download tfvars artifact
+      if: ${{ inputs.tfvars-file != '' }}
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.tfvars-file }}
+        path: tfvars-artifacts
+
     - id: tests-integration
       name: Run Integration Tests
       shell: bash
@@ -234,9 +247,28 @@ runs:
         AZURE_STORAGE_ACCOUNT: ${{ inputs.azure-storage-account }}
         AZURE_STORAGE_KEY: ${{ inputs.azure-storage-key }}
       run: |
+        TFVARS_ARG=""
+        if [[ -n "${{ inputs.tfvars-file }}" ]]; then
+          TFVARS_PATH="$(find tfvars-artifacts -type f | head -n1)"
+          if [[ -z "$TFVARS_PATH" ]]; then
+            echo "ERROR: no tfvars file found in artifact '${{ inputs.tfvars-file }}'."
+            find tfvars-artifacts -type f || true
+            exit 1
+          fi
+
+          version=${{ inputs.spark-version }}
+          major_minor="${version%.*}"   # -> 3.5
+          arch="${{ inputs.architecture }}"
+
+          # Extract nested mapping under amd64 and "<major>.<minor>"
+          yq ".${arch}.\"${major_minor}\"" $TFVARS_PATH > python/revisions.yaml
+
+          TFVARS_ARG="--tfvars-file revisions.yaml"
+        fi
+
         juju add-model spark-bundle-test
         juju list-models
-        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ inputs.bundle-backend }} --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }}
+        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }} $TFVARS_ARG
         echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
 
     - id: collect-logs
@@ -293,13 +325,13 @@ runs:
         if [ "${TEST_EXIT_CODE}" != "0" ]; then
           STATUS="failure"
         fi
-        echo '{"tox-env": "${{ inputs.tox-env }}", "k8s-distribution": "${{ inputs.k8s-distribution }}", "spark-version": "${{ inputs.spark-version }}", "bundle-backend": "${{ inputs.bundle-backend }}", "storage-backend": "${{ inputs.storage-backend }}", "cos": "${{ inputs.cos-model != '' }}", "juju-version": "${{ inputs.juju-agent-version }}", "status": "'"$STATUS"'"}' > test-result.json
+        echo '{"tox-env": "${{ inputs.tox-env }}", "k8s-distribution": "${{ inputs.k8s-distribution }}", "spark-version": "${{ inputs.spark-version }}", "storage-backend": "${{ inputs.storage-backend }}", "cos": "${{ inputs.cos-model != '' }}", "juju-version": "${{ inputs.juju-agent-version }}", "status": "'"$STATUS"'"}' > test-result.json
 
     - name: Upload the test result as artifact
       if: always()
       uses: actions/upload-artifact@v6
       with:
-        name: integration-results-${{ inputs.tox-env }}-${{ inputs.k8s-distribution }}-${{ inputs.k8s-version }}-${{ inputs.spark-version }}-${{ inputs.bundle-backend }}-${{ inputs.storage-backend }}-${{ inputs.cos-model }}-${{ inputs.juju-agent-version }}
+        name: integration-results-${{ inputs.tox-env }}-${{ inputs.k8s-distribution }}-${{ inputs.k8s-version }}-${{ inputs.spark-version }}-${{ inputs.storage-backend }}-${{ inputs.cos-model }}-${{ inputs.juju-agent-version }}
         path: test-result.json
 
 

@@ -58,8 +58,7 @@ pytest-mock = ">=3.10"
 psycopg2-binary = "^2.9.9"
 tenacity = "^9.0.0"
 httpx = "^0.28.1"
-jubilant = "^1.1.0"
-jinja2 = "*"
+jubilant = "^1.7.0"
 python-dotenv = "^1.2.1"
 
 [tool.poetry.group.benchmark]

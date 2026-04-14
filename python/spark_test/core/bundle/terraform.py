@@ -15,14 +15,19 @@ from . import BundleBackend, BundleBackendEnum
 class TerraformBackend(BundleBackend):
     """Terraform bundle backend."""
 
-    def __init__(self, tempdir, module_path: str | Path):
-        self.module_path = module_path
+    def __init__(self, tempdir, terraform_root: Path, entrypoint_content: str) -> None:
+        self.terraform_root = terraform_root
+        self.entrypoint_content = entrypoint_content
+
         super().__init__(backend=BundleBackendEnum.TERRAFORM, tempdir=tempdir)
         self.init()
 
     def init(self) -> None:
         """Initialize terraform."""
-        shutil.copytree(self.module_path, self.tempdir, dirs_exist_ok=True)
+        shutil.copytree(self.terraform_root, self.tempdir, dirs_exist_ok=True)
+        with (self.tempdir / "main.tf").open("w", encoding="utf-8") as f:
+            f.write(self.entrypoint_content)
+
         self.execute(["terraform", "init"])
 
     def apply(self, vars: dict[str, str] | None = None) -> list[str]:
@@ -39,7 +44,9 @@ class TerraformBackend(BundleBackend):
             self.execute(
                 ["terraform", "apply", "-auto-approve", "-var-file", tfvars_file.name]
             )
-        self.deployed_applications = list(self.outputs["charms"]["value"].values())
+        self.deployed_applications = list(
+            self.outputs["model"]["value"]["components"].keys()
+        )
         return self.deployed_applications
 
     def destroy(self):

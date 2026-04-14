@@ -26,6 +26,7 @@ from spark_test.fixtures.service_account import (
 from spark_test.utils import get_spark_drivers
 
 from .helpers import (
+    COS,
     JMX_EXPORTER_PORT,
     assert_logs,
     get_cos_address,
@@ -40,7 +41,6 @@ from .types import PortForwarder
 
 logger = logging.getLogger(__name__)
 
-COS_ALIAS = "cos"
 HISTORY_SERVER = "history-server"
 PUSHGATEWAY = "pushgateway"
 PROMETHEUS = "prometheus"
@@ -160,7 +160,7 @@ def test_job_logs_are_persisted(
         access_key = confs.props["spark.hadoop.fs.s3a.access.key"]
         secret_key = confs.props["spark.hadoop.fs.s3a.secret.key"]
         endpoint = confs.props["spark.hadoop.fs.s3a.endpoint"]
-        log_match = re.match(r"s3a://(?P<bucket>.*)/(?P<path>.*)", log_folder)
+        log_match = re.match(r"s3a://(?P<bucket>.+)/(?P<path>.+)", log_folder)
         assert log_match is not None
         bucket_name = log_match.group("bucket")
         session = boto3.session.Session(
@@ -298,7 +298,7 @@ def test_spark_metrics_in_prometheus(
     logger.info(f"Show status: {stdout}")
     logger.info(f"Spark id: {driver_pod.labels['spark-app-selector']}")
     # NOTE: 9090 seems to be commonly in use in some deployments.
-    with port_forward(pod=f"{PROMETHEUS}-0", port=9090, namespace=cos, on_port=19090):
+    with port_forward(pod=f"{PROMETHEUS}-0", port=9090, namespace=COS, on_port=19090):
         for attempt in Retrying(
             stop=stop_after_attempt(5), wait=wait_fixed(30), reraise=True
         ):
@@ -326,7 +326,7 @@ def test_spark_logforwaring_to_loki(
     stdout = juju.cli("status")
     logger.info(f"Show status: {stdout}")
 
-    with port_forward(pod=f"{LOKI}-0", port=3100, namespace=cos):
+    with port_forward(pod=f"{LOKI}-0", port=3100, namespace=COS):
         assert_logs("127.0.0.1")
 
 
@@ -350,13 +350,13 @@ def test_history_server_metrics_in_cos(
     # We should leave time for Prometheus data to be published
     for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
         with attempt:
-            cos_address = get_cos_address(cos_model_name=cos)
+            cos_address = get_cos_address(cos_model_name=COS)
             assert published_prometheus_data(
-                cos, cos_address, "jmx_scrape_duration_seconds"
+                COS, cos_address, "jmx_scrape_duration_seconds"
             )
 
             # Alerts got published to Prometheus
-            alerts_data = published_prometheus_alerts(cos, cos_address)
+            alerts_data = published_prometheus_alerts(COS, cos_address)
             assert alerts_data is not None
             logger.info(f"Alerts data: {alerts_data}")
 
@@ -377,7 +377,7 @@ def test_history_server_metrics_in_cos(
                 )
 
             # Grafana dashboard got published
-            dashboards_info = published_grafana_dashboards(cos)
+            dashboards_info = published_grafana_dashboards(COS)
             assert dashboards_info is not None
             logger.info(f"Dashboard info {dashboards_info}")
             assert any(
@@ -387,7 +387,7 @@ def test_history_server_metrics_in_cos(
 
             # Loki logs are ingested
             logs = published_loki_logs(
-                cos,
+                COS,
                 cos_address,
                 "juju_application",
                 HISTORY_SERVER,
