@@ -14,7 +14,7 @@ output "offers" {
 output "metadata" {
   description = "Metadata of the product deployment."
   value = {
-    version     = "3.5"
+    version     = "3.5-tf_0.0.1"
     deployed_at = timestamp()
     updated_at  = timestamp()
   }
