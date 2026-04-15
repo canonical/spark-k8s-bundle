@@ -4,10 +4,12 @@
 resource "juju_model" "spark" {
   count = (var.model_uuid == null && var.create_model == true) ? 1 : 0
 
-  name       = var.spark_model_name
-  credential = var.K8S_CREDENTIAL
-  cloud {
-    name = var.K8S_CLOUD
+  name = var.spark_model_name
+  config = {
+    logging     = var.logging_config
+    http-proxy  = var.proxy.http
+    https-proxy = var.proxy.https
+    no-proxy    = var.proxy.no-proxy
   }
 }
 

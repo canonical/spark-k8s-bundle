@@ -120,12 +120,12 @@ variable "K8S_CREDENTIAL" {
 variable "juju_controller" {
   description = "Controller information: endpoint, username, password and CA certificate."
   type = object({
-    endpoint = string
-    username = string
-    password = string
-    ca       = string
+    endpoint = optional(string)
+    username = optional(string)
+    password = optional(string)
+    ca       = optional(string)
   })
-  default = null
+  default = {}
 }
 
 variable "kyuubi_config" {
@@ -171,6 +171,12 @@ variable "kyuubi_users_size" {
   default     = "1G"
 }
 
+variable "logging_config" {
+  description = "Logging configuration to be used"
+  type        = string
+  default     = "<root>=INFO"
+}
+
 variable "metastore_image" {
   description = "Image for postgresql-k8s (metastore)"
   type        = string
@@ -206,7 +212,7 @@ variable "proxy" {
   type = object({
     http     = optional(string, "")
     https    = optional(string, "")
-    no_proxy = optional(string, "")
+    no-proxy = optional(string, "")
   })
   default = {}
 }

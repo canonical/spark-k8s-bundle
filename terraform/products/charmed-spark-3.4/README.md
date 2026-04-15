@@ -61,7 +61,7 @@
 | <a name="input_integration_hub_config"></a> [integration\_hub\_config](#input\_integration\_hub\_config) | Integration Hub configuration options. | `map(any)` | `{}` | no |
 | <a name="input_integration_hub_image"></a> [integration\_hub\_image](#input\_integration\_hub\_image) | Image for spark-integration-hub-k8s | `string` | `null` | no |
 | <a name="input_integration_hub_revision"></a> [integration\_hub\_revision](#input\_integration\_hub\_revision) | Charm revision for spark-integration-hub-k8s | `number` | `null` | no |
-| <a name="input_juju_controller"></a> [juju\_controller](#input\_juju\_controller) | Controller information: endpoint, username, password and CA certificate. | <pre>object({<br/>    endpoint = string<br/>    username = string<br/>    password = string<br/>    ca       = string<br/>  })</pre> | `null` | no |
+| <a name="input_juju_controller"></a> [juju\_controller](#input\_juju\_controller) | Controller information: endpoint, username, password and CA certificate. | <pre>object({<br/>    endpoint = optional(string)<br/>    username = optional(string)<br/>    password = optional(string)<br/>    ca       = optional(string)<br/>  })</pre> | `{}` | no |
 | <a name="input_kyuubi_config"></a> [kyuubi\_config](#input\_kyuubi\_config) | Kyuubi configuration options. | `map(any)` | `{}` | no |
 | <a name="input_kyuubi_image"></a> [kyuubi\_image](#input\_kyuubi\_image) | Image for kyuubi-k8s | `string` | `null` | no |
 | <a name="input_kyuubi_revision"></a> [kyuubi\_revision](#input\_kyuubi\_revision) | Charm revision for kyuubi-k8s | `number` | `null` | no |
@@ -69,11 +69,12 @@
 | <a name="input_kyuubi_users_image"></a> [kyuubi\_users\_image](#input\_kyuubi\_users\_image) | Image for postgresql-k8s (auth-db) | `string` | `null` | no |
 | <a name="input_kyuubi_users_revision"></a> [kyuubi\_users\_revision](#input\_kyuubi\_users\_revision) | Charm revision for postgresql-k8s (auth-db) | `number` | `null` | no |
 | <a name="input_kyuubi_users_size"></a> [kyuubi\_users\_size](#input\_kyuubi\_users\_size) | Storage size for the Kyuubi users database | `string` | `"1G"` | no |
+| <a name="input_logging_config"></a> [logging\_config](#input\_logging\_config) | Logging configuration to be used | `string` | `"<root>=INFO"` | no |
 | <a name="input_metastore_image"></a> [metastore\_image](#input\_metastore\_image) | Image for postgresql-k8s (metastore) | `string` | `null` | no |
 | <a name="input_metastore_revision"></a> [metastore\_revision](#input\_metastore\_revision) | Charm revision for postgresql-k8s (metastore) | `number` | `null` | no |
 | <a name="input_metastore_size"></a> [metastore\_size](#input\_metastore\_size) | Storage size for the metastore database | `string` | `"10G"` | no |
 | <a name="input_model_uuid"></a> [model\_uuid](#input\_model\_uuid) | Optional existing Juju model UUID to deploy Spark to. If provided, model creation is skipped in higher-level modules. | `string` | `null` | no |
-| <a name="input_proxy"></a> [proxy](#input\_proxy) | Proxy information for the deployment. | <pre>object({<br/>    http     = optional(string, "")<br/>    https    = optional(string, "")<br/>    no_proxy = optional(string, "")<br/>  })</pre> | `{}` | no |
+| <a name="input_proxy"></a> [proxy](#input\_proxy) | Proxy information for the deployment. | <pre>object({<br/>    http     = optional(string, "")<br/>    https    = optional(string, "")<br/>    no-proxy = optional(string, "")<br/>  })</pre> | `{}` | no |
 | <a name="input_s3_config"></a> [s3\_config](#input\_s3\_config) | S3 integrator configuration | <pre>object({<br/>    attributes                          = optional(string)<br/>    bucket                              = optional(string)<br/>    endpoint                            = optional(string)<br/>    experimental-delete-older-than-days = optional(number)<br/>    path                                = optional(string)<br/>    region                              = optional(string)<br/>    s3-api-version                      = optional(string)<br/>    s3-uri-style                        = optional(string)<br/>    storage-class                       = optional(string)<br/>    tls-ca-chain                        = optional(string)<br/>  })</pre> | `{}` | no |
 | <a name="input_s3_revision"></a> [s3\_revision](#input\_s3\_revision) | Charm revision for s3-integrator | `number` | `null` | no |
 | <a name="input_spark_model_name"></a> [spark\_model\_name](#input\_spark\_model\_name) | The name of the juju model to deploy Spark to | `string` | `"spark"` | no |
