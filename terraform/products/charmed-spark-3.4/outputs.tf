@@ -23,31 +23,33 @@ output "metadata" {
 output "models" {
   description = "Map of the key of the model and the components deployed in the model."
   value = {
-    model_uuid = var.model_uuid
-    components = merge(
-      module.spark.components,
-      {
-        zookeeper = module.zookeeper.application
-      },
-      {
-        data_integrator = module.data_integrator.application
-      },
-      {
-        self_signed_certificates = module.ssc.app_name # TODO: expose application
-      },
-      {
-        metastore = module.metastore.app_name # TODO: expose application
-      },
-      {
-        kyuubi_users = module.kyuubi_users.app_name # TODO: expose application
-      },
-      module.azure_storage == [] ? {} : {
-        azure_storage = module.azure_storage[0].application
-      },
-      module.s3 == [] ? {} : {
-        s3 = module.s3[0].application
-      },
-      module.observability == [] ? {} : module.observability[0].components
-    )
+    spark = {
+      model_uuid = var.model_uuid
+      components = merge(
+        module.spark.components,
+        {
+          zookeeper = module.zookeeper.application
+        },
+        {
+          data_integrator = module.data_integrator.application
+        },
+        {
+          self_signed_certificates = module.ssc.app_name # TODO: expose application
+        },
+        {
+          metastore = module.metastore.app_name # TODO: expose application
+        },
+        {
+          kyuubi_users = module.kyuubi_users.app_name # TODO: expose application
+        },
+        module.azure_storage == [] ? {} : {
+          azure_storage = module.azure_storage[0].application
+        },
+        module.s3 == [] ? {} : {
+          s3 = module.s3[0].application
+        },
+        module.observability == [] ? {} : module.observability[0].components
+      )
+    }
   }
 }
