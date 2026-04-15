@@ -26,7 +26,7 @@
 | <a name="module_metastore"></a> [metastore](#module\_metastore) | git::https://github.com/canonical/postgresql-k8s-operator//terraform | rev774 |
 | <a name="module_observability"></a> [observability](#module\_observability) | ../../components/observability | n/a |
 | <a name="module_s3"></a> [s3](#module\_s3) | ../../charms/s3-integrator-v1 | n/a |
-| <a name="module_spark"></a> [spark](#module\_spark) | ../../components/spark-3.5 | n/a |
+| <a name="module_spark"></a> [spark](#module\_spark) | ../../components/spark | n/a |
 | <a name="module_ssc"></a> [ssc](#module\_ssc) | git::https://github.com/canonical/self-signed-certificates-operator//terraform | rev586 |
 | <a name="module_zookeeper"></a> [zookeeper](#module\_zookeeper) | ../../charms/zookeeper | n/a |
 

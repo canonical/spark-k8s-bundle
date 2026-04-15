@@ -174,7 +174,7 @@ module "spark" {
     module.ssc,
     module.zookeeper
   ]
-  source     = "../../components/spark-3.4"
+  source     = "../../components/spark"
   model_uuid = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
 
   history_server = {
