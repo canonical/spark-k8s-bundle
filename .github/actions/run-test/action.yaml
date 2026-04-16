@@ -267,9 +267,9 @@ runs:
           
           REVISION_FILE="${major_minor}@${arch}.tfvars.yaml"
 
-          cat $REVISION_FILE
+          cp $REVISION_FILE python/revisions.tfvars.yaml
 
-          TFVARS_ARG="--tfvars-file $REVISION_FILE"
+          TFVARS_ARG="--tfvars-file python/revisions.tfvars.yaml"
         fi
 
         juju add-model spark-bundle-test
