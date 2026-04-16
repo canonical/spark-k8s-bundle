@@ -17,6 +17,7 @@ from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace  # no
 from tests.integration.types import PortForwarder
 
 from .helpers import (
+    COS,
     get_active_kyuubi_servers_list,
     get_cos_address,
     get_kyuubi_credentials,
@@ -70,7 +71,9 @@ def test_jdbc_endpoint(juju: jubilant.Juju) -> None:
 
     logger.info("Get certificate from self-signed-certificates operator")
     status = juju.status()
-    self_signed_certificate_unit = next(iter(status.apps["certificates"].units.keys()))
+    self_signed_certificate_unit = next(
+        iter(status.apps["self-signed-certificates"].units.keys())
+    )
     task = juju.run(self_signed_certificate_unit, "get-issued-certificates")
     assert task.return_code == 0
 
@@ -158,11 +161,11 @@ def test_kyuubi_metrics_in_cos(cos: str) -> None:
     # We should leave time for Prometheus data to be published
     for attempt in Retrying(stop=stop_after_attempt(10), wait=wait_fixed(30)):
         with attempt:
-            cos_address = get_cos_address(cos_model_name=cos)
-            assert published_prometheus_data(cos, cos_address, "kyuubi_jvm_uptime")
+            cos_address = get_cos_address(cos_model_name=COS)
+            assert published_prometheus_data(COS, cos_address, "kyuubi_jvm_uptime")
 
             # Alerts got published to Prometheus
-            alerts_data = published_prometheus_alerts(cos, cos_address)
+            alerts_data = published_prometheus_alerts(COS, cos_address)
             assert alerts_data is not None
             logger.info(f"Alerts data: {alerts_data}")
 
@@ -189,14 +192,14 @@ def test_kyuubi_metrics_in_cos(cos: str) -> None:
                 )
 
             # Grafana dashboard got published
-            dashboards_info = published_grafana_dashboards(cos)
+            dashboards_info = published_grafana_dashboards(COS)
             assert dashboards_info is not None
             logger.info(f"Dashboard info {dashboards_info}")
             assert any(board["title"] == "Kyuubi" for board in dashboards_info)
 
             # Loki logs are ingested
             logs = published_loki_logs(
-                cos,
+                COS,
                 cos_address,
                 "juju_application",
                 KYUUBI_APP_NAME,

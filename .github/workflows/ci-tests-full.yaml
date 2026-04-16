@@ -14,7 +14,7 @@ jobs:
     uses: ./.github/workflows/ci-checks.yaml
 
   integration-tests:
-    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju.agent }} | ${{ matrix.cos-model }}"
+    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark-${{ matrix.spark-version }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju.agent }} | ${{ matrix.cos-model }}"
     runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
     timeout-minutes: 120
     strategy:
@@ -25,7 +25,6 @@ jobs:
           - integration-sparkjob
           - integration-kyuubi
           - integration-backup-restore
-        bundle-backend: ["yaml", "terraform"]
         spark-version: ["3.4.4", "3.5.7"]
         storage-backend: ["s3", "azure_storage"]
         cos-model: ["cos"]
@@ -60,11 +59,6 @@ jobs:
             juju-snap-channel: "3.6/stable"
             juju-agent-version: "3.6.14"
 
-        exclude:
-          # Backup / Restore tests only supported on Terraform
-          - tox-env: integration-backup-restore
-            bundle-backend: yaml
-
     needs:
       - checks
     steps:
@@ -77,7 +71,6 @@ jobs:
           k8s-distribution: ${{ matrix.k8s-distribution }}
           k8s-version: ${{ matrix.k8s-version }}
           tox-env: ${{ matrix.tox-env }}
-          bundle-backend: ${{ matrix.bundle-backend }}
           spark-version: ${{ matrix.spark-version }}
           storage-backend: ${{ matrix.storage-backend }}
           cos-model: ${{ matrix.cos-model }}

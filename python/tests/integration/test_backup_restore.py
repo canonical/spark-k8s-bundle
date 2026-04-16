@@ -23,6 +23,7 @@ from spark_test.core import ObjectStorageUnit
 from spark_test.core.kyuubi import KyuubiClient
 
 from .helpers import (
+    COS,
     get_active_kyuubi_servers_list,
     get_cos_address,
     get_kyuubi_ca_cert,
@@ -262,7 +263,9 @@ class TestFirstDeployment:
         """Test that the admin user is able to connect."""
         credentials = get_kyuubi_credentials(juju)
         credentials.update({"username": "admin", "password": admin_password})
-        ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+        ca_cert = get_kyuubi_ca_cert(
+            juju, certificates_app_name="self-signed-certificates"
+        )
         kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
 
         assert "default" in kyuubi_client.databases
@@ -274,7 +277,9 @@ class TestFirstDeployment:
     def test_database_operations(self, juju: jubilant.Juju) -> None:
         """Test some read / write operations on the database."""
         credentials = get_kyuubi_credentials(juju)
-        ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+        ca_cert = get_kyuubi_ca_cert(
+            juju, certificates_app_name="self-signed-certificates"
+        )
         kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
 
         db = kyuubi_client.get_database(TEST_DB_NAME)
@@ -610,7 +615,9 @@ class TestNewDeployment:
         old_admin_password = context.pop("old_admin_password")
         credentials = get_kyuubi_credentials(juju)
         credentials.update({"username": "admin", "password": old_admin_password})
-        ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+        ca_cert = get_kyuubi_ca_cert(
+            juju, certificates_app_name="self-signed-certificates"
+        )
         kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
 
         assert "default" in kyuubi_client.databases
@@ -654,7 +661,9 @@ class TestNewDeployment:
         """Test some read / write operations on the database."""
         juju.wait(jubilant.all_active, delay=3)
         credentials = get_kyuubi_credentials(juju)
-        ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+        ca_cert = get_kyuubi_ca_cert(
+            juju, certificates_app_name="self-signed-certificates"
+        )
         kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
 
         assert TEST_DB_NAME in kyuubi_client.databases
@@ -678,7 +687,9 @@ class TestNewDeployment:
         """Test that the new rows of data are being inserted on top of what's already there."""
         juju.wait(jubilant.all_active, delay=3)
         credentials = get_kyuubi_credentials(juju)
-        ca_cert = get_kyuubi_ca_cert(juju, certificates_app_name="certificates")
+        ca_cert = get_kyuubi_ca_cert(
+            juju, certificates_app_name="self-signed-certificates"
+        )
 
         kyuubi_client = KyuubiClient(**credentials, use_ssl=True, ca_cert=ca_cert)
 
@@ -701,11 +712,11 @@ class TestNewDeployment:
         # We should leave time for Prometheus data to be published
         for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
             with attempt:
-                cos_address = get_cos_address(cos_model_name=cos)
-                assert published_prometheus_data(cos, cos_address, "kyuubi_jvm_uptime")
+                cos_address = get_cos_address(cos_model_name=COS)
+                assert published_prometheus_data(COS, cos_address, "kyuubi_jvm_uptime")
 
                 # Alerts got published to Prometheus
-                alerts_data = published_prometheus_alerts(cos, cos_address)
+                alerts_data = published_prometheus_alerts(COS, cos_address)
                 assert alerts_data is not None
                 logger.info(f"Alerts data: {alerts_data}")
 
@@ -732,14 +743,14 @@ class TestNewDeployment:
                     )
 
                 # Grafana dashboard got published
-                dashboards_info = published_grafana_dashboards(cos)
+                dashboards_info = published_grafana_dashboards(COS)
                 assert dashboards_info is not None
                 logger.info(f"Dashboard info {dashboards_info}")
                 assert any(board["title"] == "Kyuubi" for board in dashboards_info)
 
                 # Loki logs are ingested
                 logs = published_loki_logs(
-                    cos,
+                    COS,
                     cos_address,
                     "juju_application",
                     KYUUBI_APP_NAME,
