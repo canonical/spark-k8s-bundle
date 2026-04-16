@@ -34,8 +34,8 @@ jobs:
   promotion:
     name: Promotion
     needs: 
-      # - generate-revisions
-      - tests
+      - generate-revisions
+      # - tests
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout repo
