@@ -267,6 +267,8 @@ runs:
           
           REVISION_FILE="${major_minor}@${arch}.tfvars.yaml"
 
+          cat $REVISION_FILE
+
           TFVARS_ARG="--tfvars-file $REVISION_FILE"
         fi
 
