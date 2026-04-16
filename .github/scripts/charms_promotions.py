@@ -8,7 +8,7 @@ import sys
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Callable
+from typing import Callable, Optional
 
 import yaml
 
@@ -42,15 +42,19 @@ class Charm:
 
     def to_dict(self) -> dict:
         """Return a dictionary representation of the charm."""
-        return {k:v for k,v in {
-            "name": self.name,
-            "revision": self.revision,
-            "channel": self.channel,
-            "architecture": self.architecture,
-        }.items() if v is not None}
+        return {
+            k: v
+            for k, v in {
+                "name": self.name,
+                "revision": self.revision,
+                "channel": self.channel,
+                "architecture": self.architecture,
+            }.items()
+            if v is not None
+        }
 
     @staticmethod
-    def from_dict(data: dict) -> 'Charm':
+    def from_dict(data: dict) -> "Charm":
         """Create a Charm instance from a dictionary."""
         return Charm(
             name=data["name"],
@@ -111,7 +115,7 @@ class Charm:
 
         return items
 
-    def resolve_architecture(self) -> 'Charm':
+    def resolve_architecture(self) -> "Charm":
         """Resolve a single architecture for a charm/channel/revision tuple."""
         if self.architecture is not None:
             print(f"INFO: Using provided architecture {self.architecture}")
@@ -140,8 +144,8 @@ class Charm:
 
         self.architecture = architecture
         return self
-    
-    def resolve_revision(self) -> 'Charm':
+
+    def resolve_revision(self) -> "Charm":
         """Resolve a single revision for a charm/channel/architecture tuple."""
         if self.revision is not None:
             print(f"INFO: Using provided revision {self.revision}")
@@ -235,9 +239,7 @@ class Bundle:
     charms: list[Charm]
 
     @classmethod
-    def from_status(
-        cls, content: str | Path, format: Format | str = Format.TEXT
-    ):
+    def from_status(cls, content: str | Path, format: Format | str = Format.TEXT):
         """Parse status content into a Bundle."""
         if isinstance(content, Path):
             content = content.read_text(encoding="utf-8")
@@ -247,11 +249,11 @@ class Bundle:
 
         return parsers[normalized_format].parse(content)
 
-    def filter(self, condition: Callable[[Charm], bool]) -> 'Bundle':
+    def filter(self, condition: Callable[[Charm], bool]) -> "Bundle":
         """Return a new Bundle containing only charms that satisfy the condition."""
         return Bundle(charms=[charm for charm in self.charms if condition(charm)])
 
-    def exclude(self, names: set[str]) -> 'Bundle':
+    def exclude(self, names: set[str]) -> "Bundle":
         """Return a new Bundle excluding charms whose name is in the provided set."""
         return self.filter(lambda charm: charm.name not in names)
 
@@ -260,7 +262,9 @@ class Bundle:
         # This method is not implemented as it's not required for the current use case,
         # but it could be implemented if needed in the future.
         if format == Format.TEXT:
-            raise NotImplementedError("Bundle.to_status with text format is not implemented yet.")
+            raise NotImplementedError(
+                "Bundle.to_status with text format is not implemented yet."
+            )
 
         remapping_keys = {
             "channel": "charm-channel",
@@ -273,22 +277,39 @@ class Bundle:
             return {remapping_keys.get(k, k): v for k, v in charm_dict.items()}
 
         with file.open("w", encoding="utf-8") as fid:
-            yaml.dump({"applications": {charm.name: remap_charm_dict(charm.to_dict()) for charm in self.charms}}, fid)
+            yaml.dump(
+                {
+                    "applications": {
+                        charm.name: remap_charm_dict(charm.to_dict())
+                        for charm in self.charms
+                    }
+                },
+                fid,
+            )
 
     def to_tfvars(self, filename: Path, mapping: dict):
         """Serialize the Bundle to a Terraform JSON format."""
         with filename.open("w", encoding="utf-8") as fid:
-            yaml.dump({
-                mapping.get(charm.name, charm.name): charm.revision
-                for charm in self.charms
-            }, fid)
+            yaml.dump(
+                {
+                    mapping.get(charm.name, charm.name): charm.revision
+                    for charm in self.charms
+                },
+                fid,
+            )
+
 
 @dataclass
 class Release:
+    """Collection of named charm bundles."""
+
     bundles: dict[str, Bundle]
 
     @staticmethod
-    def bucketize(charms: list[Charm], key: Callable[[Charm], str]) -> dict[str, Bundle]:
+    def bucketize(
+        charms: list[Charm], key: Callable[[Charm], str]
+    ) -> dict[str, Bundle]:
+        """Group charms into bundles using the provided key function."""
         buckets: dict[str, list[Charm]] = {}
         for charm in charms:
             bucket_key = key(charm)
@@ -297,16 +318,21 @@ class Release:
         return {bucket_key: Bundle(charms) for bucket_key, charms in buckets.items()}
 
     def to_json(self) -> dict:
-        return {name: [charm.to_dict() for charm in bundle.charms] for name, bundle in self.bundles.items()}
+        """Serialize the release bundles to JSON-compatible data."""
+        return {
+            name: [charm.to_dict() for charm in bundle.charms]
+            for name, bundle in self.bundles.items()
+        }
 
     @staticmethod
-    def from_json(data: dict) -> 'Release':
+    def from_json(data: dict) -> "Release":
+        """Build a Release from JSON-compatible serialized bundle data."""
         bundles = {
-            name: Bundle(
-                [Charm.from_dict(charm_data) for charm_data in bundle_data]
-            ) for name, bundle_data in data.items()
+            name: Bundle([Charm.from_dict(charm_data) for charm_data in bundle_data])
+            for name, bundle_data in data.items()
         }
         return Release(bundles=bundles)
+
 
 class YAMLParser:
     """Parser for Juju YAML status output."""
@@ -322,11 +348,11 @@ class YAMLParser:
         return Bundle(
             [
                 Charm(
-                    name=app["charm-name"], 
-                    revision=int(app["charm-rev"]), 
+                    name=app["charm-name"],
+                    revision=int(app["charm-rev"]),
                     channel=app.get("charm-channel"),
                     architecture=app.get("charm-arch"),
-                ).resolve_architecture() 
+                ).resolve_architecture()
                 for _, app in data["applications"].items()
             ]
         )
@@ -444,7 +470,9 @@ class TextParser:
 
         return Bundle(
             [
-                Charm(item["Charm"], int(item["Rev"]), item["Channel"]).resolve_architecture()
+                Charm(
+                    item["Charm"], int(item["Rev"]), item["Channel"]
+                ).resolve_architecture()
                 for item in data
                 if item["Charm"]
             ]
@@ -468,7 +496,7 @@ class Specs:
     releases: dict[str, list[CharmSpec]]
 
     @classmethod
-    def parse(cls, content: str | Path) -> 'Specs':
+    def parse(cls, content: str | Path) -> "Specs":
         """Load and validate specs YAML, returning a typed Specs object."""
         if isinstance(content, Path):
             content = content.read_text(encoding="utf-8")
@@ -494,7 +522,9 @@ class Specs:
         parsed_releases: dict[str, list[CharmSpec]] = {}
         for release, charms in releases.items():
             if not isinstance(charms, list):
-                raise ValueError(f"Invalid specs format: releases.{release} must be a list")
+                raise ValueError(
+                    f"Invalid specs format: releases.{release} must be a list"
+                )
 
             parsed_entries: list[CharmSpec] = []
             for entry in charms:
@@ -512,14 +542,13 @@ class Specs:
                         f"Invalid specs format: release entry for {release} must have string name and channel"
                     )
 
-                parsed_entries.append(CharmSpec(name=charm_name, channel=channel, revision=revision))
+                parsed_entries.append(
+                    CharmSpec(name=charm_name, channel=channel, revision=revision)
+                )
 
             parsed_releases[str(release)] = parsed_entries
 
-        return cls(
-            architectures=architectures,
-            releases=parsed_releases
-        )
+        return cls(architectures=architectures, releases=parsed_releases)
 
     @staticmethod
     def _normalize_channel(channel: str, risk: str) -> str:
@@ -530,16 +559,15 @@ class Specs:
 
     def resolve_charms(self, risk: str = "edge") -> Release:
         """Build the output mapping keyed by architecture, release, and mapped revision key."""
-        releases = {} 
+        releases = {}
 
         for release, charms in self.releases.items():
             items = []
             for architecture in self.architectures:
-
                 for entry in charms:
                     charm_name = entry.name
                     channel = self._normalize_channel(entry.channel, risk)
- 
+
                     items.append(
                         Charm(
                             name=charm_name,
@@ -548,25 +576,31 @@ class Specs:
                             architecture=architecture,
                         ).resolve_revision()
                     )
-                
-            releases[str(release)] = Release.bucketize(items, key=lambda charm: charm.architecture)
+
+            releases[str(release)] = Release.bucketize(
+                items, key=lambda charm: charm.architecture
+            )
 
         # Flatten the mapping to have keys of the form "release@architecture"
-        return Release(bundles={
-            f"{release}@{architercture}": bundle 
-            for release, bundles in releases.items() 
-            for architercture, bundle in bundles.items()
-        })
+        return Release(
+            bundles={
+                f"{release}@{architercture}": bundle
+                for release, bundles in releases.items()
+                for architercture, bundle in bundles.items()
+            }
+        )
 
 
 MAPPING = {
     "kyuubi-k8s": "kyuubi_revision",
     "spark-history-server-k8s": "history_server_revision",
-    "spark-integration-hub-k8s": "integration_hub_revision"
+    "spark-integration-hub-k8s": "integration_hub_revision",
 }
 
 
-def _load_release(input_file: Path, format_name: str, risk: Optional[str] = None) -> Release:
+def _load_release(
+    input_file: Path, format_name: str, risk: Optional[str] = None
+) -> Release:
     """Load release data from status/spec input based on the selected format."""
     if format_name in ("text", "yaml"):
         filename = input_file.name.removesuffix(input_file.suffix)
@@ -586,7 +620,7 @@ def _load_release(input_file: Path, format_name: str, risk: Optional[str] = None
 def _write_revisions(release: Release, output_dir: Path, output_format: str):
     """Write one status file per release bundle, using bundle key as filename."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     if output_format == "tfvars":
         for key, bundle in release.bundles.items():
             bundle.to_tfvars(output_dir / f"{key}.tfvars.yaml", mapping=MAPPING)
