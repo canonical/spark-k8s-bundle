@@ -30,3 +30,43 @@ jobs:
     secrets: inherit
     with:
       tfvars-file: ${{ needs.generate-revisions.outputs.tfvars-artifact-name }}
+
+  promotion:
+    name: Promotion
+    needs: 
+      - generate-revisions
+      - tests
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v6
+    
+    - id: setup-python
+      name: Setup Python
+      uses: actions/setup-python@v5.0.0
+      with:
+        python-version: "3.10"
+        architecture: x64
+    
+    - id: download-tfvars
+      name: Download tfvars artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ needs.generate-revisions.outputs.tfvars-artifact-name }}
+        path: tfvars-artifacts
+
+    - id: tests-integration
+      name: Run Integration Tests
+      shell: bash
+      env:
+        AZURE_STORAGE_ACCOUNT: ${{ inputs.azure-storage-account }}
+        AZURE_STORAGE_KEY: ${{ inputs.azure-storage-key }}
+      run: |
+        pip install pyyaml
+      
+        REVISION_FILES=$(find revisions -type f -name "*.yaml")
+        for REVISION_FILE in $REVISION_FILES; do
+          echo "Processing $REVISION_FILE"
+          python3 charms_promotions.py promote \
+            --format yaml --promote-to beta --dry-run \
+            --file $REVISION_FILE
+        done
