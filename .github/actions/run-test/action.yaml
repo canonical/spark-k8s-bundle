@@ -261,6 +261,7 @@ runs:
             exit 1
           fi
 
+          pip install pyyaml
           python3 .github/scripts/charms_promotions.py get-revisions \
             --format yaml --file $TFVARS_PATH --output tfvars
           
