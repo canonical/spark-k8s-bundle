@@ -36,6 +36,7 @@ jobs:
     needs: 
       - generate-revisions
       - tests
+    runs-on: ubuntu-22.04
     steps:
     - name: Checkout repo
       uses: actions/checkout@v6
@@ -57,13 +58,10 @@ jobs:
     - id: tests-integration
       name: Run Integration Tests
       shell: bash
-      env:
-        AZURE_STORAGE_ACCOUNT: ${{ inputs.azure-storage-account }}
-        AZURE_STORAGE_KEY: ${{ inputs.azure-storage-key }}
       run: |
         pip install pyyaml
       
-        REVISION_FILES=$(find revisions -type f -name "*.yaml")
+        REVISION_FILES=$(find tfvars-artifacts -type f -name "*.yaml")
         for REVISION_FILE in $REVISION_FILES; do
           echo "Processing $REVISION_FILE"
           python3 charms_promotions.py promote \
