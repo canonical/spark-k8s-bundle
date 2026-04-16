@@ -37,6 +37,7 @@ jobs:
       - generate-revisions
       # - tests
     runs-on: ubuntu-22.04
+    secrets: inherit
     steps:
     - name: Checkout repo
       uses: actions/checkout@v6
@@ -60,6 +61,7 @@ jobs:
       shell: bash
       run: |
         pip install pyyaml
+        sudo snap install charmcraft --classic
       
         REVISION_FILES=$(find tfvars-artifacts -type f -name "*.yaml")
         for REVISION_FILE in $REVISION_FILES; do
