@@ -269,7 +269,7 @@ runs:
 
           cp $REVISION_FILE python/revisions.tfvars.yaml
 
-          TFVARS_ARG="--tfvars-file python/revisions.tfvars.yaml"
+          TFVARS_ARG="--tfvars-file revisions.tfvars.yaml"
         fi
 
         juju add-model spark-bundle-test
