@@ -23,11 +23,6 @@ inputs:
     default: 3.4.4
     required: false
     type: string
-  bundle-backend:
-    description: "The backend to use to deploy the bundle"
-    default: yaml
-    required: false
-    type: string
   storage-backend:
     description: "The object storage backend to be used"
     default: s3
@@ -236,7 +231,7 @@ runs:
       run: |
         juju add-model spark-bundle-test
         juju list-models
-        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --backend ${{ inputs.bundle-backend }} --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }}
+        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }}
         echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
 
     - id: collect-logs
@@ -293,13 +288,13 @@ runs:
         if [ "${TEST_EXIT_CODE}" != "0" ]; then
           STATUS="failure"
         fi
-        echo '{"tox-env": "${{ inputs.tox-env }}", "k8s-distribution": "${{ inputs.k8s-distribution }}", "spark-version": "${{ inputs.spark-version }}", "bundle-backend": "${{ inputs.bundle-backend }}", "storage-backend": "${{ inputs.storage-backend }}", "cos": "${{ inputs.cos-model != '' }}", "juju-version": "${{ inputs.juju-agent-version }}", "status": "'"$STATUS"'"}' > test-result.json
+        echo '{"tox-env": "${{ inputs.tox-env }}", "k8s-distribution": "${{ inputs.k8s-distribution }}", "spark-version": "${{ inputs.spark-version }}", "storage-backend": "${{ inputs.storage-backend }}", "cos": "${{ inputs.cos-model != '' }}", "juju-version": "${{ inputs.juju-agent-version }}", "status": "'"$STATUS"'"}' > test-result.json
 
     - name: Upload the test result as artifact
       if: always()
       uses: actions/upload-artifact@v6
       with:
-        name: integration-results-${{ inputs.tox-env }}-${{ inputs.k8s-distribution }}-${{ inputs.k8s-version }}-${{ inputs.spark-version }}-${{ inputs.bundle-backend }}-${{ inputs.storage-backend }}-${{ inputs.cos-model }}-${{ inputs.juju-agent-version }}
+        name: integration-results-${{ inputs.tox-env }}-${{ inputs.k8s-distribution }}-${{ inputs.k8s-version }}-${{ inputs.spark-version }}-${{ inputs.storage-backend }}-${{ inputs.cos-model }}-${{ inputs.juju-agent-version }}
         path: test-result.json
 
 
