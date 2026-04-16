@@ -113,66 +113,66 @@ runs:
         pipx install tox
         pipx install poetry
 
-    - name: Setup environment (MicroK8s)
-      if: "${{ inputs.k8s-distribution == 'microk8s' }}"
-      uses: charmed-kubernetes/actions-operator@main
-      with:
-        juju-channel: ${{ inputs.juju-snap-channel }}
-        provider: microk8s
-        channel: "${{ inputs.k8s-version }}-strict/stable"
-        bootstrap-options: "--agent-version 3.6.19"
-        microk8s-group: snap_microk8s
-        microk8s-addons: "hostpath-storage rbac dns metallb:10.64.140.43-10.64.140.49"
-
-    - name: Setup environment (K8s)
-      if: "${{ inputs.k8s-distribution == 'k8s' }}"
-      shell: bash
-      run: |
-        # Avoiding dockerhub rate limits (see https://canonical-self-hosted-github-runner-docs.readthedocs-hosted.com/en/latest/usage/faq/how-to-avoid-dockerhub-rate-limits/ for more informations)
-        if [ -n "$DOCKERHUB_MIRROR" ]; then
-        MIRROR_CONFIG=/etc/containerd/hosts.d/docker.io
-        
-        sudo mkdir -p ${MIRROR_CONFIG}
-        sudo chown $USER ${MIRROR_CONFIG}
-        cat << EOF > ${MIRROR_CONFIG}/hosts.toml
-        [host."$DOCKERHUB_MIRROR"]
-        capabilities = ["pull", "resolve"]
-        EOF
-        fi
-        
-        sudo apt-get remove -y docker.io containerd
-        sudo rm -rf /run/containerd /var/lib/docker /var/lib/containerd
-        
-        sudo snap install concierge --classic
-        cd .github
-        
-        # Set the versions
-        yq -i e '.providers.k8s.channel = "${{ inputs.k8s-version }}-classic/stable"' concierge.yaml
-        yq -i e '.juju.channel = "${{ inputs.juju-snap-channel }}"' concierge.yaml
-        yq -i e '.juju.agent-version = "3.6.19"' concierge.yaml
-        
-        sudo concierge prepare --trace
-        cd ..
-
-    - name: Patch juju installation
-      shell: bash
-      run: |
-        sudo snap install yq
-        CONTROLLER_NAME=$(juju controllers --format yaml | yq .current-controller)
-        juju destroy-controller $CONTROLLER_NAME --destroy-storage --no-prompt --destroy-all-models
-        sudo snap refresh juju --revision 33784
-
-    - name: Re-install controller (MicroK8s)
-      shell: bash
-      if: "${{ inputs.k8s-distribution == 'microk8s' }}"
-      run: |
-        sudo -i -u ubuntu juju bootstrap microk8s $CONTROLLER_NAME --agent-version "${{ inputs.juju-agent-version }}"
-
-    - name: Re-install controller (K8s)
-      shell: bash
-      if: "${{ inputs.k8s-distribution == 'k8s' }}"
-      run: |
-        sudo -u ubuntu juju bootstrap k8s $CONTROLLER_NAME --verbose --agent-version "${{ inputs.juju-agent-version }}" --model-default 'logging-config=<root>=INFO; unit=DEBUG' --bootstrap-constraints root-disk=4G
+#     - name: Setup environment (MicroK8s)
+#       if: "${{ inputs.k8s-distribution == 'microk8s' }}"
+#       uses: charmed-kubernetes/actions-operator@main
+#       with:
+#         juju-channel: ${{ inputs.juju-snap-channel }}
+#         provider: microk8s
+#         channel: "${{ inputs.k8s-version }}-strict/stable"
+#         bootstrap-options: "--agent-version 3.6.19"
+#         microk8s-group: snap_microk8s
+#         microk8s-addons: "hostpath-storage rbac dns metallb:10.64.140.43-10.64.140.49"
+# 
+#     - name: Setup environment (K8s)
+#       if: "${{ inputs.k8s-distribution == 'k8s' }}"
+#       shell: bash
+#       run: |
+#         # Avoiding dockerhub rate limits (see https://canonical-self-hosted-github-runner-docs.readthedocs-hosted.com/en/latest/usage/faq/how-to-avoid-dockerhub-rate-limits/ for more informations)
+#         if [ -n "$DOCKERHUB_MIRROR" ]; then
+#         MIRROR_CONFIG=/etc/containerd/hosts.d/docker.io
+#         
+#         sudo mkdir -p ${MIRROR_CONFIG}
+#         sudo chown $USER ${MIRROR_CONFIG}
+#         cat << EOF > ${MIRROR_CONFIG}/hosts.toml
+#         [host."$DOCKERHUB_MIRROR"]
+#         capabilities = ["pull", "resolve"]
+#         EOF
+#         fi
+#         
+#         sudo apt-get remove -y docker.io containerd
+#         sudo rm -rf /run/containerd /var/lib/docker /var/lib/containerd
+#         
+#         sudo snap install concierge --classic
+#         cd .github
+#         
+#         # Set the versions
+#         yq -i e '.providers.k8s.channel = "${{ inputs.k8s-version }}-classic/stable"' concierge.yaml
+#         yq -i e '.juju.channel = "${{ inputs.juju-snap-channel }}"' concierge.yaml
+#         yq -i e '.juju.agent-version = "3.6.19"' concierge.yaml
+#         
+#         sudo concierge prepare --trace
+#         cd ..
+# 
+#     - name: Patch juju installation
+#       shell: bash
+#       run: |
+#         sudo snap install yq
+#         CONTROLLER_NAME=$(juju controllers --format yaml | yq .current-controller)
+#         juju destroy-controller $CONTROLLER_NAME --destroy-storage --no-prompt --destroy-all-models
+#         sudo snap refresh juju --revision 33784
+# 
+#     - name: Re-install controller (MicroK8s)
+#       shell: bash
+#       if: "${{ inputs.k8s-distribution == 'microk8s' }}"
+#       run: |
+#         sudo -i -u ubuntu juju bootstrap microk8s $CONTROLLER_NAME --agent-version "${{ inputs.juju-agent-version }}"
+# 
+#     - name: Re-install controller (K8s)
+#       shell: bash
+#       if: "${{ inputs.k8s-distribution == 'k8s' }}"
+#       run: |
+#         sudo -u ubuntu juju bootstrap k8s $CONTROLLER_NAME --verbose --agent-version "${{ inputs.juju-agent-version }}" --model-default 'logging-config=<root>=INFO; unit=DEBUG' --bootstrap-constraints root-disk=4G
 
     - id: setup-python
       name: Setup Python
@@ -181,57 +181,57 @@ runs:
         python-version: "3.10"
         architecture: x64
 
-    - name: Setup spark object storage
-      id: spark-object-storage
-      if: ${{ inputs.storage-backend == 's3' }}
-      shell: bash
-      env:
-        CLOUD_INIT_FILE: |
-          #cloud-config
-          package_upgrade: true
-          snap:
-            commands:
-              0: snap install microceph
-              1: sudo microceph cluster bootstrap
-              2: sudo microceph disk add loop,1G,3
-              3: sudo microceph enable rgw
-              4: sudo microceph.radosgw-admin user create --uid test --display-name test --access-key=foo --secret-key=bar
-
-      run: |
-        echo -e "$CLOUD_INIT_FILE" > microceph_rgw.yaml
-        lxc init ubuntu:jammy ceph -c limits.cpu=4 -c limits.memory=2GB -d root,size=5GB
-        
-        lxc config set ceph cloud-init.user-data - < microceph_rgw.yaml
-        lxc start ceph
-        while ! lxc exec ceph -- id -u ubuntu &>/dev/null; do sleep 0.5; done
-        lxc exec ceph -- cloud-init status --wait
-        
-        echo -e "S3_SERVER_URL=http://$(lxc list --format json | yq '.[] | select(.name == "ceph") .state.network.eth0.addresses.[] | select(.family == "inet") .address'):80/\nS3_ACCESS_KEY=foo\nS3_SECRET_KEY=bar" > .env
-        lxc list
-        cat .env
-
-    - name: Select tests
-      id: select-tests
-      shell: bash
-      run: |
-        if [ "${{ github.event_name }}" == "schedule" ]
-        then
-          echo Running unstable and stable tests
-          echo "mark_expression=" >> $GITHUB_OUTPUT
-        else
-          echo Skipping unstable tests
-          echo "mark_expression=not unstable" >> $GITHUB_OUTPUT
-        fi
-
-    - id: setup-terraform
-      name: Install terraform if needed
-      shell: bash
-      run: |
-        if ! [ -x "$(command -v terraform)" ]; then
-          echo "Installing terraform from snap"
-          sudo snap install terraform --classic
-        fi
-
+#     - name: Setup spark object storage
+#       id: spark-object-storage
+#       if: ${{ inputs.storage-backend == 's3' }}
+#       shell: bash
+#       env:
+#         CLOUD_INIT_FILE: |
+#           #cloud-config
+#           package_upgrade: true
+#           snap:
+#             commands:
+#               0: snap install microceph
+#               1: sudo microceph cluster bootstrap
+#               2: sudo microceph disk add loop,1G,3
+#               3: sudo microceph enable rgw
+#               4: sudo microceph.radosgw-admin user create --uid test --display-name test --access-key=foo --secret-key=bar
+# 
+#       run: |
+#         echo -e "$CLOUD_INIT_FILE" > microceph_rgw.yaml
+#         lxc init ubuntu:jammy ceph -c limits.cpu=4 -c limits.memory=2GB -d root,size=5GB
+#         
+#         lxc config set ceph cloud-init.user-data - < microceph_rgw.yaml
+#         lxc start ceph
+#         while ! lxc exec ceph -- id -u ubuntu &>/dev/null; do sleep 0.5; done
+#         lxc exec ceph -- cloud-init status --wait
+#         
+#         echo -e "S3_SERVER_URL=http://$(lxc list --format json | yq '.[] | select(.name == "ceph") .state.network.eth0.addresses.[] | select(.family == "inet") .address'):80/\nS3_ACCESS_KEY=foo\nS3_SECRET_KEY=bar" > .env
+#         lxc list
+#         cat .env
+# 
+#     - name: Select tests
+#       id: select-tests
+#       shell: bash
+#       run: |
+#         if [ "${{ github.event_name }}" == "schedule" ]
+#         then
+#           echo Running unstable and stable tests
+#           echo "mark_expression=" >> $GITHUB_OUTPUT
+#         else
+#           echo Skipping unstable tests
+#           echo "mark_expression=not unstable" >> $GITHUB_OUTPUT
+#         fi
+# 
+#     - id: setup-terraform
+#       name: Install terraform if needed
+#       shell: bash
+#       run: |
+#         if ! [ -x "$(command -v terraform)" ]; then
+#           echo "Installing terraform from snap"
+#           sudo snap install terraform --classic
+#         fi
+# 
     - id: download-tfvars
       name: Download tfvars artifact
       if: ${{ inputs.tfvars-file != '' }}
@@ -269,72 +269,74 @@ runs:
           TFVARS_ARG="--tfvars-file $REVISION_FILE"
         fi
 
-        juju add-model spark-bundle-test
-        juju list-models
-        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }} $TFVARS_ARG
-        echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
+        echo $TFVARS_ARG
 
-    - id: collect-logs
-      name: Collect logs if job failed
-      shell: bash
-      if: ${{ failure() }}
-      run: |
-        juju-crashdump --model spark-bundle-test
-        if [[ -n "${{ inputs.cos-model }}" ]]; then
-          juju-crashdump --model "${{ inputs.cos-model }}"
-        fi
+        # juju add-model spark-bundle-test
+        # juju list-models
+        # cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }} $TFVARS_ARG
+        # echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
 
-    - id: debug-info
-      name: Debug info
-      shell: bash
-      if: ${{ failure() }}
-      run: |
-        printf '\nDisk usage after tests\n'
-        df --human-readable
-        
-        printf '\nJuju status(es)\n'
-        juju status -m spark-bundle-test
-        if [[ -n "${{ inputs.cos-model }}" ]]; then
-          printf '\nCos status\n'
-          juju status -m cos
-        fi
-        
-        printf '\nK8s pods\n'
-        kubectl get pods -n spark-bundle-test -o wide
-        if [[ -n "${{ inputs.cos-model }}" ]]; then
-          printf '\nCos pods\n'
-          kubectl get pods -n cos -o wide
-        fi
-        
-        printf '\nK8s events\n'
-        kubectl get events -n spark-bundle-test -o wide
-        if [[ -n "${{ inputs.cos-model }}" ]]; then
-          printf '\nCos events\n'
-          kubectl get events -n cos -o wide
-        fi
-        
-        printf '\nDebug logs\n'
-        juju debug-log -m spark-bundle-test --replay -l INFO | tail -n 500
-        if [[ -n "${{ inputs.cos-model }}" ]]; then
-          printf '\nCos logs\n'
-          juju debug-log -m cos --replay -l INFO | tail -n 500
-        fi
-
-    - name: Write test result in JSON format
-      shell: bash
-      if: always()
-      run: |
-        STATUS="success"
-        if [ "${TEST_EXIT_CODE}" != "0" ]; then
-          STATUS="failure"
-        fi
-        echo '{"tox-env": "${{ inputs.tox-env }}", "k8s-distribution": "${{ inputs.k8s-distribution }}", "spark-version": "${{ inputs.spark-version }}", "storage-backend": "${{ inputs.storage-backend }}", "cos": "${{ inputs.cos-model != '' }}", "juju-version": "${{ inputs.juju-agent-version }}", "status": "'"$STATUS"'"}' > test-result.json
-
-    - name: Upload the test result as artifact
-      if: always()
-      uses: actions/upload-artifact@v6
-      with:
-        name: integration-results-${{ inputs.tox-env }}-${{ inputs.k8s-distribution }}-${{ inputs.k8s-version }}-${{ inputs.spark-version }}-${{ inputs.storage-backend }}-${{ inputs.cos-model }}-${{ inputs.juju-agent-version }}
-        path: test-result.json
+#     - id: collect-logs
+#       name: Collect logs if job failed
+#       shell: bash
+#       if: ${{ failure() }}
+#       run: |
+#         juju-crashdump --model spark-bundle-test
+#         if [[ -n "${{ inputs.cos-model }}" ]]; then
+#           juju-crashdump --model "${{ inputs.cos-model }}"
+#         fi
+# 
+#     - id: debug-info
+#       name: Debug info
+#       shell: bash
+#       if: ${{ failure() }}
+#       run: |
+#         printf '\nDisk usage after tests\n'
+#         df --human-readable
+#         
+#         printf '\nJuju status(es)\n'
+#         juju status -m spark-bundle-test
+#         if [[ -n "${{ inputs.cos-model }}" ]]; then
+#           printf '\nCos status\n'
+#           juju status -m cos
+#         fi
+#         
+#         printf '\nK8s pods\n'
+#         kubectl get pods -n spark-bundle-test -o wide
+#         if [[ -n "${{ inputs.cos-model }}" ]]; then
+#           printf '\nCos pods\n'
+#           kubectl get pods -n cos -o wide
+#         fi
+#         
+#         printf '\nK8s events\n'
+#         kubectl get events -n spark-bundle-test -o wide
+#         if [[ -n "${{ inputs.cos-model }}" ]]; then
+#           printf '\nCos events\n'
+#           kubectl get events -n cos -o wide
+#         fi
+#         
+#         printf '\nDebug logs\n'
+#         juju debug-log -m spark-bundle-test --replay -l INFO | tail -n 500
+#         if [[ -n "${{ inputs.cos-model }}" ]]; then
+#           printf '\nCos logs\n'
+#           juju debug-log -m cos --replay -l INFO | tail -n 500
+#         fi
+# 
+#     - name: Write test result in JSON format
+#       shell: bash
+#       if: always()
+#       run: |
+#         STATUS="success"
+#         if [ "${TEST_EXIT_CODE}" != "0" ]; then
+#           STATUS="failure"
+#         fi
+#         echo '{"tox-env": "${{ inputs.tox-env }}", "k8s-distribution": "${{ inputs.k8s-distribution }}", "spark-version": "${{ inputs.spark-version }}", "storage-backend": "${{ inputs.storage-backend }}", "cos": "${{ inputs.cos-model != '' }}", "juju-version": "${{ inputs.juju-agent-version }}", "status": "'"$STATUS"'"}' > test-result.json
+# 
+#     - name: Upload the test result as artifact
+#       if: always()
+#       uses: actions/upload-artifact@v6
+#       with:
+#         name: integration-results-${{ inputs.tox-env }}-${{ inputs.k8s-distribution }}-${{ inputs.k8s-version }}-${{ inputs.spark-version }}-${{ inputs.storage-backend }}-${{ inputs.cos-model }}-${{ inputs.juju-agent-version }}
+#         path: test-result.json
 
 
