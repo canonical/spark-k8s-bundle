@@ -190,6 +190,7 @@ module "spark" {
     resources   = { integration-hub-image = var.integration_hub_image != null ? var.integration_hub_image : local.images.integration_hub }
   }
   kyuubi = {
+    channel = "3.5/stable",
     config = merge(
       {
         expose-external = "loadbalancer",
