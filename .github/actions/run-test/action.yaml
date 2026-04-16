@@ -249,21 +249,24 @@ runs:
       run: |
         TFVARS_ARG=""
         if [[ -n "${{ inputs.tfvars-file }}" ]]; then
-          TFVARS_PATH="$(find tfvars-artifacts -type f | head -n1)"
+
+          version=${{ inputs.spark-version }}
+          major_minor="${version%.*}"   # -> 3.5
+          arch="${{ inputs.architecture }}"
+
+          TFVARS_PATH="$(find tfvars-artifacts -type f -name "${major_minor}@${arch}.yaml" | head -n1)"
           if [[ -z "$TFVARS_PATH" ]]; then
             echo "ERROR: no tfvars file found in artifact '${{ inputs.tfvars-file }}'."
             find tfvars-artifacts -type f || true
             exit 1
           fi
 
-          version=${{ inputs.spark-version }}
-          major_minor="${version%.*}"   # -> 3.5
-          arch="${{ inputs.architecture }}"
+          python3 .github/scripts/charms_promotions.py get-revisions \
+            --format yaml --file $TFVARS_PATH --output tfvars
+          
+          REVISION_FILE="${major_minor}@${arch}.tfvars.yaml"
 
-          # Extract nested mapping under amd64 and "<major>.<minor>"
-          yq ".${arch}.\"${major_minor}\"" $TFVARS_PATH > python/revisions.yaml
-
-          TFVARS_ARG="--tfvars-file revisions.yaml"
+          TFVARS_ARG="--tfvars-file $REVISION_FILE"
         fi
 
         juju add-model spark-bundle-test
