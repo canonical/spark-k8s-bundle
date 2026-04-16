@@ -566,15 +566,6 @@ MAPPING = {
 }
 
 
-def _source_risk_for_target(target_risk: str) -> str:
-    """Return the risk channel that should be used as source for a promotion target."""
-    order = ["edge", "beta", "candidate", "stable"]
-    idx = order.index(target_risk)
-    if idx == 0:
-        raise ValueError("Cannot infer source risk for target edge")
-    return order[idx - 1]
-
-
 def _load_release(input_file: Path, format_name: str, risk: Optional[str] = None) -> Release:
     """Load release data from status/spec input based on the selected format."""
     if format_name in ("text", "yaml"):
@@ -586,7 +577,7 @@ def _load_release(input_file: Path, format_name: str, risk: Optional[str] = None
         )
 
     if format_name == "spec":
-        source_risk = _source_risk_for_target(risk) if risk else "edge"
+        source_risk = risk if risk else "edge"
         return Specs.parse(input_file).resolve_charms(risk=source_risk)
 
     raise ValueError(f"Unsupported format: {format_name}")
