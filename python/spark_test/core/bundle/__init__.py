@@ -15,7 +15,6 @@ from spark8t.utils import WithLogging
 class BundleBackendEnum(str, enum.Enum):
     """The various backends to deploy the bundle."""
 
-    YAML = "yaml"
     TERRAFORM = "terraform"
 
 
