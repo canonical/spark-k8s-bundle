@@ -16,7 +16,3 @@ releases:
       channel: 3/
     - name: spark-integration-hub-k8s
       channel: 3/
-revision_mapping:
-  kyuubi-k8s: kyuubi_revision
-  spark-history-server-k8s: history_server_revision
-  spark-integration-hub-k8s: integration_hub_revision

@@ -56,20 +56,16 @@ jobs:
         env:
           CHARMCRAFT_AUTH: ${{ secrets.CHARMHUB_TOKEN }}
         run: |
-          cp specs.yaml .github/scripts && cd .github/scripts 
-          python3 generate_revisions_from_specs.py \
-            --specs-file specs.yaml \
-            --output-file revisions.yaml \
-            --risk ${{ inputs.risk }}
-          cat revisions.yaml
-          cp revisions.yaml ../../revisions.yaml
+          python3 .github/scripts/charms_promotions.py get-revisions \
+            --format spec --file specs.yaml --output yaml \
+            --output-dir revisions --risk ${{ inputs.risk }}
 
       - name: Upload revisions.yaml artifact
         id: upload-revisions
         uses: actions/upload-artifact@v4
         with:
           name: charms-${{ inputs.risk }}
-          path: revisions.yaml
+          path: revisions
           if-no-files-found: error
 
       - name: Expose artifact name

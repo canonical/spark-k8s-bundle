@@ -575,7 +575,7 @@ def _source_risk_for_target(target_risk: str) -> str:
     return order[idx - 1]
 
 
-def _load_release(input_file: Path, format_name: str, promote_to: Optional[str] = None) -> Release:
+def _load_release(input_file: Path, format_name: str, risk: Optional[str] = None) -> Release:
     """Load release data from status/spec input based on the selected format."""
     if format_name in ("text", "yaml"):
         filename = input_file.name.removesuffix(input_file.suffix)
@@ -586,7 +586,7 @@ def _load_release(input_file: Path, format_name: str, promote_to: Optional[str] 
         )
 
     if format_name == "spec":
-        source_risk = _source_risk_for_target(promote_to) if promote_to else "edge"
+        source_risk = _source_risk_for_target(risk) if risk else "edge"
         return Specs.parse(input_file).resolve_charms(risk=source_risk)
 
     raise ValueError(f"Unsupported format: {format_name}")
@@ -606,7 +606,7 @@ def _write_revisions(release: Release, output_dir: Path, output_format: str):
 
 def _run_promote(args) -> int:
     """Execute promotion flow."""
-    release = _load_release(Path(args.file), args.format, promote_to=args.promote_to)
+    release = _load_release(Path(args.file), args.format, risk=args.promote_to)
 
     for variant, bundle in release.bundles.items():
         print(f"Processing release {variant} with charms: {bundle.charms}")
@@ -633,7 +633,7 @@ def _run_promote(args) -> int:
 
 def _run_get_revisions(args) -> int:
     """Execute revisions generation flow."""
-    release = _load_release(Path(args.file), args.format)
+    release = _load_release(Path(args.file), args.format, risk=args.risk)
     _write_revisions(release, Path(args.output_dir), args.output)
     print(f"INFO: wrote revisions files under {args.output_dir}")
     return 0
@@ -673,6 +673,9 @@ if __name__ == "__main__":
         "--format", choices=("text", "yaml", "spec"), required=True
     )
     get_revisions_parser.add_argument("--file", required=True)
+    get_revisions_parser.add_argument(
+        "--risk", choices=("edge", "beta", "candidate", "stable"), default="edge"
+    )
     get_revisions_parser.add_argument(
         "--output", choices=("yaml", "tfvars"), default="yaml"
     )
