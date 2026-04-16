@@ -127,6 +127,7 @@ jobs:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |
+          cd python/
           tox -e uat -- --backend ${{ matrix.backend }} --spark-version ${{ matrix.version }}  --storage-backend ${{ matrix.storage-backend }}
       - id: collect-logs
         name: Collect logs if job failed
