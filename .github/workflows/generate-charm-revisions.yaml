@@ -29,7 +29,7 @@ on:
 
 jobs:
   generate-revisions:
-    name: Generate revisions.yaml
+    name: Generate revisions
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     outputs:
@@ -52,7 +52,7 @@ jobs:
       - name: Install dependencies
         run: pip install pyyaml
 
-      - name: Generate revisions.yaml
+      - name: Run get-revisions script
         env:
           CHARMCRAFT_AUTH: ${{ secrets.CHARMHUB_TOKEN }}
         run: |
