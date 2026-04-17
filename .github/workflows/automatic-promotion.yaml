@@ -54,7 +54,7 @@ jobs:
   tests:
     name: Run CI tests on a PR
     needs: generate-revisions
-    uses: ./.github/workflows/${{ inputs.gate }}.yaml
+    uses: ./.github/workflows/${{ github.event.inputs.gate }}.yaml
     secrets: inherit
     with:
       tfvars-file: ${{ needs.generate-revisions.outputs.tfvars-artifact-name }}
