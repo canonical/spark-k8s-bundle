@@ -28,7 +28,7 @@ on:
           - candidate
           - stable
 
-      gating-workflow:
+      gate:
         description: "Workflow to gate promotion on"
         required: true
         default: ci-tests-single-kyuubi
@@ -54,7 +54,7 @@ jobs:
   tests:
     name: Run CI tests on a PR
     needs: generate-revisions
-    uses: ./.github/workflows/${{ inputs.gating-workflow }}.yaml
+    uses: ./.github/workflows/${{ inputs.gate }}.yaml
     secrets: inherit
     with:
       tfvars-file: ${{ needs.generate-revisions.outputs.tfvars-artifact-name }}
