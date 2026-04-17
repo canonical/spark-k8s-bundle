@@ -15,8 +15,8 @@ locals {
     history_server  = 96
     integration_hub = 119
     kyuubi          = 149
-    kyuubi_users    = 774
-    metastore       = 774
+    kyuubi_users    = 495
+    metastore       = 495
     zookeeper       = 78
     data_integrator = 362
     s3              = 330
@@ -40,10 +40,10 @@ locals {
       kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:60e81dd2e9be50d4a857ce987935341c8518c784c7de36e814fc41dd3451d58f"
     } # rev19, spark-version: 3.4.4, kyuubi-version: 1.10.3, release date 17/03/2026
     kyuubi_users = {
-      postgresql-image = 184
+      postgresql-image = 165
     }
     metastore = {
-      postgresql-image = 184
+      postgresql-image = 165
     }
     zookeeper = {
       zookeeper-image = 34
