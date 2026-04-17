@@ -17,7 +17,7 @@ locals {
     # TODO: bump the revision to 1/stable when both of the following issue gets fixed:
     # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 
     # https://github.com/canonical/cos-configuration-k8s-operator/issues/84
-    cos_configuration = 65
+    cos_configuration = 65 # TODO
     pushgateway       = 27
     scrape_config     = 67
   }
@@ -31,5 +31,13 @@ locals {
     kyuubi_users = "184"
     metastore    = "184"
     zookeeper    = "34"
+  }
+}
+
+resource "terraform_data" "deployed_at" {
+  input = timestamp()
+
+  lifecycle {
+    ignore_changes = [input]
   }
 }

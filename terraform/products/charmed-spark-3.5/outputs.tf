@@ -15,7 +15,7 @@ output "metadata" {
   description = "Metadata of the product deployment."
   value = {
     version     = "3.5-tf_0.0.1"
-    deployed_at = timestamp()
+    deployed_at = terraform_data.deployed_at.output
     updated_at  = timestamp()
   }
 }

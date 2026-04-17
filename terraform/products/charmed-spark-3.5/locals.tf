@@ -33,3 +33,11 @@ locals {
     zookeeper    = "34"
   }
 }
+
+resource "terraform_data" "deployed_at" {
+  input = timestamp()
+
+  lifecycle {
+    ignore_changes = [input]
+  }
+}
