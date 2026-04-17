@@ -207,25 +207,27 @@ module "spark" {
     units       = var.kyuubi_units
   }
 
-  tls_endpoint = {
+  certificates = {
+    kind     = "endpoint"
     name     = module.ssc.app_name
     endpoint = module.ssc.provides.certificates
   }
-
-  metastore_endpoint = {
+  data_integrator = merge({ kind = "endpoint" }, module.data_integrator.requires.kyuubi)
+  metastore = {
+    kind     = "endpoint"
     name     = module.metastore.app_name
     endpoint = module.metastore.provides.database
   }
-
-  users_db_endpoint = {
+  object_storage           = merge({ kind = "endpoint" }, module.s3 != [] ? module.s3[0].provides.s3_credentials : module.azure_storage[0].provides.azure_storage_credentials)
+  object_storage_interface = module.s3 != [] ? module.s3[0].provides.s3_credentials.endpoint : module.azure_storage[0].provides.azure_storage_credentials.endpoint
+  users_db = {
+    kind     = "endpoint"
     name     = module.kyuubi_users.app_name
     endpoint = module.kyuubi_users.provides.database
   }
-
-  zookeeper_endpoint       = module.zookeeper.provides.zookeeper
-  data_integrator_endpoint = module.data_integrator.requires.kyuubi
-  object_storage_endpoint  = module.s3 != [] ? module.s3[0].provides.s3_credentials : module.azure_storage[0].provides.azure_storage_credentials
+  zookeeper = merge({ kind = "endpoint" }, module.zookeeper.provides.zookeeper)
 }
+
 
 resource "juju_access_secret" "system_users_and_private_key_secret_access" {
   depends_on = [
