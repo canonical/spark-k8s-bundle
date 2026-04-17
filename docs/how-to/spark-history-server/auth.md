@@ -5,89 +5,112 @@ myst:
 ---
 
 (how-to-spark-history-server-auth)=
-# Enable authorization and authentication with the Spark History Server charm
+# Enable authentication and authorization with the Spark History Server charm
 
-The Charmed Apache Spark solution includes the Spark History charm that enables users to monitor
-their applications workflows and logs. Natively, this product does not support authentication and
-authorization that is an essential feature in a production environment. To overcome this limitation,
-the Spark History Server charm is integrated with the Canonical Identity bundle that offers several
-authentication and authorization functionalities with Juju.
+Charmed Apache Spark includes the Spark History Server charm, which lets users monitor
+application workflows and logs. By default, Spark History Server does not provide
+authentication or authorization, both of which are essential in production environments.
+To address this limitation, you can integrate the Spark History Server charm with the
+Canonical Identity Platform bundle.
 
 ## Deploy the Identity Bundle and integrate it with the Spark History Server
 
-In order to enable authentication and authorization on the Spark History Server charm some steps
-are needed. Here, we assume that you have already deployed Charmed Apache Spark using
-the bundles, as described in the [Charmed Apache Spark deployment guide](how-to-deploy-spark),
-that includes a Spark History Server charm, already configured with an object storage backend.
+To enable authentication and authorization for Spark History Server, complete the
+following steps. This guide assumes you already deployed Charmed Apache Spark as
+described in the [Charmed Apache Spark deployment guide](how-to-deploy-spark),
+including a Spark History Server charm configured with an object storage backend.
 
-In order to enable authentication, we first need to deploy the
-[identity bundle](https://discourse.charmhub.io/t/iam-bundle-deployment-tutorial/11916).
+### Deploy the Identity bundle
 
-**_NOTE:_** Please take a look at the Identity Platform tutorial to check that your environment is configured correctly.
+Authentication is provided by the
+[Canonical Identity Bundle](https://charmhub.io/topics/canonical-identity-platform).
+Deploy it by following this
+[tutorial](https://charmhub.io/topics/canonical-identity-platform/tutorials/e2e-tutorial),
+which installs all required Identity Platform components.
+
+The deployment includes these charms:
+
+- [Charmed Ory Hydra](https://charmhub.io/hydra): the OAuth/OIDC server.
+- [Charmed Ory Kratos](https://charmhub.io/kratos): user management and authentication.
+- [Login UI operator](https://charmhub.io/identity-platform-login-ui-operator): middleware that routes requests between services and serves login/error pages.
+- [Kratos External IdP Integrator](https://charmhub.io/kratos-external-idp-integrator): integration with external identity providers.
+- [Charmed PostgreSQL](https://charmhub.io/postgresql-k8s): SQL database backend.
+- [Charmed Traefik](https://charmhub.io/traefik-k8s): ingress controller.
+- [Self Signed Certificates](https://charmhub.io/self-signed-certificates): TLS certificate provider for ingress.
+
+You must also configure the identity provider you want to use. Configure
+`kratos-external-idp-integrator` with the parameters for your provider.
+
+Example configuration for Microsoft Entra ID (Azure AD):
 
 ```bash
-juju deploy identity-platform --channel edge --trust
+juju config kratos-external-idp-integrator microsoft_tenant_id=<YOUR_TENANT_ID> provider=microsoft client_id=<YOUR_CLIENT_ID> client_secret=<YOUR_CLIENT_SECRET>
 ```
 
-After some minutes the different charms will be deployed and ready to use.
-
-One needed step to properly configure the Identity Bundle is to configure which identity provider we
-want to use. This can be done by configuring the `kratos-external-idp-integrator` with the
-configurations and parameters of your identity provider.
-
-The following is an example of configuration for the Azure Identity provider:
-
-```bash
-juju config kratos-external-idp-integrator microsoft_tenant_id=<YOUR_TENANT_ID> provider=microsoft client_id=<YOUR_CLIENT_ID> client_secret=<YOUR_CLIENT_SECRETS>.
-```
-
-More information about supported identity providers and other useful information can be found in the
+For supported identity providers and additional details, see the
 [How to manage external identity providers guide](https://discourse.charmhub.io/t/how-to-manage-external-identity-providers/11910).
 
-The relation between the Spark History Server and the Identity bundle is handled by another charm
-(Oathkeeper) that is offered by the Canonical Identity Team.
-This charm enables the protection of endpoints that are behind an ingress, more specifically Traefik.
-As the next step, we need to integrate the Spark History Server charm with Traefik.
+The connection between Spark History Server and the Identity Platform is handled by
+the Charmed OAuth2 Proxy charm. OAuth2 Proxy protects endpoints exposed through
+ingress (Traefik).
 
-The Identity bundle deployed two instances of Traefik, we will need to use the one named: `traefik-public`
+## Enable authentication with Charmed OAuth2 Proxy
 
-```bash
-juju integrate spark-history-server-k8s traefik-public
-
-```
-
-After it, we can deploy, configure and integrate the Oathkeeper charm with `traefik-public`.
+To set up OAuth2 Proxy, first enable the feature in Traefik, expose the forward-auth
+offer, and integrate it with Spark History Server through the ingress relation.
 
 ```bash
-juju deploy oathkeeper --channel edge --trust
-juju config oathkeeper dev=True
-juju config traefik-public enable_experimental_forward_auth=True
+juju config traefik-public enable_experimental_forward_auth=True -m <IDENTITY_MODEL>
+juju offer traefik-public:experimental-forward-auth forward-auth -m <IDENTITY_MODEL>
+juju integrate spark-history-server-k8s admin/<IDENTITY_MODEL>.ingress
 ```
 
-Now we need to integrate Oathkeeper with the ingress and with the Spark History Server charm.
-The Oathkeeper charm will also need to be integrated with the Kratos charm.
+Next, deploy OAuth2 Proxy and integrate it with Traefik using the exposed offer:
 
 ```bash
-juju integrate oathkeeper spark-history-server-k8s
-juju integrate oathkeeper traefik-public:experimental-forward-auth
-juju config kratos dev=true
-juju integrate oathkeeper kratos
+juju deploy oauth2-proxy-k8s --channel latest/stable --trust
+juju integrate oauth2-proxy-k8s:forward-auth admin/<IDENTITY_MODEL>.forward-auth
 ```
 
-Eventually, you can get the endpoint by running this action:
+Then integrate Spark History Server with OAuth2 Proxy:
 
 ```bash
-juju run traefik-public/0 show-proxied-endpoints
+juju integrate oauth2-proxy-k8s spark-history-server-k8s:oauth2-proxy
 ```
 
-When you access the link exposed by Traefik, you will be redirected to your desired
-identity provider to do the authentication. After a successful authentication,
-you will be permitted to access the Spark History server endpoint.
+Finally, integrate OAuth2 Proxy with the Identity Platform OIDC provider
+(Charmed Hydra):
+
+```bash
+juju offer hydra:oauth oauth -m <IDENTITY_MODEL>
+juju integrate oauth2-proxy-k8s:oauth admin/<IDENTITY_MODEL>.oauth
+```
+
+After integration completes, get the endpoint by running:
+
+```bash
+juju run traefik-public/leader show-proxied-endpoints -m <IDENTITY_MODEL>
+```
+
+When you open the URL exposed by Traefik, you are redirected to your configured
+identity provider for authentication. After successful login, you can access the
+Spark History Server endpoint.
 
 ## Authorization Management
 
-By default, all authenticated users can access the Spark History Server endpoint. To limit access to a selected set of users, the Spark History Server charm offers the possibility to specify authorized users. This can be done by updating a configuration option. The authorized users (identified by email address) should be specified as a comma-separated list.
+By default, all authenticated users can access Spark History Server. To restrict
+access, configure an allow-list of authorized users. Provide email addresses as a
+comma-separated list:
 
 ```bash
-juju config spark-history-server-k8s authorized-users="user1@canonical.com, user3@canonical.com"
+juju config spark-history-server-k8s authorized-users="user1@canonical.com,user3@canonical.com"
 ```
+
+## Oathkeeper integration (deprecated)
+
+Previously, authentication in this guide used the `oathkeeper` charm. `oathkeeper`
+is now deprecated in favor of Charmed OAuth2 Proxy.
+
+If your deployment still uses `oathkeeper`, migrate by removing integrations with
+`oathkeeper`, updating Identity Platform components as described above, and then
+integrating `oauth2-proxy-k8s`.
