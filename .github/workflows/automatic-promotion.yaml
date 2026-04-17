@@ -51,10 +51,20 @@ jobs:
     with:
       risk: ${{ inputs.from-risk }}
 
-  tests:
-    name: Run CI tests on a PR
+  tests-single-kyuubi:
+    name: Run CI tests (single kyuubi)
     needs: generate-revisions
-    uses: ./.github/workflows/${{ github.event.inputs.gate }}.yaml
+    if: github.event_name == 'pull_request' || github.event.inputs.gate == 'ci-tests-single-kyuubi'
+    uses: ./.github/workflows/ci-tests-single-kyuubi.yaml
+    secrets: inherit
+    with:
+      tfvars-file: ${{ needs.generate-revisions.outputs.tfvars-artifact-name }}
+
+  tests-minimal:
+    name: Run CI tests (minimal)
+    needs: generate-revisions
+    if: github.event.inputs.gate == 'ci-tests-minimal'
+    uses: ./.github/workflows/ci-tests-minimal.yaml
     secrets: inherit
     with:
       tfvars-file: ${{ needs.generate-revisions.outputs.tfvars-artifact-name }}
@@ -63,7 +73,8 @@ jobs:
     name: Promotion
     needs:
       - generate-revisions
-      - tests
+      - tests-single-kyuubi
+      - tests-minimal
     uses: ./.github/workflows/promote-charm-revisions.yaml
     secrets: inherit
     with:
