@@ -68,7 +68,7 @@ optional = true
 [tool.poetry.group.benchmark.dependencies]
 great-tables = "^0.16.1"
 polars = "^1.23.0"
-pandas = "^2.2.3" # needed for great-tables' nanoplot
+pandas = "^3.0.2" # needed for great-tables' nanoplot
 
 [build-system]
 requires = ["poetry-core"]
