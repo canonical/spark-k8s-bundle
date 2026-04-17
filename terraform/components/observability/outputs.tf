@@ -18,9 +18,9 @@ output "provides" {
       name     = juju_application.opentelemetry_collector.name
       endpoint = "metrics-endpoint"
     }
-    opentelemetry_collector_logging_provider = {
+    opentelemetry_collector_receive_loki_logs = {
       name     = juju_application.opentelemetry_collector.name
-      endpoint = "logging-provider"
+      endpoint = "receive-loki-logs"
     }
     opentelemetry_collector_grafana_dashboards_consumer = {
       name     = juju_application.opentelemetry_collector.name
@@ -40,9 +40,9 @@ output "requires" {
       name     = juju_application.opentelemetry_collector.name
       endpoint = "send-remote-write"
     }
-    opentelemetry_collector_logging_consumer = {
+    opentelemetry_collector_send_loki_logs = {
       name     = juju_application.opentelemetry_collector.name
-      endpoint = "logging-consumer"
+      endpoint = "send-loki-logs"
     }
   }
 }

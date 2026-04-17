@@ -110,7 +110,7 @@ resource "juju_integration" "opentelemetry_collector_loki" {
 
   application {
     name     = juju_application.opentelemetry_collector.name
-    endpoint = "logging-consumer"
+    endpoint = "send-loki-logs"
   }
 
   application {
@@ -154,7 +154,7 @@ resource "juju_integration" "history_server_opentelemetry_collector_logging" {
 
   application {
     name     = juju_application.opentelemetry_collector.name
-    endpoint = "logging-provider"
+    endpoint = "receive-loki-logs"
   }
 }
 
@@ -196,7 +196,7 @@ resource "juju_integration" "integration_hub_opentelemetry_collector_logging" {
 
   application {
     name     = juju_application.opentelemetry_collector.name
-    endpoint = "logging-provider"
+    endpoint = "receive-loki-logs"
   }
 }
 
@@ -238,7 +238,7 @@ resource "juju_integration" "kyuubi_opentelemetry_collector_logging" {
 
   application {
     name     = juju_application.opentelemetry_collector.name
-    endpoint = "logging-provider"
+    endpoint = "receive-loki-logs"
   }
 }
 
