@@ -1,19 +1,19 @@
 # Copyright 2026 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-resource "juju_application" "grafana_agent" {
-  name       = var.grafana_agent.app_name
+resource "juju_application" "opentelemetry_collector" {
+  name       = var.opentelemetry_collector.app_name
   model_uuid = var.model_uuid
 
   charm {
-    name     = "grafana-agent-k8s"
-    channel  = var.grafana_agent.channel
-    revision = var.grafana_agent.revision != null ? var.grafana_agent.revision : local.revisions.grafana_agent
+    name     = "opentelemetry-collector-k8s"
+    channel  = var.opentelemetry_collector.channel
+    revision = var.opentelemetry_collector.revision != null ? var.opentelemetry_collector.revision : local.revisions.opentelemetry_collector
   }
 
-  constraints = var.grafana_agent.constraints
+  constraints = var.opentelemetry_collector.constraints
   trust       = true
-  units       = var.grafana_agent.units
+  units       = var.opentelemetry_collector.units
 }
 
 resource "juju_application" "cos_configuration" {

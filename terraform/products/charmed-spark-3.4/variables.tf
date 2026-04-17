@@ -63,8 +63,8 @@ variable "data_integrator_revision" {
   default     = null
 }
 
-variable "grafana_agent_revision" {
-  description = "Charm revision for grafana-agent-k8s"
+variable "opentelemetry_collector_revision" {
+  description = "Charm revision for opentelemetry-collector-k8s"
   type        = number
   default     = null
 }

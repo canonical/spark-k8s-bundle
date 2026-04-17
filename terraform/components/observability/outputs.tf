@@ -4,26 +4,26 @@
 output "components" {
   description = "List of the deployed applications for this component module."
   value = {
-    grafana_agent     = juju_application.grafana_agent
-    cos_configuration = juju_application.cos_configuration
-    pushgateway       = juju_application.pushgateway
-    scrape_config     = juju_application.scrape_config
+    opentelemetry_collector = juju_application.opentelemetry_collector
+    cos_configuration       = juju_application.cos_configuration
+    pushgateway             = juju_application.pushgateway
+    scrape_config           = juju_application.scrape_config
   }
 }
 
 output "provides" {
   description = "Map of all the provided endpoints."
   value = {
-    grafana_agent_metrics_endpoint = {
-      name     = juju_application.grafana_agent.name
+    opentelemetry_collector_metrics_endpoint = {
+      name     = juju_application.opentelemetry_collector.name
       endpoint = "metrics-endpoint"
     }
-    grafana_agent_logging_provider = {
-      name     = juju_application.grafana_agent.name
+    opentelemetry_collector_logging_provider = {
+      name     = juju_application.opentelemetry_collector.name
       endpoint = "logging-provider"
     }
-    grafana_agent_grafana_dashboards_consumer = {
-      name     = juju_application.grafana_agent.name
+    opentelemetry_collector_grafana_dashboards_consumer = {
+      name     = juju_application.opentelemetry_collector.name
       endpoint = "grafana-dashboards-consumer"
     }
   }
@@ -32,16 +32,16 @@ output "provides" {
 output "requires" {
   description = "Map of the required endpoints."
   value = {
-    grafana_agent_grafana_dashboards_provider = {
-      name     = juju_application.grafana_agent.name
+    opentelemetry_collector_grafana_dashboards_provider = {
+      name     = juju_application.opentelemetry_collector.name
       endpoint = "grafana-dashboards-provider"
     }
-    grafana_agent_send_remote_write = {
-      name     = juju_application.grafana_agent.name
+    opentelemetry_collector_send_remote_write = {
+      name     = juju_application.opentelemetry_collector.name
       endpoint = "send-remote-write"
     }
-    grafana_agent_logging_consumer = {
-      name     = juju_application.grafana_agent.name
+    opentelemetry_collector_logging_consumer = {
+      name     = juju_application.opentelemetry_collector.name
       endpoint = "logging-consumer"
     }
   }

@@ -3,17 +3,17 @@
 
 locals {
   revisions = {
-    history_server  = 96
-    integration_hub = 119
-    kyuubi          = 146
-    kyuubi_users    = 774
-    metastore       = 774
-    zookeeper       = 78
-    data_integrator = 362
-    s3              = 330
-    ssc             = 586
-    azure_storage   = 270
-    grafana_agent   = 164
+    history_server          = 96
+    integration_hub         = 119
+    kyuubi                  = 146
+    kyuubi_users            = 774
+    metastore               = 774
+    zookeeper               = 78
+    data_integrator         = 362
+    s3                      = 330
+    ssc                     = 586
+    azure_storage           = 270
+    opentelemetry_collector = 162
     # TODO: bump the revision to 1/stable when both of the following issue gets fixed:
     # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 
     # https://github.com/canonical/cos-configuration-k8s-operator/issues/84

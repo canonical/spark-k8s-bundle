@@ -26,11 +26,11 @@ variable "cos_configuration" {
   default = {}
 }
 
-variable "grafana_agent" {
+variable "opentelemetry_collector" {
   type = object({
-    app_name    = optional(string, "grafana-agent")
-    base        = optional(string, "ubuntu@22.04")
-    channel     = optional(string, "1/stable")
+    app_name    = optional(string, "otelcol")
+    base        = optional(string, "ubuntu@24.04")
+    channel     = optional(string, "2/stable")
     config      = optional(map(string), {})
     constraints = optional(string, "arch=amd64")
     resources   = optional(map(string), {})

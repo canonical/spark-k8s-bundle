@@ -3,9 +3,9 @@
 
 locals {
   revisions = {
-    cos_configuration = 65
-    grafana_agent     = 164
-    pushgateway       = 27
-    scrape_config     = 67
+    cos_configuration       = 65
+    opentelemetry_collector = 162
+    pushgateway             = 27
+    scrape_config           = 67
   }
 }

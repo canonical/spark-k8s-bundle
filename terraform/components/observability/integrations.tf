@@ -15,7 +15,7 @@ data "juju_offer" "loki_logging" {
 
 ## Component internal integrations
 
-resource "juju_integration" "cos_configuration_grafana_agent" {
+resource "juju_integration" "cos_configuration_opentelemetry_collector" {
   model_uuid = var.model_uuid
 
   application {
@@ -24,7 +24,7 @@ resource "juju_integration" "cos_configuration_grafana_agent" {
   }
 
   application {
-    name     = juju_application.grafana_agent.name
+    name     = juju_application.opentelemetry_collector.name
     endpoint = "grafana-dashboards-consumer"
   }
 }
@@ -43,7 +43,7 @@ resource "juju_integration" "pushgateway_scrape_config" {
   }
 }
 
-resource "juju_integration" "scrape_config_grafana_agent" {
+resource "juju_integration" "scrape_config_opentelemetry_collector" {
   model_uuid = var.model_uuid
 
   application {
@@ -52,18 +52,18 @@ resource "juju_integration" "scrape_config_grafana_agent" {
   }
 
   application {
-    name     = juju_application.grafana_agent.name
+    name     = juju_application.opentelemetry_collector.name
     endpoint = "metrics-endpoint"
   }
 }
 
 ## Cross-model COS integrations
 
-resource "juju_integration" "grafana_agent_grafana_dashboards" {
+resource "juju_integration" "opentelemetry_collector_grafana_dashboards" {
   model_uuid = var.model_uuid
 
   application {
-    name     = juju_application.grafana_agent.name
+    name     = juju_application.opentelemetry_collector.name
     endpoint = "grafana-dashboards-provider"
   }
 
@@ -73,20 +73,20 @@ resource "juju_integration" "grafana_agent_grafana_dashboards" {
 
   lifecycle {
     replace_triggered_by = [
-      juju_application.grafana_agent.name,
-      juju_application.grafana_agent.model,
-      juju_application.grafana_agent.constraints,
-      juju_application.grafana_agent.placement,
-      juju_application.grafana_agent.charm.name,
+      juju_application.opentelemetry_collector.name,
+      juju_application.opentelemetry_collector.model,
+      juju_application.opentelemetry_collector.constraints,
+      juju_application.opentelemetry_collector.placement,
+      juju_application.opentelemetry_collector.charm.name,
     ]
   }
 }
 
-resource "juju_integration" "grafana_agent_prometheus" {
+resource "juju_integration" "opentelemetry_collector_prometheus" {
   model_uuid = var.model_uuid
 
   application {
-    name     = juju_application.grafana_agent.name
+    name     = juju_application.opentelemetry_collector.name
     endpoint = "send-remote-write"
   }
 
@@ -96,20 +96,20 @@ resource "juju_integration" "grafana_agent_prometheus" {
 
   lifecycle {
     replace_triggered_by = [
-      juju_application.grafana_agent.name,
-      juju_application.grafana_agent.model,
-      juju_application.grafana_agent.constraints,
-      juju_application.grafana_agent.placement,
-      juju_application.grafana_agent.charm.name,
+      juju_application.opentelemetry_collector.name,
+      juju_application.opentelemetry_collector.model,
+      juju_application.opentelemetry_collector.constraints,
+      juju_application.opentelemetry_collector.placement,
+      juju_application.opentelemetry_collector.charm.name,
     ]
   }
 }
 
-resource "juju_integration" "grafana_agent_loki" {
+resource "juju_integration" "opentelemetry_collector_loki" {
   model_uuid = var.model_uuid
 
   application {
-    name     = juju_application.grafana_agent.name
+    name     = juju_application.opentelemetry_collector.name
     endpoint = "logging-consumer"
   }
 
@@ -119,18 +119,18 @@ resource "juju_integration" "grafana_agent_loki" {
 
   lifecycle {
     replace_triggered_by = [
-      juju_application.grafana_agent.name,
-      juju_application.grafana_agent.model,
-      juju_application.grafana_agent.constraints,
-      juju_application.grafana_agent.placement,
-      juju_application.grafana_agent.charm.name,
+      juju_application.opentelemetry_collector.name,
+      juju_application.opentelemetry_collector.model,
+      juju_application.opentelemetry_collector.constraints,
+      juju_application.opentelemetry_collector.placement,
+      juju_application.opentelemetry_collector.charm.name,
     ]
   }
 }
 
 ## Spark components integrations
 
-resource "juju_integration" "history_server_grafana_agent_dashboard" {
+resource "juju_integration" "history_server_opentelemetry_collector_dashboard" {
   model_uuid = var.model_uuid
 
   application {
@@ -139,12 +139,12 @@ resource "juju_integration" "history_server_grafana_agent_dashboard" {
   }
 
   application {
-    name     = juju_application.grafana_agent.name
+    name     = juju_application.opentelemetry_collector.name
     endpoint = "grafana-dashboards-consumer"
   }
 }
 
-resource "juju_integration" "history_server_grafana_agent_logging" {
+resource "juju_integration" "history_server_opentelemetry_collector_logging" {
   model_uuid = var.model_uuid
 
   application {
@@ -153,12 +153,12 @@ resource "juju_integration" "history_server_grafana_agent_logging" {
   }
 
   application {
-    name     = juju_application.grafana_agent.name
+    name     = juju_application.opentelemetry_collector.name
     endpoint = "logging-provider"
   }
 }
 
-resource "juju_integration" "history_server_grafana_agent_metrics" {
+resource "juju_integration" "history_server_opentelemetry_collector_metrics" {
   model_uuid = var.model_uuid
 
   application {
@@ -167,7 +167,7 @@ resource "juju_integration" "history_server_grafana_agent_metrics" {
   }
 
   application {
-    name     = juju_application.grafana_agent.name
+    name     = juju_application.opentelemetry_collector.name
     endpoint = "metrics-endpoint"
   }
 }
@@ -186,7 +186,7 @@ resource "juju_integration" "integration_hub_pushgateway" {
   }
 }
 
-resource "juju_integration" "integration_hub_grafana_agent_logging" {
+resource "juju_integration" "integration_hub_opentelemetry_collector_logging" {
   model_uuid = var.model_uuid
 
   application {
@@ -195,12 +195,12 @@ resource "juju_integration" "integration_hub_grafana_agent_logging" {
   }
 
   application {
-    name     = juju_application.grafana_agent.name
+    name     = juju_application.opentelemetry_collector.name
     endpoint = "logging-provider"
   }
 }
 
-resource "juju_integration" "kyuubi_grafana_agent_metrics" {
+resource "juju_integration" "kyuubi_opentelemetry_collector_metrics" {
   model_uuid = var.model_uuid
 
   application {
@@ -209,12 +209,12 @@ resource "juju_integration" "kyuubi_grafana_agent_metrics" {
   }
 
   application {
-    name     = juju_application.grafana_agent.name
+    name     = juju_application.opentelemetry_collector.name
     endpoint = "metrics-endpoint"
   }
 }
 
-resource "juju_integration" "kyuubi_grafana_agent_dashboards" {
+resource "juju_integration" "kyuubi_opentelemetry_collector_dashboards" {
   model_uuid = var.model_uuid
 
   application {
@@ -223,12 +223,12 @@ resource "juju_integration" "kyuubi_grafana_agent_dashboards" {
   }
 
   application {
-    name     = juju_application.grafana_agent.name
+    name     = juju_application.opentelemetry_collector.name
     endpoint = "grafana-dashboards-consumer"
   }
 }
 
-resource "juju_integration" "kyuubi_grafana_agent_logging" {
+resource "juju_integration" "kyuubi_opentelemetry_collector_logging" {
   model_uuid = var.model_uuid
 
   application {
@@ -237,7 +237,7 @@ resource "juju_integration" "kyuubi_grafana_agent_logging" {
   }
 
   application {
-    name     = juju_application.grafana_agent.name
+    name     = juju_application.opentelemetry_collector.name
     endpoint = "logging-provider"
   }
 }
