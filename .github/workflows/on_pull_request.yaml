@@ -8,66 +8,13 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  workflow_dispatch:
-
   pull_request:
     paths-ignore:
       - 'docs/**'
       - '**.md'
 
 jobs:
-  generate-revisions:
-    name: Generate tfvars revisions
-    uses: ./.github/workflows/generate-charm-revisions.yaml
+  tests:
+    name: Run CI tests on a PR
+    uses: ./.github/workflows/ci-tests-minimal.yaml
     secrets: inherit
-    with:
-      risk: edge
-
-  # tests:
-  #   name: Run CI tests on a PR
-  #   needs: generate-revisions
-  #   uses: ./.github/workflows/ci-tests-single-kyuubi.yaml
-  #   secrets: inherit
-  #   with:
-  #     tfvars-file: ${{ needs.generate-revisions.outputs.tfvars-artifact-name }}
-
-  promotion:
-    name: Promotion
-    needs: 
-      - generate-revisions
-      # - tests
-    runs-on: ubuntu-22.04
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v6
-    
-    - id: setup-python
-      name: Setup Python
-      uses: actions/setup-python@v5.0.0
-      with:
-        python-version: "3.10"
-        architecture: x64
-    
-    - id: download-tfvars
-      name: Download tfvars artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ needs.generate-revisions.outputs.tfvars-artifact-name }}
-        path: tfvars-artifacts
-
-    - id: tests-integration
-      name: Run Integration Tests
-      shell: bash
-      env:
-        CHARMCRAFT_AUTH: ${{ secrets.CHARMHUB_TOKEN }}
-      run: |
-        pip install pyyaml
-        sudo snap install charmcraft --classic
-      
-        REVISION_FILES=$(find tfvars-artifacts -type f -name "*.yaml")
-        for REVISION_FILE in $REVISION_FILES; do
-          echo "Processing $REVISION_FILE"
-          python3 .github/scripts/charms_promotions.py promote \
-            --format yaml --promote-to beta --dry-run \
-            --file $REVISION_FILE
-        done
