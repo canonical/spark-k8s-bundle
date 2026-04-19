@@ -45,7 +45,7 @@ on:
 
 jobs:
   generate-revisions:
-    name: Generate tfvars revisions
+    name: Generate charm revisions
     uses: ./.github/workflows/generate-charm-revisions.yaml
     secrets: inherit
     with:
@@ -75,6 +75,7 @@ jobs:
       - generate-revisions
       - tests-single-kyuubi
       - tests-minimal
+    if: ${{ always() && (needs.tests-single-kyuubi.result == 'success' || needs.tests-minimal.result == 'success') }}
     uses: ./.github/workflows/promote-charm-revisions.yaml
     secrets: inherit
     with:
