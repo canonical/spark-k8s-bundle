@@ -81,4 +81,4 @@ jobs:
     with:
       tfvars-artifact-name: ${{ needs.generate-revisions.outputs.tfvars-artifact-name }}
       risk: ${{ inputs.to-risk || 'beta'}}
-      dry-run: ${{ inputs.dry-run || 'true' }}
+      dry-run: ${{ inputs.dry-run || true }}
