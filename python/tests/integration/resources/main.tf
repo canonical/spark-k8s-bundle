@@ -83,6 +83,14 @@ module "cos" {
   source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=cd55b1d"
   model_uuid   = var.cos_model_uuid
   internal_tls = false
+  alertmanager = { revision = 191 }
+  catalogue    = { revision = 113 }
+  grafana      = { revision = 180 }
+  loki         = { revision = 217 }
+  prometheus   = { revision = 287 }
+  traefik      = { revision = 281 }
+
+
 }
 
 resource "juju_model" "spark" {
