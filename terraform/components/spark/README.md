@@ -19,7 +19,7 @@ Bundles the following charms:
 
 | Name | Version |
 |------|---------|
-| <a name="provider_juju"></a> [juju](#provider\_juju) | 1.3.1 |
+| <a name="provider_juju"></a> [juju](#provider\_juju) | >=1.0.0 |
 
 ### Modules
 

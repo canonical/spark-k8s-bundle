@@ -14,7 +14,7 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_juju"></a> [juju](#provider\_juju) | 1.3.1 |
+| <a name="provider_juju"></a> [juju](#provider\_juju) | >=1.0.0 |
 
 ### Modules
 
@@ -54,7 +54,6 @@
 | <a name="input_cos_offers"></a> [cos\_offers](#input\_cos\_offers) | Observability stack offers. | <pre>object({<br/>    dashboard = string<br/>    logging   = string<br/>    metrics   = string<br/>  })</pre> | `null` | no |
 | <a name="input_create_model"></a> [create\_model](#input\_create\_model) | Should terraform create the Juju models? If set to false, assume the models are created by a different mechanism. | `bool` | `true` | no |
 | <a name="input_data_integrator_revision"></a> [data\_integrator\_revision](#input\_data\_integrator\_revision) | Charm revision for data-integrator | `number` | `null` | no |
-| <a name="input_grafana_agent_revision"></a> [grafana\_agent\_revision](#input\_grafana\_agent\_revision) | Charm revision for grafana-agent-k8s | `number` | `null` | no |
 | <a name="input_history_server_config"></a> [history\_server\_config](#input\_history\_server\_config) | History Server configuration options | `map(any)` | `{}` | no |
 | <a name="input_history_server_image"></a> [history\_server\_image](#input\_history\_server\_image) | Image for spark-history-server-k8s | `string` | `null` | no |
 | <a name="input_history_server_revision"></a> [history\_server\_revision](#input\_history\_server\_revision) | Charm revision for spark-history-server-k8s | `number` | `null` | no |
@@ -74,6 +73,7 @@
 | <a name="input_metastore_revision"></a> [metastore\_revision](#input\_metastore\_revision) | Charm revision for postgresql-k8s (metastore) | `number` | `null` | no |
 | <a name="input_metastore_size"></a> [metastore\_size](#input\_metastore\_size) | Storage size for the metastore database | `string` | `"10G"` | no |
 | <a name="input_model_uuid"></a> [model\_uuid](#input\_model\_uuid) | Optional existing Juju model UUID to deploy Spark to. If provided, model creation is skipped in higher-level modules. | `string` | `null` | no |
+| <a name="input_opentelemetry_collector_revision"></a> [opentelemetry\_collector\_revision](#input\_opentelemetry\_collector\_revision) | Charm revision for opentelemetry-collector-k8s | `number` | `null` | no |
 | <a name="input_proxy"></a> [proxy](#input\_proxy) | Proxy information for the deployment. | <pre>object({<br/>    http     = optional(string, "")<br/>    https    = optional(string, "")<br/>    no-proxy = optional(string, "")<br/>  })</pre> | `{}` | no |
 | <a name="input_s3_config"></a> [s3\_config](#input\_s3\_config) | S3 integrator configuration | <pre>object({<br/>    attributes                          = optional(string)<br/>    bucket                              = optional(string)<br/>    endpoint                            = optional(string)<br/>    experimental-delete-older-than-days = optional(number)<br/>    path                                = optional(string)<br/>    region                              = optional(string)<br/>    s3-api-version                      = optional(string)<br/>    s3-uri-style                        = optional(string)<br/>    storage-class                       = optional(string)<br/>    tls-ca-chain                        = optional(string)<br/>  })</pre> | `{}` | no |
 | <a name="input_s3_revision"></a> [s3\_revision](#input\_s3\_revision) | Charm revision for s3-integrator | `number` | `null` | no |
