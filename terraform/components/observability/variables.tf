@@ -20,7 +20,7 @@ variable "cos_configuration" {
     })
     constraints = optional(string, "arch=amd64")
     resources   = optional(map(string), {})
-    revision    = optional(number)
+    revision    = optional(number, 65) # TODO
     units       = optional(number, 1)
   })
   default = {}

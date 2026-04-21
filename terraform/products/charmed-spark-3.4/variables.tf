@@ -21,12 +21,6 @@ variable "azure_storage_config" {
   default = {}
 }
 
-variable "azure_storage_revision" {
-  description = "Charm revision for azure-storage-integrator"
-  type        = number
-  default     = null
-}
-
 variable "azure_storage_secret_key" {
   description = "Secret key to the Azure Storage account."
   type        = string
@@ -55,18 +49,6 @@ variable "cos_offers" {
     metrics   = string
   })
   default = null
-}
-
-variable "data_integrator_revision" {
-  description = "Charm revision for data-integrator"
-  type        = number
-  default     = null
-}
-
-variable "grafana_agent_revision" {
-  description = "Charm revision for grafana-agent-k8s"
-  type        = number
-  default     = null
 }
 
 variable "history_server_config" {
@@ -105,29 +87,6 @@ variable "integration_hub_revision" {
   default     = null
 }
 
-variable "K8S_CLOUD" {
-  type        = string
-  description = "The kubernetes juju cloud name."
-  default     = "microk8s"
-}
-
-variable "K8S_CREDENTIAL" {
-  type        = string
-  description = "The name of the kubernetes juju credential."
-  default     = "microk8s"
-}
-
-variable "juju_controller" {
-  description = "Controller information: endpoint, username, password and CA certificate."
-  type = object({
-    endpoint = optional(string)
-    username = optional(string)
-    password = optional(string)
-    ca       = optional(string)
-  })
-  default = {}
-}
-
 variable "kyuubi_config" {
   description = "Kyuubi configuration options."
   type        = map(any)
@@ -153,18 +112,6 @@ variable "kyuubi_units" {
   nullable    = false
 }
 
-variable "kyuubi_users_image" {
-  description = "Image for postgresql-k8s (auth-db)"
-  type        = string
-  default     = null
-}
-
-variable "kyuubi_users_revision" {
-  description = "Charm revision for postgresql-k8s (auth-db)"
-  type        = number
-  default     = null
-}
-
 variable "kyuubi_users_size" {
   description = "Storage size for the Kyuubi users database"
   type        = string
@@ -177,17 +124,6 @@ variable "logging_config" {
   default     = "<root>=INFO"
 }
 
-variable "metastore_image" {
-  description = "Image for postgresql-k8s (metastore)"
-  type        = string
-  default     = null
-}
-
-variable "metastore_revision" {
-  description = "Charm revision for postgresql-k8s (metastore)"
-  type        = number
-  default     = null
-}
 
 variable "metastore_size" {
   description = "Storage size for the metastore database"
@@ -234,12 +170,6 @@ variable "s3_config" {
   default = {}
 }
 
-variable "s3_revision" {
-  description = "Charm revision for s3-integrator"
-  type        = number
-  default     = null
-}
-
 variable "storage_backend" {
   type        = string
   description = "Storage backend to be used"
@@ -257,24 +187,6 @@ variable "tls_private_key" {
   type        = string
   sensitive   = true
   default     = null
-}
-
-variable "zookeeper_image" {
-  description = "Image for zookeeper-k8s"
-  type        = map(string)
-  default     = null
-}
-
-variable "zookeeper_revision" {
-  description = "Charm revision for zookeeper-k8s"
-  type        = number
-  default     = null
-}
-
-variable "zookeeper_size" {
-  description = "Storage size for the metastore database"
-  type        = string
-  default     = "10G"
 }
 
 variable "zookeeper_units" {
