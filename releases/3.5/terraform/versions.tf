@@ -21,8 +21,11 @@ locals {
     data_integrator   = 362
     s3                = 330
     azure_storage     = 270
-    grafana_agent     = 163
-    cos_configuration = 71
+    grafana_agent     = 121
+    # TODO: bump the revision to 1/stable when both of the following issue gets fixed:
+    # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 
+    # https://github.com/canonical/cos-configuration-k8s-operator/issues/84
+    cos_configuration = 65
     pushgateway       = 27
     scrape_config     = 67
   }
