@@ -20,7 +20,7 @@ locals {
     zookeeper         = 78
     data_integrator   = 362
     s3                = 330
-    azure_storage     = 270
+    azure_storage     = 274
     grafana_agent     = 121
     # TODO: bump the revision to 1/stable when both of the following issue gets fixed:
     # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 
