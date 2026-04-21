@@ -8,7 +8,7 @@ import sys
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable
 
 import yaml
 
@@ -21,16 +21,16 @@ class Charm:
     def __init__(
         self,
         name: str,
-        revision: Optional[int] = None,
-        channel: Optional[str] = None,
-        architecture: Optional[str] = None,
+        revision: int | None = None,
+        channel: str | None = None,
+        architecture: str | None = None,
     ):
         self.name = name
         self.revision = revision
         self.channel = channel
         self.architecture = architecture
 
-        self._status: Optional[dict] = None
+        self._status: dict | None = None
 
     def __str__(self):
         """Return a readable charm representation."""
@@ -65,9 +65,9 @@ class Charm:
 
     def get_status(
         self,
-        channel: Optional[str] = None,
-        revision: Optional[int] = None,
-        architecture: Optional[str] = None,
+        channel: str | None = None,
+        revision: int | None = None,
+        architecture: str | None = None,
     ):
         """Return matching status entries for this charm."""
         if not channel:
@@ -102,16 +102,21 @@ class Charm:
 
             self._status = json.loads(result.stdout.decode("utf-8"))
 
-        items = [
-            {"base": mapping["base"]} | release
-            for track in self._status
-            for mapping in track["mappings"]
-            for release in mapping["releases"]
-            if mapping["base"]
-            if (not channel or channel == release["channel"])
-            and (not revision or revision == release["revision"])
-            and (not architecture or architecture == mapping["base"]["architecture"])
-        ]
+        items = []
+        for track in self._status:
+            for mapping in track["mappings"]:
+                base = mapping["base"]
+                if not base:
+                    continue
+
+                for release in mapping["releases"]:
+                    if channel is not None and channel != release["channel"]:
+                        continue
+                    if revision is not None and revision != release["revision"]:
+                        continue
+                    if architecture is not None and architecture != base["architecture"]:
+                        continue
+                    items.append({"base": base} | release)
 
         return items
 
@@ -485,7 +490,7 @@ class CharmSpec:
 
     name: str
     channel: str
-    revision: Optional[int] = None
+    revision: int | None = None
 
 
 @dataclass(frozen=True)
@@ -599,7 +604,7 @@ MAPPING = {
 
 
 def _load_release(
-    input_file: Path, format_name: str, risk: Optional[str] = None
+    input_file: Path, format_name: str, risk: str | None = None
 ) -> Release:
     """Load release data from status/spec input based on the selected format."""
     if format_name in ("text", "yaml"):

@@ -235,7 +235,7 @@ runs:
     - id: download-tfvars
       name: Download tfvars artifact
       if: ${{ inputs.tfvars-file != '' }}
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: ${{ inputs.tfvars-file }}
         path: tfvars-artifacts
@@ -339,5 +339,4 @@ runs:
       with:
         name: integration-results-${{ inputs.tox-env }}-${{ inputs.k8s-distribution }}-${{ inputs.k8s-version }}-${{ inputs.spark-version }}-${{ inputs.storage-backend }}-${{ inputs.cos-model }}-${{ inputs.juju-agent-version }}
         path: test-result.json
-
 
