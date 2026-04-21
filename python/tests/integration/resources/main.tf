@@ -80,7 +80,8 @@ variable "tls_private_key" {
 module "cos" {
   count = var.cos_model_uuid == null ? 0 : 1
   # TODO: Pin to tag once available
-  source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=track/2"
+  # branch: track/2
+  source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=04ab6c618dbbec62292a052a61cdb402d80e5974"
   model_uuid   = var.cos_model_uuid
   internal_tls = false
 }
