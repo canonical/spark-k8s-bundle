@@ -110,7 +110,6 @@ module "spark" {
   s3_config                = var.s3_config
   storage_backend          = var.storage_backend
   tls_private_key          = var.tls_private_key
-  zookeeper_size           = "10G"
   zookeeper_units          = 1
 
   cos_offers = module.cos != [] ? {
