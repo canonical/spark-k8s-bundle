@@ -114,7 +114,10 @@ class Charm:
                         continue
                     if revision is not None and revision != release["revision"]:
                         continue
-                    if architecture is not None and architecture != base["architecture"]:
+                    if (
+                        architecture is not None
+                        and architecture != base["architecture"]
+                    ):
                         continue
                     items.append({"base": base} | release)
 
