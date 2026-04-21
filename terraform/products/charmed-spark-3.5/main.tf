@@ -73,7 +73,6 @@ module "zookeeper" {
   source     = "../../charms/zookeeper"
   model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
 
-  base        = "ubuntu@22.04"
   channel     = "3/stable"
   constraints = "arch=amd64"
   revision    = local.revisions.zookeeper
@@ -88,7 +87,6 @@ module "data_integrator" {
   source     = "../../charms/data-integrator"
   model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
 
-  base        = "ubuntu@24.04"
   channel     = "latest/stable"
   constraints = "arch=amd64"
   revision    = local.revisions.data_integrator
@@ -111,7 +109,6 @@ module "azure_storage" {
   source     = "../../charms/azure-storage-integrator"
   model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
 
-  base    = "ubuntu@22.04"
   channel = "latest/edge"
   config = merge(
     var.azure_storage_config,
@@ -139,7 +136,6 @@ module "s3" {
   source     = "../../charms/s3-integrator-v1"
   model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
 
-  base        = "ubuntu@22.04"
   channel     = "1/stable"
   config      = var.s3_config
   constraints = "arch=amd64"
