@@ -1,4 +1,4 @@
-# Copyright 2024 Canonical Ltd.
+# Copyright 2026 Canonical Ltd.
 # See LICENSE file for licensing details.
 
 name: Promote charm revisions
@@ -36,7 +36,7 @@ jobs:
 
       - id: download-tfvars
         name: Download tfvars artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: ${{ inputs.tfvars-artifact-name }}
           path: tfvars-artifacts

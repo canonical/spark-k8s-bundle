@@ -36,7 +36,7 @@ jobs:
       tfvars-artifact-name: ${{ steps.artifact-name.outputs.value }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -62,7 +62,7 @@ jobs:
 
       - name: Upload revisions.yaml artifact
         id: upload-revisions
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: charms-${{ inputs.risk }}
           path: revisions

@@ -15,7 +15,6 @@ on:
           - edge
           - beta
           - candidate
-          - stable
 
       to-risk:
         description: "Risk level to promote revisions to"
@@ -23,7 +22,6 @@ on:
         default: candidate
         type: choice
         options:
-          - edge
           - beta
           - candidate
           - stable
