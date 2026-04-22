@@ -239,22 +239,22 @@ The following table provides the description of the different configuration opti
 | `s3.bucket`   | Name of the S3 bucket to be used for storing logs and data                                                                            |
 | `cos_model`   | (Optional) Name of the model where COS is deployed. If omitted, the resource of the cos-integration submodules will not be deployed   |
 
-#### Example `.tfvars.json`
+#### Example .tfvars.json
 
-A full deployment with COS monitoring:
+For example, to point to the MinIO instance and the right bucket:
 
 ```json
 {
+  "storage_backend": "s3",
   "s3": {
-    "bucket": "<bucket_name>",
-    "endpoint": "<s3_endpoint>"
-  },
-  "model": "spark",
-  "cos_model": "cos"
+    "region": "eu-central-1",
+    "bucket": "spark-test",
+    "endpoint": "http://<host>:80"
+  }
 }
 ```
 
-To deploy without monitoring, omit the `cos_model` key.
+For more information on this particular example, see the [microK8s MinIO demo](https://github.com/deusebio/datawarehousing-with-spark/blob/main/docs/microk8s_minio.md). For other examples, see the [repository](https://github.com/deusebio/datawarehousing-with-spark/blob/main/README.md).
 
 ```{caution}
 The Juju Terraform provider does not yet support cross-controller relations with COS.
