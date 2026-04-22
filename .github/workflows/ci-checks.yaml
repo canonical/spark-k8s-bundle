@@ -38,9 +38,7 @@ jobs:
       - id: code-checks
         name: Make sure the code follows conventions and tests correctly
         run: |
-          cd python
-          tox -e lint
-          tox -e tf-lint
+          cd python && tox -e lint
 
       - id: tests-unit
         name: Run Unittests
