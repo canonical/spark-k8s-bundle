@@ -24,7 +24,7 @@ output "models" {
   description = "Map of the key of the model and the components deployed in the model."
   value = {
     spark = {
-      model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
+      model_uuid = local.model_uuid
       components = merge(
         module.spark.components,
         {

@@ -32,6 +32,7 @@ locals {
     metastore    = "184"
     zookeeper    = "34"
   }
+  model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
 }
 
 resource "terraform_data" "deployed_at" {

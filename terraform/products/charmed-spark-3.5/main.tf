@@ -16,7 +16,7 @@ resource "juju_model" "spark" {
 module "ssc" {
   depends_on = [juju_model.spark]
   source     = "git::https://github.com/canonical/self-signed-certificates-operator//terraform?ref=rev586"
-  model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = local.model_uuid
 
   base    = "ubuntu@24.04"
   channel = "1/stable"
@@ -32,7 +32,7 @@ module "ssc" {
 module "kyuubi_users" {
   depends_on = [juju_model.spark]
   source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev774"
-  model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = local.model_uuid
 
   app_name    = "kyuubi-users"
   base        = "ubuntu@22.04"
@@ -51,7 +51,7 @@ module "kyuubi_users" {
 module "metastore" {
   depends_on = [juju_model.spark]
   source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev774"
-  model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = local.model_uuid
 
   app_name    = "metastore"
   base        = "ubuntu@22.04"
@@ -71,7 +71,7 @@ module "metastore" {
 module "zookeeper" {
   depends_on = [juju_model.spark]
   source     = "../../charms/zookeeper"
-  model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = local.model_uuid
 
   channel     = "3/stable"
   constraints = "arch=amd64"
@@ -85,7 +85,7 @@ module "zookeeper" {
 module "data_integrator" {
   depends_on = [juju_model.spark]
   source     = "../../charms/data-integrator"
-  model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = local.model_uuid
 
   channel     = "latest/stable"
   constraints = "arch=amd64"
@@ -95,7 +95,7 @@ module "data_integrator" {
 resource "juju_secret" "azure_storage_secret" {
   depends_on = [juju_model.spark]
   count      = var.storage_backend == "azure_storage" ? 1 : 0
-  model_uuid = var.model_uuid
+  model_uuid = local.model_uuid
   name       = "azure_storage_secret"
   value = {
     secret-key = var.azure_storage_secret_key
@@ -107,7 +107,7 @@ module "azure_storage" {
   depends_on = [juju_model.spark, juju_secret.azure_storage_secret]
   count      = var.storage_backend == "azure_storage" ? 1 : 0
   source     = "../../charms/azure-storage-integrator"
-  model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = local.model_uuid
 
   channel = "latest/edge"
   config = merge(
@@ -123,7 +123,7 @@ module "azure_storage" {
 resource "juju_access_secret" "azure_storage_secret_access" {
   depends_on = [juju_model.spark, juju_secret.azure_storage_secret, module.azure_storage]
   count      = var.storage_backend == "azure_storage" ? 1 : 0
-  model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = local.model_uuid
   applications = [
     module.azure_storage[0].application.name
   ]
@@ -134,7 +134,7 @@ module "s3" {
   depends_on = [juju_model.spark]
   count      = var.storage_backend == "s3" ? 1 : 0
   source     = "../../charms/s3-integrator-v1"
-  model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = local.model_uuid
 
   channel     = "1/stable"
   config      = var.s3_config
@@ -145,7 +145,7 @@ module "s3" {
 resource "juju_secret" "system_users_and_private_key_secret" {
   depends_on = [juju_model.spark]
   count      = var.tls_private_key == null && var.admin_password == null ? 0 : 1
-  model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = local.model_uuid
   name       = "system_users_and_private_key_secret"
   value = merge(
     var.admin_password == null ? {} : {
@@ -171,7 +171,7 @@ module "spark" {
     module.zookeeper
   ]
   source     = "../../components/spark"
-  model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = local.model_uuid
 
   history_server = {
     config      = var.history_server_config,
@@ -232,7 +232,7 @@ resource "juju_access_secret" "system_users_and_private_key_secret_access" {
     module.spark
   ]
   count      = var.tls_private_key == null && var.admin_password == null ? 0 : 1
-  model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = local.model_uuid
   applications = [
     module.spark.components.kyuubi.name
   ]
@@ -243,7 +243,7 @@ module "observability" {
   depends_on = [juju_model.spark, module.spark]
   count      = var.cos_offers == null ? 0 : 1
   source     = "../../components/observability"
-  model_uuid = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid = local.model_uuid
 
   dashboards_offer = var.cos_offers.dashboard
   logging_offer    = var.cos_offers.logging
