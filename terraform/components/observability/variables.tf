@@ -43,8 +43,8 @@ variable "grafana_agent" {
 variable "pushgateway" {
   type = object({
     app_name    = optional(string, "pushgateway")
-    base        = optional(string, "ubuntu@22.04")
-    channel     = optional(string, "1/stable")
+    base        = optional(string, "ubuntu@24.04")
+    channel     = optional(string, "2/stable")
     config      = optional(map(string), {})
     constraints = optional(string, "arch=amd64")
     resources   = optional(map(string), {})
@@ -60,8 +60,8 @@ variable "pushgateway" {
 variable "scrape_config" {
   type = object({
     app_name = optional(string, "scrape-config")
-    base     = optional(string, "ubuntu@22.04")
-    channel  = optional(string, "1/stable")
+    base     = optional(string, "ubuntu@24.04")
+    channel  = optional(string, "2/stable")
     config = optional(map(string), {
       scrape_interval = "10s"
     })

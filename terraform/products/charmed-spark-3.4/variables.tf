@@ -8,7 +8,6 @@ variable "admin_password" {
   default     = null
 }
 
-
 variable "azure_storage_config" {
   description = "Azure Object storage information"
   type = object({
@@ -19,6 +18,12 @@ variable "azure_storage_config" {
     storage-account = optional(string)
   })
   default = {}
+}
+
+variable "azure_storage_revision" {
+  description = "Charm revision for azure-storage-integrator"
+  type        = number
+  default     = null
 }
 
 variable "azure_storage_secret_key" {
@@ -41,6 +46,12 @@ variable "create_model" {
   nullable    = false
 }
 
+variable "cos_configuration_revision" {
+  description = "Charm revision for cos-configuration"
+  type        = number
+  default     = null
+}
+
 variable "cos_offers" {
   description = "Observability stack offers."
   type = object({
@@ -49,6 +60,18 @@ variable "cos_offers" {
     metrics   = string
   })
   default = null
+}
+
+variable "data_integrator_revision" {
+  description = "Charm revision for data-integrator"
+  type        = number
+  default     = null
+}
+
+variable "grafana_agent_revision" {
+  description = "Charm revision for grafana-agent-k8s"
+  type        = number
+  default     = null
 }
 
 variable "history_server_config" {
@@ -83,6 +106,18 @@ variable "integration_hub_config" {
 
 variable "integration_hub_revision" {
   description = "Charm revision for spark-integration-hub-k8s"
+  type        = number
+  default     = null
+}
+
+variable "kyuubi_users_image" {
+  description = "Image for postgresql-k8s (auth-db)"
+  type        = string
+  default     = null
+}
+
+variable "kyuubi_users_revision" {
+  description = "Charm revision for postgresql-k8s (auth-db)"
   type        = number
   default     = null
 }
@@ -124,11 +159,40 @@ variable "logging_config" {
   default     = "<root>=INFO"
 }
 
+variable "metastore_image" {
+  description = "Image for postgresql-k8s (metastore)"
+  type        = string
+  default     = null
+}
+
+variable "metastore_revision" {
+  description = "Charm revision for postgresql-k8s (metastore)"
+  type        = number
+  default     = null
+}
 
 variable "metastore_size" {
   description = "Storage size for the metastore database"
   type        = string
   default     = "10G"
+}
+
+variable "pushgateway_image" {
+  description = "Image for pushgateway"
+  type        = string
+  default     = null
+}
+
+variable "pushgateway_revision" {
+  description = "Charm revision for pushgateway"
+  type        = number
+  default     = null
+}
+
+variable "scrape_config_revision" {
+  description = "Charm revision for scrape_config"
+  type        = number
+  default     = null
 }
 
 variable "spark_model_name" {
@@ -170,6 +234,12 @@ variable "s3_config" {
   default = {}
 }
 
+variable "s3_revision" {
+  description = "Charm revision for s3-integrator"
+  type        = number
+  default     = null
+}
+
 variable "storage_backend" {
   type        = string
   description = "Storage backend to be used"
@@ -186,6 +256,18 @@ variable "tls_private_key" {
   description = "The file path of the private key to use for TLS certificates."
   type        = string
   sensitive   = true
+  default     = null
+}
+
+variable "zookeeper_image" {
+  description = "Image for zookeeper-k8s"
+  type        = string
+  default     = null
+}
+
+variable "zookeeper_revision" {
+  description = "Charm revision for zookeeper-k8s"
+  type        = number
   default     = null
 }
 

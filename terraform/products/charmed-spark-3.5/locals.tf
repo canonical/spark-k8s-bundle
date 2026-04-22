@@ -13,13 +13,6 @@ locals {
     s3              = 330
     ssc             = 586
     azure_storage   = 270
-    grafana_agent   = 164
-    # TODO: bump the revision to 1/stable when both of the following issue gets fixed:
-    # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 
-    # https://github.com/canonical/cos-configuration-k8s-operator/issues/84
-    cos_configuration = 65
-    pushgateway       = 27
-    scrape_config     = 67
   }
   images = {
     history_server = "ghcr.io/canonical/charmed-spark@sha256:f7f387a76ba2f3b6cfc34a35f36c0f4ae85bfa78c8c9d4bfa06ba86401b95d70"

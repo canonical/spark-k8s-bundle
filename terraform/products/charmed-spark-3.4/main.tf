@@ -38,9 +38,9 @@ module "kyuubi_users" {
   base        = "ubuntu@22.04"
   channel     = "14/stable"
   constraints = "arch=amd64"
-  revision    = local.revisions.kyuubi_users
+  revision    = var.kyuubi_users_revision != null ? var.kyuubi_users_revision : local.revisions.kyuubi_users
   resources = {
-    postgresql-image = local.images.kyuubi_users
+    postgresql-image = var.kyuubi_users_image != null ? var.kyuubi_users_image : local.images.kyuubi_users
   }
   storage_directives = {
     pgdata = var.kyuubi_users_size
@@ -57,9 +57,9 @@ module "metastore" {
   base        = "ubuntu@22.04"
   channel     = "14/stable"
   constraints = "arch=amd64"
-  revision    = local.revisions.metastore
+  revision    = var.metastore_revision != null ? var.metastore_revision : local.revisions.metastore
   resources = {
-    postgresql-image = local.images.metastore
+    postgresql-image = var.metastore_image != null ? var.metastore_image : local.images.metastore
   }
   storage_directives = {
     pgdata = var.metastore_size
@@ -75,9 +75,9 @@ module "zookeeper" {
 
   channel     = "3/stable"
   constraints = "arch=amd64"
-  revision    = local.revisions.zookeeper
+  revision    = var.zookeeper_revision != null ? var.zookeeper_revision : local.revisions.zookeeper
   resources = {
-    zookeeper-image = local.images.zookeeper
+    zookeeper-image = var.zookeeper_image != null ? var.zookeeper_image : local.images.zookeeper
   }
   units = var.zookeeper_units
 }
@@ -89,7 +89,7 @@ module "data_integrator" {
 
   channel     = "latest/stable"
   constraints = "arch=amd64"
-  revision    = local.revisions.data_integrator
+  revision    = var.data_integrator_revision != null ? var.data_integrator_revision : local.revisions.data_integrator
 }
 
 resource "juju_secret" "azure_storage_secret" {
@@ -117,7 +117,7 @@ module "azure_storage" {
     }
   )
   constraints = "arch=amd64"
-  revision    = local.revisions.azure_storage
+  revision    = var.azure_storage_revision != null ? var.azure_storage_revision : local.revisions.azure_storage
 }
 
 resource "juju_access_secret" "azure_storage_secret_access" {
@@ -139,7 +139,7 @@ module "s3" {
   channel     = "1/stable"
   config      = var.s3_config
   constraints = "arch=amd64"
-  revision    = local.revisions.s3
+  revision    = var.s3_revision != null ? var.s3_revision : local.revisions.s3
 }
 
 resource "juju_secret" "system_users_and_private_key_secret" {
@@ -248,12 +248,17 @@ module "observability" {
   logging_offer    = var.cos_offers.logging
   metrics_offer    = var.cos_offers.metrics
 
+  cos_configuration = { revision = var.cos_configuration_revision }
+  grafana_agent     = { revision = var.grafana_agent_revision }
+  pushgateway       = { revision = var.pushgateway_revision, resource = { pushgateway-image = var.pushgateway_image } }
+  scrape_config     = { revision = var.scrape_config_revision }
+
+  history_server_dashboard_endpoint = module.spark.provides.history_server_dashboard
   history_server_logging_endpoint   = module.spark.requires.history_server_logging
   history_server_metrics_endpoint   = module.spark.provides.history_server_metrics
-  history_server_dashboard_endpoint = module.spark.provides.history_server_dashboard
   integration_hub_cos_endpoint      = module.spark.requires.integration_hub_cos
   integration_hub_logging_endpoint  = module.spark.requires.integration_hub_logging
+  kyuubi_dashboard_endpoint         = module.spark.provides.kyuubi_dashboard
   kyuubi_logging_endpoint           = module.spark.requires.kyuubi_logging
   kyuubi_metrics_endpoint           = module.spark.provides.kyuubi_metrics
-  kyuubi_dashboard_endpoint         = module.spark.provides.kyuubi_dashboard
 }
