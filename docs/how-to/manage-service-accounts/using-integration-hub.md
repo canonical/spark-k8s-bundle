@@ -191,18 +191,6 @@ spark.metrics.conf.executor.sink.prometheus.metrics-name-capture-regex=([a-z0-9]
 spark.metrics.conf.executor.sink.prometheus.metrics-name-replacement=\$2
 ```
 
-```{important}
-These metrics settings only work in **cluster mode** (`--deploy-mode cluster`).
-In **client mode** (e.g. `pyspark`, `spark-shell`), the `PrometheusSink` class is not
-available locally, causing a `ClassNotFoundException`. Disable the sink by setting
-the class to an empty value:
-
-   spark-client.pyspark \
-     --username <username> --namespace <namespace> \
-     --conf spark.metrics.conf.driver.sink.prometheus.class="" \
-     --conf spark.metrics.conf.executor.sink.prometheus.class=""
-```
-
 ## Additional configurations
 
 Besides the configurations enabled by relations, a set of additional configurations can also 

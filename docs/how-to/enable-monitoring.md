@@ -121,20 +121,6 @@ consistent with what is exposed by Juju, e.g.:
 PROMETHEUS_GATEWAY=$(juju status --format=yaml | yq ".applications.prometheus-pushgateway-k8s.address")
 ```
 
-```{important}
-These metrics settings only work in **cluster mode** (`--deploy-mode cluster`), where
-the driver runs inside a K8s pod with the Charmed Apache Spark image.
-
-In **client mode** (e.g. `pyspark`, `spark-shell`), the `PrometheusSink` class is not
-available locally, causing a `ClassNotFoundException`. Disable the sink by setting
-the class to an empty value:
-
-   spark-client.pyspark \
-     --username <username> --namespace <namespace> \
-     --conf spark.metrics.conf.driver.sink.prometheus.class="" \
-     --conf spark.metrics.conf.executor.sink.prometheus.class=""
-```
-
 ```{note}
 Besides the one above, the Charmed Apache Spark service accounts are configured
 for exporting metrics by means of other properties, returned by the `get-config`

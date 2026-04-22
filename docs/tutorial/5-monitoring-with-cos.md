@@ -229,18 +229,6 @@ traefik:peers                                 traefik:peers                     
 traefik:traefik-route                         grafana:ingress                               traefik_route              regular  
 ```
 
-```{important}
-These metrics settings only work in **cluster mode** (`--deploy-mode cluster`).
-In **client mode** (e.g. `pyspark`, `spark-shell`), the `PrometheusSink` class is not
-available locally, causing a `ClassNotFoundException`. Disable the sink by setting
-the class to an empty value:
-
-   spark-client.pyspark \
-     --username spark --namespace cos \
-     --conf spark.metrics.conf.driver.sink.prometheus.class="" \
-     --conf spark.metrics.conf.executor.sink.prometheus.class=""
-```
-
 ## Try dashboard
 
 Now that we have the observability stack up and running, let's run a simple Spark job so that the metric logs are pushed to the Prometheus gateway. For simplicity, we're going to use the same `count-ubuntu.py` script that we prepared in the earlier steps of this tutorial:
