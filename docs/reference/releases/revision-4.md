@@ -212,3 +212,7 @@ When using Juju controller versions greater or equal to `3.6.13`, make sure you 
 ```{note}
 Model destruction for controllers above 3.6.18+ may sometimes freeze (see [Juju issue #22105](https://github.com/juju/juju/issues/22105)). In these cases, we recommend destroying the resources manually.
 ```
+
+## Acknowledgements
+
+We are extremely grateful to the Apache Spark and Apache Kyuubi communities for their continuous work, involvement and engagement with open-source to make technologies that process data at scale available to the broader audience.
