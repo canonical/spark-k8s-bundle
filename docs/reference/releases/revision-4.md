@@ -66,7 +66,7 @@ This release includes general updates across the solution, as well as changes to
 ### Canonical security maintained OCI Images for Apache Spark
 
 - [[PRA-158](https://warthogs.atlassian.net/browse/PRA-158)] Component bumps ([#217](https://github.com/canonical/charmed-spark-rock/pull/217))
-- [[DPE-7941](https://warthogs.atlassian.net/browse/DPE-7941)] Add gpu executor pod template to Charmed Apache Kyuubi image ([#165](https://github.com/canonical/charmed-spark-rock/pull/165))
+- [[DPE-7941](https://warthogs.atlassian.net/browse/DPE-7941)] Add GPU executor pod template to Charmed Apache Kyuubi image ([#165](https://github.com/canonical/charmed-spark-rock/pull/165))
 - [[PRA-189](https://warthogs.atlassian.net/browse/PRA-189)] Check for environment variable expansion ([#221](https://github.com/canonical/charmed-spark-rock/pull/221))
 - Download Hive from mirror ([#163](https://github.com/canonical/charmed-spark-rock/pull/163))
 - Perform disk cleanup at the start of all workflows ([#190](https://github.com/canonical/charmed-spark-rock/pull/190))
