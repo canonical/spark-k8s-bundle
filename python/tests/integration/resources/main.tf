@@ -19,16 +19,6 @@ variable "create_model" {
   nullable    = false
 }
 
-variable "K8S_CLOUD" {
-  type    = string
-  default = "microk8s"
-}
-
-variable "K8S_CREDENTIAL" {
-  type    = string
-  default = "microk8s"
-}
-
 variable "cos_model_uuid" {
   type    = string
   default = null
@@ -87,19 +77,15 @@ module "cos" {
 }
 
 resource "juju_model" "spark" {
-  count      = (var.model_uuid == null && var.create_model == true) ? 1 : 0
-  name       = var.spark_model_name
-  credential = var.K8S_CREDENTIAL
-  cloud {
-    name = var.K8S_CLOUD
-  }
+  count = (var.model_uuid == null && var.create_model == true) ? 1 : 0
+  name  = var.spark_model_name
 }
 
 module "spark" {
   depends_on = [juju_model.spark, module.cos]
   source     = "./products/charmed-spark-<spark_flavor>" # filled by test fixture
 
-  model_uuid   = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid   = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
   create_model = false
 
   admin_password           = var.admin_password
