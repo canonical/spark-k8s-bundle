@@ -31,6 +31,7 @@ https
 Intersphinx
 io
 ip
+Jira
 Kaggle
 kaggle
 kubeconfig
@@ -80,6 +81,7 @@ texlive
 TOC
 toctree
 tolerations
+Trivy
 txt
 uncommenting
 URL
