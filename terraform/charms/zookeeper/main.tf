@@ -7,6 +7,7 @@ resource "juju_application" "zookeeper" {
 
   charm {
     name     = "zookeeper-k8s"
+    base     = var.base
     channel  = var.channel
     revision = var.revision
   }

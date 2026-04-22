@@ -8,6 +8,12 @@ variable "app_name" {
   nullable    = false
 }
 
+variable "base" {
+  description = "The operating system on which to deploy. E.g. ubuntu@22.04."
+  type        = string
+  default     = null
+}
+
 variable "channel" {
   description = "Channel of the charm."
   type        = string
