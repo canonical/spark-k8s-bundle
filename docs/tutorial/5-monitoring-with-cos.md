@@ -4,6 +4,11 @@ myst:
     description: "Learn how to set up monitoring and alerting for Apache Spark with Canonical Observability Stack (COS) using Prometheus and Grafana."
 ---
 
+<!-- test:spread
+priority: 300
+kill-timeout: 90m
+-->
+
 (tutorial-5-monitoring-with-cos)=
 # 5. Monitoring with Canonical Observability Stack
 
@@ -35,9 +40,11 @@ juju deploy cos-lite --trust
 When you deploy the `cos-lite` bundle, it deploys several charms like Prometheus, Grafana, Loki, etc. that together build up the Canonical Observability Stack. 
 Check the list of charms that have been deployed, their statuses, and relations:
 
-```shell
+```bash
 watch -c juju status --color --relations
 ```
+
+<!-- test:await-idle --timeout 2400 -->
 
 Wait until the status to be active for each charm:
 
@@ -110,6 +117,8 @@ juju deploy prometheus-pushgateway-k8s --channel 1/stable
 juju integrate prometheus-pushgateway-k8s prometheus
 ```
 
+<!-- test:await-idle --timeout 600 -->
+
 Now, for Apache Spark to be able to access the Prometheus gateway, we need the gateway address and port. Let's export them as environment variables so that they can be used later:
 
 ```shell
@@ -155,7 +164,7 @@ For this tutorial, we are going to use a [basic Grafana dashboard](https://githu
 
 Deploy the [cos-configuration-k8s](https://github.com/canonical/cos-configuration-k8s-operator) charm for importing the grafana dashboard:
 
-```bash
+```shell
 juju deploy cos-configuration-k8s \
   --config git_repo=https://github.com/canonical/spark-k8s-bundle \
   --config git_branch=main \
@@ -168,6 +177,8 @@ Integrate the cos-configration-k8s charm to import the grafana dashboard:
 ```shell
 juju integrate cos-configuration-k8s grafana
 ```
+
+<!-- test:await-idle --timeout 600 -->
 
 Once deployed and integrated, we can check the status of the Juju model with the command `juju status --relations`, which should be similar to the following:
 
@@ -233,7 +244,7 @@ traefik:traefik-route                         grafana:ingress                   
 
 Now that we have the observability stack up and running, let's run a simple Spark job so that the metric logs are pushed to the Prometheus gateway. For simplicity, we're going to use the same `count-ubuntu.py` script that we prepared in the earlier steps of this tutorial:
 
-```bash
+```shell
 spark-client.spark-submit \
     --username spark --namespace cos \
     --deploy-mode cluster \
@@ -243,7 +254,7 @@ spark-client.spark-submit \
 Once the job is completed, let's try to open the Grafana web UI and see some metrics. 
 The credentials for the built-in `admin` user and the URL to the web UI can be retrieved using the `get-admin-password` action exposed by the `grafana` charm:
 
-```bash
+```shell
 juju run grafana/leader get-admin-password
 ```
 

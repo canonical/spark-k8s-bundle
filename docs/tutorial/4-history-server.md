@@ -4,6 +4,11 @@ myst:
     description: "Learn how to deploy and configure Apache Spark History Server on Kubernetes to monitor completed and running Spark applications."
 ---
 
+<!-- test:spread
+priority: 400
+kill-timeout: 30m
+-->
+
 (tutorial-4-history-server)=
 # 4. History Server
 
@@ -16,7 +21,7 @@ The Apache Spark History Server is most suitable for engineer running Spark jobs
 At this step of the tutorial, you’ll need some environment variables that were set earlier during the environment setup.
 If you’ve restarted the VM and lost those variables, you can refresh them by running the following commands:
 
-```bash
+```shell
 export ACCESS_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d)
 export SECRET_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d)
 export S3_ENDPOINT=$(kubectl get service minio -n minio-operator -o jsonpath='{.spec.clusterIP}')
@@ -26,7 +31,7 @@ export S3_ENDPOINT=$(kubectl get service minio -n minio-operator -o jsonpath='{.
 
 Let's create a fresh Juju model for some experiments with the Apache Spark History Server.
 
-```bash
+```shell
 juju add-model history-server
 ```
 
@@ -38,7 +43,7 @@ that the Integration Hub will supply automatically.
 
 Create the service account:
 
-```bash
+```shell
 spark-client.service-account-registry create \
   --username spark --namespace history-server
 ```
@@ -51,7 +56,7 @@ during the environment setup step.
 
 Next, deploy the [`spark-history-server-k8s`](https://github.com/canonical/spark-history-server-k8s-operator) charm into our Juju model:
 
-```bash
+```shell
 juju deploy spark-history-server-k8s -n1 --channel 3.4/stable
 ```
 
@@ -59,18 +64,22 @@ The Apache Spark History Server needs to connect to the S3 bucket for it to be a
 The credentials for this connection are provided to the Spark History Server charm by the [`s3-integrator`](https://github.com/canonical/s3-integrator) charm. 
 Deploy the `s3-integrator` charm, configure it, set the credentials, and integrate with `spark-history-server-k8s`:
 
-```bash
+```shell
 juju deploy s3-integrator
 juju config s3-integrator bucket=spark-tutorial path="spark-events" endpoint=http://$S3_ENDPOINT
 ```
 
+<!-- test:await-idle --timeout 600 --allow-blocked s3-integrator -->
+
 Wait a minute for the `s3-integrator` charm to deploy correctly before finishing the setup:
 
-```bash
+```shell
 juju run s3-integrator/leader sync-s3-credentials \
   access-key=$ACCESS_KEY secret-key=$SECRET_KEY
 juju integrate s3-integrator spark-history-server-k8s
 ```
+
+<!-- test:await-idle --timeout 600 -->
 
 Let's view the status of the Juju model now with the command `watch -c juju status --color --relations`. Once deployment and integration have been completed for the charms, the status should look similar to the following:
 
@@ -97,7 +106,7 @@ The Spark History Server is now successfully configured to read logs from the S3
 
 Let's run a simple job so that Apache Spark can generate some logs for us to see with History Server. We're going to use the same `count-ubuntu.py` example script we used earlier, which already exists in the `spark-tutorial` bucket:
 
-```bash
+```shell
 spark-client.spark-submit \
     --username spark --namespace history-server \
     --deploy-mode cluster \
@@ -120,14 +129,16 @@ The web UI can be accessed at port 18080 of the IP address of the `spark-history
 
 Let's add an ingress by deploying and integrating the [`traefik-k8s`](https://charmhub.io/traefik-k8s) charm with `spark-history-server-k8s`:
 
-```bash
+```shell
 juju deploy traefik-k8s --channel latest/stable --trust
 juju integrate traefik-k8s spark-history-server-k8s
 ```
 
+<!-- test:await-idle --timeout 600 -->
+
 Now that Traefik has been deployed and configured, we can fetch the ingress URL of the Spark History Server by running the `show-proxied-endpoints` action on the Traefik charm:
 
-```bash
+```shell
 juju run traefik-k8s/0 show-proxied-endpoints
 ```
 

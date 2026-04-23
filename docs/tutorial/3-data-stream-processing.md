@@ -4,6 +4,11 @@ myst:
     description: "Learn how to process real-time data streams with Apache Spark Streaming and integrate with Apache Kafka on Kubernetes."
 ---
 
+<!-- test:spread
+priority: 500
+kill-timeout: 45m
+-->
+
 (tutorial-3-data-stream-processing)=
 # 3. Data stream processing
 
@@ -17,7 +22,7 @@ In this step of the tutorial, we are going to generate some data, push it to Apa
 
 First of all, let's start by creating a fresh `juju` model to be used as an experimental workspace for this project:
 
-```bash
+```shell
 juju add-model spark-streaming
 ```
 
@@ -46,11 +51,13 @@ Now, let's create a minimal Apache Kafka and Apache ZooKeeper setup.
 This can be done quickly and easily using the [`zookeeper-k8s`](https://github.com/canonical/zookeeper-k8s-operator) and [`kafka-k8s`](https://charmhub.io/kafka-k8s) charms.
 Although this setup is not highly available, using single instances for both should be enough to understand the underlying concepts.
 
-```bash
+```shell
 juju deploy zookeeper-k8s --trust
 juju deploy kafka-k8s --trust
 juju integrate kafka-k8s zookeeper-k8s
 ```
+
+<!-- test:await-idle --timeout 1200 -->
 
 For more details on the Charmed Apache Kafka K8s deployment process, see the [How to deploy](how-to-deploy-spark) guide.
 
@@ -88,11 +95,13 @@ For that, we can use the `kafka-test-app` charm to produce events.
 
 Let's deploy this charm with `3` units, and integrate it with `kafka-k8s` so that it is able to write messages to Apache Kafka.
 
-```bash
+```shell
 juju deploy kafka-test-app -n 3 --config role=producer --config topic_name=spark-streaming-store --config num_messages=100000
 
 juju integrate kafka-test-app kafka-k8s
 ```
+
+<!-- test:await-idle --timeout 600 -->
 
 Once the integration is complete, `juju status` should display something similar to:
 
@@ -118,11 +127,13 @@ Now messages will be generated and written to Apache Kafka periodically by `kafk
 However, to establish a connection and actually consume these messages from Apache Kafka, Apache Spark needs to authenticate with Apache Kafka using the credentials.
 For the retrieval of these credentials, we are going to use the [`data-integrator`](https://github.com/canonical/data-integrator) charm. Let's deploy `data-integrator` and integrate it with `kafka-k8s` with the following commands:
 
-```bash
+```shell
 juju deploy data-integrator --config extra-user-roles=consumer,admin --config topic-name=spark-streaming-store
 
 juju integrate data-integrator kafka-k8s 
 ```
+
+<!-- test:await-idle --timeout 600 -->
 
 Once this integration is complete, `juju status` should appear something similar to:
 
@@ -147,7 +158,7 @@ zookeeper-k8s/0*    active    idle   10.1.29.182
 
 Now that `data-integrator` is deployed and integrated with `kafka-k8s`, we can get the credentials to connect to Apache Kafka by running the `get-credentials` action exposed by the `data-integrator` charm:
 
-```bash
+```shell
 juju run data-integrator/0 get-credentials
 ```
 
@@ -175,7 +186,7 @@ As you can see, the endpoint, username and password to be used to authenticate w
 It will help if we store the username and password as variables so that they can be used later in the tutorial.
 To do that, we can specify `--format=json` when running the `get-credentials` action, and then filter out username and password using `jq`:
 
-```bash
+```shell
 export KAFKA_USERNAME=$(juju run data-integrator/0 get-credentials --format=json | jq -r '.["data-integrator/0"].results.kafka.username')
 export KAFKA_PASSWORD=$(juju run data-integrator/0 get-credentials --format=json | jq -r '.["data-integrator/0"].results.kafka.password')
 export KAFKA_ENDPOINT=$(juju run data-integrator/0 get-credentials --format=json | jq -r '.["data-integrator/0"].results.kafka.endpoints')
@@ -298,13 +309,58 @@ query.awaitTermination()
 Save the Python code above in a file named `spark_streaming.py`.
 Copy this file from the Host machine to the VM:
 
+<!-- test:run
+# Create spark_streaming.py for automated testing
+cat > spark_streaming.py << 'PYEOF'
+import argparse
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import udf, col
+from json import loads
+
+spark = SparkSession.builder.appName("SparkStreaming").getOrCreate()
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--kafka-username", "-u", required=True)
+parser.add_argument("--kafka-password", "-p", required=True)
+parser.add_argument("--kafka-endpoint", "-e", required=True)
+parser.add_argument("--kafka-topic", "-t", required=True)
+args = parser.parse_args()
+username=args.kafka_username
+password=args.kafka_password
+endpoint=args.kafka_endpoint
+topic=args.kafka_topic
+
+lines = spark.readStream \
+        .format("kafka") \
+        .option("kafka.bootstrap.servers", endpoint) \
+        .option("kafka.sasl.mechanism", "SCRAM-SHA-512") \
+        .option("kafka.security.protocol", "SASL_PLAINTEXT") \
+        .option(
+          "kafka.sasl.jaas.config",
+          f'org.apache.kafka.common.security.scram.ScramLoginModule required username="{username}" password="{password}";'
+        ).option("subscribe", topic) \
+        .option("includeHeaders", "true") \
+        .load()
+
+get_origin = udf(lambda x: loads(x)["origin"])
+
+count = lines.withColumn(
+            "origin",
+            get_origin(col("value"))
+          ).select("origin").groupBy("origin").count()
+
+query = count.writeStream.outputMode("complete").format("console").start()
+query.awaitTermination()
+PYEOF
+-->
+
 ```bash
 multipass transfer spark_streaming.py spark-tutorial:spark_streaming.py
 ```
 
 Then, from the VM, copy it to the S3:
 
-```bash
+```shell
 aws s3 cp spark_streaming.py s3://spark-tutorial/spark_streaming.py
 ```
 
@@ -313,7 +369,9 @@ aws s3 cp spark_streaming.py s3://spark-tutorial/spark_streaming.py
 Once the file has been copied to S3, let's submit a new job to our Apache Spark cluster using `spark-submit`.
 Please note that we need to specify a few extra packages to interact with Apache Kafka because they are not included by default in the Charmed Apache Spark image:
 
-```bash
+<!-- test:run-with-timeout --seconds 180 -->
+
+```shell
 spark-client.spark-submit \
     --username spark --namespace spark-streaming \
     --deploy-mode cluster \
@@ -340,7 +398,11 @@ The streaming output - directed to the console - is being written to the pod log
 To fetch the pod logs, we first need to know the name of the driver pod.
 Let's find its name to then fetch the logs as:
 
-```bash
+<!-- test:wait --seconds 30 -->
+
+<!-- test:run-with-timeout --seconds 60 -->
+
+```shell
 pod_name=$(kubectl get pods -n spark-streaming | grep "spark-streaming-.*-driver" | tail -n 1 | cut -d' ' -f1)
 
 kubectl logs -n spark-streaming -f $pod_name | grep "Batch: " -A 10 # filter out line starting with "Batch: " and next 10 lines after that line

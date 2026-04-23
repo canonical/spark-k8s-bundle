@@ -4,6 +4,11 @@ myst:
     description: "Learn how to deploy and use Charmed Apache Kyuubi on Kubernetes for serverless SQL queries on data lakes with Apache Spark."
 ---
 
+<!-- test:spread
+priority: 200
+kill-timeout: 60m
+-->
+
 (tutorial-6-apache-kyuubi)=
 # 6. Using Apache Kyuubi
 
@@ -16,7 +21,7 @@ This hands-on tutorial stage aims to help you learn how to use Charmed Apache Ky
 
 Let's create a fresh Juju model for the Charmed Apache Kyuubi K8s experiments:
 
-```bash
+```shell
 juju add-model datalake
 ```
 
@@ -94,9 +99,11 @@ juju integrate kyuubi-k8s data-integrator
 
 Check the list of charms that have been deployed and their statuses:
 
-```shell
+```bash
 watch -c juju status --relations --color
 ```
+
+<!-- test:await-idle --timeout 1200 -->
 
 Wait until the status to be active for each charm:
 
@@ -159,13 +166,13 @@ If you want to generate and upload a sample dataset, feel free to use this [Kyuu
 Use the `spark-client.beeline` command with the credentials from previous command to access 
 the endpoint with the `beeline` JDBC-compliant client:
 
-```shell
+```bash
 spark-client.beeline -u "jdbc:hive2://<endpoints>/" -n <username> -p <password>
 ```
 
 For example, using the data from the previous output example, the command should look like that:
 
-```shell
+```bash
 spark-client.beeline -u "jdbc:hive2://10.64.140.43:10009/" -n relation_id_15 -p 31rwWzk8wpnhoZvU
 ```
 
@@ -178,7 +185,7 @@ Since it's using graphical user interface, we won't run it in a Multipass VM.
 
 Install DBeaver on the host machine (outside of the Multipass VM) by using the [Downloads page](https://dbeaver.io/download/) or the following command:
 
-```shell
+```bash
 sudo snap install dbeaver-ce
 ```
 
@@ -213,6 +220,8 @@ Scale out the Apache Kyuubi cluster up to three nodes:
 juju scale-application kyuubi-k8s 3
 ```
 
+<!-- test:await-idle --timeout 1200 --allow-blocked kyuubi-k8s -->
+
 Wait for the deployment to complete and check the model status with the `juju status` command.
 The `kyuubi-k8s` units are all in the `blocked` state now, with a message “Missing ZooKeeper integration”.
 That is because multi-node Apache Kyuubi deployments require Apache ZooKeeper for synchronization.
@@ -223,6 +232,8 @@ Now, deploy [Apache ZooKeeper K8s](https://charmhub.io/zookeeper-k8s) charm (thr
 juju deploy zookeeper-k8s --channel=3/stable --trust -n 3
 juju integrate kyuubi-k8s zookeeper-k8s
 ```
+
+<!-- test:await-idle --timeout 1200 -->
 
 Wait for the deployment to finish by watching the `juju status` until all workloads are `active` and all agents are `idle`.
 
@@ -237,6 +248,8 @@ To make metadata persistent, configure an external metastore by deploying Charme
 juju deploy postgresql-k8s --trust --channel=14/stable metastore
 juju integrate kyuubi-k8s:metastore-db metastore
 ```
+
+<!-- test:await-idle --timeout 1200 -->
 
 ## Enable TLS encryption
 
@@ -255,6 +268,8 @@ Before enabling TLS on Charmed Apache Kyuubi K8s, deploy the `self-signed-certif
 juju deploy self-signed-certificates --config ca-common-name="Tutorial CA"
 ```
 
+<!-- test:await-idle --timeout 600 -->
+
 Wait for the charm to settle into an `active/idle` state, as shown by the `juju status`.
 
 To enable TLS on Charmed Apache Kyuubi K8s, integrate the `kyuubi-k8s` charm with the `self-signed-certificates` charm:
@@ -262,6 +277,8 @@ To enable TLS on Charmed Apache Kyuubi K8s, integrate the `kyuubi-k8s` charm wit
 ```shell
 juju integrate kyuubi-k8s self-signed-certificates
 ```
+
+<!-- test:await-idle --timeout 600 -->
 
 After the charms settle into `active/idle` states, the Charmed Apache Kyuubi K8s endpoint should now accept encrypted traffic.
 Requesting the credentials again should now display the certificate:
@@ -326,7 +343,7 @@ spark-client.import-certificate tutorial-cert cert.pem
 
 Then, add `;ssl=true` to the JDBC endpoint you got from the data-integrator charm, for example:
 
-```shell
+```bash
 spark-client.beeline -u "jdbc:hive2://10.64.140.43:10009/;ssl=true" -n relation_id_15 -p 31rwWzk8wpnhoZvU
 ```
 
