@@ -12,16 +12,16 @@ terraform {
 
 locals {
   revisions = {
-    history_server  = 94
-    integration_hub = 113
-    kyuubi          = 142
-    kyuubi_users    = 495
-    metastore       = 495
-    zookeeper       = 78
-    data_integrator = 179
-    s3              = 145
-    azure_storage   = 15
-    grafana_agent   = 121
+    history_server    = 98
+    integration_hub   = 123
+    kyuubi            = 160
+    kyuubi_users      = 774
+    metastore         = 774
+    zookeeper         = 78
+    data_integrator   = 362
+    s3                = 330
+    azure_storage     = 274
+    grafana_agent     = 121
     # TODO: bump the revision to 1/stable when both of the following issue gets fixed:
     # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 
     # https://github.com/canonical/cos-configuration-k8s-operator/issues/84
@@ -31,14 +31,14 @@ locals {
   }
   images = {
     history_server = {
-      spark-history-server-image = "ghcr.io/canonical/charmed-spark@sha256:c7eef66beaeff463fdb7b707c630c0574912df8b843d8e3169f358adee2ae706"
-    } # rev23, spark-version: 3.5.7, release date 2026-02-27
+      spark-history-server-image = "ghcr.io/canonical/charmed-spark@sha256:f7f387a76ba2f3b6cfc34a35f36c0f4ae85bfa78c8c9d4bfa06ba86401b95d70"
+    } # rev24,  spark-version: 3.5.7, release date 16/03/2026 
     integration_hub = {
-      integration-hub-image = "ghcr.io/canonical/spark-integration-hub@sha256:c04d2d95874612883f6ead105d5f1dd74230370b23a08ea81175df81ba2e06fa"
-    } # rev11, release date 2026-03-02
+      integration-hub-image = "ghcr.io/canonical/spark-integration-hub@sha256:a0439da3e6a9433a0db9501c8ea7b28ba3652af9a9ec22fcc2ad1b0197d48134"
+    } # rev13, release date 19/03/2026
     kyuubi = {
-      kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:cdde52a4f72112ea09de11c6d21f901323619cf41015db89cb9d5742c57da303"
-    } # rev17, spark-3.5.7, kyuubi 1.10.3 release date 2026-02-07
+      kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:21beea406001d161538b552cef2b47b86423bd899139ada263c1ef665fd89fff"
+    } # rev18, spark-version: 3.5.7, kyuubi-version: 1.10.3, release date 16/03/2026
     kyuubi_users = {
       postgresql-image = 165
     }

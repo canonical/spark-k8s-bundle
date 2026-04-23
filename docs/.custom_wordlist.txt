@@ -31,6 +31,7 @@ https
 Intersphinx
 io
 ip
+Jira
 Kaggle
 kaggle
 kubeconfig
@@ -45,6 +46,7 @@ loadbalancers
 metastore
 Multipass
 MyST
+nodeSelector
 Open Graph
 otf
 PDF
@@ -78,6 +80,8 @@ tex
 texlive
 TOC
 toctree
+tolerations
+Trivy
 txt
 uncommenting
 URL
@@ -92,3 +96,6 @@ xindy
 xml
 yaml
 YouTube
+Ory
+middleware
+Entra
