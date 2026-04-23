@@ -12,25 +12,7 @@ Spark workloads on K8s, providing integration with object storage, monitoring an
 For an overview on the different components that form Charmed Apache Spark, please refer to the
 [components overview](explanation-component-overview) page.
 
-## Minimum required components
-
-A functional Charmed Apache Spark deployment requires the following components:
-
-| Component | Description |
-|---|---|
-| **Integration Hub** (`spark-integration-hub-k8s`) | Central hub that manages Spark service account configurations via Juju relations. Required. |
-| **Object storage integrator** (`s3-integrator` or `azure-storage-integrator`) | Provides credentials and configuration for persistent storage. Required. |
-| **Object storage backend** | An S3-compatible (e.g. MinIO, AWS S3) or Azure storage account. Required. |
-
-The following components are optional but recommended for production:
-
-| Component | Description |
-|---|---|
-| **Spark History Server** (`spark-history-server-k8s`) | Web UI for analyzing Spark job logs. |
-| **Apache Kyuubi** (`kyuubi-k8s`) | JDBC/ODBC endpoint for SQL queries on Spark. Requires `postgresql-k8s` for authentication. |
-| **COS integration** (`grafana-agent-k8s`, `prometheus-pushgateway-k8s`, etc.) | Monitoring and alerting via Canonical Observability Stack. See [Enable monitoring](how-to-monitoring). |
-
-For a detailed description of each component, see the [Components overview](explanation-component-overview).
+For an overview of all components and how they relate to each other, see the [Components overview](explanation-component-overview).
 
 ## Prerequisites
 
