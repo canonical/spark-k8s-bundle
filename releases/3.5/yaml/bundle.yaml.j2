@@ -6,7 +6,7 @@ applications:
   kyuubi:
     charm: kyuubi-k8s
     channel: 3.5/stable
-    revision: 146
+    revision: 160
     resources:
       # rev18, spark-version: 3.5.7, kyuubi-version: 1.10.3, release date 16/03/2026
       kyuubi-image: ghcr.io/canonical/charmed-spark-kyuubi@sha256:21beea406001d161538b552cef2b47b86423bd899139ada263c1ef665fd89fff
@@ -21,7 +21,7 @@ applications:
   kyuubi-users:
     charm: postgresql-k8s
     channel: 14/stable
-    revision: 495
+    revision: 774
     resources:
       postgresql-image: 165
     scale: 1
@@ -42,7 +42,7 @@ applications:
   metastore:
     charm: postgresql-k8s
     channel: 14/stable
-    revision: 495
+    revision: 774
     resources:
       postgresql-image: 165
     scale: 1
@@ -53,7 +53,7 @@ applications:
   s3:
     charm: s3-integrator
     channel: 1/stable
-    revision: 145
+    revision: 330
     scale: 1
     options:
       bucket: {{ bucket }}
@@ -63,7 +63,7 @@ applications:
   history-server:
     charm: spark-history-server-k8s
     channel: 3/stable
-    revision: 96
+    revision: 98
     resources:
       # rev24,  spark-version: 3.5.7, release date 16/03/2026 
       spark-history-server-image: ghcr.io/canonical/charmed-spark@sha256:f7f387a76ba2f3b6cfc34a35f36c0f4ae85bfa78c8c9d4bfa06ba86401b95d70
@@ -72,7 +72,7 @@ applications:
   integration-hub:
     charm: spark-integration-hub-k8s
     channel: 3/stable
-    revision: 119
+    revision: 123
     resources:
       # rev 13, release date 19/03/2026
       integration-hub-image: ghcr.io/canonical/spark-integration-hub@sha256:a0439da3e6a9433a0db9501c8ea7b28ba3652af9a9ec22fcc2ad1b0197d48134
