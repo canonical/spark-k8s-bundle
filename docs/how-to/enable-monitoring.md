@@ -5,7 +5,7 @@ myst:
 ---
 
 (how-to-monitoring)=
-# Enable and configuring monitoring
+# Enable and configure monitoring
 
 Charmed Apache Spark supports native integration with the Canonical Observability Stack (COS). If you want to enable monitoring on top of Charmed Apache Spark, make sure that you have a Juju model with COS correctly deployed.
 
@@ -62,7 +62,7 @@ In particular, it is crucial to configure the scraping interval to make sure
 data points have proper sampling frequency, e.g.:
 
 ```shell
-juju config scrape-config --config scrape_interval=<SCRAPE_INTERVAL>
+juju config scrape-config scrape_interval=<SCRAPE_INTERVAL>
 ```
 
 For more information about the properties that can be set using `prometheus-scrape-config-k8s`,
