@@ -467,7 +467,7 @@ With that, the basic environment setup is complete!
 Throughout this tutorial you will create service accounts in several Kubernetes namespaces.
 Running `add-config` to push S3 credentials to every new account manually would quickly become repetitive.
 The [Integration Hub for Apache Spark](https://charmhub.io/spark-integration-hub-k8s) automates this:
-once deployed and integrated with an S3-compatible storage, it automatically pushes the storage credentials
+once deployed and configured with the `monitored-service-accounts` option, it automatically pushes the storage credentials
 to every service account that is managed by `spark-client` — including accounts created in the future.
 
 Let's deploy it now so that service accounts we create in later steps receive S3 credentials automatically.
@@ -482,6 +482,7 @@ Deploy the Integration Hub charm and an `s3-integrator` charm to supply it with 
 
 ```shell
 juju deploy spark-integration-hub-k8s --channel 3/stable --trust
+juju config spark-integration-hub-k8s monitored-service-accounts="*:*"
 juju deploy s3-integrator --channel 1/stable
 juju config s3-integrator bucket=spark-tutorial path=spark-events endpoint=http://$S3_ENDPOINT
 ```
