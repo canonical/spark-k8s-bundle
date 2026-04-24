@@ -1,6 +1,8 @@
 # Copyright 2026 Canonical Ltd.
 # See LICENSE file for licensing details.
+
 name: Automatic promotion of bundle revisions
+
 on:
   pull_request:
   workflow_dispatch:
@@ -33,7 +35,7 @@ on:
         type: choice
         options:
           - ci-tests-minimal
-	  - ci-tests-full
+          - ci-tests-full
 
       dry-run:
         description: "Whether to run promotion in dry-run mode"
