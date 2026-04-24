@@ -138,18 +138,7 @@ spark-client.service-account-registry create \
   --username spark --namespace cos
 ```
 
-<!-- test:run
-# Wait for the Integration Hub to push S3 config to the new service account
-for i in $(seq 1 60); do
-  config=$(spark-client.service-account-registry get-config --username spark --namespace cos 2>&1)
-  if echo "$config" | grep -q "fs.s3a.endpoint"; then
-    echo "Integration Hub pushed S3 config after $((i * 5)) seconds"
-    break
-  fi
-  [ "$i" -eq 60 ] && echo "WARNING: S3 config not found after 300s" && exit 1
-  sleep 5
-done
--->
+<!-- test:wait --seconds 30 -->
 
 Add configuration options related to Prometheus:
 
@@ -291,3 +280,8 @@ This is the dashboard we configured earlier with `cos-configuration-k8s` charm:
 ![spark_dashboard](https://assets.ubuntu.com/v1/cf80fe96-spark_dashboard.png)
 
 Play around the dashboard and observe the various metrics like Block Manager memory, JVM Executor Memory, etc.
+
+<!-- test:assert
+pod_name=$(kubectl get pods -n cos | grep "count-ubuntu-.*-driver" | tail -n 1 | cut -d' ' -f1)
+kubectl get pod "$pod_name" -n cos -o jsonpath='{.status.phase}' | grep -q "Succeeded"
+-->

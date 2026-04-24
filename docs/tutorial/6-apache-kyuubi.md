@@ -352,3 +352,8 @@ spark-client.beeline -u "jdbc:hive2://10.64.140.43:10009/;ssl=true" -n relation_
 The client should welcome you once again with a prompt where you can run SQL queries.
 
 Congratulations! You are now connected to Charmed Apache Kyuubi K8s using TLS.
+
+<!-- test:assert
+juju status --format=json | jq -e '.applications."kyuubi-k8s".status.current == "active"'
+juju run data-integrator/0 get-credentials --format=json | jq -e '."data-integrator/0".results.kyuubi.tls == "True"'
+-->

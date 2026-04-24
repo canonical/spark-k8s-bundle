@@ -40,18 +40,7 @@ spark-client.service-account-registry create \
 The Integration Hub we deployed in the environment setup step will automatically push the S3 credentials
 to this new service account. Verify this before continuing:
 
-<!-- test:run
-# Wait for the Integration Hub to push S3 config to the new service account
-for i in $(seq 1 60); do
-  config=$(spark-client.service-account-registry get-config --username spark --namespace spark-streaming 2>&1)
-  if echo "$config" | grep -q "fs.s3a.endpoint"; then
-    echo "Integration Hub pushed S3 config after $((i * 5)) seconds"
-    break
-  fi
-  [ "$i" -eq 60 ] && echo "WARNING: S3 config not found after 300s" && exit 1
-  sleep 5
-done
--->
+<!-- test:wait --seconds 30 -->
 
 ```shell
 spark-client.service-account-registry get-config \
@@ -326,9 +315,7 @@ Let's find its name to then fetch the logs as:
 
 <!-- test:wait --seconds 30 -->
 
-<!-- test:run-with-timeout --seconds 60 -->
-
-```shell
+```bash
 pod_name=$(kubectl get pods -n spark-streaming | grep "spark-streaming-.*-driver" | tail -n 1 | cut -d' ' -f1)
 
 kubectl logs -n spark-streaming -f $pod_name | grep "Batch: " -A 10 # filter out line starting with "Batch: " and next 10 lines after that line
@@ -341,3 +328,8 @@ If you observe carefully, you can see that new logs are appended roughly every t
 ...
 2026-03-04T10:00:38.367Z [sparkd] Batch: 5
 ```
+
+<!-- test:assert
+juju status --format=json | jq -e '.applications."kafka-k8s".status.current == "active"'
+test -n "$KAFKA_ENDPOINT"
+-->

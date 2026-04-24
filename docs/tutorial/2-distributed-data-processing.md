@@ -331,3 +331,8 @@ The result should look similar to the following:
 ```
 
 By default, Apache Spark stores the logs of drivers and executors as pod logs in the local file systems, which are lost once the pods are deleted. Apache Spark can store these logs in a persistent object storage system, like S3, so that they can later be retrieved and visualized by a component called Spark History Server.
+
+<!-- test:assert
+pod_name=$(kubectl get pods -n spark | grep "count-ubuntu-.*-driver" | tail -n 1 | cut -d' ' -f1)
+kubectl logs "$pod_name" -n spark | grep -q "Number of tweets containing Ubuntu:"
+-->

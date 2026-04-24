@@ -524,6 +524,11 @@ aws s3api put-object --bucket spark-tutorial --key spark-events/
 aws s3api put-object --bucket spark-tutorial --key warehouse/
 ```
 
+<!-- test:assert
+spark-client.service-account-registry get-config --username spark --namespace spark | grep -q "fs.s3a.endpoint"
+juju status -m spark-integration-hub --format=json | jq -e '.applications."spark-integration-hub-k8s".status.current == "active"'
+-->
+
 ## (Optional) Create a snapshot
 
 At this stage, you may want to create a [snapshot](https://documentation.ubuntu.com/multipass/en/latest/reference/command-line-interface/snapshot/#snapshot) of the current state, for which you need to stop the Multipass VM. Exit the VM by pressing `CTRL + D` and stop it:
