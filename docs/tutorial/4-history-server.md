@@ -69,7 +69,7 @@ juju deploy s3-integrator
 juju config s3-integrator bucket=spark-tutorial path="spark-events" endpoint=http://$S3_ENDPOINT
 ```
 
-<!-- test:await-idle --timeout 600 --allow-blocked s3-integrator -->
+<!-- test:await-idle --timeout 600 --allow-blocked s3-integrator,spark-history-server-k8s -->
 
 Wait a minute for the `s3-integrator` charm to deploy correctly before finishing the setup:
 

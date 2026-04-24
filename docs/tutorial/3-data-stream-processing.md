@@ -54,6 +54,13 @@ Although this setup is not highly available, using single instances for both sho
 ```shell
 juju deploy zookeeper-k8s --trust
 juju deploy kafka-k8s --trust
+```
+
+<!-- test:await-idle --timeout 1200 --allow-blocked kafka-k8s,zookeeper-k8s -->
+
+Once the charms are deployed, integrate them:
+
+```shell
 juju integrate kafka-k8s zookeeper-k8s
 ```
 

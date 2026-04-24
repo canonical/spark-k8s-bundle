@@ -244,6 +244,8 @@ traefik:traefik-route                         grafana:ingress                   
 
 Now that we have the observability stack up and running, let's run a simple Spark job so that the metric logs are pushed to the Prometheus gateway. For simplicity, we're going to use the same `count-ubuntu.py` script that we prepared in the earlier steps of this tutorial:
 
+<!-- test:wait --seconds 180 -->
+
 ```shell
 spark-client.spark-submit \
     --username spark --namespace cos \

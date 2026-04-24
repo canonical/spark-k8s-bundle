@@ -220,6 +220,8 @@ Scale out the Apache Kyuubi cluster up to three nodes:
 juju scale-application kyuubi-k8s 3
 ```
 
+<!-- test:wait --seconds 60 -->
+
 <!-- test:await-idle --timeout 1200 --allow-blocked kyuubi-k8s -->
 
 Wait for the deployment to complete and check the model status with the `juju status` command.
@@ -337,8 +339,8 @@ The resulted output should include issuer CN `Tutorial CA`.
 To connect to Charmed Apache Kyuubi K8s using the spark-client's bundled `beeline` client, import the certificate in the spark-client snap:
 
 ```shell
-juju run data-integrator/0 get-credentials | yq ".kyuubi.tls-ca" > cert.pem
-spark-client.import-certificate tutorial-cert cert.pem
+juju run data-integrator/0 get-credentials | yq ".kyuubi.tls-ca" > ~/cert.pem
+spark-client.import-certificate tutorial-cert ~/cert.pem
 ```
 
 Then, add `;ssl=true` to the JDBC endpoint you got from the data-integrator charm, for example:
