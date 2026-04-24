@@ -235,64 +235,16 @@ Charmed Apache Spark comes with a command that can be used to submit Spark jobs 
 
 For a quick example, let's see how it can be done using slightly refactored code from the previous section:
 
-```python
-from operator import add
-from pyspark.sql import SparkSession
-
-def contains_ubuntu(text):
-    return 1 if isinstance(text, str) and "ubuntu" in text.lower() else 0
-
-# Create a Spark session 
-spark = SparkSession\
-        .builder\
-        .appName("CountUbuntuTweets")\
-        .getOrCreate()
-
-# Read the CSV file into a DataFrame and convert to RDD
-rdd = spark.read.csv("s3a://spark-tutorial/twitter.csv", header=True).rdd
-
-# Count how many rows contain the word "ubuntu" in the "text" column
-count = (
-    rdd.map(lambda row: row["text"])  # Extract the "text" column
-        .map(contains_ubuntu)  # Apply the contains_ubuntu function
-        .reduce(add)  # Sum all the 1 and 0 to get the total number of matches
-)
-
-# Print the result
-print(f"Number of tweets containing Ubuntu: {count}")
-
-spark.stop()
+```{literalinclude} ../../python/tests/tutorial/resources/count_ubuntu.py
+:language: python
 ```
 
 We’ve added a few more lines to what we’ve executed so far. The Apache Spark session, which would be available by default in a PySpark shell, needs to be explicitly created. Also, we’ve added `spark.stop()` at the end of the file to stop the Apache Spark session after completion of the job.
 
 Let’s save the aforementioned script in a file named `count-ubuntu.py` and proceed further to run it.
 <!-- test:run
-# Create count-ubuntu.py script for automated testing
-cat > count-ubuntu.py << 'PYEOF'
-from operator import add
-from pyspark.sql import SparkSession
-
-def contains_ubuntu(text):
-    return 1 if isinstance(text, str) and "ubuntu" in text.lower() else 0
-
-spark = SparkSession\
-        .builder\
-        .appName("CountUbuntuTweets")\
-        .getOrCreate()
-
-rdd = spark.read.csv("s3a://spark-tutorial/twitter.csv", header=True).rdd
-
-count = (
-    rdd.map(lambda row: row["text"])
-        .map(contains_ubuntu)
-        .reduce(add)
-)
-
-print(f"Number of tweets containing Ubuntu: {count}")
-
-spark.stop()
-PYEOF
+# Copy count-ubuntu.py from repo resources and upload to S3
+cp "$SPREAD_PATH/python/tests/tutorial/resources/count_ubuntu.py" count-ubuntu.py
 aws s3 cp count-ubuntu.py s3://spark-tutorial/count-ubuntu.py
 -->
 ### Run
@@ -351,7 +303,21 @@ The executor pods are deleted automatically.
 The script prints the result to the console output, but that's the driver's console.
 To see the printed message, let's find the driver pod's name and filter the logs from it:
 
-<!-- test:wait --seconds 30 -->
+<!-- test:wait --seconds 60 -->
+
+<!-- test:run
+# Wait for the driver pod to reach Completed state
+for i in $(seq 1 30); do
+  pod_name=$(kubectl get pods -n spark | grep "count-ubuntu-.*-driver" | tail -n 1 | cut -d' ' -f1)
+  if [ -n "$pod_name" ]; then
+    phase=$(kubectl get pod "$pod_name" -n spark -o jsonpath='{.status.phase}' 2>/dev/null)
+    if [ "$phase" = "Succeeded" ] || [ "$phase" = "Failed" ]; then
+      break
+    fi
+  fi
+  sleep 5
+done
+-->
 
 ```shell
 pod_name=$(kubectl get pods -n spark | grep "count-ubuntu-.*-driver" | tail -n 1 | cut -d' ' -f1)

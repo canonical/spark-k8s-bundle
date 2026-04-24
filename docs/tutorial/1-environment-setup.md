@@ -296,6 +296,8 @@ For us to be able to deploy Kubernetes charms, let's bootstrap a Juju controller
 juju bootstrap microk8s spark-tutorial
 ```
 
+<!-- test:wait --seconds 30 -->
+
 The creation of the new controller can be verified with the `juju controllers` command.
 The output of the command should be similar to:
 

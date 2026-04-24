@@ -44,7 +44,7 @@ Check the list of charms that have been deployed, their statuses, and relations:
 watch -c juju status --color --relations
 ```
 
-<!-- test:await-idle --timeout 2400 -->
+<!-- test:await-idle --timeout 3600 -->
 
 Wait until the status to be active for each charm:
 

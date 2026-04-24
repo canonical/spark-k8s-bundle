@@ -198,7 +198,7 @@ def _collect_shell_block(
             content = content.replace(placeholder, variable)
         if timeout_seconds is not None:
             blocks.append(
-                f"( timeout {timeout_seconds} bash << 'TUTORIAL_TIMEOUT_EOF'\n"
+                f"( timeout {timeout_seconds} bash << TUTORIAL_TIMEOUT_EOF\n"
                 f"{content}\n"
                 f"TUTORIAL_TIMEOUT_EOF\n) || true"
             )

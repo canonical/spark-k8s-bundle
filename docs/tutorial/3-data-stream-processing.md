@@ -248,110 +248,16 @@ query.awaitTermination()
 
 Putting all of this together and enabling username, password, endpoint and topic to be passed as command line arguments, we get the following script:
 
-```python
-import argparse
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf, col
-from json import loads
-
-# Create a Spark Session
-spark = SparkSession.builder.appName("SparkStreaming").getOrCreate()
-
-# Read username, password and endpoint from command line arguments
-parser = argparse.ArgumentParser()
-parser.add_argument("--kafka-username", "-u",
-                help="The username to authenticate to Kafka",
-                required=True)
-parser.add_argument("--kafka-password", "-p",
-                help="The password to authenticate to Kafka",
-                  required=True)
-parser.add_argument("--kafka-endpoint", "-e",
-                  help="The bootstrap server endpoint",
-                    required=True)
-parser.add_argument("--kafka-topic", "-t",
-                  help="The Kafka topic to subscribe to",
-                    required=True)
-args = parser.parse_args()
-username=args.kafka_username
-password=args.kafka_password
-endpoint=args.kafka_endpoint
-topic=args.kafka_topic
-
-# Authenticating with Kafka and reading the stream from the topic
-lines = spark.readStream \
-        .format("kafka") \
-        .option("kafka.bootstrap.servers", endpoint) \
-        .option("kafka.sasl.mechanism", "SCRAM-SHA-512") \
-        .option("kafka.security.protocol", "SASL_PLAINTEXT") \
-        .option(
-          "kafka.sasl.jaas.config", 
-          f'org.apache.kafka.common.security.scram.ScramLoginModule required username="{username}" password="{password}";'
-        ).option("subscribe", topic) \
-        .option("includeHeaders", "true") \
-        .load()
-
-# User defined function that returns the origin of one particular event
-get_origin = udf(lambda x: loads(x)["origin"])
-
-# Group by origin of the event and count number of event for each origins
-count = lines.withColumn(
-            "origin", 
-            get_origin(col("value"))
-          ).select("origin").groupBy("origin").count()
-
-# Start writing the result to console
-query = count.writeStream.outputMode("complete").format("console").start()
-
-# Keep doing this until the job is terminated
-query.awaitTermination()
+```{literalinclude} /python/tests/tutorial/resources/spark_streaming.py
+:language: python
 ```
 
 Save the Python code above in a file named `spark_streaming.py`.
 Copy this file from the Host machine to the VM:
 
 <!-- test:run
-# Create spark_streaming.py for automated testing
-cat > spark_streaming.py << 'PYEOF'
-import argparse
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf, col
-from json import loads
-
-spark = SparkSession.builder.appName("SparkStreaming").getOrCreate()
-
-parser = argparse.ArgumentParser()
-parser.add_argument("--kafka-username", "-u", required=True)
-parser.add_argument("--kafka-password", "-p", required=True)
-parser.add_argument("--kafka-endpoint", "-e", required=True)
-parser.add_argument("--kafka-topic", "-t", required=True)
-args = parser.parse_args()
-username=args.kafka_username
-password=args.kafka_password
-endpoint=args.kafka_endpoint
-topic=args.kafka_topic
-
-lines = spark.readStream \
-        .format("kafka") \
-        .option("kafka.bootstrap.servers", endpoint) \
-        .option("kafka.sasl.mechanism", "SCRAM-SHA-512") \
-        .option("kafka.security.protocol", "SASL_PLAINTEXT") \
-        .option(
-          "kafka.sasl.jaas.config",
-          f'org.apache.kafka.common.security.scram.ScramLoginModule required username="{username}" password="{password}";'
-        ).option("subscribe", topic) \
-        .option("includeHeaders", "true") \
-        .load()
-
-get_origin = udf(lambda x: loads(x)["origin"])
-
-count = lines.withColumn(
-            "origin",
-            get_origin(col("value"))
-          ).select("origin").groupBy("origin").count()
-
-query = count.writeStream.outputMode("complete").format("console").start()
-query.awaitTermination()
-PYEOF
+# Copy spark_streaming.py from repo resources
+cp "$SPREAD_PATH/python/tests/tutorial/resources/spark_streaming.py" spark_streaming.py
 -->
 
 ```bash
