@@ -166,6 +166,6 @@ In a similar way, you can view information about various stages in the job by na
 Try submitting more jobs and view their statuses and logs.
 
 <!-- test:assert
-juju status --format=json | jq -e '.applications."spark-history-server-k8s".status.current == "active"'
+juju status --format=json | jq -e '.applications."spark-history-server-k8s"."application-status".current == "active"'
 aws s3 ls s3://spark-tutorial/spark-events/ | grep -q "."
 -->

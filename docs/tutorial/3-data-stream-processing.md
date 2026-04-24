@@ -330,6 +330,6 @@ If you observe carefully, you can see that new logs are appended roughly every t
 ```
 
 <!-- test:assert
-juju status --format=json | jq -e '.applications."kafka-k8s".status.current == "active"'
+juju status --format=json | jq -e '.applications."kafka-k8s"."application-status".current == "active"'
 test -n "$KAFKA_ENDPOINT"
 -->

@@ -526,7 +526,7 @@ aws s3api put-object --bucket spark-tutorial --key warehouse/
 
 <!-- test:assert
 spark-client.service-account-registry get-config --username spark --namespace spark | grep -q "fs.s3a.endpoint"
-juju status -m spark-integration-hub --format=json | jq -e '.applications."spark-integration-hub-k8s".status.current == "active"'
+juju status -m spark-integration-hub --format=json | jq -e '.applications."spark-integration-hub-k8s"."application-status".current == "active"'
 -->
 
 ## (Optional) Create a snapshot

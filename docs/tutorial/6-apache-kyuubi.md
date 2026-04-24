@@ -280,6 +280,7 @@ To enable TLS on Charmed Apache Kyuubi K8s, integrate the `kyuubi-k8s` charm wit
 juju integrate kyuubi-k8s self-signed-certificates
 ```
 
+<!-- test:wait --seconds 30 -->
 <!-- test:await-idle --timeout 600 -->
 
 After the charms settle into `active/idle` states, the Charmed Apache Kyuubi K8s endpoint should now accept encrypted traffic.
@@ -354,6 +355,6 @@ The client should welcome you once again with a prompt where you can run SQL que
 Congratulations! You are now connected to Charmed Apache Kyuubi K8s using TLS.
 
 <!-- test:assert
-juju status --format=json | jq -e '.applications."kyuubi-k8s".status.current == "active"'
+juju status --format=json | jq -e '.applications."kyuubi-k8s"."application-status".current == "active"'
 juju run data-integrator/0 get-credentials --format=json | jq -e '."data-integrator/0".results.kyuubi.tls == "True"'
 -->
