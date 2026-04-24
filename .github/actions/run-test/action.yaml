@@ -235,7 +235,7 @@ runs:
     - id: download-tfvars
       name: Download tfvars artifact
       if: ${{ inputs.tfvars-file != '' }}
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v8
       with:
         name: ${{ inputs.tfvars-file }}
         path: tfvars-artifacts
