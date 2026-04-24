@@ -51,6 +51,19 @@ spark-client.service-account-registry create \
 The Integration Hub automatically provides the S3 credentials and event-logging
 configuration to every new service account, so no manual `add-config` step is needed.
 
+<!-- test:run
+# Wait for the Integration Hub to push S3 config to the new service account
+for i in $(seq 1 60); do
+  config=$(spark-client.service-account-registry get-config --username spark --namespace history-server 2>&1)
+  if echo "$config" | grep -q "fs.s3a.endpoint"; then
+    echo "Integration Hub pushed S3 config after $((i * 5)) seconds"
+    break
+  fi
+  [ "$i" -eq 60 ] && echo "WARNING: S3 config not found after 300s" && exit 1
+  sleep 5
+done
+-->
+
 The `spark-events` directory in the `spark-tutorial` bucket was already created
 during the environment setup step.
 
