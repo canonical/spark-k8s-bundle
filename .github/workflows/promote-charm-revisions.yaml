@@ -36,7 +36,7 @@ jobs:
 
       - id: download-tfvars
         name: Download tfvars artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.tfvars-artifact-name }}
           path: tfvars-artifacts
