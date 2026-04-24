@@ -1,3 +1,5 @@
+# Copyright 2024 Canonical Ltd.
+# See LICENSE file for licensing details.
 """Utilities for parsing charm status and promoting charm revisions."""
 
 import json

@@ -29,11 +29,11 @@ on:
       gate:
         description: "Workflow to gate promotion on"
         required: true
-        default: ci-tests-single-kyuubi
+        default: ci-tests-full
         type: choice
         options:
-          - ci-tests-single-kyuubi
           - ci-tests-minimal
+	  - ci-tests-full
 
       dry-run:
         description: "Whether to run promotion in dry-run mode"
@@ -49,11 +49,11 @@ jobs:
     with:
       risk: ${{ inputs.from-risk || 'edge' }}
 
-  tests-single-kyuubi:
-    name: Run CI tests (single kyuubi)
+  tests-full:
+    name: Run CI tests (full)
     needs: generate-revisions
-    if: github.event_name == 'pull_request' || github.event.inputs.gate == 'ci-tests-single-kyuubi'
-    uses: ./.github/workflows/ci-tests-single-kyuubi.yaml
+    if: github.event_name == 'pull_request' || github.event.inputs.gate == 'ci-tests-full'
+    uses: ./.github/workflows/ci-tests-full.yaml
     secrets: inherit
     with:
       tfvars-file: ${{ needs.generate-revisions.outputs.tfvars-artifact-name }}
@@ -71,9 +71,9 @@ jobs:
     name: Promotion
     needs:
       - generate-revisions
-      - tests-single-kyuubi
+      - tests-full
       - tests-minimal
-    if: ${{ always() && (needs.tests-single-kyuubi.result == 'success' || needs.tests-minimal.result == 'success') }}
+    if: ${{ always() && (needs.tests-full.result == 'success' || needs.tests-minimal.result == 'success') }}
     uses: ./.github/workflows/promote-charm-revisions.yaml
     secrets: inherit
     with:
