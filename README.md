@@ -45,18 +45,18 @@ Security issues in the Charmed Apache Spark can be reported through [LaunchPad](
 
 ## Tutorial tests
 
-The documentation tutorial (`docs/tutorial/`) is tested end-to-end using [Spread](https://github.com/canonical/spread) inside a Multipass VM. Shell commands are extracted directly from the Markdown sources, so the tutorial itself is the test.
+The tutorial (`docs/tutorial/`) is tested end-to-end using [Spread](https://github.com/canonical/spread) inside a Multipass VM. Shell commands are extracted directly from the Markdown sources, so the tutorial itself is the test.
 
-Generate test scripts from the Markdown tutorial pages (no VM needed):
-
-```bash
-tox -e tutorial-extract
-```
-
-Run the full tutorial suite (extract + Spread tests):
+Run the full tutorial suite (extract + run Spread tests):
 
 ```bash
 tox -e tutorial
+```
+
+Only generate test scripts from the Markdown tutorial pages (no VM needed):
+
+```bash
+tox -e tutorial-extract
 ```
 
 Both commands must be run from the `python/` directory (or via `cd python && tox …`). See [python/tests/tutorial/TESTING.md](python/tests/tutorial/TESTING.md) for prerequisites, run modes, debug tips, and the full annotation reference.

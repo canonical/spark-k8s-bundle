@@ -35,10 +35,7 @@ be generated locally before running Spread.
 - Ubuntu host machine (tested on 24.04)
 - [Multipass](https://documentation.ubuntu.com/multipass/latest/how-to-guides/install-multipass/)
 - [Go](https://go.dev/doc/install)
-- [Spread](https://github.com/canonical/spread) installed via Go (**not** as a snap):
-  ```bash
-  go install github.com/snapcore/spread/cmd/spread@latest
-  ```
+- [Spread](https://github.com/canonical/spread) installed via Go (**not** as a snap)
 - Python 3 and `make` (usually pre-installed on Ubuntu)
 
 ## Quick start
@@ -112,11 +109,11 @@ When done, exit the shell and Spread will tear down the VM.
 You can also call `spread` directly for finer control:
 
 ```bash
-# Abort on first failure (recommended for sequential tutorial):
-spread -abend -vv multipass:ubuntu-24.04-64:python/tests/tutorial/
-
-# Run all stages regardless of failures:
+# Run all stages regardless of failures to get a full report (default):
 spread -vv multipass:ubuntu-24.04-64:python/tests/tutorial/
+
+# Abort on first failure:
+spread -abend -vv multipass:ubuntu-24.04-64:python/tests/tutorial/
 
 # Debug mode — interactive shell on failure:
 spread -abend -vv -debug multipass:ubuntu-24.04-64:python/tests/tutorial/
