@@ -167,5 +167,5 @@ Try submitting more jobs and view their statuses and logs.
 
 <!-- test:assert
 juju status --format=json | jq -e '.applications."spark-history-server-k8s"."application-status".current == "active"'
-aws s3 ls s3://spark-tutorial/spark-events/ | grep -q "."
+test -n "$(aws s3 ls s3://spark-tutorial/spark-events/)"
 -->
