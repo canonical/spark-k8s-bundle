@@ -6,7 +6,7 @@ myst:
 
 <!-- test:spread
 priority: 700
-kill-timeout: 60m
+kill-timeout: 20m
 -->
 
 (tutorial-1-environment-setup)=

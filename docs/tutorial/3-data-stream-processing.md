@@ -6,7 +6,7 @@ myst:
 
 <!-- test:spread
 priority: 500
-kill-timeout: 45m
+kill-timeout: 30m
 -->
 
 (tutorial-3-data-stream-processing)=

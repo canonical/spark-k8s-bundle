@@ -6,7 +6,7 @@ myst:
 
 <!-- test:spread
 priority: 300
-kill-timeout: 90m
+kill-timeout: 15m
 -->
 
 (tutorial-5-monitoring-with-cos)=

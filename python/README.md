@@ -72,6 +72,10 @@ such as
 * Linting and Static Typing: `tox -e lint`
 * Unittest: `tox -e unittest`
 * Integration tests: `tox -e integration`
+* Tutorial e2e tests (extract scripts from docs): `tox -e tutorial-extract`
+* Tutorial e2e tests (extract + run in Multipass VM): `tox -e tutorial`
+
+See [tests/tutorial/TESTING.md](tests/tutorial/TESTING.md) for full details on the tutorial test framework.
 
 ## User acceptance tests and benchmarks
 

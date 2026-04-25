@@ -6,7 +6,7 @@ myst:
 
 <!-- test:spread
 priority: 600
-kill-timeout: 45m
+kill-timeout: 10m
 -->
 
 (tutorial-2-distributed-data-processing)=
@@ -243,9 +243,8 @@ We’ve added a few more lines to what we’ve executed so far. The Apache Spark
 
 Let’s save the aforementioned script in a file named `count-ubuntu.py` and proceed further to run it.
 <!-- test:run
-# Copy count-ubuntu.py from repo resources and upload to S3
+# Copy count-ubuntu.py from repo resources
 cp "$SPREAD_PATH/python/tests/tutorial/resources/count_ubuntu.py" count-ubuntu.py
-aws s3 cp count-ubuntu.py s3://spark-tutorial/count-ubuntu.py
 -->
 ### Run
 

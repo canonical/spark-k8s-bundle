@@ -6,7 +6,7 @@ myst:
 
 <!-- test:spread
 priority: 400
-kill-timeout: 30m
+kill-timeout: 15m
 -->
 
 (tutorial-4-history-server)=
