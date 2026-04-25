@@ -257,7 +257,7 @@ query.awaitTermination()
 
 Putting all of this together and enabling username, password, endpoint and topic to be passed as command line arguments, we get the following script:
 
-```{literalinclude} /python/tests/tutorial/resources/spark_streaming.py
+```{literalinclude} ../../python/tests/tutorial/resources/spark_streaming.py
 :language: python
 ```
 
