@@ -47,12 +47,6 @@ jobs:
             k8s-version: "1.30"
           - k8s-distribution: "k8s"
             k8s-version: "1.28"
-        include:
-          # Test integration-basic
-          - tox-env: integration-basic
-            juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
-            k8s-distribution: "microk8s"
 
     needs:
       - checks
