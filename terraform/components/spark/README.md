@@ -34,11 +34,11 @@ No modules.
 | [juju_application.kyuubi](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
 | [juju_integration.history_server_object_storage](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.integration_hub_object_storage](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.kyuubi_certificates](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.kyuubi_data_integrator](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.kyuubi_metastore](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.kyuubi_service_account](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
-| [juju_integration.kyuubi_tls](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
-| [juju_integration.kyuubi_users](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.kyuubi_users_db](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.kyuubi_zookeeper](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_offer.integration_hub_service_account](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/offer) | resource |
 | [juju_offer.kyuubi_jdbc](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/offer) | resource |
@@ -47,16 +47,17 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_data_integrator_endpoint"></a> [data\_integrator\_endpoint](#input\_data\_integrator\_endpoint) | In-model endpoint for the data-integrator application. | <pre>object({<br/>    name     = string<br/>    endpoint = string<br/>  })</pre> | n/a | yes |
+| <a name="input_certificates"></a> [certificates](#input\_certificates) | External integration for the certificate provider application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
+| <a name="input_data_integrator"></a> [data\_integrator](#input\_data\_integrator) | External integration for the data-integrator application | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
 | <a name="input_history_server"></a> [history\_server](#input\_history\_server) | n/a | <pre>object({<br/>    app_name    = optional(string, "history-server")<br/>    base        = optional(string, "ubuntu@22.04")<br/>    channel     = optional(string, "3/stable")<br/>    config      = optional(map(string), {})<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>  })</pre> | `{}` | no |
 | <a name="input_integration_hub"></a> [integration\_hub](#input\_integration\_hub) | n/a | <pre>object({<br/>    app_name    = optional(string, "integration-hub")<br/>    base        = optional(string, "ubuntu@22.04")<br/>    channel     = optional(string, "3/stable")<br/>    config      = optional(map(string), {})<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>  })</pre> | `{}` | no |
 | <a name="input_kyuubi"></a> [kyuubi](#input\_kyuubi) | n/a | <pre>object({<br/>    app_name    = optional(string, "kyuubi")<br/>    base        = optional(string, "ubuntu@22.04")<br/>    channel     = optional(string, "3.4/stable")<br/>    config      = optional(map(string), {})<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>  })</pre> | `{}` | no |
-| <a name="input_metastore_endpoint"></a> [metastore\_endpoint](#input\_metastore\_endpoint) | In-model endpoint for the metastore (postgresql-k8s) application. | <pre>object({<br/>    name     = string<br/>    endpoint = string<br/>  })</pre> | n/a | yes |
+| <a name="input_metastore"></a> [metastore](#input\_metastore) | External integration for the metastore (postgresql-k8s) application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
 | <a name="input_model_uuid"></a> [model\_uuid](#input\_model\_uuid) | Reference to an existing model uuid. | `string` | n/a | yes |
-| <a name="input_object_storage_endpoint"></a> [object\_storage\_endpoint](#input\_object\_storage\_endpoint) | In-model endpoint for the object storage integrator application. | <pre>object({<br/>    name     = string<br/>    endpoint = string<br/>  })</pre> | n/a | yes |
-| <a name="input_tls_endpoint"></a> [tls\_endpoint](#input\_tls\_endpoint) | In-model endpoint for the TLS certificates provider. | <pre>object({<br/>    name     = string<br/>    endpoint = string<br/>  })</pre> | n/a | yes |
-| <a name="input_users_db_endpoint"></a> [users\_db\_endpoint](#input\_users\_db\_endpoint) | In-model endpoint for the Kyuubi users database (postgresql-k8s) application. | <pre>object({<br/>    name     = string<br/>    endpoint = string<br/>  })</pre> | n/a | yes |
-| <a name="input_zookeeper_endpoint"></a> [zookeeper\_endpoint](#input\_zookeeper\_endpoint) | In-model endpoint for the ZooKeeper application. | <pre>object({<br/>    name     = string<br/>    endpoint = string<br/>  })</pre> | n/a | yes |
+| <a name="input_object_storage"></a> [object\_storage](#input\_object\_storage) | External integration for the object storage integrator application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
+| <a name="input_object_storage_interface"></a> [object\_storage\_interface](#input\_object\_storage\_interface) | The interface of the object storage backend. | `string` | n/a | yes |
+| <a name="input_users_db"></a> [users\_db](#input\_users\_db) | External integration for the Kyuubi users database (postgresql-k8s) application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
+| <a name="input_zookeeper"></a> [zookeeper](#input\_zookeeper) | External integration for the ZooKeeper application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
 
 ### Outputs
 

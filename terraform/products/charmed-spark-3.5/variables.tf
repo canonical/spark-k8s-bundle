@@ -8,7 +8,6 @@ variable "admin_password" {
   default     = null
 }
 
-
 variable "azure_storage_config" {
   description = "Azure Object storage information"
   type = object({
@@ -45,6 +44,12 @@ variable "create_model" {
   type        = bool
   default     = true
   nullable    = false
+}
+
+variable "cos_configuration_revision" {
+  description = "Charm revision for cos-configuration"
+  type        = number
+  default     = null
 }
 
 variable "cos_offers" {
@@ -105,27 +110,16 @@ variable "integration_hub_revision" {
   default     = null
 }
 
-variable "K8S_CLOUD" {
+variable "kyuubi_users_image" {
+  description = "Image for postgresql-k8s (auth-db)"
   type        = string
-  description = "The kubernetes juju cloud name."
-  default     = "microk8s"
+  default     = null
 }
 
-variable "K8S_CREDENTIAL" {
-  type        = string
-  description = "The name of the kubernetes juju credential."
-  default     = "microk8s"
-}
-
-variable "juju_controller" {
-  description = "Controller information: endpoint, username, password and CA certificate."
-  type = object({
-    endpoint = optional(string)
-    username = optional(string)
-    password = optional(string)
-    ca       = optional(string)
-  })
-  default = {}
+variable "kyuubi_users_revision" {
+  description = "Charm revision for postgresql-k8s (auth-db)"
+  type        = number
+  default     = null
 }
 
 variable "kyuubi_config" {
@@ -151,18 +145,6 @@ variable "kyuubi_units" {
   type        = number
   default     = 3
   nullable    = false
-}
-
-variable "kyuubi_users_image" {
-  description = "Image for postgresql-k8s (auth-db)"
-  type        = string
-  default     = null
-}
-
-variable "kyuubi_users_revision" {
-  description = "Charm revision for postgresql-k8s (auth-db)"
-  type        = number
-  default     = null
 }
 
 variable "kyuubi_users_size" {
@@ -193,6 +175,24 @@ variable "metastore_size" {
   description = "Storage size for the metastore database"
   type        = string
   default     = "10G"
+}
+
+variable "pushgateway_image" {
+  description = "Image for pushgateway"
+  type        = string
+  default     = null
+}
+
+variable "pushgateway_revision" {
+  description = "Charm revision for pushgateway"
+  type        = number
+  default     = null
+}
+
+variable "scrape_config_revision" {
+  description = "Charm revision for scrape_config"
+  type        = number
+  default     = null
 }
 
 variable "spark_model_name" {
@@ -261,7 +261,7 @@ variable "tls_private_key" {
 
 variable "zookeeper_image" {
   description = "Image for zookeeper-k8s"
-  type        = map(string)
+  type        = string
   default     = null
 }
 
@@ -269,12 +269,6 @@ variable "zookeeper_revision" {
   description = "Charm revision for zookeeper-k8s"
   type        = number
   default     = null
-}
-
-variable "zookeeper_size" {
-  description = "Storage size for the metastore database"
-  type        = string
-  default     = "10G"
 }
 
 variable "zookeeper_units" {

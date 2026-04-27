@@ -31,10 +31,15 @@ jobs:
         run: |
           pipx install tox
           pipx install poetry
+
+      - uses: terraform-linters/setup-tflint@v6
+        name: Setup TFLint
+
       - id: code-checks
         name: Make sure the code follows conventions and tests correctly
         run: |
           cd python && tox -e lint
+
       - id: tests-unit
         name: Run Unittests
         run: |

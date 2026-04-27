@@ -6,6 +6,7 @@ resource "juju_application" "s3_integrator" {
   model_uuid = var.model_uuid
   charm {
     name     = "s3-integrator"
+    base     = var.base
     channel  = var.channel
     revision = var.revision
   }

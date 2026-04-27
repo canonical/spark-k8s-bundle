@@ -19,16 +19,6 @@ variable "create_model" {
   nullable    = false
 }
 
-variable "K8S_CLOUD" {
-  type    = string
-  default = "microk8s"
-}
-
-variable "K8S_CREDENTIAL" {
-  type    = string
-  default = "microk8s"
-}
-
 variable "cos_model_uuid" {
   type    = string
   default = null
@@ -80,25 +70,22 @@ variable "tls_private_key" {
 module "cos" {
   count = var.cos_model_uuid == null ? 0 : 1
   # TODO: Pin to tag once available
-  source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=cd55b1d"
+  # branch: track/2
+  source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=04ab6c618dbbec62292a052a61cdb402d80e5974"
   model_uuid   = var.cos_model_uuid
   internal_tls = false
 }
 
 resource "juju_model" "spark" {
-  count      = (var.model_uuid == null && var.create_model == true) ? 1 : 0
-  name       = var.spark_model_name
-  credential = var.K8S_CREDENTIAL
-  cloud {
-    name = var.K8S_CLOUD
-  }
+  count = (var.model_uuid == null && var.create_model == true) ? 1 : 0
+  name  = var.spark_model_name
 }
 
 module "spark" {
   depends_on = [juju_model.spark, module.cos]
   source     = "./products/charmed-spark-<spark_flavor>" # filled by test fixture
 
-  model_uuid   = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
+  model_uuid   = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
   create_model = false
 
   admin_password           = var.admin_password
@@ -110,7 +97,6 @@ module "spark" {
   s3_config                = var.s3_config
   storage_backend          = var.storage_backend
   tls_private_key          = var.tls_private_key
-  zookeeper_size           = "10G"
   zookeeper_units          = 1
 
   cos_offers = module.cos != [] ? {

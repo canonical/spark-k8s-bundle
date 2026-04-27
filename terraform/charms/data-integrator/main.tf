@@ -7,6 +7,7 @@ resource "juju_application" "data_integrator" {
 
   charm {
     name     = "data-integrator"
+    base     = var.base
     channel  = var.channel
     revision = var.revision
   }
