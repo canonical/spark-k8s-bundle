@@ -12,6 +12,7 @@ resource "juju_application" "grafana_agent" {
   }
 
   constraints = var.grafana_agent.constraints
+  resources   = var.grafana_agent.resources != {} ? var.grafana_agent.resources : { agent-image : local.images.grafana_agent }
   trust       = true
   units       = var.grafana_agent.units
 }
@@ -43,6 +44,7 @@ resource "juju_application" "pushgateway" {
   }
 
   constraints        = var.pushgateway.constraints
+  resources          = var.pushgateway.resources != {} ? var.pushgateway.resources : { pushgateway-image : local.images.pushgateway }
   storage_directives = var.pushgateway.storage_directives
   units              = var.pushgateway.units
 }

@@ -6,6 +6,7 @@ resource "juju_application" "azure_storage" {
   model_uuid = var.model_uuid
   charm {
     name     = "azure-storage-integrator"
+    base     = var.base
     channel  = var.channel
     revision = var.revision
   }

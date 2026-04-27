@@ -55,3 +55,5 @@ env
 .vscode
 dist
 .build
+.env
+tmp

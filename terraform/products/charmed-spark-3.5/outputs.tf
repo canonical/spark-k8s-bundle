@@ -15,7 +15,7 @@ output "metadata" {
   description = "Metadata of the product deployment."
   value = {
     version     = "3.5-tf_0.0.1"
-    deployed_at = timestamp()
+    deployed_at = terraform_data.deployed_at.output
     updated_at  = timestamp()
   }
 }
@@ -24,7 +24,7 @@ output "models" {
   description = "Map of the key of the model and the components deployed in the model."
   value = {
     spark = {
-      model_uuid = juju_model.spark != [] ? juju_model.spark[0].uuid : var.model_uuid
+      model_uuid = local.model_uuid
       components = merge(
         module.spark.components,
         {
@@ -42,13 +42,13 @@ output "models" {
         {
           kyuubi_users = module.kyuubi_users.app_name # TODO: expose application
         },
-        module.azure_storage == [] ? {} : {
+        length(module.azure_storage) == 0 ? {} : {
           azure_storage = module.azure_storage[0].application
         },
-        module.s3 == [] ? {} : {
+        length(module.s3) == 0 ? {} : {
           s3 = module.s3[0].application
         },
-        module.observability == [] ? {} : module.observability[0].components
+        length(module.observability) == 0 ? {} : module.observability[0].components
       )
     }
   }

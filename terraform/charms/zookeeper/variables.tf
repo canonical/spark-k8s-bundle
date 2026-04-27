@@ -9,10 +9,9 @@ variable "app_name" {
 }
 
 variable "base" {
-  description = "The operating system on which to deploy"
+  description = "The operating system on which to deploy. E.g. ubuntu@22.04."
   type        = string
-  default     = "ubuntu@22.04"
-  nullable    = false
+  default     = null
 }
 
 variable "channel" {
