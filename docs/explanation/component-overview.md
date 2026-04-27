@@ -13,7 +13,7 @@ Charmed Apache Spark is composed of foundational software artifacts and a set of
 
 ### spark8t
 
-[spark8t](https://github.com/canonical/spark-k8s-toolkit-py) is a Python library that extends Apache Spark with tooling to manage Spark jobs and service accounts with hierarchical configuration. It is the foundation shared by both the `spark-client` snap and the Juju charms.
+[spark8t](https://github.com/canonical/spark-k8s-toolkit-py) is a Python library that extends Apache Spark with tooling to manage Spark jobs and service accounts with hierarchical configuration. It is the foundation shared by both the `spark-client` snap, the OCI images and the Juju charms.
 
 ### Charmed Apache Spark Rock
 
@@ -35,11 +35,11 @@ The [spark-client snap](https://snapcraft.io/spark-client) provides CLI tools fo
 
 ### Core integrators
 
-The following charms form the foundation of any Charmed Apache Spark deployment, connecting Spark service accounts to object storage:
+The following charms form the foundation of any Charmed Apache Spark deployment, connecting Spark service accounts to external services, e.g. object storage or Canonical Observability Stack deployments:
 
 | Charm | Description |
 |---|---|
-| [`spark-integration-hub-k8s`](https://charmhub.io/spark-integration-hub-k8s) | Central hub that manages Spark service account configurations and writes them into Kubernetes Secrets. Connects to object storage integrators, Kyuubi, and optionally to the COS observability bridge. |
+| [`spark-integration-hub-k8s`](https://charmhub.io/spark-integration-hub-k8s) | Central hub that manages Spark service account configurations and writes them into Kubernetes Secrets. It allows high-level configuration of Spark properties and seamless integration with external services, such as object storage backends and COS deployments. |
 | [`s3-integrator`](https://charmhub.io/s3-integrator) | Supplies S3-compatible object storage credentials (endpoint, bucket, access key) to the Integration Hub and History Server. Supports MinIO, AWS S3, and any S3-compatible backend. |
 | [`azure-storage-integrator`](https://charmhub.io/azure-storage-integrator) | Alternative to `s3-integrator` for deployments using Azure Blob Storage. |
 
@@ -140,7 +140,7 @@ flowchart TB
     kyuubi --- metadb
     kyuubi --- zk
     kyuubi --- tls
-    di -->|get-credentials| kyuubi
+    di -->| kyuubi_client | kyuubi
     hs -->|metrics · logs · dashboards| agent
     pgw --- scrape -->|metrics| agent
     cosconf -->|dashboards| agent
