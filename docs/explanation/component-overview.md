@@ -11,14 +11,19 @@ Charmed Apache Spark is composed of foundational software artifacts and a set of
 
 ## Software artifacts
 
+Three foundational components that are used independently of Juju: [spark8t](explanation-component-overview-spark8t), the [Charmed Apache Spark Rock](explanation-component-overview-rock), and the [spark-client snap](explanation-component-overview-snap).
+
+(explanation-component-overview-spark8t)=
 ### spark8t
 
 [spark8t](https://github.com/canonical/spark-k8s-toolkit-py) is a Python library that extends Apache Spark with tooling to manage Spark jobs and service accounts with hierarchical configuration. It is the foundation shared by both the `spark-client` snap, the OCI images and the Juju charms.
 
+(explanation-component-overview-rock)=
 ### Charmed Apache Spark Rock
 
 The [Charmed Apache Spark Rock](https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark) is an OCI-compliant container image that bundles Apache Spark binaries together with Canonical tooling. It is used as the base image for Spark driver and executor pods on Kubernetes, and as the foundation for the `spark-client` snap.
 
+(explanation-component-overview-snap)=
 ### spark-client snap
 
 The [spark-client snap](https://snapcraft.io/spark-client) provides CLI tools for working with Charmed Apache Spark from a workstation or edge node. It communicates with the Kubernetes API to submit jobs and manage service accounts — it does not connect to any Juju charm directly.
@@ -33,20 +38,17 @@ The [spark-client snap](https://snapcraft.io/spark-client) provides CLI tools fo
 
 ## Juju operators (charms)
 
-### Core integrators
+Each subsection below groups charms by function. All charms can be deployed individually or together via the [bundle](https://charmhub.io/spark-k8s-bundle).
 
-The following charms form the foundation of any Charmed Apache Spark deployment, connecting Spark service accounts to external services, e.g. object storage or Canonical Observability Stack deployments:
+### Core components
+
+The following charms form the foundation of any Charmed Apache Spark deployment, connecting Spark service accounts to external services and providing a UI for completed job logs:
 
 | Charm | Description |
 |---|---|
 | [`spark-integration-hub-k8s`](https://charmhub.io/spark-integration-hub-k8s) | Central hub that manages Spark service account configurations and writes them into Kubernetes Secrets. It allows high-level configuration of Spark properties and seamless integration with external services, such as object storage backends and COS deployments. |
 | [`s3-integrator`](https://charmhub.io/s3-integrator) | Supplies S3-compatible object storage credentials (endpoint, bucket, access key) to the Integration Hub and History Server. Supports MinIO, AWS S3, and any S3-compatible backend. |
 | [`azure-storage-integrator`](https://charmhub.io/azure-storage-integrator) | Alternative to `s3-integrator` for deployments using Azure Blob Storage. |
-
-### History Server
-
-| Charm | Description |
-|---|---|
 | [`spark-history-server-k8s`](https://charmhub.io/spark-history-server-k8s) | Exposes a web UI for browsing and analyzing event logs of completed Spark jobs stored in object storage. Receives credentials from `s3-integrator` or `azure-storage-integrator`. |
 | [`traefik-k8s`](https://charmhub.io/traefik-k8s) | Kubernetes ingress proxy. Exposes the History Server web UI at a stable URL outside the cluster. |
 
@@ -96,11 +98,8 @@ flowchart TB
             azint["azure-storage-integrator"]
         end
 
-        subgraph hist-grp["History Server"]
-            direction LR
-            hs["spark-history-server-k8s"]
-            traefik["traefik-k8s"]
-        end
+        traefik["traefik-k8s"]
+        hs["spark-history-server-k8s"]
 
         subgraph kyu-grp["Apache Kyuubi"]
             direction TB
@@ -130,17 +129,20 @@ flowchart TB
 
     client -->|"K8s API<br>(spark-submit / pyspark)"| hub
     client -->|"JDBC"| kyuubi
-    backend <-->|credentials| s3int & azint
-    s3int & azint -->|s3-credentials| hub
-    s3int & azint -->|s3-credentials| hs
-    hub -->|service-account| kyuubi
+    backend <-->|credentials| s3int
+    backend <-->|credentials| azint
+    s3int -->|s3-credentials| hub
+    azint -->|azure-storage-credentials| hub
+    s3int -->|s3-credentials| hs
+    azint -->|azure-storage-credentials| hs
+    hub -->|spark-service-account| kyuubi
     hub -->|cos| pgw
     traefik -->|ingress| hs
-    kyuubi --- authdb
-    kyuubi --- metadb
-    kyuubi --- zk
-    kyuubi --- tls
-    di -->| kyuubi_client | kyuubi
+    kyuubi -->|auth-db| authdb
+    kyuubi -->|metastore-db| metadb
+    kyuubi -->|zookeeper| zk
+    kyuubi -->|certificates| tls
+    di -->|jdbc| kyuubi
     hs -->|metrics · logs · dashboards| agent
     pgw --- scrape -->|metrics| agent
     cosconf -->|dashboards| agent
