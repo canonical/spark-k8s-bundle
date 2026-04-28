@@ -49,16 +49,16 @@ watch -c juju status --color --relations
 Wait until the status to be active for each charm:
 
 ```text
-Model  Controller  Cloud/Region        Version  SLA          Timestamp
-cos    k8s         microk8s/localhost  3.1.7    unsupported  15:41:53+05:45
+Model  Controller      Cloud/Region        Version  SLA          Timestamp
+cos    spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:30:00+01:00
 
-App           Version  Status  Scale  Charm             Channel  Rev  Address         Exposed  Message
-alertmanager  0.25.0   active      1  alertmanager-k8s  stable    96  10.152.183.249  no       
-catalogue              active      1  catalogue-k8s     stable    33  10.152.183.165  no       
-grafana       9.2.1    active      1  grafana-k8s       stable    93  10.152.183.124  no       
-loki          2.7.4    active      1  loki-k8s          stable   105  10.152.183.145  no       
-prometheus    2.47.2   active      1  prometheus-k8s    stable   159  10.152.183.129  no       
-traefik       2.10.4   active      1  traefik-k8s       stable   166  192.168.10.120  no       
+App           Version  Status  Scale  Charm             Channel         Rev  Address         Exposed  Message
+alertmanager  0.27.0   active      1  alertmanager-k8s  1/stable        180  10.152.183.249  no       
+catalogue              active      1  catalogue-k8s     1/stable         87  10.152.183.165  no       
+grafana       9.5.21   active      1  grafana-k8s       1/stable        160  10.152.183.124  no       
+loki          2.9.6    active      1  loki-k8s          1/stable        199  10.152.183.145  no       
+prometheus    2.52.0   active      1  prometheus-k8s    1/stable        247  10.152.183.129  no       
+traefik       2.11.0   active      1  traefik-k8s       latest/stable   281  192.168.10.120  no       
 
 Unit             Workload  Agent  Address       Ports  Message
 alertmanager/0*  active    idle   10.1.139.112         
@@ -185,18 +185,18 @@ juju integrate cos-configuration-k8s grafana
 Once deployed and integrated, we can check the status of the Juju model with the command `juju status --relations`, which should be similar to the following:
 
 ```text
-Model  Controller  Cloud/Region        Version  SLA          Timestamp
-cos    k8s         microk8s/localhost  3.1.7    unsupported  17:44:56+05:45
+Model  Controller      Cloud/Region        Version  SLA          Timestamp
+cos    spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:35:00+01:00
 
-App                         Version  Status  Scale  Charm                       Channel  Rev  Address         Exposed  Message
-alertmanager                0.25.0   active      1  alertmanager-k8s            stable    96  10.152.183.249  no       
-catalogue                            active      1  catalogue-k8s               stable    33  10.152.183.165  no       
-cos-configuration-k8s       3.5.0    active      1  cos-configuration-k8s       stable    42  10.152.183.106  no       
-grafana                     9.2.1    active      1  grafana-k8s                 stable    93  10.152.183.124  no       
-loki                        2.7.4    active      1  loki-k8s                    stable   105  10.152.183.145  no       
-prometheus                  2.47.2   active      1  prometheus-k8s              stable   159  10.152.183.129  no       
-prometheus-pushgateway-k8s  1.6.2    active      1  prometheus-pushgateway-k8s  edge       7  10.152.183.36   no       
-traefik                     2.10.4   active      1  traefik-k8s                 stable   166  192.168.10.120  no       
+App                         Version  Status  Scale  Charm                       Channel         Rev  Address         Exposed  Message
+alertmanager                0.27.0   active      1  alertmanager-k8s            1/stable        180  10.152.183.249  no       
+catalogue                            active      1  catalogue-k8s               1/stable         87  10.152.183.165  no       
+cos-configuration-k8s                active      1  cos-configuration-k8s       2/stable         79  10.152.183.106  no       
+grafana                     9.5.21   active      1  grafana-k8s                 1/stable        160  10.152.183.124  no       
+loki                        2.9.6    active      1  loki-k8s                    1/stable        199  10.152.183.145  no       
+prometheus                  2.52.0   active      1  prometheus-k8s              1/stable        247  10.152.183.129  no       
+prometheus-pushgateway-k8s  1.11.1   active      1  prometheus-pushgateway-k8s  1/stable         27  10.152.183.36   no       
+traefik                     2.11.0   active      1  traefik-k8s                 latest/stable   281  192.168.10.120  no       
 
 Unit                           Workload  Agent  Address       Ports  Message
 alertmanager/0*                active    idle   10.1.139.74          

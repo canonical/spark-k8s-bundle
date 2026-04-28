@@ -87,15 +87,15 @@ Let's view the status of the Juju model now with the command `watch -c juju stat
 
 ```
 Model           Controller      Cloud/Region        Version  SLA          Timestamp
-history-server  spark-tutorial  microk8s/localhost  3.1.7    unsupported  07:29:35Z
+history-server  spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:28:10+01:00
 
-App                       Version  Status  Scale  Charm                     Channel     Rev  Address         Exposed  Message
-s3-integrator                      active      1  s3-integrator             edge         14  10.152.183.87   no       
-spark-history-server-k8s           active      1  spark-history-server-k8s  3.4/stable   15  10.152.183.111  no       
+App                       Version  Status  Scale  Charm                     Channel     Rev  Address        Exposed  Message
+s3-integrator                      active      1  s3-integrator             1/stable    330  10.152.183.99  no       
+spark-history-server-k8s           active      1  spark-history-server-k8s  3.4/stable   46  10.152.183.71  no       
 
-Unit                         Workload  Agent  Address      Ports  Message
-s3-integrator/0*             active    idle   10.1.29.167         
-spark-history-server-k8s/0*  active    idle   10.1.29.169         
+Unit                         Workload  Agent  Address       Ports  Message
+s3-integrator/0*             active    idle   10.1.177.159         
+spark-history-server-k8s/0*  active    idle   10.1.177.160         
 
 Integration provider               Requirer                                 Interface            Type     Message
 s3-integrator:s3-credentials       spark-history-server-k8s:s3-credentials  s3                   regular  

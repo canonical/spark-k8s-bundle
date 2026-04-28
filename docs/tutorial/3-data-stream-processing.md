@@ -80,15 +80,15 @@ Once all the charms have been deployed and integrated (you may need to wait some
 
 ```text
 Model            Controller      Cloud/Region        Version  SLA          Timestamp
-spark-streaming  spark-tutorial  microk8s/localhost  3.1.7    unsupported  10:13:55Z
+spark-streaming  spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:18:56+01:00
 
 App            Version  Status  Scale  Charm          Channel   Rev  Address         Exposed  Message
-kafka-k8s               active      1  kafka-k8s      3/stable   47  10.152.183.242  no       
-zookeeper-k8s           active      1  zookeeper-k8s  3/stable   42  10.152.183.87   no       
+kafka-k8s      3.9.0    active      1  kafka-k8s      3/stable   82  10.152.183.145  no       
+zookeeper-k8s  3.9.2    active      1  zookeeper-k8s  3/stable   78  10.152.183.104  no       
 
-Unit              Workload  Agent  Address      Ports  Message
-kafka-k8s/0*      active    idle   10.1.29.184         
-zookeeper-k8s/0*  active    idle   10.1.29.182 
+Unit              Workload  Agent  Address       Ports  Message
+kafka-k8s/0*      active    idle   10.1.177.150         
+zookeeper-k8s/0*  active    idle   10.1.177.148         
 ```
 
 As you can see, both Apache Kafka and Apache ZooKeeper charms are in the "active" status.
@@ -116,20 +116,19 @@ Once the integration is complete, `juju status` should display something similar
 
 ```text
 Model            Controller      Cloud/Region        Version  SLA          Timestamp
-spark-streaming  spark-tutorial  microk8s/localhost  3.6.14   unsupported  10:17:32Z
+spark-streaming  spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:19:58+01:00
 
-App             Version  Status  Scale  Charm           Channel       Rev  Address         Exposed  Message
-kafka-k8s                active      1  kafka-k8s       3/stable      47  10.152.183.242   no       
-kafka-test-app           active      3  kafka-test-app  latest/stable  8  10.152.183.167   no       Topic spark-streaming-store enabled with process producer
-zookeeper-k8s            active      1  zookeeper-k8s   3/stable      42  10.152.183.87    no       
+App             Version  Status  Scale  Charm           Channel        Rev  Address         Exposed  Message
+kafka-k8s       3.9.0    active      1  kafka-k8s       3/stable        82  10.152.183.145  no       
+kafka-test-app           active      3  kafka-test-app  latest/stable   11  10.152.183.54   no       Topic spark-streaming-store enabled with process producer
+zookeeper-k8s   3.9.2    active      1  zookeeper-k8s   3/stable        78  10.152.183.104  no       
 
-Unit               Workload  Agent  Address      Ports  Message
-kafka-k8s/0*       active    idle   10.1.29.184         
-kafka-test-app/0   active    idle   10.1.29.185         Topic spark-streaming-store enabled with process producer
-kafka-test-app/1   active    idle   10.1.29.186         Topic spark-streaming-store enabled with process producer
-kafka-test-app/2*  active    idle   10.1.29.187         Topic spark-streaming-store enabled with process producer
-
-zookeeper-k8s/0*   active    idle   10.1.29.182  
+Unit               Workload  Agent  Address       Ports  Message
+kafka-k8s/0*       active    idle   10.1.177.150         
+kafka-test-app/0*  active    idle   10.1.177.151         Topic spark-streaming-store enabled with process producer
+kafka-test-app/1   active    idle   10.1.177.153         Topic spark-streaming-store enabled with process producer
+kafka-test-app/2   active    idle   10.1.177.152         Topic spark-streaming-store enabled with process producer
+zookeeper-k8s/0*   active    idle   10.1.177.148         
 ```
 
 Now messages will be generated and written to Apache Kafka periodically by `kafka-test-app`.
@@ -148,21 +147,21 @@ Once this integration is complete, `juju status` should appear something similar
 
 ```text
 Model            Controller      Cloud/Region        Version  SLA          Timestamp
-spark-streaming  spark-tutorial  microk8s/localhost  3.1.7    unsupported  10:22:14Z
+spark-streaming  spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:21:00+01:00
 
 App              Version  Status  Scale  Charm            Channel        Rev  Address         Exposed  Message
-data-integrator           active      1  data-integrator  latest/stable   15  10.152.183.18   no       
-kafka-k8s                 active      1  kafka-k8s        3/stable        47  10.152.183.242  no       
-kafka-test-app            active      3  kafka-test-app   latest/stable    8  10.152.183.167  no       Topic spark-streaming-store enabled with process producer
-zookeeper-k8s             active      1  zookeeper-k8s    3/stable        42  10.152.183.87   no       
+data-integrator           active      1  data-integrator  latest/stable  362  10.152.183.217  no       
+kafka-k8s        3.9.0    active      1  kafka-k8s        3/stable        82  10.152.183.145  no       
+kafka-test-app            active      3  kafka-test-app   latest/stable   11  10.152.183.54   no       Topic spark-streaming-store enabled with process producer
+zookeeper-k8s    3.9.2    active      1  zookeeper-k8s    3/stable        78  10.152.183.104  no       
 
-Unit                Workload  Agent  Address      Ports  Message
-data-integrator/0*  active    idle   10.1.29.189         
-kafka-k8s/0*        active    idle   10.1.29.184         
-kafka-test-app/0    active    idle   10.1.29.185         Topic spark-streaming-store enabled with process producer
-kafka-test-app/1    active    idle   10.1.29.186         Topic spark-streaming-store enabled with process producer
-kafka-test-app/2*   active    idle   10.1.29.187         Topic spark-streaming-store enabled with process producer
-zookeeper-k8s/0*    active    idle   10.1.29.182 
+Unit                Workload  Agent  Address       Ports  Message
+data-integrator/0*  active    idle   10.1.177.154         
+kafka-k8s/0*        active    idle   10.1.177.150         
+kafka-test-app/0*   active    idle   10.1.177.151         Topic spark-streaming-store enabled with process producer
+kafka-test-app/1    active    idle   10.1.177.153         Topic spark-streaming-store enabled with process producer
+kafka-test-app/2    active    idle   10.1.177.152         Topic spark-streaming-store enabled with process producer
+zookeeper-k8s/0*    active    idle   10.1.177.148         
 ```
 
 Now that `data-integrator` is deployed and integrated with `kafka-k8s`, we can get the credentials to connect to Apache Kafka by running the `get-credentials` action exposed by the `data-integrator` charm:

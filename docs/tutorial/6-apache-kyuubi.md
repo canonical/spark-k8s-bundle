@@ -108,13 +108,13 @@ watch -c juju status --relations --color
 Wait until the status to be active for each charm:
 
 ```text
-Model              Controller  Cloud/Region        Version  SLA          Timestamp
-datalake           microk8s    microk8s/localhost  3.6.14   unsupported  16:43:19+02:00
+Model              Controller      Cloud/Region        Version  SLA          Timestamp
+datalake           spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:40:00+01:00
 
-App              Version  Status  Scale  Charm           Channel        Rev  Address         Exposed  Message
-auth-db          14.15    active      1  postgresql-k8s  14/stable      495  10.152.183.19   no
-data-integrator           active      1  data-integrator  latest/stable  181  10.152.183.94   no
-kyuubi-k8s       1.10     active      1  kyuubi-k8s      3.4/stable     109  10.152.183.84   no
+App              Version  Status  Scale  Charm            Channel        Rev  Address         Exposed  Message
+auth-db          14.20    active      1  postgresql-k8s   14/stable      774  10.152.183.19   no
+data-integrator           active      1  data-integrator  latest/stable  362  10.152.183.94   no
+kyuubi-k8s       1.10     active      1  kyuubi-k8s       3.4/stable     162  10.152.183.84   no
 
 Unit                 Workload  Agent  Address       Ports  Message
 auth-db/0*           active    idle   10.1.111.95          Primary
@@ -148,7 +148,7 @@ kyuubi:
   tls: "False"
   uris: jdbc:hive2://10.64.140.43:10009/
   username: relation_id_15
-  version: 1.10.2
+  version: 1.10.3
 ok: "True"
 ```
 
@@ -324,7 +324,7 @@ kyuubi:
     -----END CERTIFICATE-----
   uris: jdbc:hive2://10.64.140.43:10009/
   username: relation_id_15
-  version: 1.10.2
+  version: 1.10.3
 ok: "True"
 ```
 

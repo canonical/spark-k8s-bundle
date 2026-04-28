@@ -305,7 +305,7 @@ The output of the command should be similar to:
 Use --refresh option with this command to see the latest information.
 
 Controller       Model  User   Access     Cloud/Region        Models  Nodes  HA  Version
-spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   -  3.6.14  
+spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   -  3.6.21  
 ```
 
 The Juju setup is complete.
