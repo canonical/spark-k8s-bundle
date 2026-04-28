@@ -55,7 +55,6 @@ jobs:
         uses: actions/checkout@v6
       - name: Run integration test
         uses: ./.github/actions/run-test
-        timeout-minutes: 40
         with:
           k8s-distribution: ${{ matrix.k8s-distribution }}
           k8s-version: ${{ matrix.k8s-version }}
