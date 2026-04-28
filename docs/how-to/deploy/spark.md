@@ -9,8 +9,8 @@ myst:
 
 Charmed Apache Spark comes with a bundled set of components that allow you to easily manage Apache
 Spark workloads on K8s, providing integration with object storage, monitoring and log aggregation.
-For an overview on the different components that form Charmed Apache Spark, please refer to the
-[components overview](explanation-component-overview) page.
+
+For an overview of all components and how they relate to each other, see the [Components overview](explanation-component-overview).
 
 ## Prerequisites
 
@@ -218,6 +218,23 @@ The following table provides the description of the different configuration opti
 | `s3.endpoint` | Endpoint of the S3-compatible object storage backend, in the form of `http(s)//host:port`.                                            |
 | `s3.bucket`   | Name of the S3 bucket to be used for storing logs and data                                                                            |
 | `cos_model`   | (Optional) Name of the model where COS is deployed. If omitted, the resource of the cos-integration submodules will not be deployed   |
+
+#### Example .tfvars.json
+
+For example, to point to the MinIO instance and the right bucket:
+
+```json
+{
+  "storage_backend": "s3",
+  "s3": {
+    "region": "eu-central-1",
+    "bucket": "spark-test",
+    "endpoint": "http://<host>:80"
+  }
+}
+```
+
+For more information on this particular example, see the [microK8s MinIO demo](https://github.com/deusebio/datawarehousing-with-spark/blob/main/docs/microk8s_minio.md). For other examples, see the [repository](https://github.com/deusebio/datawarehousing-with-spark/blob/main/README.md).
 
 ```{caution}
 The Juju Terraform provider does not yet support cross-controller relations with COS.
