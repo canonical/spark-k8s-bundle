@@ -57,7 +57,7 @@ jobs:
           provider: microk8s
           channel: "${{ matrix.k8s-version }}-strict/stable"
           # bootstrap-options: "--agent-version ${{ matrix.juju.agent }}"
-          bootstrap-options: '--logging-config="<root>=DEBUG;juju.worker.undertaker=TRACE;juju.kubernetes.provider=TRACE"'
+          bootstrap-options: '--model-default logging-config="<root>=DEBUG;juju.worker.undertaker=TRACE;juju.kubernetes.provider=TRACE"'
           microk8s-group: snap_microk8s
           microk8s-addons: "hostpath-storage rbac dns metallb:10.64.140.43-10.64.140.49"
       # - name: Patch juju installation
@@ -121,7 +121,7 @@ jobs:
           fi
       - id: tests-integration
         name: Run Integration Tests
-        timeout-minutes: 30
+        timeout-minutes: 20
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
