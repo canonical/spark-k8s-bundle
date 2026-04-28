@@ -4,6 +4,11 @@ myst:
     description: "Learn how to run distributed data processing jobs with PySpark and Spark Submit on Kubernetes using Charmed Apache Spark."
 ---
 
+<!-- test:spread
+priority: 600
+kill-timeout: 10m
+-->
+
 (tutorial-2-distributed-data-processing)=
 # 2. Distributed data processing
 
@@ -132,6 +137,20 @@ Let's download a sample dataset, store it in an S3 object storage, and do some d
 
 #### Prepare a dataset
 
+<!-- test:run
+# Create a mock twitter.csv for automated testing (avoids 500MB Kaggle download)
+mkdir -p twcs
+cat > twcs/twcs.csv << 'MOCK_CSV_EOF'
+tweet_id,author_id,inbound,created_at,text,response_tweet_id,in_response_to_tweet_id
+1,user1,True,2017-10-22,"I love Ubuntu and use it daily",2,
+2,user2,True,2017-10-22,"Great day for coding",3,
+3,user3,True,2017-10-22,"Try ubuntu desktop for development",4,
+4,user4,True,2017-10-22,"Working on my project",5,
+5,user5,True,2017-10-22,"Ubuntu is the best OS",6,
+MOCK_CSV_EOF
+aws s3 cp twcs/twcs.csv s3://spark-tutorial/twitter.csv
+-->
+
 For the purpose of this tutorial, we will use a dataset from Kaggle with over 3 million tweets: [Customer Support on Twitter](https://www.kaggle.com/datasets/thoughtvector/customer-support-on-twitter).
 
 If you download and check this dataset, you'll see it contains seven columns/fields, but we are only interested in the one with the header `text`.
@@ -216,39 +235,17 @@ Charmed Apache Spark comes with a command that can be used to submit Spark jobs 
 
 For a quick example, let's see how it can be done using slightly refactored code from the previous section:
 
-```python
-from operator import add
-from pyspark.sql import SparkSession
-
-def contains_ubuntu(text):
-    return 1 if isinstance(text, str) and "ubuntu" in text.lower() else 0
-
-# Create a Spark session 
-spark = SparkSession\
-        .builder\
-        .appName("CountUbuntuTweets")\
-        .getOrCreate()
-
-# Read the CSV file into a DataFrame and convert to RDD
-rdd = spark.read.csv("s3a://spark-tutorial/twitter.csv", header=True).rdd
-
-# Count how many rows contain the word "ubuntu" in the "text" column
-count = (
-    rdd.map(lambda row: row["text"])  # Extract the "text" column
-        .map(contains_ubuntu)  # Apply the contains_ubuntu function
-        .reduce(add)  # Sum all the 1 and 0 to get the total number of matches
-)
-
-# Print the result
-print(f"Number of tweets containing Ubuntu: {count}")
-
-spark.stop()
+```{literalinclude} ../../python/tests/tutorial/resources/count_ubuntu.py
+:language: python
 ```
 
 We’ve added a few more lines to what we’ve executed so far. The Apache Spark session, which would be available by default in a PySpark shell, needs to be explicitly created. Also, we’ve added `spark.stop()` at the end of the file to stop the Apache Spark session after completion of the job.
 
 Let’s save the aforementioned script in a file named `count-ubuntu.py` and proceed further to run it.
-
+<!-- test:run
+# Copy count-ubuntu.py from repo resources
+cp "$SPREAD_PATH/python/tests/tutorial/resources/count_ubuntu.py" count-ubuntu.py
+-->
 ### Run
 
 When submitting a Spark job, the driver won’t be running in the local machine but on a K8s pod, hence the script needs to be downloaded and then executed remotely on Kubernetes in a dedicated pod.
@@ -264,13 +261,13 @@ where `spark-tutorial` is the name of the VM.
 
 Copy the file to the S3-compatible storage:
 
-```bash
+```shell
 aws s3 cp count-ubuntu.py s3://spark-tutorial/count-ubuntu.py
 ```
 
 Now run the script by issuing the following command:
 
-```bash
+```shell
 spark-client.spark-submit \
     --username spark --namespace spark \
     --deploy-mode cluster \
@@ -305,7 +302,23 @@ The executor pods are deleted automatically.
 The script prints the result to the console output, but that's the driver's console.
 To see the printed message, let's find the driver pod's name and filter the logs from it:
 
-```bash
+<!-- test:wait --seconds 60 -->
+
+<!-- test:run
+# Wait for the driver pod to reach Completed state
+for i in $(seq 1 30); do
+  pod_name=$(kubectl get pods -n spark | grep "count-ubuntu-.*-driver" | tail -n 1 | cut -d' ' -f1)
+  if [ -n "$pod_name" ]; then
+    phase=$(kubectl get pod "$pod_name" -n spark -o jsonpath='{.status.phase}' 2>/dev/null)
+    if [ "$phase" = "Succeeded" ] || [ "$phase" = "Failed" ]; then
+      break
+    fi
+  fi
+  sleep 5
+done
+-->
+
+```shell
 pod_name=$(kubectl get pods -n spark | grep "count-ubuntu-.*-driver" | tail -n 1 | cut -d' ' -f1)
 kubectl logs $pod_name -n spark | grep "Number of tweets containing Ubuntu:"
 ```
@@ -317,3 +330,8 @@ The result should look similar to the following:
 ```
 
 By default, Apache Spark stores the logs of drivers and executors as pod logs in the local file systems, which are lost once the pods are deleted. Apache Spark can store these logs in a persistent object storage system, like S3, so that they can later be retrieved and visualized by a component called Spark History Server.
+
+<!-- test:assert
+pod_name=$(kubectl get pods -n spark --no-headers | grep "count-ubuntu-.*-driver" | tail -n 1 | awk '{print $1}')
+kubectl get pod "$pod_name" -n spark -o jsonpath='{.status.phase}' | grep -q "Succeeded"
+-->

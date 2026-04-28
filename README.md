@@ -43,6 +43,24 @@ For information on security features and the use of cryptography, see the [Secur
 
 Security issues in the Charmed Apache Spark can be reported through [LaunchPad](https://wiki.ubuntu.com/DebuggingSecurity). Please do not file GitHub issues about security issues.
 
+## Tutorial tests
+
+The tutorial (`docs/tutorial/`) is tested end-to-end using [Spread](https://github.com/canonical/spread) inside a Multipass VM. Shell commands are extracted directly from the Markdown sources, so the tutorial itself is the test.
+
+Run the full tutorial suite (extract + run Spread tests):
+
+```bash
+tox -e tutorial
+```
+
+Only generate test scripts from the Markdown tutorial pages (no VM needed):
+
+```bash
+tox -e tutorial-extract
+```
+
+Both commands must be run from the `python/` directory (or via `cd python && tox …`). See [python/tests/tutorial/TESTING.md](python/tests/tutorial/TESTING.md) for prerequisites, run modes, debug tips, and the full annotation reference.
+
 ## Contributing
 
 Canonical welcomes contributions to Charmed Apache Spark. Please check out our [contribution guidelines](python/CONTRIBUTING.md) if you're interested in contributing to the solution. If you truly enjoy working on open-source projects like this one and you would like to be part of the OSS revolution, please don't forget to check out the [career opportunities](https://canonical.com/careers/all) we have at [Canonical](https://canonical.com/).  

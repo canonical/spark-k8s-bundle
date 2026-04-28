@@ -4,6 +4,15 @@ myst:
     description: "Complete the Charmed Apache Spark tutorial by cleaning up resources and discover next steps for production deployments on AWS EKS."
 ---
 
+<!-- test:spread
+priority: 100
+kill-timeout: 5m
+-->
+
+<!-- test:run
+echo "Tutorial complete. Spread will clean up the VM automatically."
+-->
+
 (tutorial-7-wrapping-up)=
 # 7. Wrapping Up
 
@@ -14,7 +23,7 @@ This section concludes the Tutorial by freeing up the resources used so far.
 Since we've used a Multipass VM for this tutorial,
 the clean up process consists of making sure the VM is deleted from the Host machine.
 
-```shell
+```bash
 multipass delete --purge spark-tutorial
 ```
 
