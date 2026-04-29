@@ -58,6 +58,16 @@ inputs:
     required: false
     default: ""
     type: string
+  tfvars-file:
+    description: "Optional artifact name containing a tfvars file to pass to pytest"
+    required: false
+    default: ""
+    type: string
+  architecture:
+    description: "Target architecture for the test run"
+    required: false
+    default: "amd64"
+    type: string
 
 runs:
   using: "composite"
@@ -166,7 +176,7 @@ runs:
 
     - id: setup-python
       name: Setup Python
-      uses: actions/setup-python@v5.0.0
+      uses: actions/setup-python@v5.3.0
       with:
         python-version: "3.10"
         architecture: x64
@@ -222,6 +232,14 @@ runs:
           sudo snap install terraform --classic
         fi
 
+    - id: download-tfvars
+      name: Download tfvars artifact
+      if: ${{ inputs.tfvars-file != '' }}
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.tfvars-file }}
+        path: tfvars-artifacts
+
     - id: tests-integration
       name: Run Integration Tests
       shell: bash
@@ -229,9 +247,34 @@ runs:
         AZURE_STORAGE_ACCOUNT: ${{ inputs.azure-storage-account }}
         AZURE_STORAGE_KEY: ${{ inputs.azure-storage-key }}
       run: |
+        TFVARS_ARG=""
+        if [[ -n "${{ inputs.tfvars-file }}" ]]; then
+
+          version=${{ inputs.spark-version }}
+          major_minor="${version%.*}"   # -> 3.5
+          arch="${{ inputs.architecture }}"
+
+          TFVARS_PATH="$(find tfvars-artifacts -type f -name "${major_minor}@${arch}.yaml" | head -n1)"
+          if [[ -z "$TFVARS_PATH" ]]; then
+            echo "ERROR: no tfvars file found in artifact '${{ inputs.tfvars-file }}'."
+            find tfvars-artifacts -type f || true
+            exit 1
+          fi
+
+          pip install pyyaml
+          python3 .github/scripts/charms_promotions.py get-revisions \
+            --format yaml --file $TFVARS_PATH --output tfvars
+          
+          REVISION_FILE="${major_minor}@${arch}.tfvars.yaml"
+
+          cp $REVISION_FILE python/revisions.tfvars.yaml
+
+          TFVARS_ARG="--tfvars-file revisions.tfvars.yaml"
+        fi
+
         juju add-model spark-bundle-test
         juju list-models
-        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }}
+        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }} $TFVARS_ARG
         echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
 
     - id: collect-logs
@@ -296,5 +339,4 @@ runs:
       with:
         name: integration-results-${{ inputs.tox-env }}-${{ inputs.k8s-distribution }}-${{ inputs.k8s-version }}-${{ inputs.spark-version }}-${{ inputs.storage-backend }}-${{ inputs.cos-model }}-${{ inputs.juju-agent-version }}
         path: test-result.json
-
 
