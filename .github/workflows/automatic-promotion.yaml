@@ -4,7 +4,6 @@
 name: Automatic promotion of bundle revisions
 
 on:
-  pull_request:
   workflow_dispatch:
     inputs:
 
