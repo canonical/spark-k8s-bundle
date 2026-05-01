@@ -181,7 +181,7 @@ runs:
 
     - id: setup-python
       name: Setup Python
-      uses: actions/setup-python@v5.0.0
+      uses: actions/setup-python@v5.3.0
       with:
         python-version: "3.10"
         architecture: x64
@@ -236,6 +236,14 @@ runs:
           echo "Installing terraform from snap"
           sudo snap install terraform --classic
         fi
+
+    - id: download-tfvars
+      name: Download tfvars artifact
+      if: ${{ inputs.tfvars-file != '' }}
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.tfvars-file }}
+        path: tfvars-artifacts
 
     - id: tests-integration
       name: Run Integration Tests
