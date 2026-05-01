@@ -1,0 +1,18 @@
+architectures:
+  - amd64
+  - arm64
+releases:
+  3.4:
+    - name: kyuubi-k8s
+      channel: 3.4/
+    - name: spark-history-server-k8s
+      channel: 3/
+    - name: spark-integration-hub-k8s
+      channel: 3/
+  3.5:
+    - name: kyuubi-k8s
+      channel: 3.5/
+    - name: spark-history-server-k8s
+      channel: 3/
+    - name: spark-integration-hub-k8s
+      channel: 3/

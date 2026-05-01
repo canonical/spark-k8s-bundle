@@ -5,6 +5,12 @@ name: Run CI tests
 
 on:
   workflow_call:
+    inputs:
+      tfvars-file:
+        description: "Optional artifact name containing tfvars for test runs"
+        required: false
+        type: string
+        default: ""
 
 jobs:
   checks:
@@ -91,6 +97,7 @@ jobs:
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
           pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
+          tfvars-file: ${{ inputs.tfvars-file }}
 
   aggregate-results:
     name: Aggregate Results
