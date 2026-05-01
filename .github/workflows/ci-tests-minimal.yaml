@@ -5,6 +5,12 @@ name: Run CI tests
 
 on:
   workflow_call:
+    inputs:
+      tfvars-file:
+        description: "Optional artifact name containing tfvars for test runs"
+        required: false
+        type: string
+        default: ""
 
 jobs:
   checks:

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import base64
+import json
 import logging
 import os
 import shutil
@@ -20,6 +21,7 @@ from typing import cast
 import hcl2
 import jubilant
 import pytest
+import yaml
 from dotenv import load_dotenv
 from spark8t.utils import PropertyFile
 from tenacity import retry, stop_after_attempt
@@ -205,6 +207,36 @@ def storage_backend(request) -> str:
 def test_uuid(request) -> str:
     """The backend which is to be used to deploy the bundle."""
     return request.config.getoption("--uuid") or str(uuid.uuid4())
+
+
+@pytest.fixture(scope="module")
+def tfvars(request) -> dict:
+    """External Terraform variables loaded from a file."""
+    tfvars_file = request.config.getoption("--tfvars-file")
+
+    if not tfvars_file:
+        return {}
+
+    file_path = Path(tfvars_file)
+    if not file_path.exists():
+        raise FileNotFoundError(f"Terraform variables file not found: {tfvars_file}")
+
+    # Load JSON or YAML file
+    with file_path.open("r", encoding="utf-8") as f:
+        try:
+            if file_path.suffix.lower() == ".json":
+                data = json.load(f)
+            else:
+                data = yaml.safe_load(f)
+        except (json.JSONDecodeError, yaml.YAMLError) as err:
+            raise ValueError(
+                f"Failed to parse Terraform variables file: {err}"
+            ) from err
+
+    if not isinstance(data, dict):
+        raise ValueError("Terraform variables file must contain a JSON/YAML mapping")
+
+    return data
 
 
 @pytest.fixture(scope="module")
@@ -423,6 +455,7 @@ def spark_bundle(
     object_storage,
     admin_password,
     private_key,
+    tfvars,
 ):
     """Deploy the Spark K8s bundle using Terraform."""
     unpinned_revisions = bool(request.config.getoption("--unpinned-revisions"))
