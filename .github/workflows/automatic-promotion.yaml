@@ -1,0 +1,83 @@
+# Copyright 2026 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+name: Automatic promotion of bundle revisions
+
+on:
+  workflow_dispatch:
+    inputs:
+
+      from-risk:
+        description: "Risk level to fetch revisions from"
+        required: true
+        default: edge
+        type: choice
+        options:
+          - edge
+          - beta
+          - candidate
+
+      to-risk:
+        description: "Risk level to promote revisions to"
+        required: true
+        default: candidate
+        type: choice
+        options:
+          - beta
+          - candidate
+          - stable
+
+      gate:
+        description: "Workflow to gate promotion on"
+        required: true
+        default: ci-tests-full
+        type: choice
+        options:
+          - ci-tests-minimal
+          - ci-tests-full
+
+      dry-run:
+        description: "Whether to run promotion in dry-run mode"
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  generate-revisions:
+    name: Generate charm revisions
+    uses: ./.github/workflows/generate-charm-revisions.yaml
+    secrets: inherit
+    with:
+      risk: ${{ inputs.from-risk || 'edge' }}
+
+  tests-full:
+    name: Run CI tests (full)
+    needs: generate-revisions
+    if: github.event_name == 'pull_request' || github.event.inputs.gate == 'ci-tests-full'
+    uses: ./.github/workflows/ci-tests-full.yaml
+    secrets: inherit
+    with:
+      tfvars-file: ${{ needs.generate-revisions.outputs.tfvars-artifact-name }}
+
+  tests-minimal:
+    name: Run CI tests (minimal)
+    needs: generate-revisions
+    if: github.event.inputs.gate == 'ci-tests-minimal'
+    uses: ./.github/workflows/ci-tests-minimal.yaml
+    secrets: inherit
+    with:
+      tfvars-file: ${{ needs.generate-revisions.outputs.tfvars-artifact-name }}
+
+  promotion:
+    name: Promotion
+    needs:
+      - generate-revisions
+      - tests-full
+      - tests-minimal
+    if: ${{ always() && (needs.tests-full.result == 'success' || needs.tests-minimal.result == 'success') }}
+    uses: ./.github/workflows/promote-charm-revisions.yaml
+    secrets: inherit
+    with:
+      tfvars-artifact-name: ${{ needs.generate-revisions.outputs.tfvars-artifact-name }}
+      risk: ${{ inputs.to-risk || 'beta'}}
+      dry-run: ${{ inputs.dry-run || true }}

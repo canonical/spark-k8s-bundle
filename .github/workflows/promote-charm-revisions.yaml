@@ -1,0 +1,64 @@
+# Copyright 2026 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+name: Promote charm revisions
+
+on:
+  workflow_call:
+    inputs:
+      tfvars-artifact-name:
+        description: "Name of the artifact containing generated tfvars"
+        required: true
+        type: string
+      risk:
+        description: "Risk level to promote revisions to"
+        required: true
+        type: string
+      dry-run:
+        description: "Whether to run promotion in dry-run mode"
+        required: true
+        type: boolean
+
+jobs:
+  promotion:
+    name: Promotion
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - id: setup-python
+        name: Setup Python
+        uses: actions/setup-python@v5.3.0
+        with:
+          python-version: "3.10"
+          architecture: x64
+
+      - id: download-tfvars
+        name: Download tfvars artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.tfvars-artifact-name }}
+          path: tfvars-artifacts
+
+      - id: run-promotion
+        name: Run promotion
+        shell: bash
+        env:
+          CHARMCRAFT_AUTH: ${{ secrets.CHARMHUB_TOKEN }}
+        run: |
+          pip install pyyaml
+          sudo snap install charmcraft --classic
+
+          PROMOTION_MODE="--dry-run"
+          if [[ "${{ inputs.dry-run }}" == "false" ]]; then
+            PROMOTION_MODE="--apply"
+          fi
+
+          REVISION_FILES=$(find tfvars-artifacts -type f -name "*.yaml")
+          for REVISION_FILE in $REVISION_FILES; do
+            echo "Processing $REVISION_FILE"
+            python3 .github/scripts/charms_promotions.py promote \
+              --format yaml --promote-to "${{ inputs.risk }}" "$PROMOTION_MODE" \
+              --file "$REVISION_FILE"
+          done
