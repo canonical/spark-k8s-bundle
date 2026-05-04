@@ -39,7 +39,9 @@ from pathlib import Path
 SKIP_MARKER = "<!-- test:skip -->"
 _SLEEP_PATTERN = re.compile(r"<!--\s*test:wait\s+--seconds\s+(\d+)\s*-->")
 _AWAIT_IDLE_PATTERN = re.compile(r"<!--\s*test:await-idle(.*?)-->")
-_RUN_WITH_TIMEOUT_PATTERN = re.compile(r"<!--\s*test:run-with-timeout\s+--seconds\s+(\d+)\s*-->")
+_RUN_WITH_TIMEOUT_PATTERN = re.compile(
+    r"<!--\s*test:run-with-timeout\s+--seconds\s+(\d+)\s*-->"
+)
 _SET_VARIABLES_START = re.compile(r"<!--\s*test:set-variables\s*$")
 _RUN_HIDDEN_START = re.compile(r"<!--\s*test:run\s*$")
 _ASSERT_START = re.compile(r"<!--\s*test:assert\s*$")
@@ -222,7 +224,10 @@ class _ParseState:
 
 
 def _handle_run_with_timeout(
-    lines: list[str], i: int, blocks: list[str], state: _ParseState,
+    lines: list[str],
+    i: int,
+    blocks: list[str],
+    state: _ParseState,
 ) -> int:
     match = _RUN_WITH_TIMEOUT_PATTERN.match(lines[i].strip())
     state.run_with_timeout_seconds = int(match.group(1))  # type: ignore[union-attr]
@@ -230,7 +235,10 @@ def _handle_run_with_timeout(
 
 
 def _handle_set_variables(
-    lines: list[str], i: int, blocks: list[str], state: _ParseState,
+    lines: list[str],
+    i: int,
+    blocks: list[str],
+    state: _ParseState,
 ) -> int:
     snippet, substitutions, next_i = _parse_set_variables_block(lines, i)
     if snippet:
@@ -240,7 +248,10 @@ def _handle_set_variables(
 
 
 def _handle_spread_meta(
-    lines: list[str], i: int, blocks: list[str], state: _ParseState,
+    lines: list[str],
+    i: int,
+    blocks: list[str],
+    state: _ParseState,
 ) -> int:
     j = i
     while j < len(lines) and "-->" not in lines[j]:
@@ -249,7 +260,10 @@ def _handle_spread_meta(
 
 
 def _handle_assert(
-    lines: list[str], i: int, blocks: list[str], state: _ParseState,
+    lines: list[str],
+    i: int,
+    blocks: list[str],
+    state: _ParseState,
 ) -> int:
     snippet, next_i = _parse_run_hidden_block(lines, i, state.active_substitutions)
     if snippet:
@@ -258,7 +272,10 @@ def _handle_assert(
 
 
 def _handle_run_hidden(
-    lines: list[str], i: int, blocks: list[str], state: _ParseState,
+    lines: list[str],
+    i: int,
+    blocks: list[str],
+    state: _ParseState,
 ) -> int:
     snippet, next_i = _parse_run_hidden_block(lines, i, state.active_substitutions)
     if snippet:
@@ -267,11 +284,18 @@ def _handle_run_hidden(
 
 
 def _handle_shell_open(
-    lines: list[str], i: int, blocks: list[str], state: _ParseState,
+    lines: list[str],
+    i: int,
+    blocks: list[str],
+    state: _ParseState,
 ) -> int:
     next_i = _collect_shell_block(
-        lines, i + 1, state.skip_next, state.run_with_timeout_seconds,
-        state.active_substitutions, blocks,
+        lines,
+        i + 1,
+        state.skip_next,
+        state.run_with_timeout_seconds,
+        state.active_substitutions,
+        blocks,
     )
     state.skip_next = False
     state.run_with_timeout_seconds = None

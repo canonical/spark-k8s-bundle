@@ -121,11 +121,6 @@ follow_imports = "silent"
 
 [[tool.mypy.overrides]]
 module = [
-  "envyaml",
-  "pytest",
-  "spark8t.domain",
-  "spark8t.services",
-  "spark8t.utils",
   "impala.dbapi",
   "impala.hiveserver2",
   "pyspark.sql",
