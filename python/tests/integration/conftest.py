@@ -48,6 +48,7 @@ COS_APPS = [
     "alertmanager",
 ]
 FORWARD_TIMEOUT_SECONDS = 10
+TFVARS_DIR = Path("tests/integration/resources/tfvars")
 load_dotenv()
 logger = logging.getLogger(__name__)
 logging.getLogger("jubilant.wait").setLevel(logging.WARNING)
@@ -474,7 +475,10 @@ def spark_bundle(
     # Merge external Terraform variables
     base_vars.update(tfvars)
 
-    cos_vars = {"cos_model_uuid": cos} if cos else {}
+    cos_vars = {}
+    if cos:
+        with (TFVARS_DIR / "obs_amd64.json").open("r", encoding="utf-8") as f:
+            cos_vars = {"cos_model_uuid": cos, **json.load(f)}
 
     if storage_backend == "azure_storage":
         storage_unit = cast(Container, object_storage)

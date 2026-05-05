@@ -85,6 +85,18 @@ variable "integration_hub_revision" {
   default     = null
 }
 
+variable "observability" {
+  type = object({
+    cos_configuration_revision = optional(string)
+    grafana_agent_revision     = optional(string)
+    pushgateway_revision       = optional(string)
+    scrape_config_revision     = optional(string)
+    grafana_agent_image        = optional(string)
+    pushgateway_image          = optional(string)
+  })
+  default = {}
+}
+
 module "cos" {
   count = var.cos_model_uuid == null ? 0 : 1
   # TODO: Pin to tag once available
@@ -106,19 +118,25 @@ module "spark" {
   model_uuid   = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
   create_model = false
 
-  admin_password           = var.admin_password
-  azure_storage_config     = var.azure_storage_config
-  azure_storage_secret_key = var.azure_storage_secret_key
-  history_server_revision  = var.history_server_revision
-  integration_hub_revision = var.integration_hub_revision
-  kyuubi_config            = var.kyuubi_config
-  kyuubi_revision          = var.kyuubi_revision
-  kyuubi_users_size        = "500M"
-  metastore_size           = "500M"
-  s3_config                = var.s3_config
-  storage_backend          = var.storage_backend
-  tls_private_key          = var.tls_private_key
-  zookeeper_units          = 1
+  admin_password             = var.admin_password
+  azure_storage_config       = var.azure_storage_config
+  azure_storage_secret_key   = var.azure_storage_secret_key
+  cos_configuration_revision = var.observability.cos_configuration_revision
+  grafana_agent_image        = var.observability.grafana_agent_image
+  grafana_agent_revision     = var.observability.grafana_agent_revision
+  history_server_revision    = var.history_server_revision
+  integration_hub_revision   = var.integration_hub_revision
+  kyuubi_config              = var.kyuubi_config
+  kyuubi_revision            = var.kyuubi_revision
+  kyuubi_users_size          = "500M"
+  metastore_size             = "500M"
+  pushgateway_image          = var.observability.pushgateway_image
+  pushgateway_revision       = var.observability.pushgateway_revision
+  s3_config                  = var.s3_config
+  scrape_config_revision     = var.observability.scrape_config_revision
+  storage_backend            = var.storage_backend
+  tls_private_key            = var.tls_private_key
+  zookeeper_units            = 1
 
   cos_offers = module.cos != [] ? {
     dashboard = module.cos[0].offers.grafana_dashboards.url

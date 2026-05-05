@@ -250,7 +250,7 @@ module "observability" {
   metrics_offer    = var.cos_offers.metrics
 
   cos_configuration = { revision = var.cos_configuration_revision }
-  grafana_agent     = { revision = var.grafana_agent_revision }
+  grafana_agent     = { revision = var.grafana_agent_revision, resource = { agent-image = var.grafana_agent_image } }
   pushgateway       = { revision = var.pushgateway_revision, resource = { pushgateway-image = var.pushgateway_image } }
   scrape_config     = { revision = var.scrape_config_revision }
 

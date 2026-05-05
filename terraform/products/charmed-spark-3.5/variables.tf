@@ -68,6 +68,12 @@ variable "data_integrator_revision" {
   default     = null
 }
 
+variable "grafana_agent_image" {
+  description = "Image for grafana-agent-k8s"
+  type        = string
+  default     = null
+}
+
 variable "grafana_agent_revision" {
   description = "Charm revision for grafana-agent-k8s"
   type        = number
@@ -207,7 +213,7 @@ variable "spark_risk" {
   default     = "stable"
 
   validation {
-    condition     = contains(["edge", "beta", "candidate", "stable"], var.risk)
+    condition     = contains(["edge", "beta", "candidate", "stable"], var.spark_risk)
     error_message = "'spark_risk' can only take the following value: 'edge', 'beta', 'candidate' or 'stable'."
   }
 }
