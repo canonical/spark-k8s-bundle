@@ -201,6 +201,17 @@ variable "spark_model_name" {
   default     = "spark"
 }
 
+variable "spark_risk" {
+  description = "Spark components risk channel"
+  type        = string
+  default     = "stable"
+
+  validation {
+    condition     = contains(["edge", "beta", "candidate", "stable"], var.risk)
+    error_message = "'spark_risk' can only take the following value: 'edge', 'beta', 'candidate' or 'stable'."
+  }
+}
+
 variable "model_uuid" {
   description = "Optional existing Juju model UUID to deploy Spark to. If provided, model creation is skipped in higher-level modules."
   type        = string

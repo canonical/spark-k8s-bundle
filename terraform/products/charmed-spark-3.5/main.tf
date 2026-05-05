@@ -172,6 +172,7 @@ module "spark" {
   ]
   source     = "../../components/spark"
   model_uuid = local.model_uuid
+  risk       = var.spark_risk
 
   history_server = {
     config      = var.history_server_config,
@@ -186,7 +187,6 @@ module "spark" {
     resources   = { integration-hub-image = var.integration_hub_image != null ? var.integration_hub_image : local.images.integration_hub }
   }
   kyuubi = {
-    channel = "3.5/stable",
     config = merge(
       {
         expose-external = "loadbalancer",
@@ -200,6 +200,7 @@ module "spark" {
     constraints = "arch=amd64",
     revision    = var.kyuubi_revision != null ? var.kyuubi_revision : local.revisions.kyuubi,
     resources   = { kyuubi-image = var.kyuubi_image != null ? var.kyuubi_image : local.images.kyuubi }
+    track       = "3.5"
     units       = var.kyuubi_units
   }
 
