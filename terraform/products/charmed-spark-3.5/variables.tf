@@ -234,6 +234,12 @@ variable "proxy" {
   default = {}
 }
 
+variable "ssc_revision" {
+  description = "Charm revision for self-signed-certificates"
+  type        = number
+  default     = null
+}
+
 variable "s3_config" {
   description = "S3 integrator configuration"
   type = object({

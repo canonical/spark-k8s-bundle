@@ -464,14 +464,20 @@ def spark_bundle(
         terraform_root=TERRAFORM_DIR,
         entrypoint_content=entrypoint_content,
     )
-    base_vars = {
-        "kyuubi_config": {"service-account": "kyuubi-test-user", "profile": "testing"},
-        "model_uuid": cast(str, juju.show_model().model_uuid),
-        "storage_backend": storage_backend,
-        "create_model": False,
-        "admin_password": admin_password,
-        "tls_private_key": private_key,
-    }
+
+    with (TFVARS_DIR / f"{short_version}_amd64.yaml").open("r", encoding="utf-8") as f:
+        base_vars = {
+            "kyuubi_config": {
+                "service-account": "kyuubi-test-user",
+                "profile": "testing",
+            },
+            "model_uuid": cast(str, juju.show_model().model_uuid),
+            "storage_backend": storage_backend,
+            "create_model": False,
+            "admin_password": admin_password,
+            "tls_private_key": private_key,
+            **yaml.safe_load(f),
+        }
     # Merge external Terraform variables
     base_vars.update(tfvars)
 
