@@ -68,6 +68,12 @@ variable "data_integrator_revision" {
   default     = null
 }
 
+variable "grafana_agent_image" {
+  description = "Image for grafana-agent-k8s"
+  type        = string
+  default     = null
+}
+
 variable "grafana_agent_revision" {
   description = "Charm revision for grafana-agent-k8s"
   type        = number
@@ -201,6 +207,17 @@ variable "spark_model_name" {
   default     = "spark"
 }
 
+variable "spark_risk" {
+  description = "Spark components risk channel"
+  type        = string
+  default     = "stable"
+
+  validation {
+    condition     = contains(["edge", "beta", "candidate", "stable"], var.spark_risk)
+    error_message = "'spark_risk' can only take the following value: 'edge', 'beta', 'candidate' or 'stable'."
+  }
+}
+
 variable "model_uuid" {
   description = "Optional existing Juju model UUID to deploy Spark to. If provided, model creation is skipped in higher-level modules."
   type        = string
@@ -215,6 +232,12 @@ variable "proxy" {
     no-proxy = optional(string, "")
   })
   default = {}
+}
+
+variable "ssc_revision" {
+  description = "Charm revision for self-signed-certificates"
+  type        = number
+  default     = null
 }
 
 variable "s3_config" {

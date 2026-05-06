@@ -24,7 +24,7 @@ module "ssc" {
     ca-common-name = var.certificate_common_name
   }
   constraints = "arch=amd64"
-  revision    = local.revisions.ssc
+  revision    = var.ssc_revision
   units       = 1
 
 }
@@ -34,18 +34,14 @@ module "kyuubi_users" {
   source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev774"
   model_uuid = local.model_uuid
 
-  app_name    = "kyuubi-users"
-  base        = "ubuntu@22.04"
-  channel     = "14/stable"
-  constraints = "arch=amd64"
-  revision    = var.kyuubi_users_revision != null ? var.kyuubi_users_revision : local.revisions.kyuubi_users
-  resources = {
-    postgresql-image = var.kyuubi_users_image != null ? var.kyuubi_users_image : local.images.kyuubi_users
-  }
-  storage_directives = {
-    pgdata = var.kyuubi_users_size
-  }
-  units = 1
+  app_name           = "kyuubi-users"
+  base               = "ubuntu@22.04"
+  channel            = "14/stable"
+  constraints        = "arch=amd64"
+  revision           = var.kyuubi_users_revision
+  resources          = { postgresql-image = var.kyuubi_users_image }
+  storage_directives = { pgdata = var.kyuubi_users_size }
+  units              = 1
 }
 
 module "metastore" {
@@ -53,18 +49,14 @@ module "metastore" {
   source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev774"
   model_uuid = local.model_uuid
 
-  app_name    = "metastore"
-  base        = "ubuntu@22.04"
-  channel     = "14/stable"
-  constraints = "arch=amd64"
-  revision    = var.metastore_revision != null ? var.metastore_revision : local.revisions.metastore
-  resources = {
-    postgresql-image = var.metastore_image != null ? var.metastore_image : local.images.metastore
-  }
-  storage_directives = {
-    pgdata = var.metastore_size
-  }
-  units = 1
+  app_name           = "metastore"
+  base               = "ubuntu@22.04"
+  channel            = "14/stable"
+  constraints        = "arch=amd64"
+  revision           = var.metastore_revision
+  resources          = { postgresql-image = var.metastore_image }
+  storage_directives = { pgdata = var.metastore_size }
+  units              = 1
 }
 
 
@@ -75,11 +67,9 @@ module "zookeeper" {
 
   channel     = "3/stable"
   constraints = "arch=amd64"
-  revision    = var.zookeeper_revision != null ? var.zookeeper_revision : local.revisions.zookeeper
-  resources = {
-    zookeeper-image = var.zookeeper_image != null ? var.zookeeper_image : local.images.zookeeper
-  }
-  units = var.zookeeper_units
+  revision    = var.zookeeper_revision
+  resources   = { zookeeper-image = var.zookeeper_image }
+  units       = var.zookeeper_units
 }
 
 module "data_integrator" {
@@ -89,7 +79,7 @@ module "data_integrator" {
 
   channel     = "latest/stable"
   constraints = "arch=amd64"
-  revision    = var.data_integrator_revision != null ? var.data_integrator_revision : local.revisions.data_integrator
+  revision    = var.data_integrator_revision
 }
 
 resource "juju_secret" "azure_storage_secret" {
@@ -97,10 +87,8 @@ resource "juju_secret" "azure_storage_secret" {
   count      = var.storage_backend == "azure_storage" ? 1 : 0
   model_uuid = local.model_uuid
   name       = "azure_storage_secret"
-  value = {
-    secret-key = var.azure_storage_secret_key
-  }
-  info = "This is the secret key for the Azure storage account"
+  value      = { secret-key = var.azure_storage_secret_key }
+  info       = "This is the secret key for the Azure storage account"
 }
 
 module "azure_storage" {
@@ -117,7 +105,7 @@ module "azure_storage" {
     }
   )
   constraints = "arch=amd64"
-  revision    = var.azure_storage_revision != null ? var.azure_storage_revision : local.revisions.azure_storage
+  revision    = var.azure_storage_revision
 }
 
 resource "juju_access_secret" "azure_storage_secret_access" {
@@ -139,7 +127,7 @@ module "s3" {
   channel     = "1/stable"
   config      = var.s3_config
   constraints = "arch=amd64"
-  revision    = var.s3_revision != null ? var.s3_revision : local.revisions.s3
+  revision    = var.s3_revision
 }
 
 resource "juju_secret" "system_users_and_private_key_secret" {
@@ -172,21 +160,21 @@ module "spark" {
   ]
   source     = "../../components/spark"
   model_uuid = local.model_uuid
+  risk       = var.spark_risk
 
   history_server = {
-    config      = var.history_server_config,
-    constraints = "arch=amd64",
-    revision    = var.history_server_revision != null ? var.history_server_revision : local.revisions.history_server,
-    resources   = { spark-history-server-image = var.history_server_image != null ? var.history_server_image : local.images.history_server }
+    config      = var.history_server_config
+    constraints = "arch=amd64"
+    revision    = var.history_server_revision
+    resources   = { spark-history-server-image = var.history_server_image }
   }
   integration_hub = {
-    config      = var.integration_hub_config,
-    constraints = "arch=amd64",
-    revision    = var.integration_hub_revision != null ? var.integration_hub_revision : local.revisions.integration_hub,
-    resources   = { integration-hub-image = var.integration_hub_image != null ? var.integration_hub_image : local.images.integration_hub }
+    config      = var.integration_hub_config
+    constraints = "arch=amd64"
+    revision    = var.integration_hub_revision
+    resources   = { integration-hub-image = var.integration_hub_image }
   }
   kyuubi = {
-    channel = "3.4/stable",
     config = merge(
       {
         expose-external = "loadbalancer",
@@ -198,8 +186,9 @@ module "spark" {
       var.kyuubi_config
     )
     constraints = "arch=amd64",
-    revision    = var.kyuubi_revision != null ? var.kyuubi_revision : local.revisions.kyuubi,
-    resources   = { kyuubi-image = var.kyuubi_image != null ? var.kyuubi_image : local.images.kyuubi }
+    revision    = var.kyuubi_revision
+    resources   = { kyuubi-image = var.kyuubi_image }
+    track       = "3.4"
     units       = var.kyuubi_units
   }
 
@@ -249,7 +238,7 @@ module "observability" {
   metrics_offer    = var.cos_offers.metrics
 
   cos_configuration = { revision = var.cos_configuration_revision }
-  grafana_agent     = { revision = var.grafana_agent_revision }
+  grafana_agent     = { revision = var.grafana_agent_revision, resource = { agent-image = var.grafana_agent_image } }
   pushgateway       = { revision = var.pushgateway_revision, resource = { pushgateway-image = var.pushgateway_image } }
   scrape_config     = { revision = var.scrape_config_revision }
 

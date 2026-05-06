@@ -48,6 +48,7 @@ COS_APPS = [
     "alertmanager",
 ]
 FORWARD_TIMEOUT_SECONDS = 10
+TFVARS_DIR = Path("tests/integration/resources/tfvars")
 load_dotenv()
 logger = logging.getLogger(__name__)
 logging.getLogger("jubilant.wait").setLevel(logging.WARNING)
@@ -463,18 +464,27 @@ def spark_bundle(
         terraform_root=TERRAFORM_DIR,
         entrypoint_content=entrypoint_content,
     )
-    base_vars = {
-        "kyuubi_config": {"service-account": "kyuubi-test-user", "profile": "testing"},
-        "model_uuid": cast(str, juju.show_model().model_uuid),
-        "storage_backend": storage_backend,
-        "create_model": False,
-        "admin_password": admin_password,
-        "tls_private_key": private_key,
-    }
+
+    with (TFVARS_DIR / f"{short_version}_amd64.yaml").open("r", encoding="utf-8") as f:
+        base_vars = {
+            "kyuubi_config": {
+                "service-account": "kyuubi-test-user",
+                "profile": "testing",
+            },
+            "model_uuid": cast(str, juju.show_model().model_uuid),
+            "storage_backend": storage_backend,
+            "create_model": False,
+            "admin_password": admin_password,
+            "tls_private_key": private_key,
+            **yaml.safe_load(f),
+        }
     # Merge external Terraform variables
     base_vars.update(tfvars)
 
-    cos_vars = {"cos_model_uuid": cos} if cos else {}
+    cos_vars = {}
+    if cos:
+        with (TFVARS_DIR / "obs_amd64.yaml").open("r", encoding="utf-8") as f:
+            cos_vars = {"cos_model_uuid": cos, **yaml.safe_load(f)}
 
     if storage_backend == "azure_storage":
         storage_unit = cast(Container, object_storage)

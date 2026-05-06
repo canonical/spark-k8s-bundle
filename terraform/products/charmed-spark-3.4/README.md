@@ -6,21 +6,21 @@
 ### Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.0.0 |
 | <a name="requirement_juju"></a> [juju](#requirement\_juju) | >=1.0.0 |
 
 ### Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_juju"></a> [juju](#provider\_juju) | 1.3.1 |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 
 ### Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_azure_storage"></a> [azure\_storage](#module\_azure\_storage) | ../../charms/azure-storage-integrator | n/a |
 | <a name="module_data_integrator"></a> [data\_integrator](#module\_data\_integrator) | ../../charms/data-integrator | n/a |
 | <a name="module_kyuubi_users"></a> [kyuubi\_users](#module\_kyuubi\_users) | git::https://github.com/canonical/postgresql-k8s-operator//terraform | rev774 |
@@ -34,7 +34,7 @@
 ### Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [juju_access_secret.azure_storage_secret_access](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/access_secret) | resource |
 | [juju_access_secret.system_users_and_private_key_secret_access](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/access_secret) | resource |
 | [juju_model.spark](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/model) | resource |
@@ -45,7 +45,7 @@
 ### Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_admin_password"></a> [admin\_password](#input\_admin\_password) | The password for the Kyuubi admin user. | `string` | `null` | no |
 | <a name="input_azure_storage_config"></a> [azure\_storage\_config](#input\_azure\_storage\_config) | Azure Object storage information | <pre>object({<br/>    container       = optional(string)<br/>    credentials     = optional(string)<br/>    path            = optional(string)<br/>    protocol        = optional(string, "abfss")<br/>    storage-account = optional(string)<br/>  })</pre> | `{}` | no |
 | <a name="input_azure_storage_revision"></a> [azure\_storage\_revision](#input\_azure\_storage\_revision) | Charm revision for azure-storage-integrator | `number` | `null` | no |
@@ -55,6 +55,7 @@
 | <a name="input_cos_offers"></a> [cos\_offers](#input\_cos\_offers) | Observability stack offers. | <pre>object({<br/>    dashboard = string<br/>    logging   = string<br/>    metrics   = string<br/>  })</pre> | `null` | no |
 | <a name="input_create_model"></a> [create\_model](#input\_create\_model) | Should terraform create the Juju models? If set to false, assume the models are created by a different mechanism. | `bool` | `true` | no |
 | <a name="input_data_integrator_revision"></a> [data\_integrator\_revision](#input\_data\_integrator\_revision) | Charm revision for data-integrator | `number` | `null` | no |
+| <a name="input_grafana_agent_image"></a> [grafana\_agent\_image](#input\_grafana\_agent\_image) | Image for grafana-agent-k8s | `string` | `null` | no |
 | <a name="input_grafana_agent_revision"></a> [grafana\_agent\_revision](#input\_grafana\_agent\_revision) | Charm revision for grafana-agent-k8s | `number` | `null` | no |
 | <a name="input_history_server_config"></a> [history\_server\_config](#input\_history\_server\_config) | History Server configuration options | `map(any)` | `{}` | no |
 | <a name="input_history_server_image"></a> [history\_server\_image](#input\_history\_server\_image) | Image for spark-history-server-k8s | `string` | `null` | no |
@@ -81,6 +82,8 @@
 | <a name="input_s3_revision"></a> [s3\_revision](#input\_s3\_revision) | Charm revision for s3-integrator | `number` | `null` | no |
 | <a name="input_scrape_config_revision"></a> [scrape\_config\_revision](#input\_scrape\_config\_revision) | Charm revision for scrape\_config | `number` | `null` | no |
 | <a name="input_spark_model_name"></a> [spark\_model\_name](#input\_spark\_model\_name) | The name of the juju model to deploy Spark to | `string` | `"spark"` | no |
+| <a name="input_spark_risk"></a> [spark\_risk](#input\_spark\_risk) | Spark components risk channel | `string` | `"stable"` | no |
+| <a name="input_ssc_revision"></a> [ssc\_revision](#input\_ssc\_revision) | Charm revision for self-signed-certificates | `number` | `null` | no |
 | <a name="input_storage_backend"></a> [storage\_backend](#input\_storage\_backend) | Storage backend to be used | `string` | `"s3"` | no |
 | <a name="input_tls_private_key"></a> [tls\_private\_key](#input\_tls\_private\_key) | The file path of the private key to use for TLS certificates. | `string` | `null` | no |
 | <a name="input_zookeeper_image"></a> [zookeeper\_image](#input\_zookeeper\_image) | Image for zookeeper-k8s | `string` | `null` | no |
@@ -90,7 +93,7 @@
 ### Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_metadata"></a> [metadata](#output\_metadata) | Metadata of the product deployment. |
 | <a name="output_models"></a> [models](#output\_models) | Map of the key of the model and the components deployed in the model. |
 | <a name="output_offers"></a> [offers](#output\_offers) | The name and url of the various offers being exposed |

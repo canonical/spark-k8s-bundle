@@ -15,14 +15,14 @@ As such, it is easier to define our own component module for now.
 ### Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.0.0 |
 | <a name="requirement_juju"></a> [juju](#requirement\_juju) | >=1.0.0 |
 
 ### Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_juju"></a> [juju](#provider\_juju) | 1.3.1 |
 
 ### Modules
@@ -32,7 +32,7 @@ No modules.
 ### Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [juju_application.cos_configuration](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
 | [juju_application.grafana_agent](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
 | [juju_application.pushgateway](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
@@ -58,8 +58,8 @@ No modules.
 ### Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_cos_configuration"></a> [cos\_configuration](#input\_cos\_configuration) | n/a | <pre>object({<br/>    app_name = optional(string, "cos-configuration")<br/>    base     = optional(string, "ubuntu@22.04")<br/>    channel  = optional(string, "1/stable")<br/>    config = optional(map(string), {<br/>      git_branch              = "main"<br/>      git_depth               = 1<br/>      git_repo                = "https://github.com/canonical/spark-k8s-bundle"<br/>      grafana_dashboards_path = "resources/grafana/"<br/>    })<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number, 65) # TODO<br/>    units       = optional(number, 1)<br/>  })</pre> | `{}` | no |
+| ---- | ----------- | ---- | ------- | :------: |
+| <a name="input_cos_configuration"></a> [cos\_configuration](#input\_cos\_configuration) | n/a | <pre>object({<br/>    app_name = optional(string, "cos-configuration")<br/>    base     = optional(string, "ubuntu@22.04")<br/>    channel  = optional(string, "1/stable")<br/>    config = optional(map(string), {<br/>      git_branch              = "main"<br/>      git_depth               = 1<br/>      git_repo                = "https://github.com/canonical/spark-k8s-bundle"<br/>      grafana_dashboards_path = "resources/grafana/"<br/>    })<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    # TODO: Remove this pin once both of the following issue gets fixed:<br/>    # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 <br/>    # https://github.com/canonical/cos-configuration-k8s-operator/issues/84<br/>    revision = optional(number, 65)<br/>    units    = optional(number, 1)<br/>  })</pre> | `{}` | no |
 | <a name="input_dashboards_offer"></a> [dashboards\_offer](#input\_dashboards\_offer) | URL of the `grafana_dashboard` interface offer. | `string` | n/a | yes |
 | <a name="input_grafana_agent"></a> [grafana\_agent](#input\_grafana\_agent) | n/a | <pre>object({<br/>    app_name    = optional(string, "grafana-agent")<br/>    base        = optional(string, "ubuntu@22.04")<br/>    channel     = optional(string, "1/stable")<br/>    config      = optional(map(string), {})<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>  })</pre> | `{}` | no |
 | <a name="input_history_server_dashboard_endpoint"></a> [history\_server\_dashboard\_endpoint](#input\_history\_server\_dashboard\_endpoint) | In-model endpoint for the History Server dashboard integration. | <pre>object({<br/>    name     = string<br/>    endpoint = string<br/>  })</pre> | n/a | yes |
@@ -79,7 +79,7 @@ No modules.
 ### Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_components"></a> [components](#output\_components) | List of the deployed applications for this component module. |
 | <a name="output_provides"></a> [provides](#output\_provides) | Map of all the provided endpoints. |
 | <a name="output_requires"></a> [requires](#output\_requires) | Map of the required endpoints. |

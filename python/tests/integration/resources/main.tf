@@ -67,22 +67,38 @@ variable "tls_private_key" {
   default = null
 }
 
-variable "history_server_revision" {
-  description = "Charm revision for spark-history-server-k8s"
-  type        = number
-  default     = null
+variable "charmed_spark" {
+  type = object({
+    history_server_revision  = optional(string)
+    integration_hub_revision = optional(string)
+    kyuubi_revision          = optional(string)
+    kyuubi_users_revision    = optional(string)
+    metastore_revision       = optional(string)
+    zookeeper_revision       = optional(string)
+    data_integrator_revision = optional(string)
+    s3_revision              = optional(string)
+    ssc_revision             = optional(string)
+    azure_storage_revision   = optional(string)
+    history_server_image     = optional(string)
+    integration_hub_image    = optional(string)
+    kyuubi_image             = optional(string)
+    kyuubi_users_image       = optional(string)
+    metastore_image          = optional(string)
+    zookeeper_image          = optional(string)
+  })
+  default = {}
 }
 
-variable "kyuubi_revision" {
-  description = "Charm revision for kyuubi-k8s"
-  type        = number
-  default     = null
-}
-
-variable "integration_hub_revision" {
-  description = "Charm revision for spark-integration-hub-k8s"
-  type        = number
-  default     = null
+variable "observability" {
+  type = object({
+    cos_configuration_revision = optional(string)
+    grafana_agent_revision     = optional(string)
+    pushgateway_revision       = optional(string)
+    scrape_config_revision     = optional(string)
+    grafana_agent_image        = optional(string)
+    pushgateway_image          = optional(string)
+  })
+  default = {}
 }
 
 module "cos" {
@@ -106,19 +122,38 @@ module "spark" {
   model_uuid   = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
   create_model = false
 
-  admin_password           = var.admin_password
-  azure_storage_config     = var.azure_storage_config
-  azure_storage_secret_key = var.azure_storage_secret_key
-  history_server_revision  = var.history_server_revision
-  integration_hub_revision = var.integration_hub_revision
-  kyuubi_config            = var.kyuubi_config
-  kyuubi_revision          = var.kyuubi_revision
-  kyuubi_users_size        = "500M"
-  metastore_size           = "500M"
-  s3_config                = var.s3_config
-  storage_backend          = var.storage_backend
-  tls_private_key          = var.tls_private_key
-  zookeeper_units          = 1
+  admin_password             = var.admin_password
+  azure_storage_config       = var.azure_storage_config
+  azure_storage_revision     = var.charmed_spark.azure_storage_revision
+  azure_storage_secret_key   = var.azure_storage_secret_key
+  cos_configuration_revision = var.observability.cos_configuration_revision
+  data_integrator_revision   = var.charmed_spark.data_integrator_revision
+  grafana_agent_image        = var.observability.grafana_agent_image
+  grafana_agent_revision     = var.observability.grafana_agent_revision
+  history_server_image       = var.charmed_spark.history_server_image
+  history_server_revision    = var.charmed_spark.history_server_revision
+  integration_hub_image      = var.charmed_spark.integration_hub_image
+  integration_hub_revision   = var.charmed_spark.integration_hub_revision
+  kyuubi_config              = var.kyuubi_config
+  kyuubi_image               = var.charmed_spark.kyuubi_image
+  kyuubi_revision            = var.charmed_spark.kyuubi_revision
+  kyuubi_users_image         = var.charmed_spark.kyuubi_users_image
+  kyuubi_users_revision      = var.charmed_spark.kyuubi_users_revision
+  kyuubi_users_size          = "500M"
+  metastore_image            = var.charmed_spark.metastore_image
+  metastore_revision         = var.charmed_spark.metastore_revision
+  metastore_size             = "500M"
+  pushgateway_image          = var.observability.pushgateway_image
+  pushgateway_revision       = var.observability.pushgateway_revision
+  s3_config                  = var.s3_config
+  s3_revision                = var.charmed_spark.s3_revision
+  scrape_config_revision     = var.observability.scrape_config_revision
+  ssc_revision               = var.charmed_spark.ssc_revision
+  storage_backend            = var.storage_backend
+  tls_private_key            = var.tls_private_key
+  zookeeper_image            = var.charmed_spark.zookeeper_image
+  zookeeper_revision         = var.charmed_spark.zookeeper_revision
+  zookeeper_units            = 1
 
   cos_offers = module.cos != [] ? {
     dashboard = module.cos[0].offers.grafana_dashboards.url
