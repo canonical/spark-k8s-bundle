@@ -477,8 +477,8 @@ def spark_bundle(
 
     cos_vars = {}
     if cos:
-        with (TFVARS_DIR / "obs_amd64.json").open("r", encoding="utf-8") as f:
-            cos_vars = {"cos_model_uuid": cos, **json.load(f)}
+        with (TFVARS_DIR / "obs_amd64.yaml").open("r", encoding="utf-8") as f:
+            cos_vars = {"cos_model_uuid": cos, **yaml.safe_load(f)}
 
     if storage_backend == "azure_storage":
         storage_unit = cast(Container, object_storage)
