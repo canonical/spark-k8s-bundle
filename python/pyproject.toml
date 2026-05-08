@@ -3,11 +3,10 @@
 
 [tool.poetry]
 name = "spark-k8s-test"
-version = "0.0.4"
+version = "0.0.5"
 description = "This project provides some utilities function and CLI commands to test Charmed Spark on K8s."
-authors = [
-  "Canonical Data Platform <data-platform@lists.launchpad.net>",
-]
+authors = ["Canonical Processing team"]
+urls = { contact = "https://matrix.to/#/%23charmhub-analytics%3Aubuntu.com" }
 license = "Apache-2.0"
 readme = "README.md"
 packages = [{ include = "spark_test" }]
@@ -19,7 +18,7 @@ poetry-plugin-export = ">=1.9"
 python = ">=3.10,<4.0"
 spark8t = ">=0.0.10"
 boto3 = ">=1.36"
-pytest = ">=6.2"
+pytest = "^9.0.3"
 azure-storage-blob = "^12.21.0"
 lightkube = ">=0.11"
 impyla = "^0.20.0"
@@ -40,7 +39,7 @@ mypy = ">=0.910"
 pytest-mypy = ">=0.10.3"
 types-psycopg2 = "^2.9.21.20250718"
 types-pyyaml = "^6.0.12.20250516"
-types-boto3 = {extras = ["s3"], version = "^1.40.73"}
+types-boto3 = { extras = ["s3"], version = "^1.40.73" }
 
 [tool.poetry.group.unit]
 optional = true
@@ -58,9 +57,9 @@ pytest-mock = ">=3.10"
 psycopg2-binary = "^2.9.9"
 tenacity = "^9.0.0"
 httpx = "^0.28.1"
-jubilant = "^1.1.0"
+jubilant = "^1.7.0"
 jinja2 = "*"
-python-dotenv = "^1.2.1"
+python-dotenv = "^1.2.2"
 
 [tool.poetry.group.benchmark]
 optional = true
@@ -122,11 +121,6 @@ follow_imports = "silent"
 
 [[tool.mypy.overrides]]
 module = [
-  "envyaml",
-  "pytest",
-  "spark8t.domain",
-  "spark8t.services",
-  "spark8t.utils",
   "impala.dbapi",
   "impala.hiveserver2",
   "pyspark.sql",
