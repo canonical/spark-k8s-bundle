@@ -178,7 +178,7 @@ resource "juju_integration" "history_server_grafana_agent_metrics" {
     endpoint = "metrics-endpoint"
   }
 }
-
+#
 resource "juju_integration" "kyuubi_grafana_agent_metrics" {
   model = data.juju_model.spark.name
 
