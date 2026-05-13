@@ -1,0 +1,45 @@
+project: charmed-spark-docs-tutorial
+
+# The project root is mirrored to this path inside the test VM.
+path: /spark-k8s-bundle
+
+backends:
+  multipass:
+    type: adhoc
+    allocate: |
+      instance_name="spark-tutorial-vm"
+      multipass delete --purge "$instance_name" 2>/dev/null || true
+
+      # 8 CPUs / 16 GB RAM / 50 GB disk – sized for Charmed Apache Spark tutorial.
+      multipass launch --cpus "${SPREAD_VM_CPUS:-8}" --disk "${SPREAD_VM_DISK:-50G}" \
+        --memory "${SPREAD_VM_MEM:-16G}" --name "$instance_name" 24.04
+
+      # Enable root SSH for Spread. Tutorial steps install the required snaps.
+      multipass exec "$instance_name" -- sudo sh -c "
+        set -e
+        echo root:${SPREAD_PASSWORD} | chpasswd
+        printf 'PasswordAuthentication yes\nPermitRootLogin yes\n' \
+          > /etc/ssh/sshd_config.d/10-spread.conf
+        systemctl restart ssh
+      "
+
+      ip=$(multipass info --format csv "$instance_name" | tail -1 | cut -d, -f3)
+      ADDRESS "$ip"
+
+    discard: |
+      instance_name="spark-tutorial-vm"
+      multipass delete --purge "$instance_name"
+
+    systems:
+      - ubuntu-24.04-64:
+          workers: 1
+
+suites:
+  python/tests/tutorial/:
+    summary: Charmed Apache Spark tutorial
+    systems:
+      - ubuntu-24.04-64
+    prepare: |
+      # Spread SSHs in as root but does not always set HOME=/root.
+      export HOME=/root
+      mkdir -p /root/.local/share/juju

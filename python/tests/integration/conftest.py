@@ -23,7 +23,7 @@ import httpx
 import jubilant
 import pytest
 from dotenv import load_dotenv
-from spark8t.domain import PropertyFile
+from spark8t.utils import PropertyFile
 from tenacity import retry, stop_after_attempt
 
 from spark_test.core.azure_storage import Container

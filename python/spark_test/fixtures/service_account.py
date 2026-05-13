@@ -5,8 +5,9 @@
 import uuid
 
 import pytest
-from spark8t.domain import PropertyFile, ServiceAccount
-from spark8t.services import K8sServiceAccountRegistry
+from spark8t.domain import ServiceAccount
+from spark8t.registry.k8s import K8sServiceAccountRegistry
+from spark8t.utils import PropertyFile
 
 from spark_test.fixtures.azure_storage import azure_credentials, container  # noqa
 from spark_test.fixtures.s3 import bucket, credentials  # noqa

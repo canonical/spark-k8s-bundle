@@ -4,6 +4,11 @@ myst:
     description: "Learn how to set up monitoring and alerting for Apache Spark with Canonical Observability Stack (COS) using Prometheus and Grafana."
 ---
 
+<!-- test:spread
+priority: 300
+kill-timeout: 15m
+-->
+
 (tutorial-5-monitoring-with-cos)=
 # 5. Monitoring with Canonical Observability Stack
 
@@ -35,23 +40,25 @@ juju deploy cos-lite --trust
 When you deploy the `cos-lite` bundle, it deploys several charms like Prometheus, Grafana, Loki, etc. that together build up the Canonical Observability Stack. 
 Check the list of charms that have been deployed, their statuses, and relations:
 
-```shell
+```bash
 watch -c juju status --color --relations
 ```
+
+<!-- test:await-idle --timeout 3600 -->
 
 Wait until the status to be active for each charm:
 
 ```text
-Model  Controller  Cloud/Region        Version  SLA          Timestamp
-cos    k8s         microk8s/localhost  3.1.7    unsupported  15:41:53+05:45
+Model  Controller      Cloud/Region        Version  SLA          Timestamp
+cos    spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:30:00+01:00
 
-App           Version  Status  Scale  Charm             Channel  Rev  Address         Exposed  Message
-alertmanager  0.25.0   active      1  alertmanager-k8s  stable    96  10.152.183.249  no       
-catalogue              active      1  catalogue-k8s     stable    33  10.152.183.165  no       
-grafana       9.2.1    active      1  grafana-k8s       stable    93  10.152.183.124  no       
-loki          2.7.4    active      1  loki-k8s          stable   105  10.152.183.145  no       
-prometheus    2.47.2   active      1  prometheus-k8s    stable   159  10.152.183.129  no       
-traefik       2.10.4   active      1  traefik-k8s       stable   166  192.168.10.120  no       
+App           Version  Status  Scale  Charm             Channel         Rev  Address         Exposed  Message
+alertmanager  0.27.0   active      1  alertmanager-k8s  1/stable        180  10.152.183.249  no       
+catalogue              active      1  catalogue-k8s     1/stable         87  10.152.183.165  no       
+grafana       9.5.21   active      1  grafana-k8s       1/stable        160  10.152.183.124  no       
+loki          2.9.6    active      1  loki-k8s          1/stable        199  10.152.183.145  no       
+prometheus    2.52.0   active      1  prometheus-k8s    1/stable        247  10.152.183.129  no       
+traefik       2.11.0   active      1  traefik-k8s       latest/stable   281  192.168.10.120  no       
 
 Unit             Workload  Agent  Address       Ports  Message
 alertmanager/0*  active    idle   10.1.139.112         
@@ -110,6 +117,8 @@ juju deploy prometheus-pushgateway-k8s --channel 1/stable
 juju integrate prometheus-pushgateway-k8s prometheus
 ```
 
+<!-- test:await-idle --timeout 600 -->
+
 Now, for Apache Spark to be able to access the Prometheus gateway, we need the gateway address and port. Let's export them as environment variables so that they can be used later:
 
 ```shell
@@ -128,6 +137,8 @@ Create the service account:
 spark-client.service-account-registry create \
   --username spark --namespace cos
 ```
+
+<!-- test:wait --seconds 30 -->
 
 Add configuration options related to Prometheus:
 
@@ -155,7 +166,7 @@ For this tutorial, we are going to use a [basic Grafana dashboard](https://githu
 
 Deploy the [cos-configuration-k8s](https://github.com/canonical/cos-configuration-k8s-operator) charm for importing the grafana dashboard:
 
-```bash
+```shell
 juju deploy cos-configuration-k8s \
   --config git_repo=https://github.com/canonical/spark-k8s-bundle \
   --config git_branch=main \
@@ -169,21 +180,23 @@ Integrate the cos-configration-k8s charm to import the grafana dashboard:
 juju integrate cos-configuration-k8s grafana
 ```
 
+<!-- test:await-idle --timeout 600 -->
+
 Once deployed and integrated, we can check the status of the Juju model with the command `juju status --relations`, which should be similar to the following:
 
 ```text
-Model  Controller  Cloud/Region        Version  SLA          Timestamp
-cos    k8s         microk8s/localhost  3.1.7    unsupported  17:44:56+05:45
+Model  Controller      Cloud/Region        Version  SLA          Timestamp
+cos    spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:35:00+01:00
 
-App                         Version  Status  Scale  Charm                       Channel  Rev  Address         Exposed  Message
-alertmanager                0.25.0   active      1  alertmanager-k8s            stable    96  10.152.183.249  no       
-catalogue                            active      1  catalogue-k8s               stable    33  10.152.183.165  no       
-cos-configuration-k8s       3.5.0    active      1  cos-configuration-k8s       stable    42  10.152.183.106  no       
-grafana                     9.2.1    active      1  grafana-k8s                 stable    93  10.152.183.124  no       
-loki                        2.7.4    active      1  loki-k8s                    stable   105  10.152.183.145  no       
-prometheus                  2.47.2   active      1  prometheus-k8s              stable   159  10.152.183.129  no       
-prometheus-pushgateway-k8s  1.6.2    active      1  prometheus-pushgateway-k8s  edge       7  10.152.183.36   no       
-traefik                     2.10.4   active      1  traefik-k8s                 stable   166  192.168.10.120  no       
+App                         Version  Status  Scale  Charm                       Channel         Rev  Address         Exposed  Message
+alertmanager                0.27.0   active      1  alertmanager-k8s            1/stable        180  10.152.183.249  no       
+catalogue                            active      1  catalogue-k8s               1/stable         87  10.152.183.165  no       
+cos-configuration-k8s                active      1  cos-configuration-k8s       2/stable         79  10.152.183.106  no       
+grafana                     9.5.21   active      1  grafana-k8s                 1/stable        160  10.152.183.124  no       
+loki                        2.9.6    active      1  loki-k8s                    1/stable        199  10.152.183.145  no       
+prometheus                  2.52.0   active      1  prometheus-k8s              1/stable        247  10.152.183.129  no       
+prometheus-pushgateway-k8s  1.11.1   active      1  prometheus-pushgateway-k8s  1/stable         27  10.152.183.36   no       
+traefik                     2.11.0   active      1  traefik-k8s                 latest/stable   281  192.168.10.120  no       
 
 Unit                           Workload  Agent  Address       Ports  Message
 alertmanager/0*                active    idle   10.1.139.74          
@@ -233,7 +246,7 @@ traefik:traefik-route                         grafana:ingress                   
 
 Now that we have the observability stack up and running, let's run a simple Spark job so that the metric logs are pushed to the Prometheus gateway. For simplicity, we're going to use the same `count-ubuntu.py` script that we prepared in the earlier steps of this tutorial:
 
-```bash
+```shell
 spark-client.spark-submit \
     --username spark --namespace cos \
     --deploy-mode cluster \
@@ -243,7 +256,7 @@ spark-client.spark-submit \
 Once the job is completed, let's try to open the Grafana web UI and see some metrics. 
 The credentials for the built-in `admin` user and the URL to the web UI can be retrieved using the `get-admin-password` action exposed by the `grafana` charm:
 
-```bash
+```shell
 juju run grafana/leader get-admin-password
 ```
 
@@ -267,3 +280,8 @@ This is the dashboard we configured earlier with `cos-configuration-k8s` charm:
 ![spark_dashboard](https://assets.ubuntu.com/v1/cf80fe96-spark_dashboard.png)
 
 Play around the dashboard and observe the various metrics like Block Manager memory, JVM Executor Memory, etc.
+
+<!-- test:assert
+pod_name=$(kubectl get pods -n cos | grep "count-ubuntu-.*-driver" | tail -n 1 | cut -d' ' -f1)
+kubectl get pod "$pod_name" -n cos -o jsonpath='{.status.phase}' | grep -q "Succeeded"
+-->

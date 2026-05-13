@@ -96,6 +96,8 @@ xindy
 xml
 yaml
 YouTube
+walkthrough
+Alertmanager
 Ory
 middleware
 Entra

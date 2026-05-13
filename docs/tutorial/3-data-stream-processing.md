@@ -4,6 +4,11 @@ myst:
     description: "Learn how to process real-time data streams with Apache Spark Streaming and integrate with Apache Kafka on Kubernetes."
 ---
 
+<!-- test:spread
+priority: 500
+kill-timeout: 30m
+-->
+
 (tutorial-3-data-stream-processing)=
 # 3. Data stream processing
 
@@ -17,7 +22,7 @@ In this step of the tutorial, we are going to generate some data, push it to Apa
 
 First of all, let's start by creating a fresh `juju` model to be used as an experimental workspace for this project:
 
-```bash
+```shell
 juju add-model spark-streaming
 ```
 
@@ -35,6 +40,8 @@ spark-client.service-account-registry create \
 The Integration Hub we deployed in the environment setup step will automatically push the S3 credentials
 to this new service account. Verify this before continuing:
 
+<!-- test:wait --seconds 30 -->
+
 ```shell
 spark-client.service-account-registry get-config \
   --username spark --namespace spark-streaming
@@ -46,11 +53,20 @@ Now, let's create a minimal Apache Kafka and Apache ZooKeeper setup.
 This can be done quickly and easily using the [`zookeeper-k8s`](https://github.com/canonical/zookeeper-k8s-operator) and [`kafka-k8s`](https://charmhub.io/kafka-k8s) charms.
 Although this setup is not highly available, using single instances for both should be enough to understand the underlying concepts.
 
-```bash
-juju deploy zookeeper-k8s --trust
-juju deploy kafka-k8s --trust
+```shell
+juju deploy zookeeper-k8s --trust --channel 3/stable
+juju deploy kafka-k8s --trust --channel 3/stable
+```
+
+<!-- test:await-idle --timeout 1200 --allow-blocked kafka-k8s,zookeeper-k8s -->
+
+Once the charms are deployed, integrate them:
+
+```shell
 juju integrate kafka-k8s zookeeper-k8s
 ```
+
+<!-- test:await-idle --timeout 1200 -->
 
 For more details on the Charmed Apache Kafka K8s deployment process, see the [How to deploy](how-to-deploy-spark) guide.
 
@@ -64,15 +80,15 @@ Once all the charms have been deployed and integrated (you may need to wait some
 
 ```text
 Model            Controller      Cloud/Region        Version  SLA          Timestamp
-spark-streaming  spark-tutorial  microk8s/localhost  3.1.7    unsupported  10:13:55Z
+spark-streaming  spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:18:56+01:00
 
-App            Version  Status  Scale  Charm          Channel  Rev  Address         Exposed  Message
-kafka-k8s               active      1  kafka-k8s      3/edge    47  10.152.183.242  no       
-zookeeper-k8s           active      1  zookeeper-k8s  3/edge    42  10.152.183.87   no       
+App            Version  Status  Scale  Charm          Channel   Rev  Address         Exposed  Message
+kafka-k8s      3.9.0    active      1  kafka-k8s      3/stable   82  10.152.183.145  no       
+zookeeper-k8s  3.9.2    active      1  zookeeper-k8s  3/stable   78  10.152.183.104  no       
 
-Unit              Workload  Agent  Address      Ports  Message
-kafka-k8s/0*      active    idle   10.1.29.184         
-zookeeper-k8s/0*  active    idle   10.1.29.182 
+Unit              Workload  Agent  Address       Ports  Message
+kafka-k8s/0*      active    idle   10.1.177.150         
+zookeeper-k8s/0*  active    idle   10.1.177.148         
 ```
 
 As you can see, both Apache Kafka and Apache ZooKeeper charms are in the "active" status.
@@ -88,66 +104,69 @@ For that, we can use the `kafka-test-app` charm to produce events.
 
 Let's deploy this charm with `3` units, and integrate it with `kafka-k8s` so that it is able to write messages to Apache Kafka.
 
-```bash
+```shell
 juju deploy kafka-test-app -n 3 --config role=producer --config topic_name=spark-streaming-store --config num_messages=100000
 
 juju integrate kafka-test-app kafka-k8s
 ```
 
+<!-- test:await-idle --timeout 600 -->
+
 Once the integration is complete, `juju status` should display something similar to:
 
 ```text
 Model            Controller      Cloud/Region        Version  SLA          Timestamp
-spark-streaming  spark-tutorial  microk8s/localhost  3.6.14   unsupported  10:17:32Z
+spark-streaming  spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:19:58+01:00
 
-App             Version  Status  Scale  Charm           Channel       Rev  Address         Exposed  Message
-kafka-k8s                active      1  kafka-k8s       3/stable      47  10.152.183.242   no       
-kafka-test-app           active      3  kafka-test-app  latest/stable  8  10.152.183.167   no       Topic spark-streaming-store enabled with process producer
-zookeeper-k8s            active      1  zookeeper-k8s   3/stable      42  10.152.183.87    no       
+App             Version  Status  Scale  Charm           Channel        Rev  Address         Exposed  Message
+kafka-k8s       3.9.0    active      1  kafka-k8s       3/stable        82  10.152.183.145  no       
+kafka-test-app           active      3  kafka-test-app  latest/stable   11  10.152.183.54   no       Topic spark-streaming-store enabled with process producer
+zookeeper-k8s   3.9.2    active      1  zookeeper-k8s   3/stable        78  10.152.183.104  no       
 
-Unit               Workload  Agent  Address      Ports  Message
-kafka-k8s/0*       active    idle   10.1.29.184         
-kafka-test-app/0   active    idle   10.1.29.185         Topic spark-streaming-store enabled with process producer
-kafka-test-app/1   active    idle   10.1.29.186         Topic spark-streaming-store enabled with process producer
-kafka-test-app/2*  active    idle   10.1.29.187         Topic spark-streaming-store enabled with process producer
-
-zookeeper-k8s/0*   active    idle   10.1.29.182  
+Unit               Workload  Agent  Address       Ports  Message
+kafka-k8s/0*       active    idle   10.1.177.150         
+kafka-test-app/0*  active    idle   10.1.177.151         Topic spark-streaming-store enabled with process producer
+kafka-test-app/1   active    idle   10.1.177.153         Topic spark-streaming-store enabled with process producer
+kafka-test-app/2   active    idle   10.1.177.152         Topic spark-streaming-store enabled with process producer
+zookeeper-k8s/0*   active    idle   10.1.177.148         
 ```
 
 Now messages will be generated and written to Apache Kafka periodically by `kafka-test-app`.
 However, to establish a connection and actually consume these messages from Apache Kafka, Apache Spark needs to authenticate with Apache Kafka using the credentials.
 For the retrieval of these credentials, we are going to use the [`data-integrator`](https://github.com/canonical/data-integrator) charm. Let's deploy `data-integrator` and integrate it with `kafka-k8s` with the following commands:
 
-```bash
+```shell
 juju deploy data-integrator --config extra-user-roles=consumer,admin --config topic-name=spark-streaming-store
 
 juju integrate data-integrator kafka-k8s 
 ```
 
+<!-- test:await-idle --timeout 600 -->
+
 Once this integration is complete, `juju status` should appear something similar to:
 
 ```text
 Model            Controller      Cloud/Region        Version  SLA          Timestamp
-spark-streaming  spark-tutorial  microk8s/localhost  3.1.7    unsupported  10:22:14Z
+spark-streaming  spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:21:00+01:00
 
-App              Version  Status  Scale  Charm            Channel  Rev  Address         Exposed  Message
-data-integrator           active      1  data-integrator  edge      15  10.152.183.18   no       
-kafka-k8s                 active      1  kafka-k8s        3/edge    47  10.152.183.242  no       
-kafka-test-app            active      3  kafka-test-app   edge       8  10.152.183.167  no       Topic spark-streaming-store enabled with process producer
-zookeeper-k8s             active      1  zookeeper-k8s    3/edge    42  10.152.183.87   no       
+App              Version  Status  Scale  Charm            Channel        Rev  Address         Exposed  Message
+data-integrator           active      1  data-integrator  latest/stable  362  10.152.183.217  no       
+kafka-k8s        3.9.0    active      1  kafka-k8s        3/stable        82  10.152.183.145  no       
+kafka-test-app            active      3  kafka-test-app   latest/stable   11  10.152.183.54   no       Topic spark-streaming-store enabled with process producer
+zookeeper-k8s    3.9.2    active      1  zookeeper-k8s    3/stable        78  10.152.183.104  no       
 
-Unit                Workload  Agent  Address      Ports  Message
-data-integrator/0*  active    idle   10.1.29.189         
-kafka-k8s/0*        active    idle   10.1.29.184         
-kafka-test-app/0    active    idle   10.1.29.185         Topic spark-streaming-store enabled with process producer
-kafka-test-app/1    active    idle   10.1.29.186         Topic spark-streaming-store enabled with process producer
-kafka-test-app/2*   active    idle   10.1.29.187         Topic spark-streaming-store enabled with process producer
-zookeeper-k8s/0*    active    idle   10.1.29.182 
+Unit                Workload  Agent  Address       Ports  Message
+data-integrator/0*  active    idle   10.1.177.154         
+kafka-k8s/0*        active    idle   10.1.177.150         
+kafka-test-app/0*   active    idle   10.1.177.151         Topic spark-streaming-store enabled with process producer
+kafka-test-app/1    active    idle   10.1.177.153         Topic spark-streaming-store enabled with process producer
+kafka-test-app/2    active    idle   10.1.177.152         Topic spark-streaming-store enabled with process producer
+zookeeper-k8s/0*    active    idle   10.1.177.148         
 ```
 
 Now that `data-integrator` is deployed and integrated with `kafka-k8s`, we can get the credentials to connect to Apache Kafka by running the `get-credentials` action exposed by the `data-integrator` charm:
 
-```bash
+```shell
 juju run data-integrator/0 get-credentials
 ```
 
@@ -175,7 +194,7 @@ As you can see, the endpoint, username and password to be used to authenticate w
 It will help if we store the username and password as variables so that they can be used later in the tutorial.
 To do that, we can specify `--format=json` when running the `get-credentials` action, and then filter out username and password using `jq`:
 
-```bash
+```shell
 export KAFKA_USERNAME=$(juju run data-integrator/0 get-credentials --format=json | jq -r '.["data-integrator/0"].results.kafka.username')
 export KAFKA_PASSWORD=$(juju run data-integrator/0 get-credentials --format=json | jq -r '.["data-integrator/0"].results.kafka.password')
 export KAFKA_ENDPOINT=$(juju run data-integrator/0 get-credentials --format=json | jq -r '.["data-integrator/0"].results.kafka.endpoints')
@@ -237,66 +256,17 @@ query.awaitTermination()
 
 Putting all of this together and enabling username, password, endpoint and topic to be passed as command line arguments, we get the following script:
 
-```python
-import argparse
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf, col
-from json import loads
-
-# Create a Spark Session
-spark = SparkSession.builder.appName("SparkStreaming").getOrCreate()
-
-# Read username, password and endpoint from command line arguments
-parser = argparse.ArgumentParser()
-parser.add_argument("--kafka-username", "-u",
-                help="The username to authenticate to Kafka",
-                required=True)
-parser.add_argument("--kafka-password", "-p",
-                help="The password to authenticate to Kafka",
-                  required=True)
-parser.add_argument("--kafka-endpoint", "-e",
-                  help="The bootstrap server endpoint",
-                    required=True)
-parser.add_argument("--kafka-topic", "-t",
-                  help="The Kafka topic to subscribe to",
-                    required=True)
-args = parser.parse_args()
-username=args.kafka_username
-password=args.kafka_password
-endpoint=args.kafka_endpoint
-topic=args.kafka_topic
-
-# Authenticating with Kafka and reading the stream from the topic
-lines = spark.readStream \
-        .format("kafka") \
-        .option("kafka.bootstrap.servers", endpoint) \
-        .option("kafka.sasl.mechanism", "SCRAM-SHA-512") \
-        .option("kafka.security.protocol", "SASL_PLAINTEXT") \
-        .option(
-          "kafka.sasl.jaas.config", 
-          f'org.apache.kafka.common.security.scram.ScramLoginModule required username="{username}" password="{password}";'
-        ).option("subscribe", topic) \
-        .option("includeHeaders", "true") \
-        .load()
-
-# User defined function that returns the origin of one particular event
-get_origin = udf(lambda x: loads(x)["origin"])
-
-# Group by origin of the event and count number of event for each origins
-count = lines.withColumn(
-            "origin", 
-            get_origin(col("value"))
-          ).select("origin").groupBy("origin").count()
-
-# Start writing the result to console
-query = count.writeStream.outputMode("complete").format("console").start()
-
-# Keep doing this until the job is terminated
-query.awaitTermination()
+```{literalinclude} ../../python/tests/tutorial/resources/spark_streaming.py
+:language: python
 ```
 
 Save the Python code above in a file named `spark_streaming.py`.
 Copy this file from the Host machine to the VM:
+
+<!-- test:run
+# Copy spark_streaming.py from repo resources
+cp "$SPREAD_PATH/python/tests/tutorial/resources/spark_streaming.py" spark_streaming.py
+-->
 
 ```bash
 multipass transfer spark_streaming.py spark-tutorial:spark_streaming.py
@@ -304,7 +274,7 @@ multipass transfer spark_streaming.py spark-tutorial:spark_streaming.py
 
 Then, from the VM, copy it to the S3:
 
-```bash
+```shell
 aws s3 cp spark_streaming.py s3://spark-tutorial/spark_streaming.py
 ```
 
@@ -313,7 +283,9 @@ aws s3 cp spark_streaming.py s3://spark-tutorial/spark_streaming.py
 Once the file has been copied to S3, let's submit a new job to our Apache Spark cluster using `spark-submit`.
 Please note that we need to specify a few extra packages to interact with Apache Kafka because they are not included by default in the Charmed Apache Spark image:
 
-```bash
+<!-- test:run-with-timeout --seconds 180 -->
+
+```shell
 spark-client.spark-submit \
     --username spark --namespace spark-streaming \
     --deploy-mode cluster \
@@ -340,6 +312,8 @@ The streaming output - directed to the console - is being written to the pod log
 To fetch the pod logs, we first need to know the name of the driver pod.
 Let's find its name to then fetch the logs as:
 
+<!-- test:wait --seconds 30 -->
+
 ```bash
 pod_name=$(kubectl get pods -n spark-streaming | grep "spark-streaming-.*-driver" | tail -n 1 | cut -d' ' -f1)
 
@@ -353,3 +327,8 @@ If you observe carefully, you can see that new logs are appended roughly every t
 ...
 2026-03-04T10:00:38.367Z [sparkd] Batch: 5
 ```
+
+<!-- test:assert
+juju status --format=json | jq -e '.applications."kafka-k8s"."application-status".current == "active"'
+test -n "$KAFKA_ENDPOINT"
+-->
