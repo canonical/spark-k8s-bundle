@@ -24,6 +24,7 @@ variable "azure_storage_revision" {
   description = "Charm revision for azure-storage-integrator"
   type        = number
   default     = null
+  nullable    = true
 }
 
 variable "azure_storage_secret_key" {
@@ -50,6 +51,7 @@ variable "cos_configuration_revision" {
   description = "Charm revision for cos-configuration"
   type        = number
   default     = null
+  nullable    = true
 }
 
 variable "cos_offers" {
@@ -66,6 +68,7 @@ variable "data_integrator_revision" {
   description = "Charm revision for data-integrator"
   type        = number
   default     = null
+  nullable    = true
 }
 
 variable "grafana_agent_image" {
@@ -78,6 +81,7 @@ variable "grafana_agent_revision" {
   description = "Charm revision for grafana-agent-k8s"
   type        = number
   default     = null
+  nullable    = true
 }
 
 variable "history_server_config" {
@@ -96,6 +100,7 @@ variable "history_server_revision" {
   description = "Charm revision for spark-history-server-k8s"
   type        = number
   default     = null
+  nullable    = true
 }
 
 variable "integration_hub_image" {
@@ -114,6 +119,7 @@ variable "integration_hub_revision" {
   description = "Charm revision for spark-integration-hub-k8s"
   type        = number
   default     = null
+  nullable    = true
 }
 
 variable "kyuubi_users_image" {
@@ -126,6 +132,7 @@ variable "kyuubi_users_revision" {
   description = "Charm revision for postgresql-k8s (auth-db)"
   type        = number
   default     = null
+  nullable    = true
 }
 
 variable "kyuubi_config" {
@@ -144,6 +151,7 @@ variable "kyuubi_revision" {
   description = "Charm revision for kyuubi-k8s"
   type        = number
   default     = null
+  nullable    = true
 }
 
 variable "kyuubi_units" {
@@ -175,6 +183,7 @@ variable "metastore_revision" {
   description = "Charm revision for postgresql-k8s (metastore)"
   type        = number
   default     = null
+  nullable    = true
 }
 
 variable "metastore_size" {
@@ -193,12 +202,14 @@ variable "pushgateway_revision" {
   description = "Charm revision for pushgateway"
   type        = number
   default     = null
+  nullable    = true
 }
 
 variable "scrape_config_revision" {
   description = "Charm revision for scrape_config"
   type        = number
   default     = null
+  nullable    = true
 }
 
 variable "spark_model_name" {
@@ -238,6 +249,7 @@ variable "ssc_revision" {
   description = "Charm revision for self-signed-certificates"
   type        = number
   default     = null
+  nullable    = true
 }
 
 variable "s3_config" {
@@ -261,6 +273,7 @@ variable "s3_revision" {
   description = "Charm revision for s3-integrator"
   type        = number
   default     = null
+  nullable    = true
 }
 
 variable "storage_backend" {
@@ -292,6 +305,7 @@ variable "zookeeper_revision" {
   description = "Charm revision for zookeeper-k8s"
   type        = number
   default     = null
+  nullable    = true
 }
 
 variable "zookeeper_units" {
