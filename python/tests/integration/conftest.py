@@ -18,6 +18,7 @@ from pathlib import Path
 from subprocess import PIPE, Popen, TimeoutExpired, check_output
 from typing import cast
 
+import hcl2
 import jubilant
 import pytest
 import yaml
@@ -465,7 +466,9 @@ def spark_bundle(
         entrypoint_content=entrypoint_content,
     )
 
-    with (TFVARS_DIR / f"{short_version}_amd64.yaml").open("r", encoding="utf-8") as f:
+    with (TFVARS_DIR / f"{short_version}_amd64.tfvars").open(
+        "r", encoding="utf-8"
+    ) as f:
         base_vars = {
             "kyuubi_config": {
                 "service-account": "kyuubi-test-user",
@@ -476,15 +479,15 @@ def spark_bundle(
             "create_model": False,
             "admin_password": admin_password,
             "tls_private_key": private_key,
-            **yaml.safe_load(f),
+            **hcl2.load(f),
         }
     # Merge external Terraform variables
     base_vars.update(tfvars)
 
     cos_vars = {}
     if cos:
-        with (TFVARS_DIR / "obs_amd64.yaml").open("r", encoding="utf-8") as f:
-            cos_vars = {"cos_model_uuid": cos, **yaml.safe_load(f)}
+        with (TFVARS_DIR / "obs_amd64.tfvars").open("r", encoding="utf-8") as f:
+            cos_vars = {"cos_model_uuid": cos, **hcl2.load(f)}
 
     if storage_backend == "azure_storage":
         storage_unit = cast(Container, object_storage)
