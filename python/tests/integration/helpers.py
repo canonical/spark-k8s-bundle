@@ -16,7 +16,6 @@ from typing import cast
 import httpx
 import jubilant
 
-from spark_test.core.s3 import Credentials
 from tests.integration.types import KyuubiCredentials
 
 SECRET_NAME_PREFIX = "integrator-hub-conf-"
@@ -28,22 +27,6 @@ ZOOKEEPER_NAME = "zookeeper"
 HA_ZNODE_NAME = "/kyuubi"
 
 logger = logging.getLogger(__name__)
-
-
-def set_s3_credentials(
-    juju: jubilant.Juju,
-    credentials: Credentials,
-    application_name="s3-integrator",
-    num_unit=0,
-) -> None:
-    """Use the charm action to start a password rotation."""
-    params = {
-        "access-key": credentials.access_key,
-        "secret-key": credentials.secret_key,
-    }
-
-    task = juju.run(f"{application_name}/{num_unit}", "sync-s3-credentials", params)
-    assert task.return_code == 0
 
 
 def get_kyuubi_credentials(
