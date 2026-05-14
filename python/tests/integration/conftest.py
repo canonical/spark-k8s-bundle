@@ -129,6 +129,11 @@ def pytest_addoption(parser):
         default=None,
         help="Path to a JSON/YAML file containing Terraform variables to pass to the bundle deployment",
     )
+    parser.addoption(
+        "--unpinned-revisions",
+        action="store_true",
+        help="Do not use the pinned revisions for the product module",
+    )
 
 
 def determine_scope(fixture_name, config):
@@ -453,6 +458,7 @@ def spark_bundle(
     tfvars,
 ):
     """Deploy the Spark K8s bundle using Terraform."""
+    unpinned_revisions = bool(request.config.getoption("--unpinned-revisions"))
     short_version = ".".join(spark_version.split(".")[:2])
 
     with (IE_TEST_DIR / "integration" / "resources" / "main.tf").open(
@@ -479,7 +485,7 @@ def spark_bundle(
             "create_model": False,
             "admin_password": admin_password,
             "tls_private_key": private_key,
-            **hcl2.load(f),
+            **(hcl2.load(f) if not unpinned_revisions else {}),
         }
     # Merge external Terraform variables
     base_vars.update(tfvars)
