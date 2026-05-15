@@ -36,7 +36,6 @@ from tests import IE_TEST_DIR, TERRAFORM_DIR
 
 from .helpers import (
     local_tmp_folder,
-    set_s3_credentials,
 )
 
 COS_APPS = [
@@ -487,23 +486,22 @@ def spark_bundle(
             "azure_storage_secret_key": storage_unit.credentials.secret_key,
         }
     else:
+        credentials = request.getfixturevalue("credentials")
         storage_unit = cast(Bucket, object_storage)
         storage_vars = {
             "s3_config": {
                 "bucket": storage_unit.bucket_name,
                 "endpoint": storage_unit.s3.meta.endpoint_url,
                 "path": "spark-events",
-            }
+            },
+            "s3_access_key": credentials.access_key,
+            "s3_secret_key": credentials.secret_key,
         }
 
     vars = base_vars | cos_vars | storage_vars
     logger.info(f"Applying vars: {vars.keys()}")
 
     deployed_applications = bundle.apply(vars=vars)
-    if storage_backend == "s3":
-        credentials = request.getfixturevalue("credentials")
-        juju.wait(lambda status: jubilant.all_agents_idle(status, "s3-integrator"))
-        set_s3_credentials(juju, credentials=credentials)
 
     logger.info("Waiting for spark deployment to settle down")
     robust_wait_active(juju)
