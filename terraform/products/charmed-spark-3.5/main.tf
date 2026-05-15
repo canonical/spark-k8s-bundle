@@ -39,7 +39,7 @@ module "kyuubi_users" {
   channel            = "14/stable"
   constraints        = "arch=amd64"
   revision           = var.kyuubi_users_revision
-  resources          = { postgresql-image = var.kyuubi_users_image }
+  resources          = var.kyuubi_users_image != null ? { postgresql-image = var.kyuubi_users_image } : null
   storage_directives = { pgdata = var.kyuubi_users_size }
   units              = 1
 }
@@ -54,7 +54,7 @@ module "metastore" {
   channel            = "14/stable"
   constraints        = "arch=amd64"
   revision           = var.metastore_revision
-  resources          = { postgresql-image = var.metastore_image }
+  resources          = var.metastore_image != null ? { postgresql-image = var.metastore_image } : null
   storage_directives = { pgdata = var.metastore_size }
   units              = 1
 }
@@ -68,7 +68,7 @@ module "zookeeper" {
   channel     = "3/stable"
   constraints = "arch=amd64"
   revision    = var.zookeeper_revision
-  resources   = { zookeeper-image = var.zookeeper_image }
+  resources   = var.zookeeper_image != null ? { zookeeper-image = var.zookeeper_image } : null
   units       = var.zookeeper_units
 }
 
@@ -241,9 +241,15 @@ module "observability" {
   metrics_offer    = var.cos_offers.metrics
 
   cos_configuration = { revision = var.cos_configuration_revision }
-  grafana_agent     = { revision = var.grafana_agent_revision, resource = { agent-image = var.grafana_agent_image } }
-  pushgateway       = { revision = var.pushgateway_revision, resource = { pushgateway-image = var.pushgateway_image } }
-  scrape_config     = { revision = var.scrape_config_revision }
+  grafana_agent = {
+    revision = var.grafana_agent_revision
+    resource = var.grafana_agent_image != null ? { agent-image = var.grafana_agent_image } : null
+  }
+  pushgateway = {
+    revision = var.pushgateway_revision
+    resource = var.pushgateway_image != null ? { pushgateway-image = var.pushgateway_image } : null
+  }
+  scrape_config = { revision = var.scrape_config_revision }
 
   history_server_dashboard_endpoint = module.spark.provides.history_server_dashboard
   history_server_logging_endpoint   = module.spark.requires.history_server_logging

@@ -13,7 +13,7 @@ resource "juju_application" "history_server" {
 
   config      = var.history_server.config
   constraints = var.history_server.constraints
-  resources   = var.history_server.resources
+  resources   = var.history_server.resources != null ? var.history_server.resources : {}
   units       = var.history_server.units
 }
 

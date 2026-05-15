@@ -73,7 +73,7 @@ variable "data_integrator_revision" {
 
 variable "grafana_agent_image" {
   description = "Image for grafana-agent-k8s"
-  type        = string
+  type        = any
   default     = null
 }
 
@@ -92,7 +92,7 @@ variable "history_server_config" {
 
 variable "history_server_image" {
   description = "Image for spark-history-server-k8s"
-  type        = string
+  type        = any
   default     = null
 }
 
@@ -105,7 +105,7 @@ variable "history_server_revision" {
 
 variable "integration_hub_image" {
   description = "Image for spark-integration-hub-k8s"
-  type        = string
+  type        = any
   default     = null
 }
 
@@ -124,7 +124,7 @@ variable "integration_hub_revision" {
 
 variable "kyuubi_users_image" {
   description = "Image for postgresql-k8s (auth-db)"
-  type        = string
+  type        = any
   default     = null
 }
 
@@ -143,7 +143,7 @@ variable "kyuubi_config" {
 
 variable "kyuubi_image" {
   description = "Image for kyuubi-k8s"
-  type        = string
+  type        = any
   default     = null
 }
 
@@ -175,7 +175,7 @@ variable "logging_config" {
 
 variable "metastore_image" {
   description = "Image for postgresql-k8s (metastore)"
-  type        = string
+  type        = any
   default     = null
 }
 
@@ -194,7 +194,7 @@ variable "metastore_size" {
 
 variable "pushgateway_image" {
   description = "Image for pushgateway"
-  type        = string
+  type        = any
   default     = null
 }
 
@@ -297,7 +297,7 @@ variable "tls_private_key" {
 
 variable "zookeeper_image" {
   description = "Image for zookeeper-k8s"
-  type        = string
+  type        = any
   default     = null
 }
 
