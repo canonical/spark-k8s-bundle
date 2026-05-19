@@ -68,6 +68,11 @@ inputs:
     required: false
     default: "amd64"
     type: string
+  unpinned:
+    description: "Use unpinned revisions/oci resources"
+    required: false
+    default: ""
+    type: string
 
 runs:
   using: "composite"
@@ -78,7 +83,7 @@ runs:
     - name: Install pipx
       shell: bash
       run: |
-        sudo apt-get update -y 
+        sudo apt-get update -y
         sudo apt-get install -yqq pipx
         pipx ensurepath
 
@@ -131,7 +136,7 @@ runs:
         # Avoiding dockerhub rate limits (see https://canonical-self-hosted-github-runner-docs.readthedocs-hosted.com/en/latest/usage/faq/how-to-avoid-dockerhub-rate-limits/ for more informations)
         if [ -n "$DOCKERHUB_MIRROR" ]; then
         MIRROR_CONFIG=/etc/containerd/hosts.d/docker.io
-        
+
         sudo mkdir -p ${MIRROR_CONFIG}
         sudo chown $USER ${MIRROR_CONFIG}
         cat << EOF > ${MIRROR_CONFIG}/hosts.toml
@@ -139,18 +144,18 @@ runs:
         capabilities = ["pull", "resolve"]
         EOF
         fi
-        
+
         sudo apt-get remove -y docker.io containerd
         sudo rm -rf /run/containerd /var/lib/docker /var/lib/containerd
-        
+
         sudo snap install concierge --classic
         cd .github
-        
+
         # Set the versions
         yq -i e '.providers.k8s.channel = "${{ inputs.k8s-version }}-classic/stable"' concierge.yaml
         yq -i e '.juju.channel = "${{ inputs.juju-snap-channel }}"' concierge.yaml
         yq -i e '.juju.agent-version = "3.6.19"' concierge.yaml
-        
+
         sudo concierge prepare --trace
         cd ..
 
@@ -200,12 +205,12 @@ runs:
       run: |
         echo -e "$CLOUD_INIT_FILE" > microceph_rgw.yaml
         lxc init ubuntu:jammy ceph -c limits.cpu=4 -c limits.memory=2GB -d root,size=5GB
-        
+
         lxc config set ceph cloud-init.user-data - < microceph_rgw.yaml
         lxc start ceph
         while ! lxc exec ceph -- id -u ubuntu &>/dev/null; do sleep 0.5; done
         lxc exec ceph -- cloud-init status --wait
-        
+
         echo -e "S3_SERVER_URL=http://$(lxc list --format json | yq '.[] | select(.name == "ceph") .state.network.eth0.addresses.[] | select(.family == "inet") .address'):80/\nS3_ACCESS_KEY=foo\nS3_SECRET_KEY=bar" > .env
         lxc list
         cat .env
@@ -264,7 +269,7 @@ runs:
           pip install pyyaml
           python3 .github/scripts/charms_promotions.py get-revisions \
             --format yaml --file $TFVARS_PATH --output tfvars
-          
+
           REVISION_FILE="${major_minor}@${arch}.tfvars.yaml"
 
           cp $REVISION_FILE python/revisions.tfvars.yaml
@@ -274,7 +279,7 @@ runs:
 
         juju add-model spark-bundle-test
         juju list-models
-        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }} $TFVARS_ARG
+        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }} ${{ inputs.unpinned }} $TFVARS_ARG
         echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
 
     - id: collect-logs
@@ -294,28 +299,28 @@ runs:
       run: |
         printf '\nDisk usage after tests\n'
         df --human-readable
-        
+
         printf '\nJuju status(es)\n'
         juju status -m spark-bundle-test
         if [[ -n "${{ inputs.cos-model }}" ]]; then
           printf '\nCos status\n'
           juju status -m cos
         fi
-        
+
         printf '\nK8s pods\n'
         kubectl get pods -n spark-bundle-test -o wide
         if [[ -n "${{ inputs.cos-model }}" ]]; then
           printf '\nCos pods\n'
           kubectl get pods -n cos -o wide
         fi
-        
+
         printf '\nK8s events\n'
         kubectl get events -n spark-bundle-test -o wide
         if [[ -n "${{ inputs.cos-model }}" ]]; then
           printf '\nCos events\n'
           kubectl get events -n cos -o wide
         fi
-        
+
         printf '\nDebug logs\n'
         juju debug-log -m spark-bundle-test --replay -l INFO | tail -n 500
         if [[ -n "${{ inputs.cos-model }}" ]]; then
@@ -339,4 +344,3 @@ runs:
       with:
         name: integration-results-${{ inputs.tox-env }}-${{ inputs.k8s-distribution }}-${{ inputs.k8s-version }}-${{ inputs.spark-version }}-${{ inputs.storage-backend }}-${{ inputs.cos-model }}-${{ inputs.juju-agent-version }}
         path: test-result.json
-
