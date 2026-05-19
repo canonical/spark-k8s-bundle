@@ -485,7 +485,16 @@ def spark_bundle(
             "create_model": False,
             "admin_password": admin_password,
             "tls_private_key": private_key,
-            **(hcl2.load(f) if not unpinned_revisions else {}),
+            **(
+                hcl2.load(
+                    f,
+                    serialization_options=hcl2.SerializationOptions(
+                        with_comments=False
+                    ),
+                )
+                if not unpinned_revisions
+                else {}
+            ),
         }
     # Merge external Terraform variables
     base_vars.update(tfvars)
