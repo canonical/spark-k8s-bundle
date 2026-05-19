@@ -489,7 +489,7 @@ def spark_bundle(
                 hcl2.load(
                     f,
                     serialization_options=hcl2.SerializationOptions(
-                        with_comments=False
+                        with_comments=False, strip_string_quotes=True
                     ),
                 )
                 if not unpinned_revisions
