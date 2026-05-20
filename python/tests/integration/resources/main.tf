@@ -67,38 +67,136 @@ variable "tls_private_key" {
   default = null
 }
 
-variable "charmed_spark" {
-  type = object({
-    history_server_revision  = optional(string)
-    integration_hub_revision = optional(string)
-    kyuubi_revision          = optional(string)
-    kyuubi_users_revision    = optional(string)
-    metastore_revision       = optional(string)
-    zookeeper_revision       = optional(string)
-    data_integrator_revision = optional(string)
-    s3_revision              = optional(string)
-    ssc_revision             = optional(string)
-    azure_storage_revision   = optional(string)
-    history_server_image     = optional(string)
-    integration_hub_image    = optional(string)
-    kyuubi_image             = optional(string)
-    kyuubi_users_image       = optional(string)
-    metastore_image          = optional(string)
-    zookeeper_image          = optional(string)
-  })
-  default = {}
+variable "history_server_revision" {
+  type        = string
+  default     = null
+  description = "Revision for the history server"
 }
 
-variable "observability" {
-  type = object({
-    cos_configuration_revision = optional(string)
-    grafana_agent_revision     = optional(string)
-    pushgateway_revision       = optional(string)
-    scrape_config_revision     = optional(string)
-    grafana_agent_image        = optional(string)
-    pushgateway_image          = optional(string)
-  })
-  default = {}
+variable "integration_hub_revision" {
+  type        = string
+  default     = null
+  description = "Revision for the integration hub"
+}
+
+variable "kyuubi_revision" {
+  type        = string
+  default     = null
+  description = "Revision for Kyuubi"
+}
+
+variable "kyuubi_users_revision" {
+  type        = string
+  default     = null
+  description = "Revision for Kyuubi users"
+}
+
+variable "metastore_revision" {
+  type        = string
+  default     = null
+  description = "Revision for the metastore"
+}
+
+variable "zookeeper_revision" {
+  type        = string
+  default     = null
+  description = "Revision for ZooKeeper"
+}
+
+variable "data_integrator_revision" {
+  type        = string
+  default     = null
+  description = "Revision for the data integrator"
+}
+
+variable "s3_revision" {
+  type        = string
+  default     = null
+  description = "Revision for S3"
+}
+
+variable "ssc_revision" {
+  type        = string
+  default     = null
+  description = "Revision for SSC"
+}
+
+variable "azure_storage_revision" {
+  type        = string
+  default     = null
+  description = "Revision for Azure storage"
+}
+
+variable "history_server_image" {
+  type        = any
+  default     = null
+  description = "Image for the history server"
+}
+
+variable "integration_hub_image" {
+  type        = any
+  default     = null
+  description = "Image for the integration hub"
+}
+
+variable "kyuubi_image" {
+  type        = any
+  default     = null
+  description = "Image for Kyuubi"
+}
+
+variable "kyuubi_users_image" {
+  type        = string
+  default     = null
+  description = "Image for Kyuubi users"
+}
+
+variable "metastore_image" {
+  type        = string
+  default     = null
+  description = "Image for the metastore"
+}
+
+variable "zookeeper_image" {
+  type        = string
+  default     = null
+  description = "Image for ZooKeeper"
+}
+
+variable "cos_configuration_revision" {
+  type        = string
+  default     = null
+  description = "Revision for COS configuration"
+}
+
+variable "grafana_agent_revision" {
+  type        = string
+  default     = null
+  description = "Revision for the Grafana agent"
+}
+
+variable "pushgateway_revision" {
+  type        = string
+  default     = null
+  description = "Revision for the pushgateway"
+}
+
+variable "scrape_config_revision" {
+  type        = string
+  default     = null
+  description = "Revision for the scrape configuration"
+}
+
+variable "grafana_agent_image" {
+  type        = string
+  default     = null
+  description = "Image for the Grafana agent"
+}
+
+variable "pushgateway_image" {
+  type        = string
+  default     = null
+  description = "Image for the pushgateway"
 }
 
 module "cos" {
@@ -124,35 +222,35 @@ module "spark" {
 
   admin_password             = var.admin_password
   azure_storage_config       = var.azure_storage_config
-  azure_storage_revision     = var.charmed_spark.azure_storage_revision
+  azure_storage_revision     = var.azure_storage_revision
   azure_storage_secret_key   = var.azure_storage_secret_key
-  cos_configuration_revision = var.observability.cos_configuration_revision
-  data_integrator_revision   = var.charmed_spark.data_integrator_revision
-  grafana_agent_image        = var.observability.grafana_agent_image
-  grafana_agent_revision     = var.observability.grafana_agent_revision
-  history_server_image       = var.charmed_spark.history_server_image
-  history_server_revision    = var.charmed_spark.history_server_revision
-  integration_hub_image      = var.charmed_spark.integration_hub_image
-  integration_hub_revision   = var.charmed_spark.integration_hub_revision
+  cos_configuration_revision = var.cos_configuration_revision
+  data_integrator_revision   = var.data_integrator_revision
+  grafana_agent_image        = var.grafana_agent_image
+  grafana_agent_revision     = var.grafana_agent_revision
+  history_server_image       = var.history_server_image
+  history_server_revision    = var.history_server_revision
+  integration_hub_image      = var.integration_hub_image
+  integration_hub_revision   = var.integration_hub_revision
   kyuubi_config              = var.kyuubi_config
-  kyuubi_image               = var.charmed_spark.kyuubi_image
-  kyuubi_revision            = var.charmed_spark.kyuubi_revision
-  kyuubi_users_image         = var.charmed_spark.kyuubi_users_image
-  kyuubi_users_revision      = var.charmed_spark.kyuubi_users_revision
+  kyuubi_image               = var.kyuubi_image
+  kyuubi_revision            = var.kyuubi_revision
+  kyuubi_users_image         = var.kyuubi_users_image
+  kyuubi_users_revision      = var.kyuubi_users_revision
   kyuubi_users_size          = "500M"
-  metastore_image            = var.charmed_spark.metastore_image
-  metastore_revision         = var.charmed_spark.metastore_revision
+  metastore_image            = var.metastore_image
+  metastore_revision         = var.metastore_revision
   metastore_size             = "500M"
-  pushgateway_image          = var.observability.pushgateway_image
-  pushgateway_revision       = var.observability.pushgateway_revision
+  pushgateway_image          = var.pushgateway_image
+  pushgateway_revision       = var.pushgateway_revision
   s3_config                  = var.s3_config
-  s3_revision                = var.charmed_spark.s3_revision
-  scrape_config_revision     = var.observability.scrape_config_revision
-  ssc_revision               = var.charmed_spark.ssc_revision
+  s3_revision                = var.s3_revision
+  scrape_config_revision     = var.scrape_config_revision
+  ssc_revision               = var.ssc_revision
   storage_backend            = var.storage_backend
   tls_private_key            = var.tls_private_key
-  zookeeper_image            = var.charmed_spark.zookeeper_image
-  zookeeper_revision         = var.charmed_spark.zookeeper_revision
+  zookeeper_image            = var.zookeeper_image
+  zookeeper_revision         = var.zookeeper_revision
   zookeeper_units            = 1
 
   cos_offers = module.cos != [] ? {
