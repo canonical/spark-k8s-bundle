@@ -20,8 +20,11 @@ variable "cos_configuration" {
     })
     constraints = optional(string, "arch=amd64")
     resources   = optional(map(string), {})
-    revision    = optional(number, 65) # TODO
-    units       = optional(number, 1)
+    # TODO: Remove this pin once both of the following issue gets fixed:
+    # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 
+    # https://github.com/canonical/cos-configuration-k8s-operator/issues/84
+    revision = optional(number, 65)
+    units    = optional(number, 1)
   })
   default = {}
 }

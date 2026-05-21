@@ -41,7 +41,7 @@ variable "model_uuid" {
 
 variable "resources" {
   description = "Resources to attach to the application (e.g. OCI images)."
-  type        = map(string)
+  type        = map(any)
   default     = null
 }
 

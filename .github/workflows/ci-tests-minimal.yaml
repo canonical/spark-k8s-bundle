@@ -29,13 +29,14 @@ jobs:
           - integration-sparkjob
           - integration-kyuubi
           - integration-backup-restore
-        spark-version: [ "3.4.4", "3.5.7" ]
-        storage-backend: [ "s3", "azure_storage" ]
-        juju-snap-channel: [ "3.6/stable" ]
-        juju-agent-version: [ "3.6.14" ]
+        spark-version: ["3.4.4", "3.5.7"]
+        storage-backend: ["s3", "azure_storage"]
+        juju-snap-channel: ["3.6/stable"]
+        juju-agent-version: ["3.6.14"]
         k8s-distribution: ["k8s", "microk8s"]
         k8s-version:
           - "1.32"
+        unpinned: [""]
         exclude:
           - k8s-distribution: "microk8s"
             spark-version: "3.4.4"
@@ -77,6 +78,15 @@ jobs:
             juju-agent-version: "3.6.14"
             cos-model: cos
 
+          # Test with unpinned revisions
+          - tox-env: integration-bundle
+            storage-backend: s3
+            juju-snap-channel: "3.6/stable"
+            juju-agent-version: "3.6.14"
+            k8s-distribution: "k8s"
+            k8s-version: "1.32"
+            unpinned: "--unpinned-revisions"
+
     needs:
       - checks
 
@@ -96,7 +106,8 @@ jobs:
           juju-agent-version: ${{ matrix.juju-agent-version }}
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
-          pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
+          pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || ''}}
+          unpinned: ${{ matrix.unpinned }}
           tfvars-file: ${{ inputs.tfvars-file }}
 
   aggregate-results:

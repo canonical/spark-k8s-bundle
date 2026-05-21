@@ -58,8 +58,8 @@ psycopg2-binary = "^2.9.9"
 tenacity = "^9.0.0"
 httpx = "^0.28.1"
 jubilant = "^1.7.0"
-jinja2 = "*"
-python-dotenv = "^1.2.2"
+python-dotenv = "^1.2.1"
+python-hcl2 = "^8.1.2"
 
 [tool.poetry.group.benchmark]
 optional = true
