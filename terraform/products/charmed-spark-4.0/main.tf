@@ -138,8 +138,8 @@ module "s3" {
   source     = "../../charms/s3-integrator-v1"
   model_uuid = local.model_uuid
 
-  channel     = "2/stable"
-  config      = merge(
+  channel = "2/stable"
+  config = merge(
     var.s3_config,
     {
       credentials = "secret:${juju_secret.s3_secret[0].secret_id}"
