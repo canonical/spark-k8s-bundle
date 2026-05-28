@@ -1139,23 +1139,14 @@ files = [
 
 [[package]]
 name = "jubilant"
-<<<<<<< HEAD
-version = "1.8.0"
-=======
 version = "1.9.0"
->>>>>>> terraform-cc008
 description = "Juju CLI wrapper, primarily for charm integration testing"
 optional = false
 python-versions = ">=3.8"
 groups = ["integration"]
 files = [
-<<<<<<< HEAD
-    {file = "jubilant-1.8.0-py3-none-any.whl", hash = "sha256:e0495ee645de5f2df81d044a3b6e2827b5a6277de02c6d30935b9632bd868a98"},
-    {file = "jubilant-1.8.0.tar.gz", hash = "sha256:a7cea68299dca94fac3e121a8c8ed92021d20aa2f4461e16822abbcd134d0b8b"},
-=======
     {file = "jubilant-1.9.0-py3-none-any.whl", hash = "sha256:1cacd96361fe77d3ea124483bb7a7d4ff0f96412bcd0c0bf32698e685aa77c37"},
     {file = "jubilant-1.9.0.tar.gz", hash = "sha256:0a8116d4237dd60755935343d1dc7a61f48028495bd1d0b020dc57c96768c9a9"},
->>>>>>> terraform-cc008
 ]
 
 [package.dependencies]
@@ -3100,8 +3091,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-<<<<<<< HEAD
-content-hash = "9a6a11e0a4e73593d4c7f5e18e9c7cdfbee3cdb35df6e21eee95e0d10f58f9e9"
-=======
 content-hash = "2544286fcc8b92617e3d856df64b476ddf7ff6e102e7c7e34c65b4bfda7dfe24"
->>>>>>> terraform-cc008
