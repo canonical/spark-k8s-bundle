@@ -220,21 +220,6 @@ module "spark" {
   model_uuid   = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
   create_model = false
 
-<<<<<<< HEAD
-  admin_password           = var.admin_password
-  azure_storage_config     = var.azure_storage_config
-  azure_storage_secret_key = var.azure_storage_secret_key
-  history_server_revision  = var.history_server_revision
-  integration_hub_revision = var.integration_hub_revision
-  kyuubi_config            = var.kyuubi_config
-  kyuubi_revision          = var.kyuubi_revision
-  kyuubi_users_size        = "500M"
-  metastore_size           = "500M"
-  s3_config                = var.s3_config
-  storage_backend          = var.storage_backend
-  tls_private_key          = var.tls_private_key
-  zookeeper_units          = 1
-=======
   admin_password             = var.admin_password
   azure_storage_config       = var.azure_storage_config
   azure_storage_revision     = var.azure_storage_revision
@@ -267,7 +252,6 @@ module "spark" {
   zookeeper_image            = var.zookeeper_image
   zookeeper_revision         = var.zookeeper_revision
   zookeeper_units            = 1
->>>>>>> terraform-cc008
 
   cos_offers = module.cos != [] ? {
     dashboard = module.cos[0].offers.grafana_dashboards.url

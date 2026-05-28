@@ -4,7 +4,7 @@
 variable "app_name" {
   description = "Name to give the deployed application."
   type        = string
-  default     = "azure-storage-integrator"
+  default     = "s3-integrator"
   nullable    = false
 }
 
@@ -24,13 +24,16 @@ variable "channel" {
 variable "config" {
   description = "Map for configuration options."
   type = object({
-    connection-protocol = optional(string, "abfss")
-    container           = optional(string)
-    credentials         = optional(string)
-    endpoint            = optional(string)
-    path                = optional(string)
-    resource-group      = optional(string)
-    storage-account     = optional(string)
+    attributes                          = optional(string)
+    bucket                              = optional(string)
+    endpoint                            = optional(string)
+    experimental-delete-older-than-days = optional(number)
+    path                                = optional(string)
+    region                              = optional(string)
+    s3-api-version                      = optional(string)
+    s3-uri-style                        = optional(string)
+    storage-class                       = optional(string)
+    tls-ca-chain                        = optional(string)
   })
   default = {}
 }

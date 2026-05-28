@@ -121,7 +121,7 @@ resource "juju_access_secret" "azure_storage_secret_access" {
 module "s3" {
   depends_on = [juju_model.spark]
   count      = var.storage_backend == "s3" ? 1 : 0
-  source     = "../../charms/s3-integrator-v1"
+  source     = "../../charms/s3-integrator-v0"
   model_uuid = local.model_uuid
 
   channel     = "1/stable"
