@@ -18,11 +18,12 @@ from pathlib import Path
 from subprocess import PIPE, Popen, TimeoutExpired, check_output
 from typing import cast
 
+import hcl2
 import jubilant
 import pytest
 import yaml
 from dotenv import load_dotenv
-from spark8t.domain import PropertyFile
+from spark8t.utils import PropertyFile
 from tenacity import retry, stop_after_attempt
 
 from spark_test.core.azure_storage import Container
@@ -47,6 +48,7 @@ COS_APPS = [
     "alertmanager",
 ]
 FORWARD_TIMEOUT_SECONDS = 10
+TFVARS_DIR = Path("tests/integration/resources/tfvars")
 load_dotenv()
 logger = logging.getLogger(__name__)
 logging.getLogger("jubilant.wait").setLevel(logging.WARNING)
@@ -125,6 +127,11 @@ def pytest_addoption(parser):
         type=str,
         default=None,
         help="Path to a JSON/YAML file containing Terraform variables to pass to the bundle deployment",
+    )
+    parser.addoption(
+        "--unpinned-revisions",
+        action="store_true",
+        help="Do not use the pinned revisions for the product module",
     )
 
 
@@ -450,6 +457,7 @@ def spark_bundle(
     tfvars,
 ):
     """Deploy the Spark K8s bundle using Terraform."""
+    unpinned_revisions = bool(request.config.getoption("--unpinned-revisions"))
     short_version = ".".join(spark_version.split(".")[:2])
 
     with (IE_TEST_DIR / "integration" / "resources" / "main.tf").open(
@@ -462,18 +470,38 @@ def spark_bundle(
         terraform_root=TERRAFORM_DIR,
         entrypoint_content=entrypoint_content,
     )
-    base_vars = {
-        "kyuubi_config": {"service-account": "kyuubi-test-user", "profile": "testing"},
-        "model_uuid": cast(str, juju.show_model().model_uuid),
-        "storage_backend": storage_backend,
-        "create_model": False,
-        "admin_password": admin_password,
-        "tls_private_key": private_key,
-    }
+
+    with (TFVARS_DIR / f"{short_version}_amd64.tfvars").open(
+        "r", encoding="utf-8"
+    ) as f:
+        base_vars = {
+            "kyuubi_config": {
+                "service-account": "kyuubi-test-user",
+                "profile": "testing",
+            },
+            "model_uuid": cast(str, juju.show_model().model_uuid),
+            "storage_backend": storage_backend,
+            "create_model": False,
+            "admin_password": admin_password,
+            "tls_private_key": private_key,
+            **(
+                hcl2.load(
+                    f,
+                    serialization_options=hcl2.SerializationOptions(
+                        with_comments=False, strip_string_quotes=True
+                    ),
+                )
+                if not unpinned_revisions
+                else {}
+            ),
+        }
     # Merge external Terraform variables
     base_vars.update(tfvars)
 
-    cos_vars = {"cos_model_uuid": cos} if cos else {}
+    cos_vars = {}
+    if cos:
+        with (TFVARS_DIR / "obs_amd64.tfvars").open("r", encoding="utf-8") as f:
+            cos_vars = {"cos_model_uuid": cos, **hcl2.load(f)}
 
     if storage_backend == "azure_storage":
         storage_unit = cast(Container, object_storage)

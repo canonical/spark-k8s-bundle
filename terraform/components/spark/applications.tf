@@ -7,13 +7,13 @@ resource "juju_application" "history_server" {
 
   charm {
     name     = "spark-history-server-k8s"
-    channel  = var.history_server.channel
+    channel  = "${var.history_server.track}/${var.risk}"
     revision = var.history_server.revision
   }
 
   config      = var.history_server.config
   constraints = var.history_server.constraints
-  resources   = var.history_server.resources
+  resources   = var.history_server.resources != null ? var.history_server.resources : {}
   units       = var.history_server.units
 }
 
@@ -23,7 +23,7 @@ resource "juju_application" "integration_hub" {
 
   charm {
     name     = "spark-integration-hub-k8s"
-    channel  = var.integration_hub.channel
+    channel  = "${var.integration_hub.track}/${var.risk}"
     revision = var.integration_hub.revision
   }
 
@@ -40,7 +40,7 @@ resource "juju_application" "kyuubi" {
 
   charm {
     name     = "kyuubi-k8s"
-    channel  = var.kyuubi.channel
+    channel  = "${var.kyuubi.track}/${var.risk}"
     revision = var.kyuubi.revision
   }
 
