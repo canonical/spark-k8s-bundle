@@ -494,6 +494,7 @@ def spark_bundle(
                 if not unpinned_revisions
                 else {}
             ),
+            "spark_risk": "edge",  # TODO: Remove this line to use stable risk
         }
     # Merge external Terraform variables
     base_vars.update(tfvars)
