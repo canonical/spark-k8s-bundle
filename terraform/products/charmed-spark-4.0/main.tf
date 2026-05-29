@@ -196,6 +196,7 @@ module "spark" {
     constraints = "arch=amd64"
     revision    = var.history_server_revision
     resources   = { spark-history-server-image = var.history_server_image }
+    track       = "4"
   }
   integration_hub = {
     config      = var.integration_hub_config

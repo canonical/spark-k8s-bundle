@@ -18,3 +18,5 @@ kyuubi_image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:28e739963fcb86a357
 kyuubi_users_image = 184
 metastore_image    = 184
 zookeeper_image    = 34
+
+spark_risk         = "edge" #TODO: Use stable risk
