@@ -243,8 +243,10 @@ module "spark" {
   metastore_size             = "500M"
   pushgateway_image          = var.pushgateway_image
   pushgateway_revision       = var.pushgateway_revision
+  s3_access_key              = var.s3_access_key
   s3_config                  = var.s3_config
   s3_revision                = var.s3_revision
+  s3_secret_key              = var.s3_secret_key
   scrape_config_revision     = var.scrape_config_revision
   ssc_revision               = var.ssc_revision
   storage_backend            = var.storage_backend
