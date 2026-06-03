@@ -5,9 +5,9 @@ kyuubi_users_revision    = 774
 metastore_revision       = 774
 zookeeper_revision       = 78
 data_integrator_revision = 362
-s3_revision              = 330
+s3_revision              = 544
 ssc_revision             = 586
-azure_storage_revision   = 270
+azure_storage_revision   = 282
 
 history_server_image = "ghcr.io/canonical/charmed-spark@sha256:f7f387a76ba2f3b6cfc34a35f36c0f4ae85bfa78c8c9d4bfa06ba86401b95d70"
 # rev24,  spark-version: 3.5.7, release date 16/03/2026
