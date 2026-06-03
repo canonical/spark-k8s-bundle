@@ -281,7 +281,7 @@ module "spark" {
   zookeeper_image            = var.zookeeper_image
   zookeeper_revision         = var.zookeeper_revision
   zookeeper_units            = 1
-  risk                       = var.spark_risk
+  spark_risk                 = var.spark_risk
 
   cos_offers = module.cos != [] ? {
     dashboard = module.cos[0].offers.grafana_dashboards.url
