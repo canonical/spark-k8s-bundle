@@ -133,7 +133,7 @@ resource "juju_secret" "s3_secret" {
 }
 
 module "s3" {
-  depends_on = [juju_model.spark]
+  depends_on = [juju_model.spark, juju_secret.s3_secret]
   count      = var.storage_backend == "s3" ? 1 : 0
   source     = "../../charms/s3-integrator-v1"
   model_uuid = local.model_uuid

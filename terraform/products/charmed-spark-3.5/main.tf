@@ -120,16 +120,43 @@ resource "juju_access_secret" "azure_storage_secret_access" {
   secret_id = juju_secret.azure_storage_secret[0].secret_id
 }
 
-module "s3" {
+resource "juju_secret" "s3_secret" {
   depends_on = [juju_model.spark]
   count      = var.storage_backend == "s3" ? 1 : 0
-  source     = "../../charms/s3-integrator-v0"
+  model_uuid = local.model_uuid
+  name       = "s3_secret"
+  value = {
+    secret-key = var.s3_secret_key
+    access-key = var.s3_access_key
+  }
+  info = "This is the access key and secret key for the S3 storage"
+}
+
+module "s3" {
+  depends_on = [juju_model.spark, juju_secret.s3_secret]
+  count      = var.storage_backend == "s3" ? 1 : 0
+  source     = "../../charms/s3-integrator-v1"
   model_uuid = local.model_uuid
 
-  channel     = "1/stable"
-  config      = var.s3_config
+  channel = "2/stable"
+  config = merge(
+    var.s3_config,
+    {
+      credentials = "secret:${juju_secret.s3_secret[0].secret_id}"
+    }
+  )
   constraints = "arch=amd64"
   revision    = var.s3_revision
+}
+
+resource "juju_access_secret" "s3_secret_access" {
+  depends_on = [juju_model.spark, juju_secret.s3_secret, module.s3]
+  count      = var.storage_backend == "s3" ? 1 : 0
+  model_uuid = local.model_uuid
+  applications = [
+    module.s3[0].application.name
+  ]
+  secret_id = juju_secret.s3_secret[0].secret_id
 }
 
 resource "juju_secret" "system_users_and_private_key_secret" {

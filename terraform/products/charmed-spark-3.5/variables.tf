@@ -34,6 +34,20 @@ variable "azure_storage_secret_key" {
   default     = null
 }
 
+variable "s3_access_key" {
+  description = "AWS S3 Access key."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
+variable "s3_secret_key" {
+  description = "AWS S3 Secret key."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
 variable "certificate_common_name" {
   description = "Common name for the certificate to be used in self-signed"
   type        = string
