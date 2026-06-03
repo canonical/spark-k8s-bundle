@@ -62,6 +62,20 @@ variable "s3_config" {
   default = {}
 }
 
+variable "s3_access_key" {
+  description = "Access key for S3 storage."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
+variable "s3_secret_key" {
+  description = "Secret key for S3 storage."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
 variable "tls_private_key" {
   type    = string
   default = null
@@ -216,6 +230,8 @@ resource "juju_model" "spark" {
 module "spark" {
   depends_on = [juju_model.spark, module.cos]
   source     = "./products/charmed-spark-<spark_flavor>" # filled by test fixture
+  # source     = "/home/bikalpa/canonical/spark-k8s-bundle/terraform/products/charmed-spark-4.0" # filled by test fixture
+
 
   model_uuid   = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
   create_model = false

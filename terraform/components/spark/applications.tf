@@ -41,6 +41,7 @@ resource "juju_application" "kyuubi" {
   charm {
     name     = "kyuubi-k8s"
     channel  = "${var.kyuubi.track}/${var.risk}"
+    # channel = "4.0/edge"
     revision = var.kyuubi.revision
   }
 
