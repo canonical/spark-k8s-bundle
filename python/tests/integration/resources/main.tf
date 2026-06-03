@@ -213,6 +213,17 @@ variable "pushgateway_image" {
   description = "Image for the pushgateway"
 }
 
+variable "spark_risk" {
+  description = "Spark components risk channel"
+  type        = string
+  default     = "stable"
+
+  validation {
+    condition     = contains(["edge", "beta", "candidate", "stable"], var.spark_risk)
+    error_message = "'spark_risk' can only take the following value: 'edge', 'beta', 'candidate' or 'stable'."
+  }
+}
+
 module "cos" {
   count = var.cos_model_uuid == null ? 0 : 1
   # TODO: Pin to tag once available
@@ -270,6 +281,7 @@ module "spark" {
   zookeeper_image            = var.zookeeper_image
   zookeeper_revision         = var.zookeeper_revision
   zookeeper_units            = 1
+  risk                       = var.spark_risk
 
   cos_offers = module.cos != [] ? {
     dashboard = module.cos[0].offers.grafana_dashboards.url
