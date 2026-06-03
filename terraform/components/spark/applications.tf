@@ -6,9 +6,9 @@ resource "juju_application" "history_server" {
   model_uuid = var.model_uuid
 
   charm {
-    name     = "spark-history-server-k8s"
-    # channel  = "${var.history_server.track}/${var.risk}"
-    channel = "4/edge"
+    name    = "spark-history-server-k8s"
+    channel = "${var.history_server.track}/${var.risk}"
+    # channel  = "4/edge"
     revision = var.history_server.revision
   }
 
@@ -23,9 +23,9 @@ resource "juju_application" "integration_hub" {
   model_uuid = var.model_uuid
 
   charm {
-    name     = "spark-integration-hub-k8s"
-    # channel  = "${var.integration_hub.track}/${var.risk}"
-    channel = "3/edge"
+    name    = "spark-integration-hub-k8s"
+    channel = "${var.integration_hub.track}/${var.risk}"
+    # channel  = "3/edge"
     revision = var.integration_hub.revision
   }
 
@@ -41,9 +41,9 @@ resource "juju_application" "kyuubi" {
   model_uuid = var.model_uuid
 
   charm {
-    name     = "kyuubi-k8s"
-    # channel  = "${var.kyuubi.track}/${var.risk}"
-    channel = "4.0/edge"
+    name    = "kyuubi-k8s"
+    channel = "${var.kyuubi.track}/${var.risk}"
+    # channel  = "4.0/edge"
     revision = var.kyuubi.revision
   }
 
