@@ -99,7 +99,7 @@ module "azure_storage" {
   source     = "../../charms/azure-storage-integrator"
   model_uuid = local.model_uuid
 
-  channel = "latest/edge"
+  channel = "1/stable"
   config = merge(
     var.azure_storage_config,
     {
