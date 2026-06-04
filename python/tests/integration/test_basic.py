@@ -58,7 +58,7 @@ def test_spark_submit(
             service_account.namespace,
             "--class",
             "org.apache.spark.examples.SparkPi",
-            f"local:///opt/spark/examples/jars/spark-examples_2.12-{spark_version}.jar",
+            f"local:///opt/spark/examples/jars/spark-examples_2.13-{spark_version}.jar",
             "1000",
         ]
     )
