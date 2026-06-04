@@ -1,4 +1,4 @@
-history_server_revision  = 101 #TODO: Use stable revision
+history_server_revision  = 109 #TODO: Use stable revision
 integration_hub_revision = 132 #TODO: Use stable revision
 kyuubi_revision          = 164 #TODO: Use stable revision
 kyuubi_users_revision    = 774
@@ -9,12 +9,12 @@ s3_revision              = 544
 ssc_revision             = 586
 azure_storage_revision   = 282
 
-history_server_image = "ghcr.io/canonical/charmed-spark@sha256:9f303b788561876eb4b30c293b69b3594b11ede1e7211dbce5345ce68b45ffbe"
-# spark-version: 4.0.1, release date 08/04/2026
+history_server_image = "ghcr.io/canonical/charmed-spark@sha256:76d543d17f5e89de3a4aea0d149a0c9bfc1ccbe9b7000280fbd49fc836ff3e4c"
+# spark-version: 4.0.2, release date 04/06/2026
 integration_hub_image = "ghcr.io/canonical/spark-integration-hub@sha256:a0439da3e6a9433a0db9501c8ea7b28ba3652af9a9ec22fcc2ad1b0197d48134"
 # rev13, release date 19/03/2026
-kyuubi_image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:28e739963fcb86a357d796478b515ba5835ab78313f2c75a747754f9d116a458"
-# spark-version: 4.0.1, kyuubi-version: 1.11.0, release date 22/04/2026
+kyuubi_image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:9b11d41b96ba4f6408a4ece1454db439ec0e0ce20cfa92223e6ef7162440dcf7"
+# spark-version: 4.0.2, kyuubi-version: 1.11.0, release date 04/06/2026
 kyuubi_users_image = 184
 metastore_image    = 184
 zookeeper_image    = 34

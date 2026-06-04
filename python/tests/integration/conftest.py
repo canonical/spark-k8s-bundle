@@ -197,6 +197,17 @@ def spark_version(request) -> str:
 
 
 @pytest.fixture(scope="module")
+def scala_version(spark_version) -> str:
+    """Derive the Scala version from the Spark version."""
+    major_minor = ".".join(spark_version.split(".")[:2])
+    spark_scala_mapping = {
+        "4.0": "2.13",
+        "3.5": "2.12",
+        "3.4": "2.12",
+    }
+    return spark_scala_mapping[major_minor]
+
+@pytest.fixture(scope="module")
 def storage_backend(request) -> str:
     """The backend which is to be used to deploy the bundle."""
     return request.config.getoption("--storage-backend")
