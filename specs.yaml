@@ -22,4 +22,4 @@ releases:
     - name: spark-history-server-k8s
       channel: 4/
     - name: spark-integration-hub-k8s
-      channel: 4/
+      channel: 3/

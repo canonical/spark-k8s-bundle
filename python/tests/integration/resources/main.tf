@@ -241,8 +241,6 @@ resource "juju_model" "spark" {
 module "spark" {
   depends_on = [juju_model.spark, module.cos]
   source     = "./products/charmed-spark-<spark_flavor>" # filled by test fixture
-  # source     = "/home/bikalpa/canonical/spark-k8s-bundle/terraform/products/charmed-spark-4.0" # filled by test fixture
-
 
   model_uuid   = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
   create_model = false

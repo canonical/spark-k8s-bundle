@@ -107,7 +107,7 @@ variable "kyuubi" {
     constraints = optional(string, "arch=amd64")
     resources   = optional(map(any))
     revision    = optional(number)
-    track       = optional(string, "4.0")
+    track       = optional(string, "3.4")
     units       = optional(number, 1)
   })
   default = {}
