@@ -36,7 +36,7 @@ jobs:
         storage-backend: ["s3", "azure_storage"]
         cos-model: ["cos"]
         juju-snap-channel: ["3.6/stable"]
-        juju-agent-version: ["3.6.14"]
+        juju-agent-version: [""]
         k8s-distribution: ["k8s", "microk8s"]
         k8s-version:
           - "1.28"
@@ -54,7 +54,7 @@ jobs:
           - tox-env: integration-bundle
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
+            juju-agent-version: ""
             k8s-distribution: "k8s"
             k8s-version: "1.32"
             unpinned: "--unpinned-revisions"

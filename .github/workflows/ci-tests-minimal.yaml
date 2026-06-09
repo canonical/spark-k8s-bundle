@@ -32,7 +32,7 @@ jobs:
         spark-version: [ "3.4.4", "3.5.7", "4.0.2" ]
         storage-backend: [ "s3", "azure_storage" ]
         juju-snap-channel: [ "3.6/stable" ]
-        juju-agent-version: [ "3.6.14" ]
+        juju-agent-version: [ "" ]
         k8s-distribution: ["k8s", "microk8s"]
         k8s-version:
           - "1.32"
@@ -45,7 +45,7 @@ jobs:
           - tox-env: integration-basic
             spark-version: 3.4.4
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
+            juju-agent-version: ""
             k8s-distribution: "k8s"
             k8s-version: "1.32"
 
@@ -53,7 +53,7 @@ jobs:
           - tox-env: integration-basic
             spark-version: 3.5.7
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
+            juju-agent-version: ""
             k8s-distribution: "k8s"
             k8s-version: "1.32"
 
@@ -61,7 +61,7 @@ jobs:
           - tox-env: integration-basic
             spark-version: 4.0.2
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
+            juju-agent-version: ""
             k8s-distribution: "k8s"
             k8s-version: "1.32"
 
@@ -69,28 +69,28 @@ jobs:
           - tox-env: integration-sparkjob
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
+            juju-agent-version: ""
             cos-model: cos
 
           # Test COS just once with integration-kyuubi
           - tox-env: integration-kyuubi
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
+            juju-agent-version: ""
             cos-model: cos
 
           # Test COS just once with integration-backup-restore
           - tox-env: integration-backup-restore
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
+            juju-agent-version: ""
             cos-model: cos
 
           # Test with unpinned revisions
           - tox-env: integration-bundle
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
+            juju-agent-version: ""
             k8s-distribution: "k8s"
             k8s-version: "1.32"
             unpinned: "--unpinned-revisions"

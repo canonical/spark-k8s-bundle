@@ -39,9 +39,9 @@ inputs:
     default: 3.6/stable
     type: string
   juju-agent-version:
-    description: "The version of the Juju agent to be used"
+    description: "The version of the Juju agent to be used. If empty, the latest version on the channel is used."
     required: false
-    default: 3.6.14
+    default: ""
     type: string
   azure-storage-account:
     description: "The Azure Storage account name to be used for test"
@@ -171,13 +171,21 @@ runs:
       shell: bash
       if: "${{ inputs.k8s-distribution == 'microk8s' }}"
       run: |
-        sudo -i -u ubuntu juju bootstrap microk8s $CONTROLLER_NAME --agent-version "${{ inputs.juju-agent-version }}"
+        AGENT_VERSION_FLAG=""
+        if [ -n "${{ inputs.juju-agent-version }}" ]; then
+          AGENT_VERSION_FLAG="--agent-version ${{ inputs.juju-agent-version }}"
+        fi
+        sudo -i -u ubuntu juju bootstrap microk8s $CONTROLLER_NAME $AGENT_VERSION_FLAG
 
     - name: Re-install controller (K8s)
       shell: bash
       if: "${{ inputs.k8s-distribution == 'k8s' }}"
       run: |
-        sudo -u ubuntu juju bootstrap k8s $CONTROLLER_NAME --verbose --agent-version "${{ inputs.juju-agent-version }}" --model-default 'logging-config=<root>=INFO; unit=DEBUG' --bootstrap-constraints root-disk=4G
+        AGENT_VERSION_FLAG=""
+        if [ -n "${{ inputs.juju-agent-version }}" ]; then
+          AGENT_VERSION_FLAG="--agent-version ${{ inputs.juju-agent-version }}"
+        fi
+        sudo -u ubuntu juju bootstrap k8s $CONTROLLER_NAME --verbose $AGENT_VERSION_FLAG --model-default 'logging-config=<root>=INFO; unit=DEBUG' --bootstrap-constraints root-disk=4G
 
     - id: setup-python
       name: Setup Python
