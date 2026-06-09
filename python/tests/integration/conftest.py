@@ -201,11 +201,10 @@ def scala_version(spark_version) -> str:
     """Derive the Scala version from the Spark version."""
     major_minor = ".".join(spark_version.split(".")[:2])
     spark_scala_mapping = {
-        "4.0": "2.13",
         "3.5": "2.12",
         "3.4": "2.12",
     }
-    return spark_scala_mapping[major_minor]
+    return spark_scala_mapping.get(major_minor, "2.13")
 
 
 @pytest.fixture(scope="module")
@@ -506,7 +505,12 @@ def spark_bundle(
                 if not unpinned_revisions
                 else {}
             ),
-            "spark_risk": "edge",  # TODO: Remove this line to use stable risk
+            **(
+                # TODO: Remove this once we use stable risk for Spark 4
+                {"spark_risk": "edge"}
+                if short_version not in {"3.4", "3.5"}
+                else {}
+            ),
         }
     # Merge external Terraform variables
     base_vars.update(tfvars)

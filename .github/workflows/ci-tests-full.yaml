@@ -79,6 +79,7 @@ jobs:
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
           pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
           tfvars-file: ${{ inputs.tfvars-file }}
+          unpinned: ${{ matrix.unpinned }}
 
   aggregate-results:
     name: Aggregate Results
