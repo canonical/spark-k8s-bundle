@@ -201,6 +201,7 @@ def scala_version(spark_version) -> str:
     """Derive the Scala version from the Spark version."""
     major_minor = ".".join(spark_version.split(".")[:2])
     spark_scala_mapping = {
+        "4.0": "2.13",
         "3.5": "2.12",
         "3.4": "2.12",
     }

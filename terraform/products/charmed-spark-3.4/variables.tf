@@ -296,7 +296,7 @@ variable "storage_backend" {
 
   validation {
     condition     = contains(["azure_storage", "s3"], var.storage_backend)
-    error_message = "Valid values for var: test_variable are (s3, azure_storage)."
+    error_message = "Valid values for var: storage_backend are (s3, azure_storage)."
   }
 
   default = "s3"
