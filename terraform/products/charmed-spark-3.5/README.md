@@ -26,7 +26,7 @@
 | <a name="module_kyuubi_users"></a> [kyuubi\_users](#module\_kyuubi\_users) | git::https://github.com/canonical/postgresql-k8s-operator//terraform | rev774 |
 | <a name="module_metastore"></a> [metastore](#module\_metastore) | git::https://github.com/canonical/postgresql-k8s-operator//terraform | rev774 |
 | <a name="module_observability"></a> [observability](#module\_observability) | ../../components/observability | n/a |
-| <a name="module_s3"></a> [s3](#module\_s3) | ../../charms/s3-integrator-v1 | n/a |
+| <a name="module_s3"></a> [s3](#module\_s3) | ../../charms/s3-integrator | n/a |
 | <a name="module_spark"></a> [spark](#module\_spark) | ../../components/spark | n/a |
 | <a name="module_ssc"></a> [ssc](#module\_ssc) | git::https://github.com/canonical/self-signed-certificates-operator//terraform | rev586 |
 | <a name="module_zookeeper"></a> [zookeeper](#module\_zookeeper) | ../../charms/zookeeper | n/a |
@@ -78,8 +78,10 @@
 | <a name="input_proxy"></a> [proxy](#input\_proxy) | Proxy information for the deployment. | <pre>object({<br/>    http     = optional(string, "")<br/>    https    = optional(string, "")<br/>    no-proxy = optional(string, "")<br/>  })</pre> | `{}` | no |
 | <a name="input_pushgateway_image"></a> [pushgateway\_image](#input\_pushgateway\_image) | Image for pushgateway | `any` | `null` | no |
 | <a name="input_pushgateway_revision"></a> [pushgateway\_revision](#input\_pushgateway\_revision) | Charm revision for pushgateway | `number` | `null` | no |
+| <a name="input_s3_access_key"></a> [s3\_access\_key](#input\_s3\_access\_key) | AWS S3 Access key. | `string` | `null` | no |
 | <a name="input_s3_config"></a> [s3\_config](#input\_s3\_config) | S3 integrator configuration | <pre>object({<br/>    attributes                          = optional(string)<br/>    bucket                              = optional(string)<br/>    endpoint                            = optional(string)<br/>    experimental-delete-older-than-days = optional(number)<br/>    path                                = optional(string)<br/>    region                              = optional(string)<br/>    s3-api-version                      = optional(string)<br/>    s3-uri-style                        = optional(string)<br/>    storage-class                       = optional(string)<br/>    tls-ca-chain                        = optional(string)<br/>  })</pre> | `{}` | no |
 | <a name="input_s3_revision"></a> [s3\_revision](#input\_s3\_revision) | Charm revision for s3-integrator | `number` | `null` | no |
+| <a name="input_s3_secret_key"></a> [s3\_secret\_key](#input\_s3\_secret\_key) | AWS S3 Secret key. | `string` | `null` | no |
 | <a name="input_scrape_config_revision"></a> [scrape\_config\_revision](#input\_scrape\_config\_revision) | Charm revision for scrape\_config | `number` | `null` | no |
 | <a name="input_spark_model_name"></a> [spark\_model\_name](#input\_spark\_model\_name) | The name of the juju model to deploy Spark to | `string` | `"spark"` | no |
 | <a name="input_spark_risk"></a> [spark\_risk](#input\_spark\_risk) | Spark components risk channel | `string` | `"stable"` | no |

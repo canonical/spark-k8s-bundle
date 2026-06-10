@@ -28,10 +28,11 @@ jobs:
       fail-fast: false
       matrix:
         tox-env:
+          - integration-basic
           - integration-sparkjob
           - integration-kyuubi
           - integration-backup-restore
-        spark-version: ["3.4.4", "3.5.7"]
+        spark-version: ["3.4.4", "3.5.7", "4.0.2"]
         storage-backend: ["s3", "azure_storage"]
         cos-model: ["cos"]
         juju-snap-channel: ["3.6/stable"]
@@ -42,11 +43,21 @@ jobs:
           - "1.30"
           - "1.32"
           - "1.34"
+        unpinned: [""]
         exclude:
           - k8s-distribution: "k8s"
             k8s-version: "1.30"
           - k8s-distribution: "k8s"
             k8s-version: "1.28"
+        include:
+          # Test with unpinned revisions
+          - tox-env: integration-bundle
+            storage-backend: s3
+            juju-snap-channel: "3.6/stable"
+            juju-agent-version: "3.6.14"
+            k8s-distribution: "k8s"
+            k8s-version: "1.32"
+            unpinned: "--unpinned-revisions"
 
     needs:
       - checks
@@ -68,6 +79,7 @@ jobs:
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
           pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
           tfvars-file: ${{ inputs.tfvars-file }}
+          unpinned: ${{ matrix.unpinned }}
 
   aggregate-results:
     name: Aggregate Results

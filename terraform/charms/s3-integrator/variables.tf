@@ -17,7 +17,7 @@ variable "base" {
 variable "channel" {
   description = "Channel of the charm."
   type        = string
-  default     = "1/stable"
+  default     = "2/stable"
   nullable    = false
 }
 
@@ -34,6 +34,7 @@ variable "config" {
     s3-uri-style                        = optional(string)
     storage-class                       = optional(string)
     tls-ca-chain                        = optional(string)
+    credentials                         = optional(string)
   })
   default = {}
 }
