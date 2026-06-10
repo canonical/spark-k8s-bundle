@@ -34,6 +34,20 @@ variable "azure_storage_secret_key" {
   default     = null
 }
 
+variable "s3_access_key" {
+  description = "AWS S3 Access key."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
+variable "s3_secret_key" {
+  description = "AWS S3 Secret key."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
 variable "certificate_common_name" {
   description = "Common name for the certificate to be used in self-signed"
   type        = string
@@ -282,7 +296,7 @@ variable "storage_backend" {
 
   validation {
     condition     = contains(["azure_storage", "s3"], var.storage_backend)
-    error_message = "Valid values for var: test_variable are (s3, azure_storage)."
+    error_message = "Valid values for var: storage_backend are (s3, azure_storage)."
   }
 
   default = "s3"

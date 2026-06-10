@@ -17,7 +17,7 @@ variable "base" {
 variable "channel" {
   description = "Channel of the charm."
   type        = string
-  default     = "1/edge" # TODO: Update to stable once we have the new release
+  default     = "1/stable"
   nullable    = false
 }
 

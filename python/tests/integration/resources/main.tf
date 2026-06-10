@@ -62,6 +62,20 @@ variable "s3_config" {
   default = {}
 }
 
+variable "s3_access_key" {
+  description = "Access key for S3 storage."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
+variable "s3_secret_key" {
+  description = "Secret key for S3 storage."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
 variable "tls_private_key" {
   type    = string
   default = null
@@ -199,6 +213,17 @@ variable "pushgateway_image" {
   description = "Image for the pushgateway"
 }
 
+variable "spark_risk" {
+  description = "Spark components risk channel"
+  type        = string
+  default     = "stable"
+
+  validation {
+    condition     = contains(["edge", "beta", "candidate", "stable"], var.spark_risk)
+    error_message = "'spark_risk' can only take the following value: 'edge', 'beta', 'candidate' or 'stable'."
+  }
+}
+
 module "cos" {
   count = var.cos_model_uuid == null ? 0 : 1
   # TODO: Pin to tag once available
@@ -243,8 +268,10 @@ module "spark" {
   metastore_size             = "500M"
   pushgateway_image          = var.pushgateway_image
   pushgateway_revision       = var.pushgateway_revision
+  s3_access_key              = var.s3_access_key
   s3_config                  = var.s3_config
   s3_revision                = var.s3_revision
+  s3_secret_key              = var.s3_secret_key
   scrape_config_revision     = var.scrape_config_revision
   ssc_revision               = var.ssc_revision
   storage_backend            = var.storage_backend
@@ -252,6 +279,7 @@ module "spark" {
   zookeeper_image            = var.zookeeper_image
   zookeeper_revision         = var.zookeeper_revision
   zookeeper_units            = 1
+  spark_risk                 = var.spark_risk
 
   cos_offers = module.cos != [] ? {
     dashboard = module.cos[0].offers.grafana_dashboards.url
