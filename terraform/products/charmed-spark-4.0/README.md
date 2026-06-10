@@ -1,4 +1,4 @@
-# Charmed Apache Spark (3.4) product terraform module
+# Charmed Apache Spark (4.0) product terraform module
 
 ## Module reference
 

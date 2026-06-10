@@ -196,6 +196,7 @@ module "spark" {
     constraints = "arch=amd64"
     revision    = var.history_server_revision
     resources   = { spark-history-server-image = var.history_server_image }
+    track       = "4"
   }
   integration_hub = {
     config      = var.integration_hub_config
@@ -217,7 +218,7 @@ module "spark" {
     constraints = "arch=amd64",
     revision    = var.kyuubi_revision
     resources   = { kyuubi-image = var.kyuubi_image }
-    track       = "3.5"
+    track       = "4.0"
     units       = var.kyuubi_units
   }
 
