@@ -37,7 +37,6 @@ from tests import IE_TEST_DIR, TERRAFORM_DIR
 
 from .helpers import (
     local_tmp_folder,
-    set_s3_credentials,
 )
 
 COS_APPS = [
@@ -195,6 +194,18 @@ def cos_model(request) -> None | str:
 def spark_version(request) -> str:
     """The backend which is to be used to deploy the bundle."""
     return request.config.getoption("--spark-version") or "3.4.4"
+
+
+@pytest.fixture(scope="module")
+def scala_version(spark_version) -> str:
+    """Derive the Scala version from the Spark version."""
+    major_minor = ".".join(spark_version.split(".")[:2])
+    spark_scala_mapping = {
+        "4.0": "2.13",
+        "3.5": "2.12",
+        "3.4": "2.12",
+    }
+    return spark_scala_mapping.get(major_minor, "2.13")
 
 
 @pytest.fixture(scope="module")
@@ -495,6 +506,8 @@ def spark_bundle(
                 if not unpinned_revisions
                 else {}
             ),
+            # TODO: Remove this once we use stable risk for Spark 4
+            **({"spark_risk": "edge"} if short_version not in {"3.4", "3.5"} else {}),
         }
     # Merge external Terraform variables
     base_vars.update(tfvars)
@@ -515,23 +528,22 @@ def spark_bundle(
             "azure_storage_secret_key": storage_unit.credentials.secret_key,
         }
     else:
+        credentials = request.getfixturevalue("credentials")
         storage_unit = cast(Bucket, object_storage)
         storage_vars = {
             "s3_config": {
                 "bucket": storage_unit.bucket_name,
                 "endpoint": storage_unit.s3.meta.endpoint_url,
                 "path": "spark-events",
-            }
+            },
+            "s3_access_key": credentials.access_key,
+            "s3_secret_key": credentials.secret_key,
         }
 
     vars = base_vars | cos_vars | storage_vars
     logger.info(f"Applying vars: {vars.keys()}")
 
     deployed_applications = bundle.apply(vars=vars)
-    if storage_backend == "s3":
-        credentials = request.getfixturevalue("credentials")
-        juju.wait(lambda status: jubilant.all_agents_idle(status, "s3-integrator"))
-        set_s3_credentials(juju, credentials=credentials)
 
     logger.info("Waiting for spark deployment to settle down")
     robust_wait_active(juju)
