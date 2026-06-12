@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         spark-version:
-          - "3.4.4"
+          - "4.0.2"
         storage-backend:
           - s3
           - azure_storage
