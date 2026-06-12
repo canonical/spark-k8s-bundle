@@ -31,8 +31,8 @@ resource "juju_integration" "kyuubi_users_db" {
   }
 }
 
+
 resource "juju_integration" "kyuubi_service_account" {
-  count      = var.spark_core != null ? 1 : 0
   model_uuid = var.model_uuid
 
   application {
@@ -41,8 +41,9 @@ resource "juju_integration" "kyuubi_service_account" {
   }
 
   application {
-    name     = var.spark_core.components.integration_hub.name
-    endpoint = "spark-service-account"
+    name      = var.spark_service_account.kind == "endpoint" ? var.spark_service_account.name : null
+    endpoint  = var.spark_service_account.kind == "endpoint" ? var.spark_service_account.endpoint : null
+    offer_url = var.spark_service_account.kind == "offer" ? var.spark_service_account.url : null
   }
 }
 
