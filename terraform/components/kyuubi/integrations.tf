@@ -5,7 +5,7 @@ resource "juju_integration" "kyuubi_metastore" {
   model_uuid = var.model_uuid
 
   application {
-    name     = juju_application.kyuubi.name
+     name     = juju_application.kyuubi.name
     endpoint = "metastore-db"
   }
 
@@ -20,7 +20,7 @@ resource "juju_integration" "kyuubi_users_db" {
   model_uuid = var.model_uuid
 
   application {
-    name     = juju_application.kyuubi.name
+     name     = juju_application.kyuubi.name
     endpoint = "auth-db"
   }
 
@@ -32,15 +32,16 @@ resource "juju_integration" "kyuubi_users_db" {
 }
 
 resource "juju_integration" "kyuubi_service_account" {
+  count      = var.spark_core != null ? 1 : 0
   model_uuid = var.model_uuid
 
   application {
-    name     = juju_application.kyuubi.name
+     name     = juju_application.kyuubi.name
     endpoint = "spark-service-account"
   }
 
   application {
-    name     = juju_application.integration_hub.name
+    name     = var.spark_core.components.integration_hub.name
     endpoint = "spark-service-account"
   }
 }
@@ -49,7 +50,7 @@ resource "juju_integration" "kyuubi_zookeeper" {
   model_uuid = var.model_uuid
 
   application {
-    name     = juju_application.kyuubi.name
+     name     = juju_application.kyuubi.name
     endpoint = "zookeeper"
   }
 
@@ -64,7 +65,7 @@ resource "juju_integration" "kyuubi_certificates" {
   model_uuid = var.model_uuid
 
   application {
-    name     = juju_application.kyuubi.name
+     name     = juju_application.kyuubi.name
     endpoint = "certificates"
   }
 
@@ -79,7 +80,7 @@ resource "juju_integration" "kyuubi_data_integrator" {
   model_uuid = var.model_uuid
 
   application {
-    name     = juju_application.kyuubi.name
+     name     = juju_application.kyuubi.name
     endpoint = "jdbc"
   }
 
@@ -90,27 +91,11 @@ resource "juju_integration" "kyuubi_data_integrator" {
   }
 }
 
-resource "juju_integration" "integration_hub_object_storage" {
+resource "juju_integration" "kyuubi_object_storage" {
   model_uuid = var.model_uuid
 
   application {
-    name     = juju_application.integration_hub.name
-    endpoint = var.object_storage_interface
-  }
-
-  application {
-
-    name      = var.object_storage.kind == "endpoint" ? var.object_storage.name : null
-    endpoint  = var.object_storage.kind == "endpoint" ? var.object_storage.endpoint : null
-    offer_url = var.object_storage.kind == "offer" ? var.object_storage.url : null
-  }
-}
-
-resource "juju_integration" "history_server_object_storage" {
-  model_uuid = var.model_uuid
-
-  application {
-    name     = juju_application.history_server.name
+     name     = juju_application.kyuubi.name
     endpoint = var.object_storage_interface
   }
 

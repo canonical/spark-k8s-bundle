@@ -175,19 +175,15 @@ resource "juju_secret" "system_users_and_private_key_secret" {
   info = "This secret contains password for admin user and the TLS private key."
 }
 
-module "spark" {
+module "spark_core" {
   depends_on = [
     juju_model.spark,
-    juju_secret.system_users_and_private_key_secret,
     module.azure_storage,
     module.data_integrator,
-    module.kyuubi_users,
-    module.metastore,
     module.s3,
     module.ssc,
-    module.zookeeper
   ]
-  source     = "../../components/spark"
+  source     = "../../components/spark-core"
   model_uuid = local.model_uuid
   risk       = var.spark_risk
 
@@ -204,6 +200,29 @@ module "spark" {
     revision    = var.integration_hub_revision
     resources   = { integration-hub-image = var.integration_hub_image }
   }
+
+  # Integrations
+
+  object_storage           = merge({ kind = "endpoint" }, length(module.s3) != 0 ? module.s3[0].provides.s3_credentials : module.azure_storage[0].provides.azure_storage_credentials)
+  object_storage_interface = length(module.s3) != 0 ? module.s3[0].provides.s3_credentials.endpoint : module.azure_storage[0].provides.azure_storage_credentials.endpoint
+}
+
+module "kyuubi" {
+  depends_on = [
+    juju_model.spark,
+    juju_secret.system_users_and_private_key_secret,
+    module.azure_storage,
+    module.kyuubi_users,
+    module.metastore,
+    module.s3,
+    module.ssc,
+    module.zookeeper,
+    module.spark_core,
+  ]
+  source     = "../../components/kyuubi"
+  model_uuid = local.model_uuid
+  risk       = var.spark_risk
+
   kyuubi = {
     config = merge(
       {
@@ -221,6 +240,10 @@ module "spark" {
     track       = "4.0"
     units       = var.kyuubi_units
   }
+
+  # Integrations
+
+  spark_service_account = merge({ kind = "endpoint" }, module.spark_core.provides.integration_hub_service_account)
 
   certificates = {
     kind     = "endpoint"
@@ -248,18 +271,18 @@ resource "juju_access_secret" "system_users_and_private_key_secret_access" {
   depends_on = [
     juju_model.spark,
     juju_secret.system_users_and_private_key_secret,
-    module.spark
+    module.kyuubi
   ]
   count      = var.tls_private_key == null && var.admin_password == null ? 0 : 1
   model_uuid = local.model_uuid
   applications = [
-    module.spark.components.kyuubi.name
+    module.kyuubi.application.name
   ]
   secret_id = juju_secret.system_users_and_private_key_secret[0].secret_id
 }
 
 module "observability" {
-  depends_on = [juju_model.spark, module.spark]
+  depends_on = [juju_model.spark, module.spark_core, module.kyuubi]
   count      = var.cos_offers == null ? 0 : 1
   source     = "../../components/observability"
   model_uuid = local.model_uuid
@@ -279,12 +302,12 @@ module "observability" {
   }
   scrape_config = { revision = var.scrape_config_revision }
 
-  history_server_dashboard_endpoint = module.spark.provides.history_server_dashboard
-  history_server_logging_endpoint   = module.spark.requires.history_server_logging
-  history_server_metrics_endpoint   = module.spark.provides.history_server_metrics
-  integration_hub_cos_endpoint      = module.spark.requires.integration_hub_cos
-  integration_hub_logging_endpoint  = module.spark.requires.integration_hub_logging
-  kyuubi_dashboard_endpoint         = module.spark.provides.kyuubi_dashboard
-  kyuubi_logging_endpoint           = module.spark.requires.kyuubi_logging
-  kyuubi_metrics_endpoint           = module.spark.provides.kyuubi_metrics
+  history_server_dashboard_endpoint = module.spark_core.provides.history_server_dashboard
+  history_server_logging_endpoint   = module.spark_core.requires.history_server_logging
+  history_server_metrics_endpoint   = module.spark_core.provides.history_server_metrics
+  integration_hub_cos_endpoint      = module.spark_core.requires.integration_hub_cos
+  integration_hub_logging_endpoint  = module.spark_core.requires.integration_hub_logging
+  kyuubi_dashboard_endpoint         = module.kyuubi.provides.kyuubi_dashboard
+  kyuubi_logging_endpoint           = module.kyuubi.requires.kyuubi_logging
+  kyuubi_metrics_endpoint           = module.kyuubi.provides.kyuubi_metrics
 }

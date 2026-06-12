@@ -1,6 +1,37 @@
 # Copyright 2026 Canonical Ltd.
 # See LICENSE file for licensing details.
 
+variable "kyuubi" {
+  type = object({
+    app_name    = optional(string, "kyuubi")
+    base        = optional(string, "ubuntu@22.04")
+    config      = optional(map(string), {})
+    constraints = optional(string, "arch=amd64")
+    resources   = optional(map(any))
+    revision    = optional(number)
+    track       = optional(string, "3.4")
+    units       = optional(number, 1)
+  })
+  default = {}
+}
+
+variable "model_uuid" {
+  description = "Reference to an existing model uuid."
+  type        = string
+  nullable    = false
+}
+
+variable "risk" {
+  description = "Component's charms risk channel"
+  type        = string
+  default     = "stable"
+
+  validation {
+    condition     = contains(["edge", "beta", "candidate", "stable"], var.risk)
+    error_message = "'risk' can only take the following value: 'edge', 'beta', 'candidate' or 'stable'."
+  }
+}
+
 variable "certificates" {
   description = "External integration for the certificate provider application."
   type = object({
@@ -69,50 +100,6 @@ variable "data_integrator" {
   }
 }
 
-
-variable "history_server" {
-  type = object({
-    app_name    = optional(string, "history-server")
-    base        = optional(string, "ubuntu@22.04")
-    config      = optional(map(string), {})
-    constraints = optional(string, "arch=amd64")
-    resources   = optional(map(any))
-    revision    = optional(number)
-    track       = optional(string, "3")
-    units       = optional(number, 1)
-  })
-  default = {}
-}
-
-variable "integration_hub" {
-  type = object({
-    app_name    = optional(string, "integration-hub")
-    base        = optional(string, "ubuntu@22.04")
-    config      = optional(map(string), {})
-    constraints = optional(string, "arch=amd64")
-    resources   = optional(map(any))
-    revision    = optional(number)
-    track       = optional(string, "3")
-    units       = optional(number, 1)
-  })
-  default = {}
-}
-
-
-variable "kyuubi" {
-  type = object({
-    app_name    = optional(string, "kyuubi")
-    base        = optional(string, "ubuntu@22.04")
-    config      = optional(map(string), {})
-    constraints = optional(string, "arch=amd64")
-    resources   = optional(map(any))
-    revision    = optional(number)
-    track       = optional(string, "3.4")
-    units       = optional(number, 1)
-  })
-  default = {}
-}
-
 variable "metastore" {
   description = "External integration for the metastore (postgresql-k8s) application."
   type = object({
@@ -145,12 +132,6 @@ variable "metastore" {
     )
     error_message = "The 'url' attribute must be provided for a cross-model integration."
   }
-}
-
-variable "model_uuid" {
-  description = "Reference to an existing model uuid."
-  type        = string
-  nullable    = false
 }
 
 variable "object_storage" {
@@ -197,15 +178,10 @@ variable "object_storage_interface" {
   }
 }
 
-variable "risk" {
-  description = "Component's charms risk channel"
-  type        = string
-  default     = "stable"
-
-  validation {
-    condition     = contains(["edge", "beta", "candidate", "stable"], var.risk)
-    error_message = "'risk' can only take the following value: 'edge', 'beta', 'candidate' or 'stable'."
-  }
+variable "spark_core" {
+  description = "The spark-core module outputs providing access to the integration hub application (optional)."
+  type        = any
+  default     = null
 }
 
 variable "users_db" {
