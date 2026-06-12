@@ -32,6 +32,40 @@ variable "risk" {
   }
 }
 
+variable "spark_service_account" {
+  description = "External integration for the object storage integrator application."
+  type = object({
+    kind     = string
+    name     = optional(string, null)
+    endpoint = optional(string, null)
+    url      = optional(string, null)
+  })
+
+  validation {
+    condition     = contains(["endpoint", "offer"], var.spark_service_account.kind)
+    error_message = "The 'kind' attribute must be either 'endpoint' or 'offer'."
+  }
+
+  validation {
+    condition = (
+      var.spark_service_account.kind == "endpoint" ? (
+        var.spark_service_account.name != null && var.spark_service_account.name != "" &&
+        var.spark_service_account.endpoint != null && var.spark_service_account.endpoint != ""
+      ) : true
+    )
+    error_message = "Both 'name' and 'endpoint' attributes must be provided for an in-model integration."
+  }
+
+  validation {
+    condition = (
+      var.spark_service_account.kind == "offer" ? (
+        var.spark_service_account.url != null && var.spark_service_account.url != ""
+      ) : true
+    )
+    error_message = "The 'url' attribute must be provided for a cross-model integration."
+  }
+}
+
 variable "certificates" {
   description = "External integration for the certificate provider application."
   type = object({
@@ -178,12 +212,6 @@ variable "object_storage_interface" {
   }
 }
 
-variable "spark_core" {
-  description = "The spark-core module outputs providing access to the integration hub application (optional)."
-  type        = any
-  default     = null
-}
-
 variable "users_db" {
   description = "External integration for the Kyuubi users database (postgresql-k8s) application."
   type = object({
@@ -251,3 +279,5 @@ variable "zookeeper" {
     error_message = "The 'url' attribute must be provided for a cross-model integration."
   }
 }
+
+
