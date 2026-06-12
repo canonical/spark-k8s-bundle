@@ -5,7 +5,7 @@ resource "juju_integration" "kyuubi_metastore" {
   model_uuid = var.model_uuid
 
   application {
-     name     = juju_application.kyuubi.name
+    name     = juju_application.kyuubi.name
     endpoint = "metastore-db"
   }
 
@@ -20,7 +20,7 @@ resource "juju_integration" "kyuubi_users_db" {
   model_uuid = var.model_uuid
 
   application {
-     name     = juju_application.kyuubi.name
+    name     = juju_application.kyuubi.name
     endpoint = "auth-db"
   }
 
@@ -36,7 +36,7 @@ resource "juju_integration" "kyuubi_service_account" {
   model_uuid = var.model_uuid
 
   application {
-     name     = juju_application.kyuubi.name
+    name     = juju_application.kyuubi.name
     endpoint = "spark-service-account"
   }
 
@@ -50,7 +50,7 @@ resource "juju_integration" "kyuubi_zookeeper" {
   model_uuid = var.model_uuid
 
   application {
-     name     = juju_application.kyuubi.name
+    name     = juju_application.kyuubi.name
     endpoint = "zookeeper"
   }
 
@@ -65,7 +65,7 @@ resource "juju_integration" "kyuubi_certificates" {
   model_uuid = var.model_uuid
 
   application {
-     name     = juju_application.kyuubi.name
+    name     = juju_application.kyuubi.name
     endpoint = "certificates"
   }
 
@@ -80,7 +80,7 @@ resource "juju_integration" "kyuubi_data_integrator" {
   model_uuid = var.model_uuid
 
   application {
-     name     = juju_application.kyuubi.name
+    name     = juju_application.kyuubi.name
     endpoint = "jdbc"
   }
 
@@ -95,7 +95,7 @@ resource "juju_integration" "kyuubi_object_storage" {
   model_uuid = var.model_uuid
 
   application {
-     name     = juju_application.kyuubi.name
+    name     = juju_application.kyuubi.name
     endpoint = var.object_storage_interface
   }
 

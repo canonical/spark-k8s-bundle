@@ -264,7 +264,7 @@ module "kyuubi" {
     name     = module.kyuubi_users.app_name
     endpoint = module.kyuubi_users.provides.database
   }
-  
+
   zookeeper = merge({ kind = "endpoint" }, module.zookeeper.provides.zookeeper)
 }
 
