@@ -28,8 +28,6 @@ The kyuubi component module provides a complete deployment of the Kyuubi SQL eng
 - `metastore`: External integration for the metastore (postgresql-k8s) application (required)
 - `users_db`: External integration for the Kyuubi users database (postgresql-k8s) application (required)
 - `zookeeper`: External integration for the ZooKeeper application (required)
-- `object_storage`: External integration for the object storage integrator application (required)
-- `object_storage_interface`: The interface of the object storage backend (required)
 
 **Module Dependencies:**
 - `model_uuid`: Reference to an existing model uuid (required)
