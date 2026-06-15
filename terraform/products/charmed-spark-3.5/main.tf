@@ -249,19 +249,21 @@ module "kyuubi" {
     name     = module.ssc.app_name
     endpoint = module.ssc.provides.certificates
   }
+
   data_integrator = merge({ kind = "endpoint" }, module.data_integrator.requires.kyuubi)
+
   metastore = {
     kind     = "endpoint"
     name     = module.metastore.app_name
     endpoint = module.metastore.provides.database
   }
-  object_storage           = merge({ kind = "endpoint" }, length(module.s3) != 0 ? module.s3[0].provides.s3_credentials : module.azure_storage[0].provides.azure_storage_credentials)
-  object_storage_interface = length(module.s3) != 0 ? module.s3[0].provides.s3_credentials.endpoint : module.azure_storage[0].provides.azure_storage_credentials.endpoint
+
   users_db = {
     kind     = "endpoint"
     name     = module.kyuubi_users.app_name
     endpoint = module.kyuubi_users.provides.database
   }
+
   zookeeper = merge({ kind = "endpoint" }, module.zookeeper.provides.zookeeper)
 }
 

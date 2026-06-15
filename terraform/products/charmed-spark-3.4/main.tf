@@ -257,8 +257,6 @@ module "kyuubi" {
     endpoint = module.metastore.provides.database
   }
 
-  object_storage           = merge({ kind = "endpoint" }, length(module.s3) != 0 ? module.s3[0].provides.s3_credentials : module.azure_storage[0].provides.azure_storage_credentials)
-  object_storage_interface = length(module.s3) != 0 ? module.s3[0].provides.s3_credentials.endpoint : module.azure_storage[0].provides.azure_storage_credentials.endpoint
   users_db = {
     kind     = "endpoint"
     name     = module.kyuubi_users.app_name

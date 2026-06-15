@@ -168,50 +168,6 @@ variable "metastore" {
   }
 }
 
-variable "object_storage" {
-  description = "External integration for the object storage integrator application."
-  type = object({
-    kind     = string
-    name     = optional(string, null)
-    endpoint = optional(string, null)
-    url      = optional(string, null)
-  })
-
-  validation {
-    condition     = contains(["endpoint", "offer"], var.object_storage.kind)
-    error_message = "The 'kind' attribute must be either 'endpoint' or 'offer'."
-  }
-
-  validation {
-    condition = (
-      var.object_storage.kind == "endpoint" ? (
-        var.object_storage.name != null && var.object_storage.name != "" &&
-        var.object_storage.endpoint != null && var.object_storage.endpoint != ""
-      ) : true
-    )
-    error_message = "Both 'name' and 'endpoint' attributes must be provided for an in-model integration."
-  }
-
-  validation {
-    condition = (
-      var.object_storage.kind == "offer" ? (
-        var.object_storage.url != null && var.object_storage.url != ""
-      ) : true
-    )
-    error_message = "The 'url' attribute must be provided for a cross-model integration."
-  }
-}
-
-variable "object_storage_interface" {
-  description = "The interface of the object storage backend."
-  type        = string
-
-  validation {
-    condition     = contains(["s3-credentials", "azure-storage-credentials"], var.object_storage_interface)
-    error_message = "The only object storage interfaces supported are 's3-credentials' and 'azure-storage-credentials'."
-  }
-}
-
 variable "users_db" {
   description = "External integration for the Kyuubi users database (postgresql-k8s) application."
   type = object({

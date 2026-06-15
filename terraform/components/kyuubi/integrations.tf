@@ -91,18 +91,3 @@ resource "juju_integration" "kyuubi_data_integrator" {
     offer_url = var.data_integrator.kind == "offer" ? var.data_integrator.url : null
   }
 }
-
-resource "juju_integration" "kyuubi_object_storage" {
-  model_uuid = var.model_uuid
-
-  application {
-    name     = juju_application.kyuubi.name
-    endpoint = var.object_storage_interface
-  }
-
-  application {
-    name      = var.object_storage.kind == "endpoint" ? var.object_storage.name : null
-    endpoint  = var.object_storage.kind == "endpoint" ? var.object_storage.endpoint : null
-    offer_url = var.object_storage.kind == "offer" ? var.object_storage.url : null
-  }
-}
