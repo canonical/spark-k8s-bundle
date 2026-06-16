@@ -181,10 +181,15 @@ The MicroK8s setup is complete.
 ## The `spark-client` snap
 
 For Apache Spark jobs to be running run on top of Kubernetes, a set of resources (ServiceAccount, associated Roles, RoleBindings etc.) need to be created and configured.
-To simplify this task, the Charmed Apache Spark solution offers the `spark-client` snap. Install the snap: 
+To simplify this task, the Charmed Apache Spark solution offers the `spark-client` snap. Install the snap:
 
 ```shell
-sudo snap install spark-client --channel 3.4/edge
+sudo snap install spark-client --channel 3.4/stable
+```
+
+```{note}
+The `spark-client` snap from track `3.4` is supposed to be used for running Spark jobs using Apache Spark 3.4. 
+Please use tracks `3.5` or `4.0` for Apache Spark 3.5 and 4.0 respectively.
 ```
 
 Let's create a Kubernetes namespace for us to use as a playground in this tutorial.
@@ -200,7 +205,7 @@ spark-client.service-account-registry create \
   --username spark --namespace spark
 ```
 
-This command does a number of things in the background. First, it creates a ServiceAccount in the `spark` namespace with the name `spark`. Then it creates a Role with name `spark-role` with all the required RBAC permissions and binds that Role to the ServiceAccount by creating a RoleBinding. 
+This command does a number of things in the background. First, it creates a ServiceAccount in the `spark` namespace with the name `spark`. Then it creates a Role with name `spark-role` with all the required RBAC permissions and binds that Role to the ServiceAccount by creating a RoleBinding.
 
 These resources can be viewed with `kubectl get` commands as follows:
 
@@ -485,6 +490,10 @@ juju deploy spark-integration-hub-k8s --channel 3/stable --trust
 juju config spark-integration-hub-k8s monitored-service-accounts="*:*"
 juju deploy s3-integrator --channel 1/stable
 juju config s3-integrator bucket=spark-tutorial path=spark-events endpoint=http://$S3_ENDPOINT
+```
+
+```{note}
+The `spark-integration-hub-k8s` charm from the track `3` can be used for all of versions 3.4, 3.5 and 4.0 of Apache Spark.
 ```
 
 <!-- test:await-idle --timeout 600 --allow-blocked s3-integrator -->

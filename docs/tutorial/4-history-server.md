@@ -59,7 +59,11 @@ during the environment setup step.
 Next, deploy the [`spark-history-server-k8s`](https://github.com/canonical/spark-history-server-k8s-operator) charm into our Juju model:
 
 ```shell
-juju deploy spark-history-server-k8s -n1 --channel 3.4/stable
+juju deploy spark-history-server-k8s -n1 --channel 3/stable
+```
+
+```{note}
+The `spark-history-server-k8s` charm from track `3` supports Apache Spark 3.4 and 3.5. For Apache Spark 4.0, deploy the charm from track `4` instead.
 ```
 
 The Apache Spark History Server needs to connect to the S3 bucket for it to be able to read the logs.

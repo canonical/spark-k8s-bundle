@@ -37,147 +37,13 @@ information.
 
 ## Preparation
 
-### Juju model
-
-Make sure that you have a Juju model where you can deploy the Spark History server.
-In general, we advise to segregate Juju applications belonging to different solutions, and therefore
-to have a dedicated model for `Spark` components, e.g.:
-
-```bash 
-juju add-model <juju_model>
-```
-
-```{note}
-Note that this will create a K8s namespace to which the different Charmed Apache Spark components will be deployed.
-```
-
-## Deploy
-
-Charmed Apache Spark can be deployed via:
-
-* Native Juju YAML bundle and overlays
-* Terraform modules
-
-### Using Juju bundles
-
-Juju bundles are provided in the form of Jinja2 templates, for the following distribution:
-
-* Charmed Apache Spark 3.4.x
-  * [main `bundle.yaml`](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/yaml/bundle.yaml.j2)
-  * [`overlays`](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/yaml/overlays)
-
-You can easily customize these templates from the CLI using `jinja2-cli`:
+The Charmed Apache Spark bundle is deployed using Terraform, and therefore make sure you have a working Terraform 1.8+ installed in your machine.
+You can install [Terraform](https://snapcraft.io/terraform) or [OpenTofu](https://snapcraft.io/terraform) via a snap. Run the following command
+to install Terraform using snap:
 
 ```shell
-pip install jinja2-cli
+sudo snap install terraform --classic
 ```
-
-Once the package is installed, you can render the template using
-
-```shell
-jinja2 -D <key>=<value> bundle.yaml.j2 > bundle.yaml
-```
-
-There exist different YAML bundles, with different configuration options,
-for S3 and Azure object storage backends. Please, refer to the next sections for
-more information about how to configure the deployments for the different
-object storage backends.
-
-Once the bundle is rendered, it can be simply deployed:
-
-```shell
-juju deploy -m <juju_model> ./bundle.yaml
-```
-
-#### S3 backends
-
-The following table summarizes the properties to be specified for the main bundle
-
-| key             | Description                                                                                                   |
-|-----------------|---------------------------------------------------------------------------------------------------------------|
-| `service_account` | Service Account to be used by Apache Kyuubi Engines (deprecated)                                                     |
-| `namespace`       | Namespace where the charms will be deployed. This should correspond to the name of the Juju model to be used. |
-| `s3_endpoint`     | Endpoint of the S3-compatible object storage backend, in the form of `http(s)//host:port`.                    |
-| `bucket`          | Name of the S3 bucket to be used for storing logs and data                                                    |
-
-Once the bundle is deployed, you will see that most of the charms will be in a blocked status
-because of missing or invalid S3 credentials.
-In particular, the `s3` charm should notify that it needs to be provided with access and a secret key.
-This can be done using the `sync-s3-credentials` action:
-
-```shell
-juju run s3/leader sync-s3-credentials \
-  access-key=<access-key> secret-key=<secret-key>
-```
-
-After this, the charms should start to receive the credentials and move into `active/idle` state.
-
-#### Azure storage backends
-
-The following table summarizes the properties to be specified for the main Azure bundle.
-
-| Key             | Description                                                                                                   |
-|-----------------|---------------------------------------------------------------------------------------------------------------|
-| `service_account` | Service Account to be used by Apache Kyuubi Engines                                                                  |
-| `namespace`       | Namespace where the charms will be deployed. This should correspond to the name of the Juju model to be used. |
-| `storage_account` | Name of the Azure storage account to be used.                                                                 |
-| `container`       | Name of the Azure storage container to be used for storing logs and data                                      |
-
-Create a Juju secret holding the values for the Azure secret key:
-
-```shell
-juju add-secret azure-credentials secret-key=<AZURE_STORAGE_KEY>
-```
-
-This should prompt the `secret:<secret_id>` that can be used to configure the bundle.
-To do so, first grant access to the secret for the Azure Storage Integrator charm
-
-```shell
-juju grant-secret <secret_id> azure-storage
-```
-
-Then, you can configure the charm to use the secret
-
-```shell
-juju config azure-storage credentials=secret:<secret_id> 
-```
-
-After this, the different charms should start to receive the credentials and move into `active/idle` state.
-
-```{caution}
-The Azure Storage Integrator charm assumes hierarchical namespaces to have been enabled by default.
-When you create a new storage account, please make sure you check the "Hierarchical Namespaces" checkbox.
-If you want to use a legacy storage account that doesn't have hierarchical namespaces enabled,
-please configure Azure Storage integrator charm to use WASB / WASBS protocol instead with:
-`juju config azure-storage connection-protocol=wasbs`
-```
-
-```{caution}
-The directory `spark-events` needs to be created beforehand in the Azure container for the Spark History server to work.
-Please refer to the [How-To Setup Environment](how-to-deploy-environment) guide for more detailed instructions.
-```
-
-#### Enabling COS
-
-COS can be enabled using an [overlay](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/yaml/overlays/cos-integration.yaml.j2).
-Similarly to the main bundle, the jinja2 template for the overlay can be rendered with the following properties:
-
-| key            | Description                                   | Default |
-|----------------|-----------------------------------------------|---------|
-| `cos_controller` | Name of the controller hosting the COS model. | micro   |
-| `cos_model`      | Name of the COS model                         | cos     |
-
-Once the template is rendered, the COS-enabled Charmed Apache Spark bundle can be deployed using:
-
-```shell
-juju deploy -m <juju_model> ./bundle.yaml --overlay cos-integration.yaml
-```
-
-### Using Terraform
-
-Make sure you have a working Terraform 1.8+ installed in your machine.
-You can install [Terraform](https://snapcraft.io/terraform) or
-[OpenTofu](https://snapcraft.io/terraform) via a snap.
 
 Terraform modules make use of the Terraform Juju provider.
 More information about the Juju provider can be found in the
@@ -190,10 +56,6 @@ is composed of the following submodules:
   that bundles all the base resources of the Charmed Apache Spark solution
 * [cos-integration module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/modules/observability)
   that bundles all the resources that enable integration with COS
-
-```{caution}
-Currently only S3 storage backends are supported for Terraform-based bundles.
-```
 
 The Charmed Apache Spark Terraform modules can be configured using a `.tfvars.json` file with the following schema:
 
@@ -240,6 +102,8 @@ For more information on this particular example, see the [microK8s MinIO demo](h
 The Juju Terraform provider does not yet support cross-controller relations with COS.
 Therefore, COS model must be hosted in the same controller as the Charmed Apache Spark model. 
 ```
+
+## Deploy
 
 To deploy Charmed Apache Spark using Terraform, use standard TF syntax:
 

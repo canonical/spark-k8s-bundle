@@ -162,7 +162,7 @@ spark-client.service-account-registry add-config \
 ### Grafana setup
 
 Now that Prometheus is configured, let's configure Grafana.
-For this tutorial, we are going to use a [basic Grafana dashboard](https://github.com/canonical/spark-k8s-bundle/blob/953c9430d7a74a34ae0e98de22f9873419a8230c/releases/3.4/resources/grafana/spark_dashboard.json).
+For this tutorial, we are going to use a [basic Grafana dashboard](https://github.com/canonical/spark-k8s-bundle/blob/terraform-cc008/resources/grafana/spark_dashboard.json).
 
 Deploy the [cos-configuration-k8s](https://github.com/canonical/cos-configuration-k8s-operator) charm for importing the grafana dashboard:
 
@@ -171,7 +171,7 @@ juju deploy cos-configuration-k8s \
   --config git_repo=https://github.com/canonical/spark-k8s-bundle \
   --config git_branch=main \
   --config git_depth=1 \
-  --config grafana_dashboards_path=releases/3.4/resources/grafana/
+  --config grafana_dashboards_path=resources/grafana/
 ```
 
 Integrate the cos-configration-k8s charm to import the grafana dashboard:

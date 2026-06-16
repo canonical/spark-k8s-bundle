@@ -115,7 +115,11 @@ Make sure your Apache Spark image used on the drivers and executors has the same
 You can do that by manually setting the version of image used on the cluster side:
 
 ```bash
-spark-client.service-account-registry add-config --username spark --namespace spark --conf spark.kubernetes.container.image=ghcr.io/canonical/charmed-spark:3.4.2-22.04_edge
+spark-client.service-account-registry add-config --username spark --namespace spark --conf spark.kubernetes.container.image=ghcr.io/canonical/charmed-spark:3.4-22.04_edge
+```
+
+```{note}
+If you'd like to use Apache Spark 3.5 or 4.0, use the image `ghcr.io/canonical/charmed-spark:3.5-22.04_edge` or `ghcr.io/canonical/charmed-spark:4.0-22.04_edge` respectively.
 ```
 
 Here, we split the data into two parts, generating a distributed data structure, where each line is stored in one of the (possibly many) executors.

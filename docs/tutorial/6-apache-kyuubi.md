@@ -97,6 +97,11 @@ juju integrate kyuubi-k8s:auth-db auth-db
 juju integrate kyuubi-k8s data-integrator
 ```
 
+```{note}
+The `kyuubi-k8s` charm in track `3.4` supports Apache Spark 3.4. If you'd like to use Apache Spark 3.5 or 4.0, use the charm
+from tracks `3.5` or `4.0` respectively.
+```
+
 Check the list of charms that have been deployed and their statuses:
 
 ```bash

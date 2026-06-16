@@ -50,7 +50,7 @@ Concierge can be configured using a YAML file, where the versions and configurat
 ```
 juju:
   channel: 3.6/stable
-  agent-version: "3.6.9"
+  agent-version: "3.6.21"
   model-defaults:
     logging-config: <root>=INFO; unit=DEBUG
 
@@ -138,7 +138,7 @@ To deploy an EKS cluster, make sure that you have working CLI tools properly ins
   aws sts get-identity-caller
   ```
 
-* [eksctl](https://eksctl.io/) installed and configured (refer to the **README.md** file for more information on how to install it)
+* [eksctl](https://eksctl.io/) installed and configured (refer to their documentation for more information on how to install it)
 
 Make sure that your service account (configured in AWS) has the right permission to create and manage EKS clusters. In general, we recommend the use of profiles when having multiple accounts.
 
@@ -279,7 +279,7 @@ Create a file named `setup.tf` locally and reference the Terraform module:
 # file: setup.tf
 
 module "aks_cluster" {
-  source     = "git::https://github.com/canonical/spark-k8s-bundle//releases/3.4/yaml/docs-resources/aks-setup"
+  source     = "git::https://github.com/canonical/spark-k8s-bundle//resources/aks-setup"
 }
 
 ```
