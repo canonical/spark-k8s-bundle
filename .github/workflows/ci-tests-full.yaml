@@ -20,7 +20,7 @@ jobs:
     uses: ./.github/workflows/ci-checks.yaml
 
   integration-tests:
-    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark-${{ matrix.spark-version }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju-agent-version }} | ${{ matrix.cos-model }}"
+    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark-${{ matrix.spark-version }} | ${{ matrix.storage-backend }} | ${{ matrix.cos-model }}"
     runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
     timeout-minutes: 120
     strategy:
@@ -36,7 +36,6 @@ jobs:
         storage-backend: ["s3", "azure_storage"]
         cos-model: ["cos"]
         juju-snap-channel: ["3.6/stable"]
-        juju-agent-version: ["3.6.14"]
         k8s-distribution: ["k8s", "microk8s"]
         k8s-version:
           - "1.28"
@@ -54,7 +53,6 @@ jobs:
           - tox-env: integration-bundle
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.14"
             k8s-distribution: "k8s"
             k8s-version: "1.32"
             unpinned: "--unpinned-revisions"
@@ -74,7 +72,6 @@ jobs:
           storage-backend: ${{ matrix.storage-backend || 's3'}}
           cos-model: ${{ matrix.cos-model }}
           juju-snap-channel: ${{ matrix.juju-snap-channel }}
-          juju-agent-version: ${{ matrix.juju-agent-version }}
           azure-storage-account: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
           pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
