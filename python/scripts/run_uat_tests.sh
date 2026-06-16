@@ -12,7 +12,7 @@ POSARGS="$*"
 
 UUID=$(uuidgen)
 PYTEST_BASE_ARGS="-vv --tb native --log-cli-level=INFO -s -x"
-COMMON_UAT_ARGS="--keep-models --model test-uat --cos-model cos"
+COMMON_UAT_ARGS="--keep-models --model test-uat"
 
 echo "Using UUID: ${UUID}"
 
@@ -39,6 +39,6 @@ echo "[5/6] Running test_kyuubi.py..."
 poetry run pytest $PYTEST_BASE_ARGS "${TESTS_PATH}/test_kyuubi.py" --no-deploy $COMMON_UAT_ARGS $POSARGS --uuid "${UUID}"
 
 echo "[6/6] Running test_spark_job.py..."
-poetry run pytest $PYTEST_BASE_ARGS "${TESTS_PATH}/test_spark_job.py" --no-deploy --model test-uat --cos-model cos $POSARGS --uuid "${UUID}"
+poetry run pytest $PYTEST_BASE_ARGS "${TESTS_PATH}/test_spark_job.py" --no-deploy --model test-uat $POSARGS --uuid "${UUID}"
 
 echo "UAT test sequence completed successfully!"
