@@ -89,7 +89,20 @@ For documentation in this repository the following conventions are applied (see 
 The full form must be used at least once per page.
 The full form must be used at the first entry to the page’s headings, body of text, callouts, and graphics.
 For subsequent usage, the full form can be substituted by alternatives.
+### Kubernetes Terminology
 
+When documenting Kubernetes concepts, follow the [Kubernetes Documentation Style Guide](https://kubernetes.io/docs/contribute/style/style-guide/#use-upper-camel-case-for-api-objects) for API object capitalization:
+
+- **Use UpperCamelCase** (PascalCase) when referring specifically to Kubernetes API objects: Pod, Service, Namespace, ConfigMap, Secret, Ingress, Deployment, Node, etc.
+- **Use lowercase** when generally discussing the concept or referring to instances in prose.
+
+For example, "The Pod object contains a `hostPath` field" (API reference) vs "the pod is running on node-1" (general discussion).
+
+Special cases:
+
+- **kubeconfig**: Use lowercase when referring to the configuration file (e.g., "update the kubeconfig file").
+- **KUBECONFIG**: Use uppercase when referring to the environment variable.
+- **Product names**: Capitalize properly (e.g., "Azure Kubernetes Service", "Amazon Elastic Kubernetes Service").
 ## Canonical Contributor Agreement
 
 Canonical welcomes contributions to Charmed Apache Spark. Please check out our [contributor agreement](https://ubuntu.com/legal/contributors) if you're interested in contributing to the solution.

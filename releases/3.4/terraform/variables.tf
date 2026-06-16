@@ -200,6 +200,12 @@ variable "executor_pod_template" {
   default     = null
 }
 
+variable "integration_hub_monitored_service_accounts" {
+  description = "Comma-separated patterns for namespaces and service accounts to monitor and update"
+  type        = string
+  default     = null
+}
+
 variable "zookeeper_units" {
   description = "Define the number of zookeeper units. 3 units are recommended for high availability."
   type        = number
@@ -332,4 +338,59 @@ variable "certificate_common_name" {
   description = "Common name for the certificate to be used in self-signed"
   type        = string
   default     = "charmed-spark"
+}
+
+variable "kyuubi_users_size" {
+  description = "Storage size for the Kyuubi users database"
+  type        = string
+  default     = "1G"
+}
+
+variable "metastore_size" {
+  description = "Storage size for the metastore database"
+  type        = string
+  default     = "10G"
+}
+
+variable "zookeeper_size" {
+  description = "Storage size for the metastore database"
+  type        = string
+  default     = "10G"
+}
+
+
+variable "alertmanager_size" {
+  description = "Storage size for the alertmanager database"
+  type        = string
+  default     = "10G"
+}
+
+variable "grafana_size" {
+  description = "Storage size for the grafana database"
+  type        = string
+  default     = "10G"
+}
+
+variable "loki_active_index_directory_size" {
+  description = "Storage size for the active index directory for Loki"
+  type        = string
+  default     = "10G"
+}
+
+variable "loki_chunks_size" {
+  description = "Storage size for the Loki chucks storage"
+  type        = string
+  default     = "500G"
+}
+
+variable "prometheus_size" {
+  description = "Storage size for the Prometheus database"
+  type        = string
+  default     = "500G"
+}
+
+variable "traefik_size" {
+  description = "Storage size for the Traefik storage"
+  type        = string
+  default     = "10G"
 }

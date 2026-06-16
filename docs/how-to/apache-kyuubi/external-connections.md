@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "How-to guide for configuring external connections for Apache Kyuubi on Kubernetes using LoadBalancer or NodePort service types."
+---
+
 (how-to-apache-kyuubi-external-connections)=
 # External connections
 

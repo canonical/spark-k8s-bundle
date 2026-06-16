@@ -1,3 +1,14 @@
+---
+myst:
+  html_meta:
+    description: "Learn how to set up MicroK8s, spark-client snap, MinIO, and Juju on Ubuntu for running Charmed Apache Spark on Kubernetes."
+---
+
+<!-- test:spread
+priority: 700
+kill-timeout: 20m
+-->
+
 (tutorial-1-environment-setup)=
 # 1. Environment setup
 
@@ -31,8 +42,8 @@ multipass launch --cpus 4 --memory 8G --disk 50G --name spark-tutorial 24.04
 ```{note}
 See also:
 
-* [How to create an instance](https://canonical.com/multipass/docs/create-an-instance#create-an-instance-with-a-specific-image) guide from Multipass documentation
-* [`multipass launch` command reference](https://canonical.com/multipass/docs/launch-command)
+* [How to create an instance](https://documentation.ubuntu.com/multipass/latest/how-to-guides/manage-instances/create-an-instance/#create-an-instance-with-a-specific-image) guide from Multipass documentation
+* [`multipass launch` command reference](https://documentation.ubuntu.com/multipass/latest/reference/command-line-interface/launch/)
 ```
 
 Check the status of the provisioned virtual machine:
@@ -57,7 +68,7 @@ For the purpose of this tutorial we will be using a lightweight Kubernetes: [Mic
 
 Installing MicroK8s is as simple as running the following command:
 
-```bash
+```shell
 sudo snap install microk8s --channel=1.32-strict/stable
 ```
 
@@ -69,19 +80,19 @@ Let's configure MicroK8s so that the currently logged-in user has admin rights t
 
 First, set an alias `kubectl` that can be used instead of `microk8s.kubectl`:
 
-```bash
+```shell
 sudo snap alias microk8s.kubectl kubectl
 ```
 
 Then, add the current user into `microk8s` group:
 
-```bash
+```shell
 sudo usermod -a -G snap_microk8s ${USER}
 ```
 
 Create and provide ownership of `~/.kube` directory to the current user:
 
-```bash
+```shell
 mkdir -p ~/.kube
 sudo chown -f -R ${USER} ~/.kube
 ```
@@ -92,9 +103,16 @@ Put the group membership changes into effect:
 newgrp snap_microk8s
 ```
 
+<!-- test:run
+# Activate snap_microk8s group for the current process (newgrp is interactive-only)
+newgrp snap_microk8s << 'NEWGRP_EOF'
+true
+NEWGRP_EOF
+-->
+
 Check the status of the MicroK8s:
 
-```bash
+```shell
 microk8s status --wait-ready
 ```
 
@@ -116,26 +134,28 @@ addons:
 ```
 
 Let's generate a Kubernetes configuration file using MicroK8s and write it to `~/.kube/config`. 
-This is where `kubectl` looks for the Kubeconfig file by default.
+This is where `kubectl` looks for the `kubeconfig` file by default.
 
-```bash
+```shell
 microk8s config | tee ~/.kube/config
 ```
 
-Now let's enable a few addons for using features like role based access control, usage of local volume for storage, and load balancing.
+Now let's enable a few add-ons for using features like role based access control, usage of local volume for storage, and load balancing.
 
-```bash
+```shell
 sudo microk8s enable rbac
 sudo microk8s enable storage hostpath-storage
 
 sudo apt install -y jq
-IPADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
-sudo microk8s enable metallb:$IPADDR-$IPADDR
+
+IP_ADDR_START=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
+IP_ADDR_END=$(echo $IP_ADDR_START | awk -F. '{print $1"."$2"."$3"."$4+2}')
+sudo microk8s enable metallb:$IP_ADDR_START-$IP_ADDR_END
 ```
 
-Wait for the commands to finish running and check the list of enabled addons:
+Wait for the commands to finish running and check the list of enabled add-ons:
 
-```bash
+```shell
 microk8s status --wait-ready
 ```
 
@@ -160,31 +180,31 @@ The MicroK8s setup is complete.
 
 ## The `spark-client` snap
 
-For Apache Spark jobs to be running run on top of Kubernetes, a set of resources (service account, associated roles, role bindings etc.) need to be created and configured.
+For Apache Spark jobs to be running run on top of Kubernetes, a set of resources (ServiceAccount, associated Roles, RoleBindings etc.) need to be created and configured.
 To simplify this task, the Charmed Apache Spark solution offers the `spark-client` snap. Install the snap: 
 
-```bash
+```shell
 sudo snap install spark-client --channel 3.4/edge
 ```
 
 Let's create a Kubernetes namespace for us to use as a playground in this tutorial.
 
-```bash
+```shell
 kubectl create namespace spark
 ```
 
-We will now create a Kubernetes service account that will be used to run the Spark jobs. The creation of the service account can be done using the `spark-client` snap, which will create necessary roles, role bindings and other necessary configurations along with the creation of the service account:
+We will now create a ServiceAccount that will be used to run the Spark jobs. The creation of the ServiceAccount can be done using the `spark-client` snap, which will create necessary Roles, RoleBindings and other necessary configurations along with the creation of the ServiceAccount:
 
-```bash
+```shell
 spark-client.service-account-registry create \
   --username spark --namespace spark
 ```
 
-This command does a number of things in the background. First, it creates a service account in the `spark` namespace with the name `spark`. Then it creates a role with name `spark-role` with all the required RBAC permissions and binds that role to the service account by creating a role binding. 
+This command does a number of things in the background. First, it creates a ServiceAccount in the `spark` namespace with the name `spark`. Then it creates a Role with name `spark-role` with all the required RBAC permissions and binds that Role to the ServiceAccount by creating a RoleBinding. 
 
 These resources can be viewed with `kubectl get` commands as follows:
 
-```bash
+```shell
 kubectl get serviceaccounts -n spark
 kubectl get roles -n spark
 kubectl get rolebindings -n spark
@@ -203,7 +223,7 @@ spark     0         2m49s
 
 kubectl get roles -n spark
 NAME         CREATED AT
-spark-role   2025-04-16T09:13:00Z
+spark-role   2026-03-04T09:13:00Z
 
 kubectl get rolebindings -n spark
 NAME                 ROLE              AGE
@@ -226,12 +246,12 @@ Welcome to
       ____              __
      / __/__  ___ _____/ /__
     _\ \/ _ \/ _ `/ __/  '_/
-   /__ / .__/\_,_/_/ /_/\_\   version 3.4.2
+   /__ / .__/\_,_/_/ /_/\_\   version 3.4.4
       /_/
 
-Using Python version 3.10.12 (main, Jan 17 2025 14:35:34)
-Spark context Web UI available at http://10.181.60.136:4040
-Spark context available as 'sc' (master = k8s://https://10.181.60.136:16443, app id = spark-627fb48be4da4315b3716e71a7613baf).
+Using Python version 3.10.12 (main, Jan  8 2026 06:52:19)
+Spark context Web UI available at http://10.189.154.233:4040
+Spark context available as 'sc' (master = k8s://https://10.189.154.233:16443, app id = spark-cf06b03549f54011a0ab612df8be335e).
 SparkSession available as 'spark'.
 >>> 
 ```
@@ -249,7 +269,7 @@ We'll use `juju` to deploy and manage the Spark History Server and a number of o
 
 To install and configure a `juju` client using a snap:
 
-```bash
+```shell
 sudo snap install juju 
 mkdir -p ~/.local/share
 ```
@@ -258,6 +278,7 @@ Juju can automatically detects all available clouds on our local machine (VM) wi
 You can verify this by running `juju clouds` command that should produce an output similar to the following:
 
 ```text
+Since Juju 3 is being run for the first time, it has downloaded the latest public cloud information.
 Only clouds with registered credentials are shown.
 There are more clouds, use --all to see them.
 You can bootstrap a new controller using one of these clouds...
@@ -271,9 +292,11 @@ microk8s   1        localhost  k8s   0            built-in  A Kubernetes Cluster
 As you can see, Juju has detected LXD as well as K8s installation in the system.
 For us to be able to deploy Kubernetes charms, let's bootstrap a Juju controller in the `microk8s` cloud:
 
-```bash
+```shell
 juju bootstrap microk8s spark-tutorial
 ```
+
+<!-- test:wait --seconds 30 -->
 
 The creation of the new controller can be verified with the `juju controllers` command.
 The output of the command should be similar to:
@@ -282,7 +305,7 @@ The output of the command should be similar to:
 Use --refresh option with this command to see the latest information.
 
 Controller       Model  User   Access     Cloud/Region        Models  Nodes  HA  Version
-spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   -  3.6.5
+spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   -  3.6.21  
 ```
 
 The Juju setup is complete.
@@ -293,18 +316,20 @@ Apache Spark can be configured to use S3 for object storage.
 However, for this tutorial, instead of AWS S3, we'll use [MinIO](https://min.io/): a lightweight S3-compatible object storage.
 It is available as a MicroK8s [add-on](https://microk8s.io/docs/addon-minio) by default, allowing us to create a local S3 bucket, which is more convenient for our local tests.
 
-Let's enable the MinIO addon for MicroK8s.
+Let's enable the MinIO add-on for MicroK8s.
 
-```bash
+```shell
 sudo microk8s enable minio
 ```
+
+<!-- test:wait --seconds 60 -->
 
 Authentication with MinIO is managed with an access key and a secret key. 
 These credentials are generated and stored as Kubernetes secret when the MinIO add-on is enabled.
 
 Let's fetch credentials and export them as environment variables in order to use them later:
 
-```bash
+```shell
 export ACCESS_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d)
 export SECRET_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d)
 export S3_ENDPOINT=$(kubectl get service minio -n minio-operator -o jsonpath='{.spec.clusterIP}')
@@ -315,7 +340,7 @@ The MinIO add-on offers access to a built-in Web UI which can be used to interac
 
 To set up the AWS CLI, run the following commands:
 
-```bash
+```shell
 sudo snap install aws-cli --classic
 
 aws configure set aws_access_key_id $ACCESS_KEY 
@@ -325,6 +350,13 @@ aws configure set endpoint_url "http://$S3_ENDPOINT"
 ```
 
 Check the tool by listing all S3 buckets:
+
+<!-- test:run
+# Retry aws s3 ls until MinIO is ready (may take a moment after addon enable)
+for i in $(seq 1 12); do
+  aws s3 ls && break || sleep 10
+done
+-->
 
 ```bash
 aws s3 ls
@@ -340,14 +372,14 @@ Let's proceed to create a new one.
 
 To create the `spark-tutorial` bucket using AWS CLI, run:
 
-```bash
+```shell
 aws s3 mb s3://spark-tutorial
 ```
 
 We now have an S3 bucket available locally on our system!
 See for yourself by running the same command to list all buckets:
 
-```bash
+```shell
 aws s3 ls
 ```
 
@@ -357,11 +389,11 @@ With the access key, secret key, and the endpoint properly configured, you shoul
 
 For Apache Spark to be able to access and use our local S3 bucket, we need to provide a few configuration options including the bucket endpoint, access key and secret key.
 
-In the Charmed Apache Spark solution, these configurations are stored in a Kubernetes secret and bound to a Kubernetes service account. When Spark jobs are executed using that service account, all associated configurations are automatically retrieved and supplied to Apache Spark.
+In the Charmed Apache Spark solution, these configurations are stored in a Secret object and bound to a ServiceAccount. When Spark jobs are executed using that service account, all associated configurations are automatically retrieved and supplied to Apache Spark.
 
 The S3 configurations can be added to the existing `spark` service account with the following command:
 
-```bash
+```shell
 spark-client.service-account-registry add-config \
   --username spark --namespace spark \
   --conf spark.hadoop.fs.s3a.aws.credentials.provider=org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider \
@@ -374,7 +406,7 @@ spark-client.service-account-registry add-config \
 
 Now check the list of configurations bound for the service account:
 
-```bash
+```shell
 spark-client.service-account-registry get-config \
   --username spark --namespace spark 
 ```
@@ -394,7 +426,7 @@ spark.kubernetes.namespace=spark
 
 You can also see the configuration stored in a Kubernetes secret:
 
-```bash
+```shell
 kubectl get secret -n spark -o yaml
 ```
 
@@ -415,7 +447,7 @@ items:
     spark.hadoop.fs.s3a.secret.key: MTlBaVdWZENxMWZ1dHBYeUM0bmRSTlJ0M3Fid3ZydXFHdGZNNjl4ZA==
   kind: Secret
   metadata:
-    creationTimestamp: "2025-04-16T09:13:00Z"
+    creationTimestamp: "2026-03-04T09:13:00Z"
     name: spark8t-sa-conf-spark
     namespace: spark
     resourceVersion: "5555"
@@ -428,21 +460,88 @@ metadata:
 
 </details>
 
-With that, the tutorial’s environment setup is complete!
+With that, the basic environment setup is complete!
+
+## Integration Hub
+
+Throughout this tutorial you will create service accounts in several Kubernetes namespaces.
+Running `add-config` to push S3 credentials to every new account manually would quickly become repetitive.
+The [Integration Hub for Apache Spark](https://charmhub.io/spark-integration-hub-k8s) automates this:
+once deployed and configured with the `monitored-service-accounts` option, it automatically pushes the storage credentials
+to every service account that is managed by `spark-client` — including accounts created in the future.
+
+Let's deploy it now so that service accounts we create in later steps receive S3 credentials automatically.
+
+Create a dedicated Juju model for the Integration Hub:
+
+```shell
+juju add-model spark-integration-hub
+```
+
+Deploy the Integration Hub charm and an `s3-integrator` charm to supply it with the storage configuration:
+
+```shell
+juju deploy spark-integration-hub-k8s --channel 3/stable --trust
+juju config spark-integration-hub-k8s monitored-service-accounts="*:*"
+juju deploy s3-integrator --channel 1/stable
+juju config s3-integrator bucket=spark-tutorial path=spark-events endpoint=http://$S3_ENDPOINT
+```
+
+<!-- test:await-idle --timeout 600 --allow-blocked s3-integrator -->
+
+The `s3-integrator` will remain in `blocked` state until S3 credentials are provided. Set the credentials first, then integrate:
+
+```shell
+juju run s3-integrator/leader sync-s3-credentials \
+  access-key=$ACCESS_KEY secret-key=$SECRET_KEY
+juju integrate s3-integrator spark-integration-hub-k8s
+```
+
+<!-- test:await-idle --timeout 600 -->
+
+Wait for both charms to reach `active/idle` status:
+
+```bash
+watch juju status --color
+```
+
+Verify that the Integration Hub has automatically updated the `spark` service account:
+
+```shell
+spark-client.service-account-registry get-config \
+  --username spark --namespace spark
+```
+
+The output should include the same S3 configuration properties we set up manually earlier,
+now maintained by the Integration Hub.
+From this point on, any service account you create with `spark-client` will receive
+the S3 credentials automatically.
+
+Create the `spark-events` and `warehouse` directories in S3:
+
+```shell
+aws s3api put-object --bucket spark-tutorial --key spark-events/
+aws s3api put-object --bucket spark-tutorial --key warehouse/
+```
+
+<!-- test:assert
+spark-client.service-account-registry get-config --username spark --namespace spark | grep -q "fs.s3a.endpoint"
+juju status -m spark-integration-hub --format=json | jq -e '.applications."spark-integration-hub-k8s"."application-status".current == "active"'
+-->
 
 ## (Optional) Create a snapshot
 
-At this stage, you may want to create a [snapshot](https://documentation.ubuntu.com/multipass/en/latest/reference/command-line-interface/snapshot/#snapshot) of the current state, for which you need to stop the Multipass VM:
+At this stage, you may want to create a [snapshot](https://documentation.ubuntu.com/multipass/en/latest/reference/command-line-interface/snapshot/#snapshot) of the current state, for which you need to stop the Multipass VM. Exit the VM by pressing `CTRL + D` and stop it:
 
 ```bash
 multipass stop spark-tutorial
-multipass snapshot spark-tutorial -n env-setup
 ```
 
-This creates a snapshot name `env-setup` that we can use later to reset the environment. We will use it later for the Charmed Apache Kyuubi K8s deployment.
+Create a snapshot name `env-setup`.
+We will use it later to reset the environment for the Charmed Apache Kyuubi K8s deployment:
 
-```{note}
-Restarting the VM means that you might need to reset the environment variables exported earlier.
+```bash
+multipass snapshot spark-tutorial -n env-setup
 ```
 
 Before continuing with this tutorial, make sure to start the VM again:
@@ -451,3 +550,8 @@ Before continuing with this tutorial, make sure to start the VM again:
 multipass start spark-tutorial
 ```
 
+Once it starts, reconnect to the VM:
+
+```bash
+multipass shell spark-tutorial
+```

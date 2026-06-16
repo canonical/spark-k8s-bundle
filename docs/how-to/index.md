@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "How-to guides for deploying, configuring, and managing Charmed Apache Spark and Kyuubi on Kubernetes with monitoring and security."
+---
+
 (how-to-index)=
 # How-To guides
 
@@ -43,7 +49,7 @@ See our [Monitoring](how-to-monitoring) guide.
 
 We have guides for using Spark History Server with Charmed Apache Spark:
 
-* [Authentication and authorisation](how-to-spark-history-server-auth)
+* [Authentication and authorization](how-to-spark-history-server-auth)
 * [Expose web GUI](how-to-spark-history-server-expose-web-gui)
 
 ## Security
@@ -59,6 +65,7 @@ Advanced features of Charmed Apache Spark include:
 * [Use K8s pods](how-to-use-k8s-pods)
 * [Streaming jobs](how-to-streaming-jobs)
 * [Use GPU](how-to-use-gpu)
+* [Advanced Scheduling](how-to-advanced-scheduling)
 
 ```{toctree}
 :titlesonly:
@@ -72,5 +79,6 @@ spark-history-server/index
 Use K8s pods<use-k8s-pods.md>
 Streaming Jobs<streaming-jobs.md>
 Use GPU<use-gpu.md>
+Advanced Scheduling<advanced-scheduling.md>
 Self-signed certificates<self-signed-certificates.md>
 ```

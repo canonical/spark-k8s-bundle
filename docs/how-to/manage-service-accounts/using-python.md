@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "How-to guide for managing Charmed Apache Spark service accounts programmatically using the spark8t Python toolkit and API."
+---
+
 (how-to-service-accounts-python)=
 # Manage Service Accounts using the Python API
 
@@ -15,7 +21,7 @@ Furthermore, you need to make sure that `PYTHONPATH` contains the location where
 
 The following snipped allows you to import relevant environment variables
 into a confined object, among which there should an auto-inference of your 
-kubeconfig file location. 
+`kubeconfig` file location. 
 
 ```python
 import os

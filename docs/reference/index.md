@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Reference documentation for Charmed Apache Spark including release notes, system requirements, and contact information."
+---
+
 (reference-index)=
 # Reference
 

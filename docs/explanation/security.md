@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Security hardening guide for Charmed Apache Spark covering Kubernetes, Juju, encryption, authentication, and secure deployment practices."
+---
+
 (explanation-security)=
 # Security hardening guide
 
@@ -72,9 +78,9 @@ In the following, we provide guidance on how to harden your deployment using:
 
 Charmed Apache Spark K8s runs on top of a set of Rockcraft-based images, all based on the same Apache Spark distribution binaries,
 available in the [Apache Spark release page](https://launchpad.net/spark-releases), on top of Ubuntu 22.04.
-The images that can be found in the [Charmed Apache Spark rock images GitHub repo](https://github.com/canonical/charmed-spark-rock) are used as the base 
+The images that can be found in the [Charmed Apache Spark rock images GitHub repository](https://github.com/canonical/charmed-spark-rock) are used as the base 
 images for pods both for Spark jobs and charms. 
-The following table summarises the relation between the component and its underlying base image.
+The following table summarizes the relation between the component and its underlying base image.
 
 | Component                          | Image                                                                                                       |
 |------------------------------------|-------------------------------------------------------------------------------------------------------------|
@@ -177,7 +183,7 @@ Charmed Apache Spark K8s provides external authentication capabilities for:
 Authentication to the Kubernetes API follows standard implementations, as described in the [upstream Kubernetes documentation](https://kubernetes.io/docs/reference/access-authn-authz/authentication/). 
 Please make sure that the distribution being used supports the authentication used by clients, and that the Kubernetes cluster has been correctly configured. 
 
-Generally, client applications store credentials information locally in a `KUBECONFIG` file. 
+Generally, client applications store credentials information locally in a `kubeconfig` file. 
 On the other hand, pods created by the charms and the Spark Job workloads receive credentials via shared secrets, mounted to the default locations `/var/run/secrets/kubernetes.io/serviceaccount/`. 
 See the [upstream documentation](https://kubernetes.io/docs/tasks/run-application/access-api-from-pod/#directly-accessing-the-rest-api) for more information.
 
@@ -185,19 +191,19 @@ See the [upstream documentation](https://kubernetes.io/docs/tasks/run-applicatio
 
 Authentication can be enabled in the Spark History Server when exposed using Traefik by leveraging on the
 [Oath Keeper](https://charmhub.io/oathkeeper) integration, that provides
-a cloud native Identity & Access Proxy (IAP) and Access Control Decision API able to authenticates, authorizes,
-and mutates incoming HTTP(s) requests, fully-integrated with the Canonical Identity Platform.
+a cloud native Identity & Access Proxy (IAP) and Access Control Decision API able to authenticate, authorize,
+and mutate incoming HTTP(s) requests, fully-integrated with the Canonical Identity Platform.
 
 Refer to the [how-to enable authorization in the Spark history server](how-to-spark-history-server-auth) guide
-for more information. From a permission-wise point of view, white lists of authorised users
+for more information. From a permission-wise point of view, white lists of authorized users
 can be provided using the Spark History Server
 [charm configuration option](https://charmhub.io/spark-history-server-k8s/configurations?channel=3.4/edge).
 
 #### Kyuubi JDBC endpoint
 
-Authentication can be enabled for Charmed Apache Kyuubi via its integration with PostgreSQL charm
-on the `auth-db` interface. Currently, only one admin user is enabled, whose credentials can be retrieved
-using the [`get-jdbc-endpoint` action](https://charmhub.io/kyuubi-k8s/actions#get-jdbc-endpoint).
+Authentication is enabled by default and is mandatory for the JDBC endpoint exposed by Charmed Apache Kyuubi charm via 
+its integration with PostgreSQL charm on the `auth-db` interface. Currently, only one admin user is enabled, whose password 
+can be set using the [`system-users` config](https://charmhub.io/kyuubi-k8s/configurations#system-users) in the charm.
 
 ### Monitoring and auditing
 
@@ -208,7 +214,7 @@ Refer to the
 [COS production deployments best practices](https://charmhub.io/topics/canonical-observability-stack/reference/best-practices)
 page for more information.
 
-For more information on how to enable and customise monitoring with COS,
+For more information on how to enable and customize monitoring with COS,
 see the [Monitoring](how-to-monitoring) guide.
 
 ## Additional resources

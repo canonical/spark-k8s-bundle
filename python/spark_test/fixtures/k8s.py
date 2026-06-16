@@ -6,37 +6,39 @@
 import os
 import time
 from pathlib import Path
+from typing import Iterable
 
 import pytest
+from lightkube import KubeConfig
 from lightkube.resources.core_v1 import Namespace
 from spark8t.domain import Defaults, KubernetesResourceType
-from spark8t.services import LightKube
+from spark8t.kube_interface.lightkube import LightKubeInterface
 
 from spark_test.core.pod import get_kube_config
 
 
 @pytest.fixture(scope="session")
-def kubeconfig():
+def kubeconfig() -> KubeConfig:
     """Load kube config."""
     return get_kube_config(Path.home() / ".kube" / "config")
 
 
 @pytest.fixture(scope="session")
-def envs(kubeconfig):
+def envs(kubeconfig: KubeConfig) -> Defaults:
     """Kube config environment variables."""
     kubeconfig_env = {"KUBECONFIG": f"{kubeconfig.fname}"} if kubeconfig.fname else {}
 
     return Defaults(dict(os.environ) | kubeconfig_env)
 
 
-def _get_namespaces(interface):
+def _get_namespaces(interface) -> list[str]:
     return [ns.metadata.name for ns in interface.client.list(Namespace)]
 
 
 @pytest.fixture(scope="session")
-def interface(envs):
+def interface(envs: Defaults) -> Iterable[LightKubeInterface]:
     """Lightkube interface."""
-    interface = LightKube(envs.kube_config, envs)
+    interface = LightKubeInterface(envs.kube_config, envs)
     ns_before = _get_namespaces(interface)
     yield interface
     ns_after = _get_namespaces(interface)
@@ -45,13 +47,13 @@ def interface(envs):
 
 
 @pytest.fixture(scope="module")
-def namespace_name():
+def namespace_name() -> str:
     """Namespace name."""
     return "spark-test"
 
 
 @pytest.fixture(scope="module")
-def namespace(interface, namespace_name):
+def namespace(interface: LightKubeInterface, namespace_name: str) -> Iterable[str]:
     """Create namespace."""
     print("Creating namespace")
     interface.create(KubernetesResourceType.NAMESPACE, namespace_name, None)

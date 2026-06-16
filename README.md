@@ -2,7 +2,7 @@
 
 [![CharmHub Badge](https://charmhub.io/spark-k8s-bundle/badge.svg)](https://charmhub.io/spark-k8s-bundle)
 [![Tests](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-tests.yaml/badge.svg?branch=main)](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-tests.yaml?query=branch%3Amain)
-[![Docs](https://github.com/canonical/spark-k8s-bundle/actions/workflows/sync_docs.yaml/badge.svg)](https://github.com/canonical/spark-k8s-bundle/actions/workflows/sync_docs.yaml)
+[![Docs](https://readthedocs.com/projects/canonical-charmed-spark/badge/?version=main&style=plastic)](https://app.readthedocs.com/projects/canonical-charmed-spark/builds/?version__slug=main)
 <!-- [![Release](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-checks.yaml/badge.svg)](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-checks.yaml) -->
 
 Charmed Apache Spark is a solution that makes operating Apache Spark workloads on Kubernetes seamless, secure, and production-ready. This solution includes:
@@ -42,6 +42,24 @@ Charmed Apache Spark supports native integration with the Canonical Observabilit
 For information on security features and the use of cryptography, see the [Security explanation](https://charmhub.io/spark-k8s-bundle/docs/e-security) page.
 
 Security issues in the Charmed Apache Spark can be reported through [LaunchPad](https://wiki.ubuntu.com/DebuggingSecurity). Please do not file GitHub issues about security issues.
+
+## Tutorial tests
+
+The tutorial (`docs/tutorial/`) is tested end-to-end using [Spread](https://github.com/canonical/spread) inside a Multipass VM. Shell commands are extracted directly from the Markdown sources, so the tutorial itself is the test.
+
+Run the full tutorial suite (extract + run Spread tests):
+
+```bash
+tox -e tutorial
+```
+
+Only generate test scripts from the Markdown tutorial pages (no VM needed):
+
+```bash
+tox -e tutorial-extract
+```
+
+Both commands must be run from the `python/` directory (or via `cd python && tox …`). See [python/tests/tutorial/TESTING.md](python/tests/tutorial/TESTING.md) for prerequisites, run modes, debug tips, and the full annotation reference.
 
 ## Contributing
 

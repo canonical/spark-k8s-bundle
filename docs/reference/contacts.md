@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Contact information for Charmed Apache Spark support including Matrix chat, GitHub issues, and security reporting channels."
+---
+
 (reference-contacts)=
 # Contacts
 
@@ -18,5 +24,4 @@ Please do NOT file GitHub issues on security topics.
 * [Charmed Apache Kafka](https://charmhub.io/kafka)
 * [Git sources for Charmed Apache Spark](https://github.com/canonical/spark-k8s-bundle)
 * [Canonical Data on Launchpad](https://launchpad.net/~data-platform)
-* [Canonical Data on Matrix](https://matrix.to/#/#charmhub-data-platform:ubuntu.com) 
-* [Mailing list on Launchpad](https://lists.launchpad.net/data-platform/)
+* [Canonical Data on Matrix](https://matrix.to/#/#charmhub-data-platform:ubuntu.com)

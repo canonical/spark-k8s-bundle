@@ -18,12 +18,13 @@ from contextlib import contextmanager
 from pathlib import Path
 from subprocess import PIPE, Popen, TimeoutExpired, check_output
 from typing import Generator, cast
-from tenacity import retry, stop_after_attempt, wait_fixed
 
 import httpx
 import jubilant
 import pytest
-from spark8t.domain import PropertyFile
+from dotenv import load_dotenv
+from spark8t.utils import PropertyFile
+from tenacity import retry, stop_after_attempt
 
 from spark_test.core.azure_storage import Container
 from spark_test.core.bundle import BundleBackendEnum
@@ -52,6 +53,7 @@ COS_APPS = [
     "alertmanager",
 ]
 FORWARD_TIMEOUT_SECONDS = 10
+load_dotenv()
 logger = logging.getLogger(__name__)
 logging.getLogger("jubilant.wait").setLevel(logging.WARNING)
 
@@ -145,6 +147,15 @@ def pytest_addoption(parser):
         action="store_true",
         help="This, together with the `--model` parameter, ensures that all functions "
         "marked with the` skip_if_deployed` tag are skipped.",
+    )
+    parser.addoption(
+        "--storage-sizes",
+        choices=["small", "medium"],
+        nargs="?",
+        const="small",
+        default="small",
+        type=str,
+        help="Setting for the storage.",
     )
 
 
@@ -244,6 +255,36 @@ def bucket_name():
 @pytest.fixture(scope="module")
 def container_name(test_uuid):
     return f"spark-container-{test_uuid}"
+
+
+@pytest.fixture(scope="module")
+def storage_sizes(request) -> dict[str, str]:
+    """The name of the model in which COS is either already deployed or is to be deployed."""
+    option = request.config.getoption("--storage-sizes")
+    if option == "small":
+        return {
+            "kyuubi_users_size": "500M",
+            "metastore_size": "500M",
+            "zookeeper_size": "10G",
+            "alertmanager_size": "100M",
+            "grafana_size": "100M",
+            "loki_active_index_directory_size": "100M",
+            "loki_chunks_size": "500M",
+            "prometheus_size": "500M",
+            "traefik_size": "100M",
+        }
+    else:
+        return {
+            "kyuubi_users_size": "1G",
+            "metastore_size": "10G",
+            "zookeeper_size": "10G",
+            "alertmanager_size": "10G",
+            "grafana_size": "10G",
+            "loki_active_index_directory_size": "10G",
+            "loki_chunks_size": "500G",
+            "prometheus_size": "500G",
+            "traefik_size": "10G",
+        }
 
 
 @pytest.fixture
@@ -502,16 +543,11 @@ def spark_bundle(
     object_storage,
     admin_password,
     private_key,
+    storage_sizes,
 ):
     """Deploy the Spark K8s bundle, with appropriate backend and object storage."""
     short_version = ".".join(spark_version.split(".")[:2])
     release_path = RELEASE_DIR / short_version / backend
-
-    storage_unit = (
-        cast(Container, object_storage)
-        if storage_backend == "azure_storage"
-        else cast(Bucket, object_storage)
-    )
 
     if backend == BundleBackendEnum.TERRAFORM.value:
         bundle = TerraformBackend(tempdir=tempdir, module_path=release_path)
@@ -535,22 +571,24 @@ def spark_bundle(
             if cos
             else {"cos": {"deployed": "no"}}
         )
-        storage_vars = (
-            {
+        if storage_backend == "azure_storage":
+            storage_unit = cast(Container, object_storage)
+            storage_vars = {
                 "azure_storage": {
                     "storage_account": storage_unit.credentials.storage_account,
                     "container": storage_unit.container_name,
                     "secret_key": storage_unit.credentials.secret_key,
                 }
             }
-            if storage_backend == "azure_storage"
-            else {
+        else:
+            storage_unit = cast(Bucket, object_storage)
+
+            storage_vars = {
                 "s3": {
                     "bucket": storage_unit.bucket_name,
                     "endpoint": storage_unit.s3.meta.endpoint_url,
                 }
             }
-        )
 
     elif backend == BundleBackendEnum.YAML.value:
         bundle_yaml_filename = (
@@ -580,24 +618,26 @@ def spark_bundle(
             if cos
             else {}
         )
-        storage_vars = (
-            {
+        if storage_backend == "azure_storage":
+            storage_unit = cast(Container, object_storage)
+            storage_vars = {
                 "storage_account": storage_unit.credentials.storage_account,
                 "container": storage_unit.container_name,
             }
-            if storage_backend == "azure_storage"
-            else {
+        else:
+            storage_unit = cast(Bucket, object_storage)
+
+            storage_vars = {
                 "s3_endpoint": storage_unit.s3.meta.endpoint_url,
                 "bucket": storage_unit.bucket_name,
             }
-        )
 
     else:
         raise NotImplementedError(
             f"The backend {backend} is not supported for deploying bundle."
         )
 
-    vars = base_vars | cos_vars | storage_vars
+    vars = base_vars | cos_vars | storage_vars | storage_sizes
 
     deployed_applications = bundle.apply(vars=vars)
     if storage_backend == "azure_storage":

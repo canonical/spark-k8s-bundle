@@ -6,7 +6,7 @@ resource "juju_application" "azure_storage" {
   model = var.model
   charm {
     name     = "azure-storage-integrator"
-    channel  = "latest/edge"
+    channel  = "1/candidate"
     revision = var.azure_storage_revision
   }
   config = {

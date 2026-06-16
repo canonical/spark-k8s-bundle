@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "How-to guide for integrating Charmed Apache Kyuubi with charmed and non-charmed applications using data-integrator and kyuubi_client interface."
+---
+
 (how-to-apache-kyuubi-integrate-with-applications)=
 # Integrate with applications
 

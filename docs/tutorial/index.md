@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Step-by-step tutorial for deploying and configuring Charmed Apache Spark on Kubernetes with data processing, streaming, and monitoring."
+---
+
 (tutorial-introduction)=
 # Charmed Apache Spark Solution Tutorial
 
@@ -19,7 +25,7 @@ This tutorial is divided into multiple steps, which we recommend following in th
 
 | Step | Description |
 | ------- | ---------- |
-| 1. [Environment setup](/tutorial/1-environment-setup) | Prepare your tutorial environment using a Multipass VM and deploy Apache Spark with the `spark-client` snap.|
+| 1. [Environment setup](/tutorial/1-environment-setup) | Prepare your tutorial environment using a Multipass VM.|
 | 2. [Distributed data processing](/tutorial/2-distributed-data-processing) | Explore how to process large datasets efficiently across multiple nodes.|
 | 3. [Data stream processing](/tutorial/3-data-stream-processing) | Learn how to handle real-time data streams.|
 | 4. [History server](/tutorial/4-history-server) | Integrate with Apache Spark History Server.|

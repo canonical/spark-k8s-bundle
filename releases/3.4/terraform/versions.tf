@@ -12,15 +12,15 @@ terraform {
 
 locals {
   revisions = {
-    history_server  = 47
-    integration_hub = 67
-    kyuubi          = 122
-    kyuubi_users    = 495
-    metastore       = 495
+    history_server  = 98
+    integration_hub = 123
+    kyuubi          = 162
+    kyuubi_users    = 774
+    metastore       = 774
     zookeeper       = 78
-    data_integrator = 179
-    s3              = 145
-    azure_storage   = 15
+    data_integrator = 362
+    s3              = 330
+    azure_storage   = 274
     grafana_agent   = 121
     # TODO: bump the revision to 1/stable when both of the following issue gets fixed:
     # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 
@@ -31,14 +31,14 @@ locals {
   }
   images = {
     history_server = {
-      spark-history-server-image = "ghcr.io/canonical/charmed-spark@sha256:99e8494070af297e9cfb6965e5216abef33539ae36fde34cbcbd2d7acb433e60"
-    } # rev20, spark-version: 3.4.4 revision: 0ac21dd9c0dc624401db73ca53fa3399562308fb
+      spark-history-server-image = "ghcr.io/canonical/charmed-spark@sha256:f7f387a76ba2f3b6cfc34a35f36c0f4ae85bfa78c8c9d4bfa06ba86401b95d70"
+    } # rev24,  spark-version: 3.5.7, release date 16/03/2026 
     integration_hub = {
-      integration-hub-image = "ghcr.io/canonical/spark-integration-hub@sha256:fa5e73d6339b2eb137b5917771caa62bd6605284b8dfab3dafb7d6026a9a3b1a"
-    } # rev6
+      integration-hub-image = "ghcr.io/canonical/spark-integration-hub@sha256:a0439da3e6a9433a0db9501c8ea7b28ba3652af9a9ec22fcc2ad1b0197d48134"
+    } # rev13, release date 19/03/2026
     kyuubi = {
-      kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:c284924ff55152adc9a60000939d6ec604ec156ef4f4f9c9af90ef2cc501b1de"
-    } # rev13, spark-3.4.4, kyuubi 1.10.2 release date 11/09/25
+      kyuubi-image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:60e81dd2e9be50d4a857ce987935341c8518c784c7de36e814fc41dd3451d58f"
+    } # rev19, spark-version: 3.4.4, kyuubi-version: 1.10.3, release date 17/03/2026
     kyuubi_users = {
       postgresql-image = 165
     }

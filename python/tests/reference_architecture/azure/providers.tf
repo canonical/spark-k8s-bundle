@@ -20,16 +20,16 @@ terraform {
     }
     juju = {
       source  = "juju/juju"
-      version = ">=0.20.0"
+      version = "<1.0.0"
     }
   }
 }
 
 provider "juju" {
   controller_addresses = var.JUJU_CONTROLLER_IPS
-  username         	= var.JUJU_USERNAME
-  password         	= var.JUJU_PASSWORD
-  ca_certificate   	= base64decode(var.JUJU_CA_CERTIFICATE)
+  username             = var.JUJU_USERNAME
+  password             = var.JUJU_PASSWORD
+  ca_certificate       = base64decode(var.JUJU_CA_CERTIFICATE)
 }
 
 provider "azurerm" {

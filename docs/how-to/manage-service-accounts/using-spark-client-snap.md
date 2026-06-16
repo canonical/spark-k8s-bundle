@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "How-to guide for creating, managing, and configuring Charmed Apache Spark service accounts using the spark-client snap command line interface (CLI)."
+---
+
 (how-to-service-accounts-spark-client)=
 # Manage Charmed Apache Spark service accounts
 
@@ -11,7 +17,7 @@ using Juju relations. For more information about how to use the configuration hu
 ```
 
 ```{caution}
-The following commands assume that you have administrative permission on the namespaces (or on the Kubernetes cluster) so that the corresponding resources (such as service accounts, secrets, roles, and role bindings) can be created and deleted. 
+The following commands assume that you have administrative permission on the namespaces (or on the Kubernetes cluster) so that the corresponding resources (such as ServiceAccounts, Secrets, Roles, and RoleBindings) can be created and deleted. 
 ```
 
 ## Create service account
@@ -92,7 +98,7 @@ spark-client.service-account-registry get-primary
 
 ## Cleanup a service account
 
-To delete the service account together with the other resources created, e.g. secrets, role, role-bindings, etc.:
+To delete the service account together with the other resources created, e.g. Secrets, Roles, RoleBindings, etc.:
 
 ```bash
 spark-client.service-account-registry delete --username demouser --namespace demonamespace 

@@ -1,5 +1,11 @@
+---
+myst:
+  html_meta:
+    description: "How-to guide for enabling and configuring monitoring for Charmed Apache Spark with Canonical Observability Stack (COS) integration."
+---
+
 (how-to-monitoring)=
-# Enable and configuring monitoring
+# Enable and configure monitoring
 
 Charmed Apache Spark supports native integration with the Canonical Observability Stack (COS). If you want to enable monitoring on top of Charmed Apache Spark, make sure that you have a Juju model with COS correctly deployed.
 
@@ -8,9 +14,9 @@ For more information about Charmed Apache Spark and COS integration, refer to th
 
 Once COS is correctly deployed, to enable monitoring it is necessary to:
 
-1. Integrate and configure the COS bundle with Charmed Apache Spark
+1. Deploy and integrate the monitoring components (Pushgateway, scrape config, Grafana agent, etc.) with Charmed Apache Spark
 2. Configure the Apache Spark service account
-3. (Optional) Integrate the optional components of Charmed Apache Spark (such as the Spark History Server charm and Charmed Apache Kyuubi) with the COS bundle
+3. (Optional) Integrate the optional components of Charmed Apache Spark (such as the Spark History Server charm and Charmed Apache Kyuubi) with COS
 
 ## Integrating/configuring with COS
 
@@ -20,6 +26,16 @@ COS as well as to configure the monitoring artifacts.
 The deployments of these resources can be enabled/disabled using either overlays
 (for Juju bundles) or input variables (for Terraform bundles).
 Please refer to the [how-to deploy](how-to-deploy-spark) guide for more information.
+
+The monitoring components (`grafana-agent-k8s`, `prometheus-pushgateway-k8s`,
+`prometheus-scrape-config-k8s`, `cos-configuration-k8s`) and their integrations
+are included in the [COS overlay](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/yaml/overlays/cos-integration.yaml.j2)
+for Juju bundles or deployed automatically when `cos_model` is set in the Terraform module.
+See the [how-to deploy](how-to-deploy-spark) guide for details.
+
+If you are not using the overlay or Terraform module, you can inspect the
+[COS overlay YAML](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/yaml/overlays/cos-integration.yaml.j2)
+for the full list of charms and relations to deploy manually.
 
 After the deployment settles on an `active/idle` state, you can make sure that
 Grafana is correctly set up with dedicated dashboards.
@@ -46,7 +62,7 @@ In particular, it is crucial to configure the scraping interval to make sure
 data points have proper sampling frequency, e.g.:
 
 ```shell
-juju config scrape-config --config scrape_interval=<SCRAPE_INTERVAL>
+juju config scrape-config scrape_interval=<SCRAPE_INTERVAL>
 ```
 
 For more information about the properties that can be set using `prometheus-scrape-config-k8s`,
@@ -98,7 +114,7 @@ and check that the following property:
 spark.metrics.conf.driver.sink.prometheus.pushgateway-address=<PROMETHEUS_GATEWAY_ADDRESS>:<PROMETHEUS_PORT>
 ```
 
-is configured with the correct values. The Prometheus Pushgateway address and port should be can be
+is configured with the correct values. The Prometheus Pushgateway address and port should be
 consistent with what is exposed by Juju, e.g.:
 
 ```shell
@@ -124,7 +140,7 @@ directly (as explained in the
 Both the Spark History Server and Charmed Apache Kyuubi charms come with the [JMX exporter](https://github.com/prometheus/jmx_exporter/).
 The metrics can be queried by accessing the `http://<history-server-unit-ip>:9101/metrics` and `http://<kyuubi-unit-ip>:10019/metrics` endpoints, respectively.
 
-This section guides you how to set up monitoring with Canonical Obesrvation Stack (COS) for both Spark History Server and Charmed Apache Kyuubi.
+This section guides you how to set up monitoring with Canonical Observability Stack (COS) for both Spark History Server and Charmed Apache Kyuubi.
 
 ### Prerequisites
 
@@ -159,7 +175,7 @@ Congratulations, the COS now monitors the two charms.
 
 ## Customize dashboards and alert rules
 
-The `cos-configuration-k8s` charm included in the bundle can be used to customise the Grafana dashboards and alert rules.
+The `cos-configuration-k8s` charm included in the bundle can be used to customize the Grafana dashboards and alert rules.
 If needed, we provide a [default dashboard](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/resources/grafana) as part
 of the bundle and dedicated dashboards for the [Spark History Server](https://github.com/canonical/spark-history-server-k8s-operator/tree/3/edge/src/grafana_dashboards)
 and [Charmed Apache Kyuubi](https://github.com/canonical/kyuubi-k8s-operator/tree/3.4/edge/src/grafana_dashboards) charms.

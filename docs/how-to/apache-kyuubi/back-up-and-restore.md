@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "How-to guide for backing up and restoring data for Charmed Apache Kyuubi using object storage and PostgreSQL metastore."
+---
+
 (how-to-apache-kyuubi-back-up-and-restore)=
 # How to to back up and restore data for Charmed Apache Kyuubi
 

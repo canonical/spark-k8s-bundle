@@ -1,8 +1,14 @@
+---
+myst:
+  html_meta:
+    description: "How-to guide for deploying Charmed Apache Kyuubi on Kubernetes with Juju for serverless SQL queries on data lakes with Apache Spark."
+---
+
 (how-to-deploy-kyuubi)=
 # Deploy Charmed Apache Kyuubi
 
 Charmed Apache Spark can work with [Apache Kyuubi](https://kyuubi.apache.org/),
-which is a distributed and multi-tenant gateway to provide serverless SQL on lakehouses.
+which is a distributed and multi-tenant gateway to provide serverless SQL on datalakes.
 The following guide is to set up Apache Kyuubi for running SQL queries with Charmed Apache Spark.
 
 ## Prerequisites

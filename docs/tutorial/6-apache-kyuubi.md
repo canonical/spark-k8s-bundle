@@ -1,75 +1,73 @@
+---
+myst:
+  html_meta:
+    description: "Learn how to deploy and use Charmed Apache Kyuubi on Kubernetes for serverless SQL queries on data lakes with Apache Spark."
+---
+
+<!-- test:spread
+priority: 200
+kill-timeout: 40m
+-->
+
 (tutorial-6-apache-kyuubi)=
 # 6. Using Apache Kyuubi
 
-Apache Kyuubi is a gateway to serverless SQL running on Kubernetes, bridging the gap between Apache Spark as a data processing framework and a data lakehouse platform.
+Apache Kyuubi is a gateway to serverless SQL running on Kubernetes, bridging the gap between Apache Spark as a data processing framework and a datalake platform.
 
 This hands-on tutorial stage aims to help you learn how to use Charmed Apache Kyuubi K8s and become familiar with its available operations.
 
-## Environment variables
-
-At this step of the tutorial, you’ll need some environment variables that were set earlier during the environment setup stage.
-If you’ve restarted the VM and lost those variables, refresh them by running the following commands:
-
-```bash
-export ACCESS_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d)
-export SECRET_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d)
-export S3_ENDPOINT=$(kubectl get service minio -n minio-operator -o jsonpath='{.spec.clusterIP}')
-```
 
 ## Initial setup
 
 Let's create a fresh Juju model for the Charmed Apache Kyuubi K8s experiments:
 
-```bash
-juju add-model lakehouse
+```shell
+juju add-model datalake
 ```
 
-To create our simple, minimal data lakehouse, we need an object storage.
+To create our simple, minimal datalake, we need an object storage.
 
 ### Object storage
 
-We will use the MinIO, installed in the environment setup stage of this tutorial.
-Let's set up a new bucket:
-
-```shell
-aws s3 mb s3://lakehouse
-```
-
-Now add the `spark-events` directory to the bucket:
+We will use the MinIO instance installed in the environment setup stage of this tutorial.
+Let's set up a new directory for Kyuubi's event logs inside the existing `spark-tutorial` bucket:
 
 ```shell
 aws s3api put-object --bucket spark-tutorial --key spark-events/
 ```
 
-You can check the result of directory creation by calling the list of elements in the bucket:
+You can verify the directory was created:
 
 ```shell
 aws s3 ls spark-tutorial
 ```
 
-The resulted output should contain the `spark-events` directory we have just created.
+The output should contain the `spark-events` directory.
 
-To provide access to our object storage, we can use the [S3-integrator](https://charmhub.io/s3-integrator) charm.
-Let's deploy the charm first:
+### Integration Hub
+
+Rather than deploying a fresh Integration Hub, we can reuse the one we already set up in the environment setup step.
+The Integration Hub lives in the `spark-integration-hub` Juju model; Kyuubi lives in `datalake`.
+Juju's [cross-model relations](https://documentation.ubuntu.com/juju/3.6/reference/relation/#cross-model-relation) let charms in different models communicate by *offering* an endpoint from one model and *consuming* it from another.
+
+First, switch to the `spark-integration-hub` model and offer the Integration Hub's `spark-service-account` endpoint:
 
 ```shell
-juju deploy s3-integrator --channel 1/stable
+juju switch spark-integration-hub
+juju offer spark-integration-hub-k8s:spark-service-account
 ```
 
-Now configure the `s3-integrator` application to have access to our object storage:
+Juju confirms the offer with output similar to:
 
-```shell
-juju config s3-integrator bucket=spark-tutorial path="spark-events" endpoint=http://$S3_ENDPOINT
-juju run s3-integrator/0 sync-s3-credentials access-key=$ACCESS_KEY secret-key=$SECRET_KEY
+```text
+Application "spark-integration-hub-k8s" endpoints [spark-service-account] available at "admin/spark-integration-hub.spark-integration-hub-k8s"
 ```
 
-We will deploy the [Spark Integration Hub K8s charm](https://charmhub.io/spark-integration-hub-k8s) to manage integrations and configure service accounts on Kubernetes.
-
-To deploy it and integrate with the object storage integrator charm:
+Now switch back to the `datalake` model and consume that offer, giving it the local alias `integration-hub`:
 
 ```shell
-juju deploy spark-integration-hub-k8s --channel 3/stable --trust integration-hub
-juju integrate integration-hub s3-integrator
+juju switch datalake
+juju consume spark-tutorial:admin/spark-integration-hub.spark-integration-hub-k8s integration-hub
 ```
 
 ### Authentication database
@@ -82,7 +80,7 @@ juju deploy postgresql-k8s --channel 14/stable --trust auth-db
 
 ### External access
 
-To enable external clients to connect to our lakehouse, we need the [Data Integrator charm](https://charmhub.io/data-integrator):
+To enable external clients to connect to our datalake, we need the [Data Integrator charm](https://charmhub.io/data-integrator):
 
 ```shell
 juju deploy data-integrator --channel latest/stable --config database-name=test
@@ -101,29 +99,31 @@ juju integrate kyuubi-k8s data-integrator
 
 Check the list of charms that have been deployed and their statuses:
 
-```shell
+```bash
 watch -c juju status --relations --color
 ```
+
+<!-- test:await-idle --timeout 1200 -->
 
 Wait until the status to be active for each charm:
 
 ```text
-Model              Controller  Cloud/Region        Version  SLA          Timestamp
-lakehouse          microk8s    microk8s/localhost  3.6.8    unsupported  16:43:19+02:00
+Model              Controller      Cloud/Region        Version  SLA          Timestamp
+datalake           spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:40:00+01:00
 
-App                       Version  Status  Scale  Charm                      Channel        Rev  Address         Exposed  Message
-auth-db                   14.15    active      1  postgresql-k8s             14/stable      495  10.152.183.19   no
-data-integrator                    active      1  data-integrator            latest/stable  181  10.152.183.94   no
-integration-hub                    active      1  spark-integration-hub-k8s  3/stable        67  10.152.183.220  no
-kyuubi-k8s                1.10     active      1  kyuubi-k8s                 3.4/stable     109  10.152.183.84   no
-s3-integrator                      active      1  s3-integrator              1/stable       146  10.152.183.103  no
+App              Version  Status  Scale  Charm            Channel        Rev  Address         Exposed  Message
+auth-db          14.20    active      1  postgresql-k8s   14/stable      774  10.152.183.19   no
+data-integrator           active      1  data-integrator  latest/stable  362  10.152.183.94   no
+kyuubi-k8s       1.10     active      1  kyuubi-k8s       3.4/stable     162  10.152.183.84   no
 
-Unit                         Workload  Agent  Address       Ports  Message
-auth-db/0*                   active    idle   10.1.111.95          Primary
-data-integrator/0*           active    idle   10.1.111.66
-integration-hub/0*           active    idle   10.1.111.101
-kyuubi-k8s/0                 active    idle   10.1.111.80
-s3-integrator/0*             active    idle   10.1.111.77
+Unit                 Workload  Agent  Address       Ports  Message
+auth-db/0*           active    idle   10.1.111.95          Primary
+data-integrator/0*   active    idle   10.1.111.66
+kyuubi-k8s/0         active    idle   10.1.111.80
+
+Remote applications:
+SAAS             Status  Store           URL
+integration-hub  active  spark-tutorial  admin/spark-integration-hub.spark-integration-hub-k8s
 ```
 
 ## Access Charmed Apache Kyuubi K8s
@@ -148,7 +148,7 @@ kyuubi:
   tls: "False"
   uris: jdbc:hive2://10.64.140.43:10009/
   username: relation_id_15
-  version: 1.10.2
+  version: 1.10.3
 ok: "True"
 ```
 
@@ -166,13 +166,13 @@ If you want to generate and upload a sample dataset, feel free to use this [Kyuu
 Use the `spark-client.beeline` command with the credentials from previous command to access 
 the endpoint with the `beeline` JDBC-compliant client:
 
-```shell
+```bash
 spark-client.beeline -u "jdbc:hive2://<endpoints>/" -n <username> -p <password>
 ```
 
 For example, using the data from the previous output example, the command should look like that:
 
-```shell
+```bash
 spark-client.beeline -u "jdbc:hive2://10.64.140.43:10009/" -n relation_id_15 -p 31rwWzk8wpnhoZvU
 ```
 
@@ -185,7 +185,7 @@ Since it's using graphical user interface, we won't run it in a Multipass VM.
 
 Install DBeaver on the host machine (outside of the Multipass VM) by using the [Downloads page](https://dbeaver.io/download/) or the following command:
 
-```shell
+```bash
 sudo snap install dbeaver-ce
 ```
 
@@ -201,7 +201,7 @@ Fill in the following fields:
 * Password -- use the `password`
 
 Now press Finish and then, the Connect button in the horizontal ribbon menu.
-After a successfull connection, you can create and run your SQL queries in the right side of the interface.
+After a successful connection, you can create and run your SQL queries in the right side of the interface.
 
 ## High availability
 
@@ -220,9 +220,13 @@ Scale out the Apache Kyuubi cluster up to three nodes:
 juju scale-application kyuubi-k8s 3
 ```
 
+<!-- test:wait --seconds 60 -->
+
+<!-- test:await-idle --timeout 1200 --allow-blocked kyuubi-k8s -->
+
 Wait for the deployment to complete and check the model status with the `juju status` command.
 The `kyuubi-k8s` units are all in the `blocked` state now, with a message “Missing ZooKeeper integration”.
-That is because multi-node Apache Kyuubi deployments require Apache ZooKeeper for synchronisation.
+That is because multi-node Apache Kyuubi deployments require Apache ZooKeeper for synchronization.
 
 Now, deploy [Apache ZooKeeper K8s](https://charmhub.io/zookeeper-k8s) charm (three nodes, since we want high availability) and integrate it with Apache Kyuubi:
 
@@ -230,6 +234,8 @@ Now, deploy [Apache ZooKeeper K8s](https://charmhub.io/zookeeper-k8s) charm (thr
 juju deploy zookeeper-k8s --channel=3/stable --trust -n 3
 juju integrate kyuubi-k8s zookeeper-k8s
 ```
+
+<!-- test:await-idle --timeout 1200 -->
 
 Wait for the deployment to finish by watching the `juju status` until all workloads are `active` and all agents are `idle`.
 
@@ -244,6 +250,8 @@ To make metadata persistent, configure an external metastore by deploying Charme
 juju deploy postgresql-k8s --trust --channel=14/stable metastore
 juju integrate kyuubi-k8s:metastore-db metastore
 ```
+
+<!-- test:await-idle --timeout 1200 -->
 
 ## Enable TLS encryption
 
@@ -262,6 +270,8 @@ Before enabling TLS on Charmed Apache Kyuubi K8s, deploy the `self-signed-certif
 juju deploy self-signed-certificates --config ca-common-name="Tutorial CA"
 ```
 
+<!-- test:await-idle --timeout 600 -->
+
 Wait for the charm to settle into an `active/idle` state, as shown by the `juju status`.
 
 To enable TLS on Charmed Apache Kyuubi K8s, integrate the `kyuubi-k8s` charm with the `self-signed-certificates` charm:
@@ -269,6 +279,9 @@ To enable TLS on Charmed Apache Kyuubi K8s, integrate the `kyuubi-k8s` charm wit
 ```shell
 juju integrate kyuubi-k8s self-signed-certificates
 ```
+
+<!-- test:wait --seconds 30 -->
+<!-- test:await-idle --timeout 600 -->
 
 After the charms settle into `active/idle` states, the Charmed Apache Kyuubi K8s endpoint should now accept encrypted traffic.
 Requesting the credentials again should now display the certificate:
@@ -311,7 +324,7 @@ kyuubi:
     -----END CERTIFICATE-----
   uris: jdbc:hive2://10.64.140.43:10009/
   username: relation_id_15
-  version: 1.10.2
+  version: 1.10.3
 ok: "True"
 ```
 
@@ -327,13 +340,13 @@ The resulted output should include issuer CN `Tutorial CA`.
 To connect to Charmed Apache Kyuubi K8s using the spark-client's bundled `beeline` client, import the certificate in the spark-client snap:
 
 ```shell
-juju run data-integrator/0 get-credentials | yq ".kyuubi.tls-ca" > cert.pem
-spark-client.import-certificate tutorial-cert cert.pem
+juju run data-integrator/0 get-credentials | yq ".kyuubi.tls-ca" > ~/cert.pem
+spark-client.import-certificate tutorial-cert ~/cert.pem
 ```
 
 Then, add `;ssl=true` to the JDBC endpoint you got from the data-integrator charm, for example:
 
-```shell
+```bash
 spark-client.beeline -u "jdbc:hive2://10.64.140.43:10009/;ssl=true" -n relation_id_15 -p 31rwWzk8wpnhoZvU
 ```
 
@@ -341,3 +354,7 @@ The client should welcome you once again with a prompt where you can run SQL que
 
 Congratulations! You are now connected to Charmed Apache Kyuubi K8s using TLS.
 
+<!-- test:assert
+juju status --format=json | jq -e '.applications."kyuubi-k8s"."application-status".current == "active"'
+juju run data-integrator/0 get-credentials --format=json | jq -e '."data-integrator/0".results.kyuubi.tls == "True"'
+-->

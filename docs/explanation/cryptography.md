@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: "Learn about cryptography practices in Charmed Apache Spark including resource checksums, image verification, and source code integrity."
+---
+
 (explanation-cryptography)=
 # Cryptography
 
@@ -11,7 +17,7 @@ All three charms in the Charmed Apache Spark solution employ pinned revisions of
 * Integration Hub for Apache Spark
 * Charmed Apache Kyuubi
 
-The Spark History Server and Charmed Apache Kyuubi use different flavours of the
+The Spark History Server and Charmed Apache Kyuubi use different flavors of the
 [Charmed Apache Spark Rock image](https://github.com/canonical/charmed-spark-rock/) whereas the Integration Hub for
 Apache Spark uses the [Integration Hub for Apache Spark Rock image](https://github.com/canonical/spark-integration-hub-rock).
 
@@ -65,12 +71,12 @@ All repositories in GitHub are set up with branch protection rules, requiring:
 ## Encryption
 
 The Spark8t Python library client authenticates to the underlying Kubernetes cluster using a variety of authentication
-mechanisms (depending upon how the underlying K8s server is configured) with the use of the Kubeconfig file.
+mechanisms (depending upon how the underlying K8s server is configured) with the use of the `kubeconfig` file.
 The communication between K8s and Spark8t is always encrypted by default with authentication enforced.
 Since Apache Spark Client snap is a wrapper around this library, the communication between the snap and the K8s cluster
 is also authenticated and encrypted.
 
-The Spark8t Python library stores Apache Spark properties as Kubernetes Secrets because these properties may contain
+The Spark8t Python library stores Apache Spark properties as Secret objects because these properties may contain
 credentials like database password, AWS S3 access key, secret keys, etc.
 These are encrypted both at rest and in transit by default by the underlying K8s engine.
 
@@ -117,7 +123,7 @@ directory inside the Apache Kyuubi workload container.
 
 ### Connection with PostgreSQL
 
-Kyuubi Server authenticates to Postgres using username and password that are exchanged using relation data when the two
+Kyuubi Server authenticates to PostgreSQL using username and password that are exchanged using relation data when the two
 applications are integrated. These credentials are stored by Apache Kyuubi in configuration files in the directory
 `/opt/kyuubi/conf` inside the workload container. For more information, see the
 [Apache Kyuubi official documentation](https://kyuubi.readthedocs.io/en/master/security/jdbc.html).
@@ -129,7 +135,7 @@ Azure object storages. Credentials are stored in peer-relation data for S3 Integ
 the Azure Object storage, and they are communicated to other charms (Spark History Server, Integration Hub
 and Apache Kyuubi) via relation databag.
 
-Integration Hub stores the credentials into Kubernetes Secrets to be made available for Spark jobs.
+Integration Hub stores the credentials into Secret objects to be made available for Spark jobs.
 Driver and executors store configuration files (where credential information is stored) unencrypted in `/etc/spark8t/conf`.
 Apache Kyuubi stores credentials in unencrypted configuration files in `/opt/spark/conf`, to be used to configure
 Apache Spark Engine, and `/opt/kyuubi/conf`, to be used to configure the Kyuubi Server.
@@ -151,7 +157,7 @@ Kubernetes substrate is configured.
 
 The Kyuubi Client (aka JDBC Client) can connect with the Kyuubi Server endpoint (aka JDBC endpoint) using
 a pair of username and password provided in the query. Apache Kyuubi charm internally implements this authentication
-by storing the list of users and their passwords stored as plaintext in a PostgreSQL database.
+by storing the list of users and their passwords stored as plain text in a PostgreSQL database.
 For more information about the Kyuubi Client, see the
 [Apache Kyuubi official documentation](https://kyuubi.readthedocs.io/en/master/client/index.html).
 
@@ -160,4 +166,4 @@ For more information about the Kyuubi Client, see the
 The Spark History Server provides authentication integrated using the Canonical Identity Platform in combination
 with a custom design [servlet filter](https://code.launchpad.net/~data-platform/soss/+source/charmed-spark-servlet-filters/+git/charmed-spark-servlet-filters).
 This feature can be enabled by following the steps in the
-[Spark History Server authorisation How-to guide](https://charmhub.io/spark-k8s-bundle/docs/h-history-server-authorization).
+[Spark History Server authorization How-to guide](https://charmhub.io/spark-k8s-bundle/docs/h-history-server-authorization).

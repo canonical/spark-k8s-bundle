@@ -5,7 +5,7 @@ name: Nightly CI tests
 
 on:
   schedule:
-    - cron: "53 0 * * *" # Daily at 00:53 UTC
+    - cron: "53 2 * * *" # Daily at 02:53 UTC
   workflow_dispatch:
   workflow_call:
 
@@ -14,8 +14,8 @@ jobs:
     uses: ./.github/workflows/ci-checks.yaml
 
   integration-tests:
-    name: "${{ matrix.tox-env }}: spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju.agent }} | ${{ matrix.cos-model }}"
-    runs-on: ubuntu-22.04
+    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark-${{ matrix.spark-version }} | ${{ matrix.bundle-backend }} | ${{ matrix.storage-backend }} | juju ${{ matrix.juju.agent }} | ${{ matrix.cos-model }}"
+    runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
     timeout-minutes: 120
     strategy:
       max-parallel: 15
@@ -26,28 +26,39 @@ jobs:
           - integration-kyuubi
           - integration-backup-restore
         bundle-backend: ["yaml", "terraform"]
-        spark-version: ["3.4.4", "3.5.5"]
+        spark-version: ["3.4.4", "3.5.7"]
         storage-backend: ["s3", "azure_storage"]
         cos-model: ["cos"]
-        juju-snap-channel: ["3.5/stable", "3.6/stable"]
+        juju-snap-channel: ["3.6/stable"]
+        k8s-distribution: ["k8s", "microk8s"]
+        k8s-version:
+          - "1.28"
+          - "1.30"
+          - "1.32"
+          - "1.34"
+        exclude:
+          - k8s-distribution: "k8s"
+            k8s-version: "1.30"
+          - k8s-distribution: "k8s"
+            k8s-version: "1.28"
         include:
           # Add juju snap channel and agent version to all matrix combinations
           - juju-snap-channel: "3.5/stable"
             juju-agent-version: "3.5.6"
           - juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.5"
+            juju-agent-version: "3.6.14"
 
           # Test integration-basic, with Spark 3.4
           - tox-env: integration-basic
             spark-version: 3.4.4
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.5"
-      
+            juju-agent-version: "3.6.14"
+
           # Test integration-basic, with Spark 3.5
           - tox-env: integration-basic
-            spark-version: 3.5.5
+            spark-version: 3.5.7
             juju-snap-channel: "3.6/stable"
-            juju-agent-version: "3.6.5"
+            juju-agent-version: "3.6.14"
 
         exclude:
           # Backup / Restore tests only supported on Terraform
@@ -58,11 +69,13 @@ jobs:
       - checks
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Run integration test
         uses: ./.github/actions/run-test
         timeout-minutes: 40
         with:
+          k8s-distribution: ${{ matrix.k8s-distribution }}
+          k8s-version: ${{ matrix.k8s-version }}
           tox-env: ${{ matrix.tox-env }}
           bundle-backend: ${{ matrix.bundle-backend }}
           spark-version: ${{ matrix.spark-version }}
@@ -74,17 +87,16 @@ jobs:
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
           pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || '' }}
 
-
   aggregate-results:
     name: Aggregate Results
     runs-on: ubuntu-22.04
     needs: integration-tests
-    if: always()  
+    if: always()
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: results
       - id: setup-python
@@ -101,7 +113,7 @@ jobs:
         run: python3 .github/scripts/aggregate_results.py results/integration-results-*/matrix-result.json
 
       - name: Upload summary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: matrix-summary
           path: matrix-summary.md

@@ -109,6 +109,12 @@ variable "executor_pod_template" {
   default     = null
 }
 
+variable "integration_hub_monitored_service_accounts" {
+  description = "Comma-separated patterns for namespaces and service accounts to monitor and update"
+  type        = string
+  default     = null
+}
+
 variable "zookeeper_units" {
   description = "Number of zookeeper units. 3 units are recommended for high availability."
   type        = number
@@ -183,6 +189,13 @@ variable "kyuubi_users_image" {
   nullable    = false
 }
 
+variable "kyuubi_users_size" {
+  description = "Storage size for the Kyuubi users database"
+  type        = string
+  default     = "1G"
+}
+
+
 variable "metastore_revision" {
   description = "Charm revision for postgresql-k8s (metastore)"
   type        = number
@@ -195,6 +208,13 @@ variable "metastore_image" {
   nullable    = false
 }
 
+variable "metastore_size" {
+  description = "Storage size for the metastore database"
+  type        = string
+  default     = "10G"
+}
+
+
 variable "zookeeper_revision" {
   description = "Charm revision for zookeeper-k8s"
   type        = number
@@ -206,6 +226,13 @@ variable "zookeeper_image" {
   type        = map(string)
   nullable    = false
 }
+
+variable "zookeeper_size" {
+  description = "Storage size for the zookeeper unit"
+  type        = string
+  default     = "10G"
+}
+
 
 variable "data_integrator_revision" {
   description = "Charm revision for data-integrator"

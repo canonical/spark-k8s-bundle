@@ -65,6 +65,9 @@ setup_pod() {
     MY_KUBE_CONFIG=$(cat ${KUBE_CONFIG_FILE})
     kubectl -n $NAMESPACE exec $POD -- /bin/bash -c 'mkdir -p ~/.kube'
     kubectl -n $NAMESPACE exec $POD -- env KCONFIG="$MY_KUBE_CONFIG" /bin/bash -c 'echo "$KCONFIG" > ~/.kube/config'
+
+    # In Canonical K8s 127.0.0.1:6443 is not reachable within the cluster
+    kubectl -n $NAMESPACE exec $POD -- /bin/bash -c 'sed -i "s/127.0.0.1:6443/${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/g" ~/.kube/config'
   fi
 
   echo ${OUTPUT}:${NAMESPACE}
