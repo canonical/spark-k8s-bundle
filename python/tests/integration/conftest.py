@@ -507,7 +507,11 @@ def spark_bundle(
                 else {}
             ),
             # TODO: Remove this once we use stable risk for Spark 4
-            **({"spark_risk": "edge"} if short_version not in {"3.4", "3.5"} else {}),
+            **(
+                {"spark_risk": "candidate"}
+                if short_version not in {"3.4", "3.5"}
+                else {}
+            ),
         }
     # Merge external Terraform variables
     base_vars.update(tfvars)
