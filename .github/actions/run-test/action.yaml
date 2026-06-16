@@ -39,9 +39,9 @@ inputs:
     default: 3.6/stable
     type: string
   juju-agent-version:
-    description: "The version of the Juju agent to be used"
+    description: "The version of the Juju agent to be used. If empty, the latest version on the channel is used."
     required: false
-    default: 3.6.14
+    default: ""
     type: string
   azure-storage-account:
     description: "The Azure Storage account name to be used for test"
@@ -125,7 +125,7 @@ runs:
         juju-channel: ${{ inputs.juju-snap-channel }}
         provider: microk8s
         channel: "${{ inputs.k8s-version }}-strict/stable"
-        bootstrap-options: "--agent-version 3.6.19"
+        bootstrap-options: ${{ inputs.juju-agent-version != '' && format('--agent-version {0}', inputs.juju-agent-version) || '' }}
         microk8s-group: snap_microk8s
         microk8s-addons: "hostpath-storage rbac dns metallb:10.64.140.43-10.64.140.49"
 
@@ -154,30 +154,17 @@ runs:
         # Set the versions
         yq -i e '.providers.k8s.channel = "${{ inputs.k8s-version }}-classic/stable"' concierge.yaml
         yq -i e '.juju.channel = "${{ inputs.juju-snap-channel }}"' concierge.yaml
-        yq -i e '.juju.agent-version = "3.6.19"' concierge.yaml
+        if [[ -n "${{ inputs.juju-agent-version }}" ]]; then
+          yq -i e '.juju.agent-version = "${{ inputs.juju-agent-version }}"' concierge.yaml
+        fi
 
         sudo concierge prepare --trace
         cd ..
 
-    - name: Patch juju installation
+    - name: Install yq
       shell: bash
       run: |
         sudo snap install yq
-        CONTROLLER_NAME=$(juju controllers --format yaml | yq .current-controller)
-        juju destroy-controller $CONTROLLER_NAME --destroy-storage --no-prompt --destroy-all-models
-        sudo snap refresh juju --revision 33784
-
-    - name: Re-install controller (MicroK8s)
-      shell: bash
-      if: "${{ inputs.k8s-distribution == 'microk8s' }}"
-      run: |
-        sudo -i -u ubuntu juju bootstrap microk8s $CONTROLLER_NAME --agent-version "${{ inputs.juju-agent-version }}"
-
-    - name: Re-install controller (K8s)
-      shell: bash
-      if: "${{ inputs.k8s-distribution == 'k8s' }}"
-      run: |
-        sudo -u ubuntu juju bootstrap k8s $CONTROLLER_NAME --verbose --agent-version "${{ inputs.juju-agent-version }}" --model-default 'logging-config=<root>=INFO; unit=DEBUG' --bootstrap-constraints root-disk=4G
 
     - id: setup-python
       name: Setup Python
