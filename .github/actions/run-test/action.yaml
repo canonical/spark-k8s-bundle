@@ -125,7 +125,7 @@ runs:
         juju-channel: ${{ inputs.juju-snap-channel }}
         provider: microk8s
         channel: "${{ inputs.k8s-version }}-strict/stable"
-        bootstrap-options: "--agent-version 3.6.19"
+        bootstrap-options: ${{ inputs.juju-agent-version != '' && format('--agent-version {0}', inputs.juju-agent-version) || '' }}
         microk8s-group: snap_microk8s
         microk8s-addons: "hostpath-storage rbac dns metallb:10.64.140.43-10.64.140.49"
 
@@ -154,7 +154,9 @@ runs:
         # Set the versions
         yq -i e '.providers.k8s.channel = "${{ inputs.k8s-version }}-classic/stable"' concierge.yaml
         yq -i e '.juju.channel = "${{ inputs.juju-snap-channel }}"' concierge.yaml
-        yq -i e '.juju.agent-version = "3.6.19"' concierge.yaml
+        if [[ -n "${{ inputs.juju-agent-version }}" ]]; then
+          yq -i e '.juju.agent-version = "${{ inputs.juju-agent-version }}"' concierge.yaml
+        fi
 
         sudo concierge prepare --trace
         cd ..
@@ -163,28 +165,6 @@ runs:
       shell: bash
       run: |
         sudo snap install yq
-
-    # Destroying and re-bootstrapping the controller is only needed to pin a
-    # custom juju agent version. When juju-agent-version is empty, the controller
-    # bootstrapped during environment setup is used as-is, avoiding an extra
-    # source of flakiness.
-    - name: Re-install controller with custom agent version (MicroK8s)
-      shell: bash
-      if: "${{ inputs.k8s-distribution == 'microk8s' && inputs.juju-agent-version != '' }}"
-      run: |
-        CONTROLLER_NAME=$(juju controllers --format yaml | yq .current-controller)
-        juju destroy-controller $CONTROLLER_NAME --destroy-storage --no-prompt --destroy-all-models
-        sudo snap refresh juju --revision 33784
-        sudo -i -u ubuntu juju bootstrap microk8s $CONTROLLER_NAME --agent-version "${{ inputs.juju-agent-version }}"
-
-    - name: Re-install controller with custom agent version (K8s)
-      shell: bash
-      if: "${{ inputs.k8s-distribution == 'k8s' && inputs.juju-agent-version != '' }}"
-      run: |
-        CONTROLLER_NAME=$(juju controllers --format yaml | yq .current-controller)
-        juju destroy-controller $CONTROLLER_NAME --destroy-storage --no-prompt --destroy-all-models
-        sudo snap refresh juju --revision 33784
-        sudo -u ubuntu juju bootstrap k8s $CONTROLLER_NAME --verbose --agent-version "${{ inputs.juju-agent-version }}" --model-default 'logging-config=<root>=INFO; unit=DEBUG' --bootstrap-constraints root-disk=4G
 
     - id: setup-python
       name: Setup Python
