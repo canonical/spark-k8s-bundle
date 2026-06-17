@@ -44,7 +44,7 @@ More information about the Juju provider can be found in the
 
 The [Charmed Apache Spark Terraform module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform)
 is a reusable product module, that consists of all charms in the Charmed Apache Spark solution including the integration between
-the charms. In order to use it, create a new file named `main.tf` in a local directory, and use the following Terrform code:
+the charms. In order to use it, create a new file named `main.tf` in a local directory, and use the following Terraform code:
 
 ```hcl
 terraform {
