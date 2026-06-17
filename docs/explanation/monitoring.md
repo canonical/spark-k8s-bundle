@@ -15,8 +15,8 @@ Charmed Apache Spark delivers a comprehensive observability stack which includes
   that provides a UI that allows Apache Spark users (such as Data Scientists and Data Engineers) 
   to analyze the logs of their jobs at a more business level, allowing them to break down a Spark Job into 
   its different parts and stages 
-* **cluster administration monitoring** via integration with the Canonical 
-  Observability Stack (COS) for aggregating raw application metrics,  
+* **cluster administration monitoring** via integration with the Canonical
+  Observability Stack (COS) for aggregating raw application metrics,
   and setting up alerts and dashboards based on resource utilization.
 
 In the following we will describe the architecture and how the different components 

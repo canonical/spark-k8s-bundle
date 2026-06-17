@@ -28,13 +28,6 @@ an S3-compatible object storage on MicroK8s (MinIO), EKS (AWS S3), or Azure obje
 For other backends or K8s distributions other than MinIO on MicroK8s and S3 on EKS
 (e.g. Ceph, Charmed Kubernetes, GKE, etc.), please refer to their documentation.
 
-Charmed Apache Spark supports native integration with the Canonical Observability Stack (COS).
-To enable monitoring on top of Charmed Apache Spark, make sure that you have a Juju model with COS
-correctly deployed. To deploy COS on MicroK8s follow the step-by-step
-[tutorial](https://charmhub.io/topics/canonical-observability-stack/tutorials/install-microk8s)
-or refer to its [documentation](https://charmhub.io/topics/canonical-observability-stack) for more
-information.
-
 ## Preparation
 
 The Charmed Apache Spark bundle is deployed using Terraform, and therefore make sure you have a working Terraform 1.8+ installed in your machine.
@@ -51,9 +44,7 @@ More information about the Juju provider can be found in the
 
 The [Charmed Apache Spark Terraform module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform)
 is a reusable product module, that consists of all charms in the Charmed Apache Spark solution including the integration between
-the charms.
-
-Create a new file named `main.tf` in a local directory, and use the Charmed Apache Spark Terraform module as follows:
+the charms. In order to use it, create a new file named `main.tf` in a local directory, and use the following Terrform code:
 
 ```hcl
 terraform {
@@ -103,7 +94,7 @@ The following table provides the description of the different options:
 | `spark_model_name`   | The name of the Juju model where the bundle is to be deployed                                                                            |
 | `admin_password`   | The password to set for the `admin` user that is used later to connect to Kyuubi   |
 | `tls_private_key` | The private key to be used for generating Kyuubi TLS certificates, provided as base64-encoded string |
-| `kyuubi_config.service-account` | The service account to be created which is used by Kyuubi to run Spark jobs |
+| `kyuubi_config.service-account` | The service account which is used by Kyuubi to run Spark jobs |
 | `storage_backend` | The object storage backend to be used. The backends `s3` and `azure_storage` are supported. |
 | `s3_access_key` | The S3 access key ID |
 | `s3_secret_key` | The S3 secret key |
@@ -111,6 +102,13 @@ The following table provides the description of the different options:
 | `s3_config.region` | The S3 region |
 | `s3_config.bucket` | The name of the S3 bucket to be used |
 | `s3_config.path` | The path inside the S3 bucket to be used |
+
+The following command can be used to generate a new private key and get its base64-encoded value:
+
+```bash
+openssl genrsa -out private.key  2048
+base64 private.key -w0
+```
 
 If you'd wish to use Azure Storage as a storage backend instead, you'd need to configure the Azure Storage specific options, as follows:
 
