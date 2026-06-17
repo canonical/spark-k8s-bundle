@@ -31,11 +31,12 @@ juju add-model kyuubi
 Deploy the Apache Kyuubi charm:
 
 ```bash
-juju deploy kyuubi-k8s --trust --channel=3.5/stable
+juju deploy kyuubi-k8s --trust --channel=3.4/stable
 ```
 
 ```{note}
-We also offer a  `3.4` track to run Apache Spark 3.4 workloads.
+We also offer a `3.5` and `4.0` track to run Apache Spark 3.4 and 4.0 workloads respectively.
+Please make sure to use the correct track for the version of Apache Spark that you'd like to use.
 ```
 
 Open a new terminal window/tab and run the following for a persistent view of the model status:
@@ -71,22 +72,30 @@ Please see the following sections for guidance on how to configure each.
 
 ### S3
 
-For S3-compliant storage, deploy [S3 integrator](https://charmhub.io/s3-integrator):
+For S3-compliant storage, deploy [S3 integrator](https://charmhub.io/s3-integrator) from channel `2/stable`:
 
 ```bash
-juju deploy s3-integrator
+juju deploy s3-integrator --channel 2/stable
+```
+
+Create a Juju secret that contains the S3 access key and secret key, and grant the secret to the `s3-integrator` app.
+Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
+in the next step.
+
+```bash
+juju add-secret s3-creds access-key=<ACCESS-KEY> secret-key=<SECRET-KEY>
+# secret:jem6a4josup6rui0g2q0  <-- make note of this secret URI
+
+juju grant-secret s3-creds s3-integrator
 ```
 
 Configure S3 integrator to use your S3 object storage by setting up endpoint address, bucket, path to folder, and credentials:
 
 ```text
-juju config s3-integrator endpoint=<ADDRESS> bucket=<BUCKET-NAME> path=<FOLDER-NAME>
-juju run s3-integrator/leader sync-s3-credentials access-key=<ACCESS-KEY> secret-key=<SECRET-KEY>
+juju config s3-integrator endpoint=<ADDRESS> bucket=<BUCKET-NAME> path=<FOLDER-NAME> credentials=<SECRET-URI-FROM-PREVIOUS-STEP>
 ```
 
-As a result, the message `ok: Credentials successfully updated.` should appear.
-
-Now it's time to integrate the `s3-integrator` charm:
+Once properly configured, the `s3-integrator` app should go to an active and idle state. Now it's time to integrate the `s3-integrator` charm:
 
 ```bash
 juju integrate s3-integrator spark-integration-hub-k8s
@@ -96,23 +105,27 @@ After that, `kyuubi-k8s` app becomes blocked with the `Missing authentication da
 
 ### Azure DataLake
 
-For Azure DataLake storage, deploy [Azure storage integrator](https://charmhub.io/azure-storage-integrator):
+For Azure DataLake storage, deploy [Azure storage integrator](https://charmhub.io/azure-storage-integrator) from channel `1/stable`:
 
 ```bash
-juju deploy azure-storage-integrator
+juju deploy azure-storage-integrator --channel 1/stable
 ```
 
-Create a Juju secret containing the Azure Storage account secret key, and grant the charm access to this secret.
+Create a Juju secret containing the Azure Storage account secret key, and grant the charm access to this secret. 
+Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
+in the next step.
 
-```text
+```bash
 juju add-secret azure-storage-secret secret-key=XXXXXXX
+# secret:jem6a4josup6rui0g2q0  <-- make note of this secret URI
+
 juju grant-secret azure-storage-secret azure-storage-integrator
 ```
 
 Configure the charm to use the newly added secret (secret id is displayed in the `add-secret` command's output) to access your Azure DataLake storage account and container:
 
-```text
-juju config azure-storage-integrator credentials=<secret-id>
+```bash
+juju config azure-storage-integrator credentials=<secret-id-from-previous-step>
 juju config azure-storage-integrator storage-account=XXXX container=XXXX
 ```
 
@@ -170,7 +183,12 @@ For example, you can use the beeline tool that is a part of the Apache Kyuubi ch
 We recommend deploying a new, dedicated Apache Kyuubi app for that:
 
 ```bash
-juju deploy kyuubi-k8s --channel=3.5/stable --trust beeline
+juju deploy kyuubi-k8s --channel=3.4/stable --trust beeline
+```
+
+```{note}
+Please make sure to use the correct track for the version of Apache Spark that you'd like to use.
+For instance, if you want to use Apache Spark 4.0, you should deploy the charm from track 4.0 instead.
 ```
 
 Wait for the new app to become `blocked`, but don't integrate it to anything.

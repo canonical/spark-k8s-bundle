@@ -34,34 +34,38 @@ Integration Hub for Apache Spark can consume:
 
 ### S3-compatible object storage
 
-To enable integration with an S3-compatible storage, deploy the S3-integrator charm:
+To enable integration with an S3-compatible storage, deploy the S3-integrator charm from channel `2/stable`:
 
 ```shell
-juju deploy s3-integrator --channel 1/stable
+juju deploy s3-integrator --channel 2/stable
 ```
 
-And configure the appropriate parameters via config options, i.e.
+Create a Juju secret that contains the S3 access key and secret key, and grant the secret to the `s3-integrator` app.
+Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
+in the next step.
+
+```bash
+juju add-secret s3-creds access-key=<ACCESS-KEY> secret-key=<SECRET-KEY>
+# secret:jem6a4josup6rui0g2q0  <-- make note of this secret URI
+
+juju grant-secret s3-creds s3-integrator
+```
+
+Now configure the appropriate parameters via config options, i.e.
 
 ```shell
 juju config s3-integrator \
   bucket=<S3_BUCKET> \
   endpoint=<S3_ENDPOINT> \
-  path=spark-events
-```
-
-In the `s3-integrator`, credentials are fed using an action:
-
-```shell
-juju run s3-integrator/leader sync-s3-credentials \
-  access-key=$S3_ACCESS_KEY \
-  secret-key=$S3_SECRET_KEY
+  path=spark-events \
+  credentials=<SECRET_URI_FROM_PREVIOUS_STEP>
 ```
 
 Please refer to the [How-To Setup Environment](how-to-deploy-environment)
 for guidance on how to set up and retrieve the
 different parameters for a MinIO deployed on MicroK8s and AWS S3.
 For more information on how to deploy and configure the `s3-integrator`
-charm refer to the charm documentation.
+charm refer to the [charm documentation](https://github.com/canonical/object-storage-integrator/tree/main/s3/README.md).
 
 Once the `s3-integrator` is set up and in an `idle`/`active` state,
 the Integration Hub for Apache Spark charm can be integrated with
@@ -91,10 +95,10 @@ spark.hadoop.fs.s3a.secret.key=<S3_SECRET_KEY>
 
 ### Azure storage
 
-To enable integration with an Azure storage, deploy the Azure Storage Integrator charm
+To enable integration with an Azure storage, deploy the Azure Storage Integrator charm from channel `1/stable`:
 
 ```shell
-juju deploy azure-storage-integrator --channel edge
+juju deploy azure-storage-integrator --channel 1/stable
 ```
 
 `storage_account` and `container` are provided to the charm using normal configuration, while

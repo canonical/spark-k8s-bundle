@@ -64,12 +64,17 @@ metadata:
   name: testpod
 spec:
   containers:
-  - image: ghcr.io/canonical/charmed-spark:3.4.1-22.04_stable
+  - image: ghcr.io/canonical/charmed-spark:3.4-22.04_stable
     name: spark
     ports:
     - containerPort: 18080
     command: ["sleep"]
     args: ["3600"]
+```
+
+```{note}
+Please make sure to use the correct tag for the version of Apache Spark that you'd like to use.
+For instance, if you want to use Apache Spark 4.0, you should use the image `ghcr.io/canonical/charmed-spark:4.0-22.04_stable` instead.
 ```
 
 Create the pod in the same namespace as the Juju model.
@@ -97,6 +102,11 @@ spark-client.service-account-registry create --username hello --namespace spark-
 spark-client.service-account-registry list
 
 spark-client.pyspark --username hello --namespace spark-streaming --conf spark.executor.instances=1 --conf spark.jars.ivy=/tmp --packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.2.0,org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0
+```
+
+```{note}
+Please make sure to use the correct package for the version of Apache Spark (eg, 3.4.4, 3.5.7, 4.0.2) and Scala (eg, 2.12, 2.13) that you'd like to use.
+Please refer to the Maven repository index for [`spark-streaming-kafka`](https://mvnrepository.com/artifact/org.apache.spark/spark-streaming-kafka-0-10) and [`spark-sql-kafka`](https://mvnrepository.com/artifact/org.apache.spark/spark-sql-kafka-0-10) for the list of different versions.
 ```
 
 Within the `pyspark` shell, now use the credentials retrieved previously to read stream from Apache Kafka.

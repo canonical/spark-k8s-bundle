@@ -40,27 +40,31 @@ After the selection of the object storage, the first step is the create an S3 bu
 First of all, deploy a new instance of S3 Integrator that will be needed to share the credentials with the metastore charm to store the backup.
 
 ```bash
-juju deploy s3-integrator <metastore-backup> --channel 1/stable
+juju deploy s3-integrator <metastore-backup> --channel 2/stable
 ```
 
-Configure it with the bucket name, path and s3 endpoint:
+Create a Juju secret that contains the S3 access key and secret key, and grant the secret to the `s3-integrator` app.
+Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
+in the next step.
+
+```bash
+juju add-secret s3-creds access-key=<ACCESS-KEY> secret-key=<SECRET-KEY>
+# secret:jem6a4josup6rui0g2q0  <-- make note of this secret URI
+
+juju grant-secret s3-creds s3-integrator
+```
+
+Configure `s3-integrator` app with the bucket name, path, s3 endpoint and credentials:
 
 ```bash
 juju config <metastore-backup> \
-bucket=<S3_BUCKET> \
-endpoint=<S3_ENDPOINT> \
-path=<S3_PATH>
+  bucket=<S3_BUCKET> \
+  endpoint=<S3_ENDPOINT> \
+  path=<S3_PATH> \
+  credentials=<SECRET_URI_FROM_PREVIOUS_STEP>
 ```
 
-Configure the access key and secret key in the `<metastore-backup>` using a Juju action:
-
-In the `<metastore-backup>`, credentials are fed using an action:
-
-```bash
-juju run <metastore-backup>/leader sync-s3-credentials \
-access-key=<S3_ACCESS_KEY> \
-secret-key=<S3_SECRET_KEY>
-```
+Once properly configured, the `s3-integrator` app should transition to an active and idle state.
 
 Integrate the metastore charm with this new S3 Integrator configured with the backup credentials and storage information.
 

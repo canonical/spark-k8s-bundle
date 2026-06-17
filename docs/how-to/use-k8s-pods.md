@@ -34,6 +34,11 @@ spec:
   dnsPolicy: Default
 ```
 
+```{note}
+Please make sure to use the correct tag for the version of Apache Spark that you'd like to use.
+For instance, if you want to use Apache Spark 4.0, you should use the image `ghcr.io/canonical/charmed-spark:4.0-22.04_stable` instead.
+```
+
 The pod can be created with the following command:
 
 ```shell
@@ -74,6 +79,13 @@ Or using the snap command (referring practically to the same thing):
 ```shell
 spark-client.spark-submit --username spark --class org.apache.spark.examples.SparkPi local:///opt/spark/examples/jars/spark-examples_2.12-3.3.2.jar 100
 ```
+
+```{note}
+Please make sure to use the correct JAR for the version of Apache Spark and Scala that you'd like to use.
+For instance, if you want to use Apache Spark 4.0.2 (which natively supports Scala 2.13), 
+you should use the JAR `spark-examples_2.13-4.0.2.jar` instead.
+```
+
 
 ## Spark Shell
 

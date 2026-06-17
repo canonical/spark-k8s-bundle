@@ -50,65 +50,188 @@ More information about the Juju provider can be found in the
 [Terraform documentation](https://registry.terraform.io/providers/juju/juju/latest/docs).
 
 The [Charmed Apache Spark Terraform module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform)
-is composed of the following submodules:
+is a reusable product module, that consists of all charms in the Charmed Apache Spark solution including the integration between
+the charms.
 
-* [base module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/modules/spark)
-  that bundles all the base resources of the Charmed Apache Spark solution
-* [cos-integration module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/modules/observability)
-  that bundles all the resources that enable integration with COS
+Create a new file named `main.tf` in a local directory, and use the Charmed Apache Spark Terraform module as follows:
 
-The Charmed Apache Spark Terraform modules can be configured using a `.tfvars.json` file with the following schema:
+```hcl
+terraform {
+  required_version = ">=1.0.0"
 
-```json
-{
-  "s3": {
-    "bucket": "<bucket_name>",
-    "endpoint": "<s3_endpoint>"
-  },
-  "kyuubi_user": "<kyuubi_service_account>",
-  "model": "<juju_model>",
-  "cos_model": "<cos_model>" 
+  required_providers {
+    juju = {
+      source  = "juju/juju"
+      version = ">=1.0.0"
+    }
+  }
+}
+
+module "spark" {
+  source     = "git::https://github.com/canonical/spark-k8s-bundle//terraform/products/charmed-spark-3.4?ref=terraform-cc008"
+
+  history_server_image       = "ghcr.io/canonical/charmed-spark:3.4-22.04_stable"
+  integration_hub_image      = "ghcr.io/canonical/spark-integration-hub:3-22.04_stable"
+  kyuubi_image               = "ghcr.io/canonical/charmed-spark-kyuubi:3.4-22.04_stable"
+
+  spark_model_name           = "spark"
+  admin_password             = "<kyuubi-admin-password>"
+  tls_private_key            = "<base-64-encoded-private-key>"
+  kyuubi_config              = {"service-account": "kyuubi-user"}
+
+  storage_backend            = "s3"
+  s3_access_key              = "<s3-access-key>"
+  s3_secret_key              = "<s3-secret-key>"
+  s3_config                  = {"endpoint": "<s3-endpoint>", "region": "<s3-region>", "bucket": "<s3-bucket>", "path": "spark-events/"}
 }
 ```
 
-The following table provides the description of the different configuration option
+```{caution}
+The example here assumes we want to use Apache Spark 3.4. If you wish to use a different Apache Spark version, please make sure you use
+the correct source of the Terraform module, and also the correct OCI images for `history_server_image` and `kyuubi_image`. For instance, 
+if you'd wish to use Apache Spark 4.0, you would need use the source `charmed-spark-4.0` and specify `history_server_image` and `kyuubi_image`
+as `ghcr.io/canonical/charmed-spark:4.0-22.04_stable` and `ghcr.io/canonical/charmed-spark-kyuubi:4.0-22.04_stable` respectively.
+```
+
+The following table provides the description of the different options:
 
 | key         | Description                                                                                                                           |
 |-------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| `kyuubi_user` | Service Account to be used by Apache Kyuubi Engines (deprecated)                                                                             |
-| `model`       | Namespace where the charms will be deployed. This should correspond to the name of the Juju model to be used.                         |
-| `s3.endpoint` | Endpoint of the S3-compatible object storage backend, in the form of `http(s)//host:port`.                                            |
-| `s3.bucket`   | Name of the S3 bucket to be used for storing logs and data                                                                            |
-| `cos_model`   | (Optional) Name of the model where COS is deployed. If omitted, the resource of the cos-integration submodules will not be deployed   |
+| `history_server_image` | The Apache Spark image to use as workload for Spark History Server charm                                                                             |
+| `integration_hub_image`       | The OCI image to use as workload for Spark Integration Hub charm                         |
+| `kyuubi_image` | The OCI image to use as workload for Kyuubi K8s charm                                            |
+| `spark_model_name`   | The name of the Juju model where the bundle is to be deployed                                                                            |
+| `admin_password`   | The password to set for the `admin` user that is used later to connect to Kyuubi   |
+| `tls_private_key` | The private key to be used for generating Kyuubi TLS certificates, provided as base64-encoded string |
+| `kyuubi_config.service-account` | The service account to be created which is used by Kyuubi to run Spark jobs |
+| `storage_backend` | The object storage backend to be used. The backends `s3` and `azure_storage` are supported. |
+| `s3_access_key` | The S3 access key ID |
+| `s3_secret_key` | The S3 secret key |
+| `s3_config.endpoint` | The S3 endpoint |
+| `s3_config.region` | The S3 region |
+| `s3_config.bucket` | The name of the S3 bucket to be used |
+| `s3_config.path` | The path inside the S3 bucket to be used |
 
-#### Example .tfvars.json
+If you'd wish to use Azure Storage as a storage backend instead, you'd need to configure the Azure Storage specific options, as follows:
 
-For example, to point to the MinIO instance and the right bucket:
+```hcl
+terraform {
+  required_version = ">=1.0.0"
 
-```json
-{
-  "storage_backend": "s3",
-  "s3": {
-    "region": "eu-central-1",
-    "bucket": "spark-test",
-    "endpoint": "http://<host>:80"
+  required_providers {
+    juju = {
+      source  = "juju/juju"
+      version = ">=1.0.0"
+    }
+  }
+}
+
+module "spark" {
+  source     = "git::https://github.com/canonical/spark-k8s-bundle//terraform/products/charmed-spark-3.4?ref=terraform-cc008"
+
+  history_server_image       = "ghcr.io/canonical/charmed-spark:3.4-22.04_stable"
+  integration_hub_image      = "ghcr.io/canonical/spark-integration-hub:3-22.04_stable"
+  kyuubi_image               = "ghcr.io/canonical/charmed-spark-kyuubi:3.4-22.04_stable"
+
+  spark_model_name           = "spark"
+  admin_password             = "<kyuubi-admin-password>"
+  tls_private_key            = "<base-64-encoded-private-key>"
+  kyuubi_config              = {"service-account": "kyuubi-user"}
+
+  storage_backend            = "azure_storage"
+  azure_storage_secret_key   = "<azure-storage-secret-key>"
+  azure_storage_config       = {"container": "<azure-storage-container>", "storage-account": "<azure-storage-account>", "protocol": "<storage-protocol>", "path": "spark-events/"}
+}
+```
+
+The following table provides the description of the Azure Storage specific options:
+
+| key         | Description                                                                                                                           |
+|-------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| `azure_storage_secret_key` | The Azure Storage account secret key |
+| `azure_storage_config.container` | The name of the Azure Storage container to be used |
+| `azure_storage_config.storage-account` | The Azure Storage account to be used |
+| `azure_storage_config.protocol` | The connection protocol to be used. Valid values are `http`, `https`, `abfs`, `abfss`, `wasb` and `wasbs`. |
+| `azure_storage_config.path` | The path inside the Azure Storage container to be used |
+
+The `main.tf` module we just created will not deploy the Canonical Observability Stack (COS) and thus by default the bundle would not have observability enabled.
+To enable observability using COS, add an additional COS module in the same `main.tf` file, and wire it to work with the `spark` module, as follows:
+
+```hcl
+terraform {
+  required_version = ">=1.0.0"
+
+  required_providers {
+    juju = {
+      source  = "juju/juju"
+      version = ">=1.0.0"
+    }
+  }
+}
+
+resource "juju_model" "cos" {
+  name = "cos"
+}
+
+module "cos" {
+  source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=04ab6c618dbbec62292a052a61cdb402d80e5974"
+  model_uuid   = juju_model.cos.uuid
+}
+
+module "spark" {
+  source     = "git::https://github.com/canonical/spark-k8s-bundle//terraform/products/charmed-spark-3.4?ref=terraform-cc008"
+
+  history_server_image       = "ghcr.io/canonical/charmed-spark:3.4-22.04_stable"
+  integration_hub_image      = "ghcr.io/canonical/spark-integration-hub:3-22.04_stable"
+  kyuubi_image               = "ghcr.io/canonical/charmed-spark-kyuubi:3.4-22.04_stable"
+
+  spark_model_name           = "spark"
+  admin_password             = "<kyuubi-admin-password>"
+  tls_private_key            = "<base-64-encoded-private-key>"
+  kyuubi_config              = {"service-account": "kyuubi-user"}
+
+  storage_backend            = "s3"
+  s3_access_key              = "<s3-access-key>"
+  s3_secret_key              = "<s3-secret-key>"
+  s3_config                  = {"endpoint": "<s3-endpoint>", "region": "<s3-region>", "bucket": "<s3-bucket>", "path": "spark-events/"}
+
+  cos_offers                 = {
+    dashboard = module.cos.offers.grafana_dashboards.url
+    logging   = module.cos.offers.loki_logging.url
+    metrics   = module.cos.offers.prometheus_receive_remote_write.url
   }
 }
 ```
 
-For more information on this particular example, see the [microK8s MinIO demo](https://github.com/deusebio/datawarehousing-with-spark/blob/main/docs/microk8s_minio.md). For other examples, see the [repository](https://github.com/deusebio/datawarehousing-with-spark/blob/main/README.md).
+The added section creates a new Juju model named `cos`, deploys COS in that model, and the `grafana_dashboards`, `loki_logging` and `prometheus_receive_remote_write` offers are provided as `cos_offers` to the `spark` module.
 
-```{caution}
-The Juju Terraform provider does not yet support cross-controller relations with COS.
-Therefore, COS model must be hosted in the same controller as the Charmed Apache Spark model. 
-```
+For the full list of input configurations supported, and the reference of the Charmed Apache Spark Teform bundle, please refer to the README corresponding to the product module in [`spark-k8s-bundle` repository](https://github.com/canonical/spark-k8s-bundle/tree/terraform-cc008/terraform/products).
 
 ## Deploy
 
-To deploy Charmed Apache Spark using Terraform, use standard TF syntax:
+To deploy Charmed Apache Spark using Terraform, first initialize the terraform modules. To do so, run the following command while being on the directory which contains the `main.tf` file you created in the previous step.
 
-* `terraform init` in order to initialize the modules
-* `terraform apply -var-file=<.tfvars.json_filename>`
-* `terraform destroy -var-file=<.tfvars.json_filename>`
+```shell
+terraform init
+```
+
+Once the terraform modules are initialized, deploy the solution with the following command:
+
+```shell
+terraform apply
+```
+
+Once prompted with the Terraform plan, verify the plan and type "yes" in the prompt. The deployment will then begin and take some time. Once the deployment completes, verify the deployment with the `juju status` command as follows:
+
+```shell
+# for charms in the spark model
+juju switch spark
+juju status
+
+# for charms in the cos model (if you deployed with COS)
+juju status --model cos
+```
+
+Once everything settles to idle, you may test connection with Kyuubi using [this section of documentation on Charmed Apache Kyuubi](kyuubi.md#connect). Please note that most of the charms and integrations in that section of documentation are already deployed alongside the bundle, in which case you can skip deploying / integrating them.
 
 For more information about Terraform, please refer to the [official docs](https://developer.hashicorp.com/terraform/docs).
