@@ -106,7 +106,7 @@ spark-client.pyspark --username hello --namespace spark-streaming --conf spark.e
 
 ```{note}
 Please make sure to use the correct package for the version of Apache Spark (eg, 3.4.4, 3.5.7, 4.0.2) and Scala (eg, 2.12, 2.13) that you'd like to use.
-Please refer to the Maven repository index for [`spark-streaming-kafka`](https://central.sonatype.com/search?q=spark-streaming-kafka-0-10) and [`spark-sql-kafka`](https://central.sonatype.com/search?q=spark-sql-kafka-0-10) for the list of different versions.
+Please refer to the Sonatype query page for [`spark-streaming-kafka`](https://central.sonatype.com/search?q=spark-streaming-kafka-0-10) and [`spark-sql-kafka`](https://central.sonatype.com/search?q=spark-sql-kafka-0-10) for the list of different versions.
 ```
 
 Within the `pyspark` shell, now use the credentials retrieved previously to read stream from Apache Kafka.
