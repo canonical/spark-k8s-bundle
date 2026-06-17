@@ -18,24 +18,12 @@ Once COS is correctly deployed, to enable monitoring it is necessary to:
 2. Configure the Apache Spark service account
 3. (Optional) Integrate the optional components of Charmed Apache Spark (such as the Spark History Server charm and Charmed Apache Kyuubi) with COS
 
-## Integrating/configuring with COS
+## Integrating and configuring with COS
 
-The Charmed Apache Spark solution already bundles all the components required to integrate
-COS as well as to configure the monitoring artifacts.
+The Charmed Apache Spark solution can integrate with the Canonical Observability Stack (COS) natively, providing all the built-in configurations required to monitor your Spark workloads. The solution also includes charms like `grafana-agent-k8s`, `prometheus-pushgateway-k8s`, `prometheus-scrape-config-k8s`, `cos-configuration-k8s` that are necessary to integrate Charmed Spark with COS.
+The actual COS bundle however, is not deployed alongside Charmed Spark, and thus needs to be deployed and integrated separately.
 
-The deployments of these resources can be enabled/disabled using either overlays
-(for Juju bundles) or input variables (for Terraform bundles).
-Please refer to the [how-to deploy](how-to-deploy-spark) guide for more information.
-
-The monitoring components (`grafana-agent-k8s`, `prometheus-pushgateway-k8s`,
-`prometheus-scrape-config-k8s`, `cos-configuration-k8s`) and their integrations
-are included in the [COS overlay](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/yaml/overlays/cos-integration.yaml.j2)
-for Juju bundles or deployed automatically when `cos_model` is set in the Terraform module.
-See the [how-to deploy](how-to-deploy-spark) guide for details.
-
-If you are not using the overlay or Terraform module, you can inspect the
-[COS overlay YAML](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/yaml/overlays/cos-integration.yaml.j2)
-for the full list of charms and relations to deploy manually.
+To deploy the Canoincal Observability Stack (COS), you must use the [COS Lite Terraform module](https://github.com/canonical/observability-stack/tree/main/terraform/cos-lite) maintained by Canonical's Observability team. This module packages the core monitoring components alongside their required integrations, including charms like `grafana-k8s`, `prometheus-k8s`, `alertmanager-k8s`, `loki-k8s` and many more. For step-by-step instructions on provisioning these resources, please refer to the [how-to deploy](./deploy/spark.md) guide.
 
 After the deployment settles on an `active/idle` state, you can make sure that
 Grafana is correctly set up with dedicated dashboards.
