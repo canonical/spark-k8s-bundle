@@ -203,7 +203,7 @@ module "spark" {
 
 The added section creates a new Juju model named `cos`, deploys COS in that model, and the `grafana_dashboards`, `loki_logging` and `prometheus_receive_remote_write` offers are provided as `cos_offers` to the `spark` module.
 
-For the full list of input configurations supported, and the reference of the Charmed Apache Spark Teform bundle, please refer to the README corresponding to the product module in [`spark-k8s-bundle` repository](https://github.com/canonical/spark-k8s-bundle/tree/terraform-cc008/terraform/products).
+For the full list of input configurations supported, and the reference of the Charmed Apache Spark Terraform bundle, please refer to the README corresponding to the product module in [`spark-k8s-bundle` repository](https://github.com/canonical/spark-k8s-bundle/tree/terraform-cc008/terraform/products).
 
 ## Deploy
 

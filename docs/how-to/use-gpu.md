@@ -55,4 +55,4 @@ For instance, if you want to use Apache Spark 4.0, you should use the image `ghc
 The Apache Spark configuration options can also be set at the service account level using the Spark Client snap to use them on every job. Please refer to the [guide](https://discourse.charmhub.io/t/spark-client-snap-how-to-manage-spark-accounts/8959) on how to manage options at the service account level. To have more information on how the Apache Spark Client manages configuration options please refer to the [explanation section](https://discourse.charmhub.io/t/spark-client-snap-explanation-hierarchical-configuration-handling/8956). 
 
 The options above are the minimal set that is needed to enable the Apache Spark Rapids plugin. 
-For more information on available options, see the [full list](https://nvidia.github.io/spark-rapids/docs/configs.html).
+For more information on available options, please refer to the official [NVIDIA Spark RAPIDS documentation](https://docs.nvidia.com/spark-rapids/user-guide/latest/overview.html).
