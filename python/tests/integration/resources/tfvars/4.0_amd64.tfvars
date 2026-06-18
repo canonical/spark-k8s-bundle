@@ -1,5 +1,5 @@
 history_server_revision  = 113 # 4.0/candidate TODO: Use stable revision
-integration_hub_revision = 132 # 3/edge        TODO: Use stable revision
+integration_hub_revision = 132 # 3/beta        TODO: Use stable revision
 kyuubi_revision          = 171 # 4.0/candidate TODO: Use stable revision
 kyuubi_users_revision    = 774 # 14/stable
 metastore_revision       = 774 # 14/stable
