@@ -1,6 +1,6 @@
 # Kyuubi component terraform module
 
-The Kyuubi component manages the Kyuubi SQL engine charm with all necessary integrations for use in conjunction with the spark-core module.
+Manages the Kyuubi SQL engine charm with all necessary integrations for use in conjunction with the spark-core module.
 
 ## Module reference
 
@@ -22,16 +22,16 @@ The kyuubi component module provides a complete deployment of the Kyuubi SQL eng
 **Risk Channel:**
 - `risk`: Component's charms risk channel (default: "stable")
 
+**Module Dependencies:**
+- `model_uuid`: Reference to an existing model uuid (required)
+
 **External Integrations:**
+- `spark_service_account`: External integration for the Spark service account (integration hub) application (required)
 - `certificates`: External integration for the certificate provider application (required)
 - `data_integrator`: External integration for the data-integrator application (required)
 - `metastore`: External integration for the metastore (postgresql-k8s) application (required)
 - `users_db`: External integration for the Kyuubi users database (postgresql-k8s) application (required)
 - `zookeeper`: External integration for the ZooKeeper application (required)
-
-**Module Dependencies:**
-- `model_uuid`: Reference to an existing model uuid (required)
-- `spark_core`: The spark-core module outputs providing access to the integration hub application (optional)
 
 ### Outputs
 
