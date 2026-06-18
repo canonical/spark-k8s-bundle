@@ -232,6 +232,6 @@ juju status
 juju status --model cos
 ```
 
-Once everything settles to idle, you may test connection with Kyuubi using [this section of documentation on Charmed Apache Kyuubi](kyuubi.md#connect). Please note that most of the charms and integrations in that section of documentation are already deployed alongside the bundle, in which case you can skip deploying / integrating them.
+Once everything settles to idle, you may test connection with Kyuubi using [this section of documentation on Charmed Apache Kyuubi](./kyuubi.md#connect). Please note that most of the charms and integrations in that section of documentation are already deployed alongside the bundle, in which case you can skip deploying / integrating them.
 
 For more information about Terraform, please refer to the [official docs](https://developer.hashicorp.com/terraform/docs).
