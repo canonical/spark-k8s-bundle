@@ -1,6 +1,6 @@
 # Spark-Core component terraform module
 
-Bundles the following charms:
+The `spark-core` component bundles the following charms:
 - Spark History Server
 - Spark Integration Hub
 

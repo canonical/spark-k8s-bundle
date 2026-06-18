@@ -1,6 +1,6 @@
 # Kyuubi component terraform module
 
-Manages the Kyuubi SQL engine charm with all necessary integrations for use in conjunction with the spark-core module.
+The Kyuubi component manages the Kyuubi SQL engine charm with all necessary integrations for use in conjunction with the spark-core module.
 
 ## Module reference
 
