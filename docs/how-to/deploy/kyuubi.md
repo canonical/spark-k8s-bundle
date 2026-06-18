@@ -91,7 +91,7 @@ juju grant-secret s3-creds s3-integrator
 
 Configure S3 integrator to use your S3 object storage by setting up endpoint address, bucket, path to folder, and credentials:
 
-```text
+```bash
 juju config s3-integrator endpoint=<ADDRESS> bucket=<BUCKET-NAME> path=<FOLDER-NAME> credentials=<SECRET-URI-FROM-PREVIOUS-STEP>
 ```
 

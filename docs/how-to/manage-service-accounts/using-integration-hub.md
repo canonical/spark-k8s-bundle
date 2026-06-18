@@ -44,7 +44,7 @@ Create a Juju secret that contains the S3 access key and secret key, and grant t
 Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
 in the next step.
 
-```bash
+```shell
 juju add-secret s3-creds access-key=<ACCESS-KEY> secret-key=<SECRET-KEY>
 # secret:jem6a4josup6rui0g2q0  <-- make note of this secret URI
 
