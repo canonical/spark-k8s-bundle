@@ -5,9 +5,8 @@
 output "offers" {
   description = "The name and url of the various offers being exposed"
   value = merge(
-    concat(
-      module.spark[*].offers
-    )...
+    module.spark_core.offers,
+    module.kyuubi.offers,
   )
 }
 
@@ -26,7 +25,8 @@ output "models" {
     spark = {
       model_uuid = local.model_uuid
       components = merge(
-        module.spark.components,
+        module.spark_core.components,
+        module.kyuubi.components,
         {
           zookeeper = module.zookeeper.application
         },
