@@ -31,6 +31,7 @@ resource "juju_integration" "kyuubi_users_db" {
   }
 }
 
+
 resource "juju_integration" "kyuubi_service_account" {
   model_uuid = var.model_uuid
 
@@ -40,8 +41,9 @@ resource "juju_integration" "kyuubi_service_account" {
   }
 
   application {
-    name     = juju_application.integration_hub.name
-    endpoint = "spark-service-account"
+    name      = var.spark_service_account.kind == "endpoint" ? var.spark_service_account.name : null
+    endpoint  = var.spark_service_account.kind == "endpoint" ? var.spark_service_account.endpoint : null
+    offer_url = var.spark_service_account.kind == "offer" ? var.spark_service_account.url : null
   }
 }
 
@@ -87,36 +89,5 @@ resource "juju_integration" "kyuubi_data_integrator" {
     name      = var.data_integrator.kind == "endpoint" ? var.data_integrator.name : null
     endpoint  = var.data_integrator.kind == "endpoint" ? var.data_integrator.endpoint : null
     offer_url = var.data_integrator.kind == "offer" ? var.data_integrator.url : null
-  }
-}
-
-resource "juju_integration" "integration_hub_object_storage" {
-  model_uuid = var.model_uuid
-
-  application {
-    name     = juju_application.integration_hub.name
-    endpoint = var.object_storage_interface
-  }
-
-  application {
-
-    name      = var.object_storage.kind == "endpoint" ? var.object_storage.name : null
-    endpoint  = var.object_storage.kind == "endpoint" ? var.object_storage.endpoint : null
-    offer_url = var.object_storage.kind == "offer" ? var.object_storage.url : null
-  }
-}
-
-resource "juju_integration" "history_server_object_storage" {
-  model_uuid = var.model_uuid
-
-  application {
-    name     = juju_application.history_server.name
-    endpoint = var.object_storage_interface
-  }
-
-  application {
-    name      = var.object_storage.kind == "endpoint" ? var.object_storage.name : null
-    endpoint  = var.object_storage.kind == "endpoint" ? var.object_storage.endpoint : null
-    offer_url = var.object_storage.kind == "offer" ? var.object_storage.url : null
   }
 }
