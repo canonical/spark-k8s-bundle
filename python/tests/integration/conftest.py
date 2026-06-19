@@ -507,7 +507,7 @@ def spark_bundle(
                 else {}
             ),
             # TODO: Remove this once we have charms in stable
-            "spark_risk": "beta" if short_version in {"3.4", "3.5"} else "candidate",
+            "spark_risk": "candidate",
         }
     # Merge external Terraform variables
     base_vars.update(tfvars)
