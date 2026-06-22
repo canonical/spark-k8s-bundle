@@ -46,13 +46,13 @@ module "cos" {
 
 
 module "spark" {
-  source                	= "git::https://github.com/canonical/spark-k8s-bundle//releases/3.4/terraform"
-  model                 	= "spark"
-  create_model              = true
-  K8S_CLOUD                 = var.K8S_CLOUD
-  K8S_CREDENTIAL            = var.K8S_CREDENTIAL
-  storage_backend           = "azure_storage"
-  azure_storage             = {
+  source          = "git::https://github.com/canonical/spark-k8s-bundle//releases/3.4/terraform"
+  model           = "spark"
+  create_model    = true
+  K8S_CLOUD       = var.K8S_CLOUD
+  K8S_CREDENTIAL  = var.K8S_CREDENTIAL
+  storage_backend = "azure_storage"
+  azure_storage = {
     container       = azurerm_storage_container.storagecontainer.name
     storage_account = azurerm_storage_account.storageaccount.name
     secret_key      = azurerm_storage_account.storageaccount.primary_access_key
@@ -60,10 +60,10 @@ module "spark" {
   }
   cos = {
     deployed = "external"
-    offers={
-      dashboard=module.cos.dashboards_offer,
-      metrics=module.cos.metrics_offer,
-      logging=module.cos.logging_offer
+    offers = {
+      dashboard = module.cos.dashboards_offer,
+      metrics   = module.cos.metrics_offer,
+      logging   = module.cos.logging_offer
     }
   }
 }

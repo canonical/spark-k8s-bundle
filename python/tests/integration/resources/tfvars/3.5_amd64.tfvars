@@ -16,6 +16,6 @@ integration_hub_image = "ghcr.io/canonical/spark-integration-hub@sha256:a0439da3
 kyuubi_image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:252630d980d857e845cba401afc7e4af68799c2d96b411dd8366f00e132e7454"
 # rev21, spark-version: 3.5.7, kyuubi-version: 1.10.3, release date 22/04/2026
 
-kyuubi_users_image = 184    # 14/stable, rev774
-metastore_image    = 184    # 14/stable, rev774
-zookeeper_image    = 34     # 3/stable, rev78
+kyuubi_users_image = 184 # 14/stable, rev774
+metastore_image    = 184 # 14/stable, rev774
+zookeeper_image    = 34  # 3/stable, rev78
