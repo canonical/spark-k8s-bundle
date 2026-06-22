@@ -67,21 +67,38 @@ The `spark-history-server-k8s` charm from track `3` supports Apache Spark 3.4 an
 ```
 
 The Apache Spark History Server needs to connect to the S3 bucket for it to be able to read the logs.
-The credentials for this connection are provided to the Spark History Server charm by the [`s3-integrator`](https://github.com/canonical/s3-integrator) charm. 
-Deploy the `s3-integrator` charm, configure it, set the credentials, and integrate with `spark-history-server-k8s`:
+The credentials for this connection are provided to the Spark History Server charm by the [`s3-integrator`](https://github.com/canonical/object-storage-integrator/tree/main/s3) charm. 
+
+Deploy the `s3-integrator` charm from channel `2/stable`:
 
 ```shell
-juju deploy s3-integrator
-juju config s3-integrator bucket=spark-tutorial path="spark-events" endpoint=http://$S3_ENDPOINT
+juju deploy s3-integrator --channel 2/stable
 ```
 
-<!-- test:await-idle --timeout 600 --allow-blocked s3-integrator,spark-history-server-k8s -->
+Create a Juju secret that contains the S3 access key and secret key, and grant the secret to the `s3-integrator` app.
+Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
+in the next step.
 
-Wait a minute for the `s3-integrator` charm to deploy correctly before finishing the setup:
+```bash
+juju add-secret s3-creds access-key=<ACCESS-KEY> secret-key=<SECRET-KEY>
+# secret:jem6a4josup6rui0g2q0  <-- make note of this secret URI
+
+juju grant-secret s3-creds s3-integrator
+```
+
+Configure S3 integrator to use your S3 object storage by setting up endpoint address, bucket, path to folder, and credentials (make sure to pass the secret URI from previous step in place of `$SECRET_URI`):
+
+<!-- test:run
+export SECRET_URI=$(juju show-secret s3creds | yq 'keys | .[0]')
+-->
 
 ```shell
-juju run s3-integrator/leader sync-s3-credentials \
-  access-key=$ACCESS_KEY secret-key=$SECRET_KEY
+juju config s3-integrator bucket=spark-tutorial path="spark-events" endpoint=http://$S3_ENDPOINT credentials=$SECRET_URI
+```
+
+Once properly configured, the `s3-integrator` app should go to an active and idle state. Now it's time to integrate the `s3-integrator` charm:
+
+```shell
 juju integrate s3-integrator spark-history-server-k8s
 ```
 
@@ -94,7 +111,7 @@ Model           Controller      Cloud/Region        Version  SLA          Timest
 history-server  spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:28:10+01:00
 
 App                       Version  Status  Scale  Charm                     Channel     Rev  Address        Exposed  Message
-s3-integrator                      active      1  s3-integrator             1/stable    330  10.152.183.99  no       
+s3-integrator                      active      1  s3-integrator             2/stable    544  10.152.183.99  no       
 spark-history-server-k8s           active      1  spark-history-server-k8s  3.4/stable   46  10.152.183.71  no       
 
 Unit                         Workload  Agent  Address       Ports  Message

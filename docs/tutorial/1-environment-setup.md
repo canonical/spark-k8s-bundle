@@ -488,7 +488,7 @@ Deploy the Integration Hub charm and an `s3-integrator` charm to supply it with 
 ```shell
 juju deploy spark-integration-hub-k8s --channel 3/stable --trust
 juju config spark-integration-hub-k8s monitored-service-accounts="*:*"
-juju deploy s3-integrator --channel 1/stable
+juju deploy s3-integrator --channel 2/stable
 juju config s3-integrator bucket=spark-tutorial path=spark-events endpoint=http://$S3_ENDPOINT
 ```
 
@@ -498,11 +498,32 @@ The `spark-integration-hub-k8s` charm from the track `3` can be used for all of 
 
 <!-- test:await-idle --timeout 600 --allow-blocked s3-integrator -->
 
-The `s3-integrator` will remain in `blocked` state until S3 credentials are provided. Set the credentials first, then integrate:
+The `s3-integrator` will remain in `blocked` state until S3 credentials are provided. 
+
+Create a Juju secret that contains the S3 access key and secret key, and grant the secret to the `s3-integrator` app.
+Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
+in the next step.
+
+```bash
+juju add-secret s3-creds access-key=<ACCESS-KEY> secret-key=<SECRET-KEY>
+# secret:jem6a4josup6rui0g2q0  <-- make note of this secret URI
+
+juju grant-secret s3-creds s3-integrator
+```
+
+Configure S3 integrator to use your S3 object storage by setting up the credentials (make sure to pass the secret URI from previous step in place of `$SECRET_URI`):
+
+<!-- test:run
+export SECRET_URI=$(juju show-secret s3creds | yq 'keys | .[0]')
+-->
 
 ```shell
-juju run s3-integrator/leader sync-s3-credentials \
-  access-key=$ACCESS_KEY secret-key=$SECRET_KEY
+juju config s3-integrator credentials=$SECRET_URI
+```
+
+And finally, integrate `s3-integrator` with `spark-integration-hub-k8s` charm:
+
+```shell
 juju integrate s3-integrator spark-integration-hub-k8s
 ```
 
