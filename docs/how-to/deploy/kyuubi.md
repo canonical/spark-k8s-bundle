@@ -35,7 +35,7 @@ juju deploy kyuubi-k8s --trust --channel=3.4/stable
 ```
 
 ```{note}
-We also offer a `3.5` and `4.0` track to run Apache Spark 3.4 and 4.0 workloads respectively.
+We also offer a `3.5` and `4.0` track to run Apache Spark 3.5 and 4.0 workloads respectively.
 Please make sure to use the correct track for the version of Apache Spark that you'd like to use.
 ```
 
