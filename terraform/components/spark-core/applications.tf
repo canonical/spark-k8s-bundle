@@ -33,20 +33,3 @@ resource "juju_application" "integration_hub" {
   trust       = true
   units       = var.integration_hub.units
 }
-
-resource "juju_application" "kyuubi" {
-  name       = var.kyuubi.app_name
-  model_uuid = var.model_uuid
-
-  charm {
-    name     = "kyuubi-k8s"
-    channel  = "${var.kyuubi.track}/${var.risk}"
-    revision = var.kyuubi.revision
-  }
-
-  config      = var.kyuubi.config
-  constraints = var.kyuubi.constraints
-  resources   = var.kyuubi.resources
-  trust       = true
-  units       = var.kyuubi.units
-}

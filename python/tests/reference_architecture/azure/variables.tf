@@ -29,19 +29,19 @@ variable "K8S_CREDENTIAL" {
 }
 
 variable "AZURE_RESOURCE_GROUP" {
-  type = string
+  type        = string
   description = "Name of the resource group to be created for the Azure Blob storage"
-  default = "TestSparkAKS"
+  default     = "TestSparkAKS"
 }
 
 variable "AZURE_REGION" {
-  type = string
+  type        = string
   description = "Location to be used for Azure Blob Storage deployment"
-  default = "East US"
+  default     = "East US"
 }
 
 variable "AZURE_STORAGE_ACCOUNT" {
-  type = string
+  type        = string
   description = "Name for the storage account to be used for the Azure Blob Storage"
-  default = "sparktestaks"
+  default     = "sparktestaks"
 }
