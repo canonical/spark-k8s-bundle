@@ -289,7 +289,7 @@ Please note that we need to specify a few extra packages to interact with Apache
 spark-client.spark-submit \
     --username spark --namespace spark-streaming \
     --deploy-mode cluster \
-    --packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.4.4,org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.4 \
+    --packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.5.8,org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.8 \
     s3a://spark-tutorial/spark_streaming.py \
         --kafka-endpoint $KAFKA_ENDPOINT \
         --kafka-username $KAFKA_USERNAME \
@@ -298,7 +298,7 @@ spark-client.spark-submit \
 ```
 
 ```{note}
-Please make sure to use the correct package for the version of Apache Spark (eg, 3.4.4, 3.5.7, 4.0.2) and Scala (eg, 2.12, 2.13) that you'd like to use.
+Please make sure to use the correct package for the version of Apache Spark (eg, 3.4.4, 3.5.8, 4.0.2) and Scala (eg, 2.12, 2.13) that you'd like to use.
 Please refer to the Sonatype query page for [`spark-streaming-kafka`](https://central.sonatype.com/search?q=spark-streaming-kafka-0-10) and [`spark-sql-kafka`](https://central.sonatype.com/search?q=spark-sql-kafka-0-10) for the list of different versions.
 ```
 

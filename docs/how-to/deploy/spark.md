@@ -42,7 +42,7 @@ Terraform modules make use of the Terraform Juju provider.
 More information about the Juju provider can be found in the
 [Terraform documentation](https://registry.terraform.io/providers/juju/juju/latest/docs).
 
-The [Charmed Apache Spark Terraform module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform)
+The [Charmed Apache Spark Terraform module](https://github.com/canonical/spark-k8s-bundle/tree/main/terraform/products/charmed-spark-3.5)
 is a reusable product module, that consists of all charms in the Charmed Apache Spark solution including the integration between
 the charms. In order to use it, create a new file named `main.tf` in a local directory, and use the following Terraform code:
 
@@ -59,11 +59,11 @@ terraform {
 }
 
 module "spark" {
-  source     = "git::https://github.com/canonical/spark-k8s-bundle//terraform/products/charmed-spark-3.4?ref=terraform-cc008"
+  source     = "git::https://github.com/canonical/spark-k8s-bundle//terraform/products/charmed-spark-3.5?ref=terraform-cc008"
 
-  history_server_image       = "ghcr.io/canonical/charmed-spark:3.4-22.04_stable"
+  history_server_image       = "ghcr.io/canonical/charmed-spark:3.5-22.04_stable"
   integration_hub_image      = "ghcr.io/canonical/spark-integration-hub:3-22.04_stable"
-  kyuubi_image               = "ghcr.io/canonical/charmed-spark-kyuubi:3.4-22.04_stable"
+  kyuubi_image               = "ghcr.io/canonical/charmed-spark-kyuubi:3.5-22.04_stable"
 
   spark_model_name           = "spark"
   admin_password             = "<kyuubi-admin-password>"
@@ -78,7 +78,7 @@ module "spark" {
 ```
 
 ```{caution}
-The example here assumes we want to use Apache Spark 3.4. If you wish to use a different Apache Spark version, please make sure you use
+The example here assumes we want to use Apache Spark 3.5. If you wish to use a different Apache Spark version, please make sure you use
 the correct source of the Terraform module, and also the correct OCI images for `history_server_image` and `kyuubi_image`. For instance, 
 if you'd wish to use Apache Spark 4.0, you would need use the source `charmed-spark-4.0` and specify `history_server_image` and `kyuubi_image`
 as `ghcr.io/canonical/charmed-spark:4.0-22.04_stable` and `ghcr.io/canonical/charmed-spark-kyuubi:4.0-22.04_stable` respectively.
@@ -125,11 +125,11 @@ terraform {
 }
 
 module "spark" {
-  source     = "git::https://github.com/canonical/spark-k8s-bundle//terraform/products/charmed-spark-3.4?ref=terraform-cc008"
+  source     = "git::https://github.com/canonical/spark-k8s-bundle//terraform/products/charmed-spark-3.5?ref=terraform-cc008"
 
-  history_server_image       = "ghcr.io/canonical/charmed-spark:3.4-22.04_stable"
+  history_server_image       = "ghcr.io/canonical/charmed-spark:3.5-22.04_stable"
   integration_hub_image      = "ghcr.io/canonical/spark-integration-hub:3-22.04_stable"
-  kyuubi_image               = "ghcr.io/canonical/charmed-spark-kyuubi:3.4-22.04_stable"
+  kyuubi_image               = "ghcr.io/canonical/charmed-spark-kyuubi:3.5-22.04_stable"
 
   spark_model_name           = "spark"
   admin_password             = "<kyuubi-admin-password>"
@@ -179,11 +179,11 @@ module "cos" {
 }
 
 module "spark" {
-  source     = "git::https://github.com/canonical/spark-k8s-bundle//terraform/products/charmed-spark-3.4?ref=terraform-cc008"
+  source     = "git::https://github.com/canonical/spark-k8s-bundle//terraform/products/charmed-spark-3.5?ref=terraform-cc008"
 
-  history_server_image       = "ghcr.io/canonical/charmed-spark:3.4-22.04_stable"
+  history_server_image       = "ghcr.io/canonical/charmed-spark:3.5-22.04_stable"
   integration_hub_image      = "ghcr.io/canonical/spark-integration-hub:3-22.04_stable"
-  kyuubi_image               = "ghcr.io/canonical/charmed-spark-kyuubi:3.4-22.04_stable"
+  kyuubi_image               = "ghcr.io/canonical/charmed-spark-kyuubi:3.5-22.04_stable"
 
   spark_model_name           = "spark"
   admin_password             = "<kyuubi-admin-password>"

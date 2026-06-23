@@ -15,7 +15,7 @@ the [How-to deploy guide](how-to-deploy-spark). Alternatively, you can also depl
 Integration Hub for Apache Spark charm standalone by running the following command:
 
 ```shell
-juju deploy spark-integration-hub-k8s --channel edge -n1
+juju deploy spark-integration-hub-k8s --channel 3/stable -n1
 ```
 
 Once deployed, the Integration Hub for Apache Spark will automatically manage the properties for all the service

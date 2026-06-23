@@ -184,12 +184,12 @@ For Apache Spark jobs to be running run on top of Kubernetes, a set of resources
 To simplify this task, the Charmed Apache Spark solution offers the `spark-client` snap. Install the snap:
 
 ```shell
-sudo snap install spark-client --channel 3.4/stable
+sudo snap install spark-client --channel 3.5/stable
 ```
 
 ```{note}
-The `spark-client` snap from track `3.4` is supposed to be used for running Spark jobs using Apache Spark 3.4. 
-Please use tracks `3.5` or `4.0` for Apache Spark 3.5 and 4.0 respectively.
+The `spark-client` snap from track `3.5` is supposed to be used for running Spark jobs using Apache Spark 3.5. 
+Please use tracks `4.0` or `3.4` for Apache Spark 4.0 and 3.4 respectively.
 ```
 
 Let's create a Kubernetes namespace for us to use as a playground in this tutorial.
@@ -251,10 +251,10 @@ Welcome to
       ____              __
      / __/__  ___ _____/ /__
     _\ \/ _ \/ _ `/ __/  '_/
-   /__ / .__/\_,_/_/ /_/\_\   version 3.4.4
+   /__ / .__/\_,_/_/ /_/\_\   version 3.5.8
       /_/
 
-Using Python version 3.10.12 (main, Jan  8 2026 06:52:19)
+Using Python version 3.10.12 (main, Jan 26 2026 14:55:28)
 Spark context Web UI available at http://10.189.154.233:4040
 Spark context available as 'sc' (master = k8s://https://10.189.154.233:16443, app id = spark-cf06b03549f54011a0ab612df8be335e).
 SparkSession available as 'spark'.

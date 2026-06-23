@@ -222,7 +222,7 @@ All Juju applications to be deployed on said model will then use the constraint.
 To apply the constraint to a single charm, run:
 
 ```shell
-juju deploy -m <charmed_spark_juju_model> kyuubi-k8s --trust --channel=3.5/edge --constraints="arch=arm64"
+juju deploy -m <charmed_spark_juju_model> kyuubi-k8s --trust --channel=3.5/stable --constraints="arch=arm64"
 ```
 
 A single Juju model can contain applications deployed over different architectures.

@@ -63,7 +63,7 @@ juju deploy spark-history-server-k8s -n1 --channel 3/stable
 ```
 
 ```{note}
-The `spark-history-server-k8s` charm from track `3` supports Apache Spark 3.4 and 3.5. For Apache Spark 4.0, deploy the charm from track `4` instead.
+The `spark-history-server-k8s` charm from track `3` supports Apache Spark 3.5 and 3.4. For Apache Spark 4.0, deploy the charm from track `4` instead.
 ```
 
 The Apache Spark History Server needs to connect to the S3 bucket for it to be able to read the logs.
@@ -106,13 +106,13 @@ juju integrate s3-integrator spark-history-server-k8s
 
 Let's view the status of the Juju model now with the command `watch -c juju status --color --relations`. Once deployment and integration have been completed for the charms, the status should look similar to the following:
 
-```
+```text
 Model           Controller      Cloud/Region        Version  SLA          Timestamp
 history-server  spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:28:10+01:00
 
 App                       Version  Status  Scale  Charm                     Channel     Rev  Address        Exposed  Message
 s3-integrator                      active      1  s3-integrator             2/stable    544  10.152.183.99  no       
-spark-history-server-k8s           active      1  spark-history-server-k8s  3.4/stable   46  10.152.183.71  no       
+spark-history-server-k8s           active      1  spark-history-server-k8s  3/stable     98  10.152.183.71  no       
 
 Unit                         Workload  Agent  Address       Ports  Message
 s3-integrator/0*             active    idle   10.1.177.159         
