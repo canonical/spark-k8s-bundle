@@ -40,3 +40,59 @@ The kyuubi component module provides a complete deployment of the Kyuubi SQL eng
 - `requires`: Map of the requires endpoints
 - `provides`: Map of the provides endpoints
 - `offers`: Map of all offers exposed by the component's charms
+
+<!-- BEGIN_TF_DOCS -->
+### Requirements
+
+| Name | Version |
+| ---- | ------- |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.0.0 |
+| <a name="requirement_juju"></a> [juju](#requirement\_juju) | >=1.0.0 |
+
+### Providers
+
+| Name | Version |
+| ---- | ------- |
+| <a name="provider_juju"></a> [juju](#provider\_juju) | >=1.0.0 |
+
+### Modules
+
+No modules.
+
+### Resources
+
+| Name | Type |
+| ---- | ---- |
+| [juju_application.kyuubi](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
+| [juju_integration.kyuubi_certificates](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.kyuubi_data_integrator](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.kyuubi_metastore](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.kyuubi_service_account](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.kyuubi_users_db](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.kyuubi_zookeeper](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_offer.kyuubi_jdbc](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/offer) | resource |
+
+### Inputs
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | :------: |
+| <a name="input_certificates"></a> [certificates](#input\_certificates) | External integration for the certificate provider application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
+| <a name="input_data_integrator"></a> [data\_integrator](#input\_data\_integrator) | External integration for the data-integrator application | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
+| <a name="input_kyuubi"></a> [kyuubi](#input\_kyuubi) | n/a | <pre>object({<br/>    app_name    = optional(string, "kyuubi")<br/>    base        = optional(string, "ubuntu@22.04")<br/>    config      = optional(map(string), {})<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(any))<br/>    revision    = optional(number)<br/>    track       = optional(string, "3.4")<br/>    units       = optional(number, 1)<br/>  })</pre> | `{}` | no |
+| <a name="input_metastore"></a> [metastore](#input\_metastore) | External integration for the metastore (postgresql-k8s) application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
+| <a name="input_model_uuid"></a> [model\_uuid](#input\_model\_uuid) | Reference to an existing model uuid. | `string` | n/a | yes |
+| <a name="input_risk"></a> [risk](#input\_risk) | Component's charms risk channel | `string` | `"stable"` | no |
+| <a name="input_spark_service_account"></a> [spark\_service\_account](#input\_spark\_service\_account) | External integration for the object storage integrator application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
+| <a name="input_users_db"></a> [users\_db](#input\_users\_db) | External integration for the Kyuubi users database (postgresql-k8s) application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
+| <a name="input_zookeeper"></a> [zookeeper](#input\_zookeeper) | External integration for the ZooKeeper application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
+
+### Outputs
+
+| Name | Description |
+| ---- | ----------- |
+| <a name="output_application"></a> [application](#output\_application) | Object representing the deployed Kyuubi application. |
+| <a name="output_components"></a> [components](#output\_components) | Map of the deployed applications for this component module. |
+| <a name="output_offers"></a> [offers](#output\_offers) | Map of all offers exposed by the component's charms. |
+| <a name="output_provides"></a> [provides](#output\_provides) | Map of all the provides endpoints. |
+| <a name="output_requires"></a> [requires](#output\_requires) | Map of the requires endpoints. |
+<!-- END_TF_DOCS -->

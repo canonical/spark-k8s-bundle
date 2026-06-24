@@ -159,20 +159,28 @@ resource "juju_access_secret" "s3_secret_access" {
   secret_id = juju_secret.s3_secret[0].secret_id
 }
 
-resource "juju_secret" "system_users_and_private_key_secret" {
+resource "juju_secret" "private_key_secret" {
   depends_on = [juju_model.spark]
-  count      = var.tls_private_key == null && var.admin_password == null ? 0 : 1
+  count      = var.tls_private_key == null ? 0 : 1
   model_uuid = local.model_uuid
-  name       = "system_users_and_private_key_secret"
-  value = merge(
-    var.admin_password == null ? {} : {
-      admin = var.admin_password
-    },
-    var.tls_private_key == null ? {} : {
-      private-key = var.tls_private_key
-    }
-  )
-  info = "This secret contains password for admin user and the TLS private key."
+  name       = "private_key_secret"
+  value = {
+    private-key = var.tls_private_key
+  }
+
+  info = "This secret contains the TLS private key."
+}
+
+resource "juju_secret" "system_users_secret" {
+  depends_on = [juju_model.spark]
+  count      = var.admin_password == null ? 0 : 1
+  model_uuid = local.model_uuid
+  name       = "system_users_secret"
+  value = {
+    admin = var.admin_password
+  }
+
+  info = "This secret contains password for admin user."
 }
 
 module "spark_core" {
@@ -210,7 +218,8 @@ module "spark_core" {
 module "kyuubi" {
   depends_on = [
     juju_model.spark,
-    juju_secret.system_users_and_private_key_secret,
+    juju_secret.system_users_secret,
+    juju_secret.private_key_secret,
     module.azure_storage,
     module.kyuubi_users,
     module.metastore,
@@ -228,9 +237,11 @@ module "kyuubi" {
       {
         expose-external = "loadbalancer",
       },
-      length(juju_secret.system_users_and_private_key_secret) > 0 ? {
-        system-users           = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}",
-        tls-client-private-key = "secret:${juju_secret.system_users_and_private_key_secret[0].secret_id}"
+      length(juju_secret.private_key_secret) > 0 ? {
+        tls-client-private-key = "secret:${juju_secret.private_key_secret[0].secret_id}"
+      } : {},
+      length(juju_secret.system_users_secret) > 0 ? {
+        system-users = "secret:${juju_secret.system_users_secret[0].secret_id}"
       } : {},
       var.kyuubi_config
     )
@@ -268,19 +279,32 @@ module "kyuubi" {
   zookeeper = merge({ kind = "endpoint" }, module.zookeeper.provides.zookeeper)
 }
 
-
-resource "juju_access_secret" "system_users_and_private_key_secret_access" {
+resource "juju_access_secret" "private_key_secret_access" {
   depends_on = [
     juju_model.spark,
-    juju_secret.system_users_and_private_key_secret,
+    juju_secret.private_key_secret,
     module.kyuubi
   ]
-  count      = var.tls_private_key == null && var.admin_password == null ? 0 : 1
+  count      = var.tls_private_key == null ? 0 : 1
   model_uuid = local.model_uuid
   applications = [
     module.kyuubi.application.name
   ]
-  secret_id = juju_secret.system_users_and_private_key_secret[0].secret_id
+  secret_id = juju_secret.private_key_secret[0].secret_id
+}
+
+resource "juju_access_secret" "system_users_secret_access" {
+  depends_on = [
+    juju_model.spark,
+    juju_secret.system_users_secret,
+    module.kyuubi
+  ]
+  count      = var.admin_password == null ? 0 : 1
+  model_uuid = local.model_uuid
+  applications = [
+    module.kyuubi.application.name
+  ]
+  secret_id = juju_secret.system_users_secret[0].secret_id
 }
 
 module "observability" {
