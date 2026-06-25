@@ -14,7 +14,7 @@
 
 | Name | Version |
 | ---- | ------- |
-| <a name="provider_juju"></a> [juju](#provider\_juju) | 1.3.1 |
+| <a name="provider_juju"></a> [juju](#provider\_juju) | >=1.0.0 |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 
 ### Modules
@@ -23,12 +23,12 @@
 | ---- | ------ | ------- |
 | <a name="module_azure_storage"></a> [azure\_storage](#module\_azure\_storage) | ../../charms/azure-storage-integrator | n/a |
 | <a name="module_data_integrator"></a> [data\_integrator](#module\_data\_integrator) | ../../charms/data-integrator | n/a |
+| <a name="module_kyuubi"></a> [kyuubi](#module\_kyuubi) | ../../components/kyuubi | n/a |
 | <a name="module_kyuubi_users"></a> [kyuubi\_users](#module\_kyuubi\_users) | git::https://github.com/canonical/postgresql-k8s-operator//terraform | rev774 |
 | <a name="module_metastore"></a> [metastore](#module\_metastore) | git::https://github.com/canonical/postgresql-k8s-operator//terraform | rev774 |
 | <a name="module_observability"></a> [observability](#module\_observability) | ../../components/observability | n/a |
 | <a name="module_s3"></a> [s3](#module\_s3) | ../../charms/s3-integrator | n/a |
 | <a name="module_spark_core"></a> [spark\_core](#module\_spark\_core) | ../../components/spark-core | n/a |
-| <a name="module_kyuubi"></a> [kyuubi](#module\_kyuubi) | ../../components/kyuubi | n/a |
 | <a name="module_ssc"></a> [ssc](#module\_ssc) | git::https://github.com/canonical/self-signed-certificates-operator//terraform | rev586 |
 | <a name="module_zookeeper"></a> [zookeeper](#module\_zookeeper) | ../../charms/zookeeper | n/a |
 
@@ -37,9 +37,11 @@
 | Name | Type |
 | ---- | ---- |
 | [juju_access_secret.azure_storage_secret_access](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/access_secret) | resource |
+| [juju_access_secret.s3_secret_access](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/access_secret) | resource |
 | [juju_access_secret.system_users_and_private_key_secret_access](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/access_secret) | resource |
 | [juju_model.spark](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/model) | resource |
 | [juju_secret.azure_storage_secret](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/secret) | resource |
+| [juju_secret.s3_secret](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/secret) | resource |
 | [juju_secret.system_users_and_private_key_secret](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/secret) | resource |
 | [terraform_data.deployed_at](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 
