@@ -6,7 +6,6 @@ path: /spark-k8s-bundle
 backends:
   multipass:
     type: adhoc
-    kill-timeout: "2h"
     allocate: |
       instance_name="spark-tutorial-vm"
       multipass delete --purge "$instance_name" 2>/dev/null || true
@@ -44,4 +43,3 @@ suites:
       # Spread SSHs in as root but does not always set HOME=/root.
       export HOME=/root
       mkdir -p /root/.local/share/juju
-    kill-timeout: "2h"
