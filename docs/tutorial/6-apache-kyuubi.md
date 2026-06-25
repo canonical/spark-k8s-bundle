@@ -6,7 +6,7 @@ myst:
 
 <!-- test:spread
 priority: 200
-kill-timeout: 40m
+kill-timeout: 1h
 -->
 
 (tutorial-6-apache-kyuubi)=

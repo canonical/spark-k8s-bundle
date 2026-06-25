@@ -43,18 +43,26 @@ First of all, deploy a new instance of S3 Integrator that will be needed to shar
 juju deploy s3-integrator <metastore-backup> --channel 2/stable
 ```
 
-Create a Juju secret that contains the S3 access key and secret key, and grant the secret to the `s3-integrator` app.
-Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
-in the next step.
+Create a Juju secret that contains the S3 access key and secret key:
 
 ```bash
 juju add-secret s3-creds access-key=<ACCESS-KEY> secret-key=<SECRET-KEY>
-# secret:jem6a4josup6rui0g2q0  <-- make note of this secret URI
+```
 
+Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
+in the next step. The output should look something similar to the following:
+
+```text
+secret:jem6a4josup6rui0g2q0
+```
+
+Grant the Juju secret that was created just now to the `s3-integrator` app:
+
+```bash
 juju grant-secret s3-creds s3-integrator
 ```
 
-Configure `s3-integrator` app with the bucket name, path, s3 endpoint and credentials:
+Configure `s3-integrator` app with the bucket name, path, s3 endpoint and credentials. Use the secret URI from the previous step as the value for the `credentials` config.
 
 ```bash
 juju config <metastore-backup> \

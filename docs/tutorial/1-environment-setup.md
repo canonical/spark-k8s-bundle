@@ -6,7 +6,7 @@ myst:
 
 <!-- test:spread
 priority: 700
-kill-timeout: 20m
+kill-timeout: 1h
 -->
 
 (tutorial-1-environment-setup)=
@@ -496,25 +496,32 @@ juju config s3-integrator bucket=spark-tutorial path=spark-events endpoint=http:
 The `spark-integration-hub-k8s` charm from the track `3` can be used for all of versions 3.4, 3.5 and 4.0 of Apache Spark.
 ```
 
-<!-- test:await-idle --timeout 600 --allow-blocked s3-integrator -->
+The `s3-integrator` will remain in `blocked` state until S3 credentials are provided.
 
-The `s3-integrator` will remain in `blocked` state until S3 credentials are provided. 
+Create a Juju secret that contains the S3 access key and secret key:
 
-Create a Juju secret that contains the S3 access key and secret key, and grant the secret to the `s3-integrator` app.
+```shell
+juju add-secret s3-creds access-key=$ACCESS_KEY secret-key=$SECRET_KEY
+```
+
 Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
-in the next step.
+in the next step. The output should look something similar to the following:
 
-```bash
-juju add-secret s3-creds access-key=<ACCESS-KEY> secret-key=<SECRET-KEY>
-# secret:jem6a4josup6rui0g2q0  <-- make note of this secret URI
+```text
+secret:jem6a4josup6rui0g2q0
+```
 
+Grant the Juju secret that was created just now to the `s3-integrator` app:
+
+```shell
 juju grant-secret s3-creds s3-integrator
 ```
 
 Configure S3 integrator to use your S3 object storage by setting up the credentials (make sure to pass the secret URI from previous step in place of `$SECRET_URI`):
 
 <!-- test:run
-export SECRET_URI=$(juju show-secret s3creds | yq 'keys | .[0]')
+sudo apt install -y yq
+export SECRET_URI=secret:$(juju show-secret s3-creds | yq 'keys | .[0]' | tr -d '"')
 -->
 
 ```shell

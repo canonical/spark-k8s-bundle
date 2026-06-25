@@ -78,18 +78,26 @@ For S3-compliant storage, deploy [S3 integrator](https://charmhub.io/s3-integrat
 juju deploy s3-integrator --channel 2/stable
 ```
 
-Create a Juju secret that contains the S3 access key and secret key, and grant the secret to the `s3-integrator` app.
-Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
-in the next step.
+Create a Juju secret that contains the S3 access key and secret key:
 
 ```bash
 juju add-secret s3-creds access-key=<ACCESS-KEY> secret-key=<SECRET-KEY>
-# secret:jem6a4josup6rui0g2q0  <-- make note of this secret URI
+```
 
+Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
+in the next step. The output should look something similar to the following:
+
+```text
+secret:jem6a4josup6rui0g2q0
+```
+
+Grant the Juju secret that was created just now to the `s3-integrator` app:
+
+```bash
 juju grant-secret s3-creds s3-integrator
 ```
 
-Configure S3 integrator to use your S3 object storage by setting up endpoint address, bucket, path to folder, and credentials:
+Configure S3 integrator to use your S3 object storage by setting up endpoint address, bucket, path to folder, and credentials. Use the secret URI from the previous step as the value for the `credentials` config.
 
 ```bash
 juju config s3-integrator endpoint=<ADDRESS> bucket=<BUCKET-NAME> path=<FOLDER-NAME> credentials=<SECRET-URI-FROM-PREVIOUS-STEP>
@@ -111,14 +119,22 @@ For Azure DataLake storage, deploy [Azure storage integrator](https://charmhub.i
 juju deploy azure-storage-integrator --channel 1/stable
 ```
 
-Create a Juju secret containing the Azure Storage account secret key, and grant the charm access to this secret. 
-Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
-in the next step.
+Create a Juju secret containing the Azure Storage account secret key.
 
 ```bash
 juju add-secret azure-storage-secret secret-key=XXXXXXX
-# secret:jem6a4josup6rui0g2q0  <-- make note of this secret URI
+```
 
+Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
+in the next step. The output should look something similar to the following:
+
+```text
+secret:jem6a4josup6rui0g2q0
+```
+
+Grant the Juju secret that was created just now to the `azure-storage-integrator` app:
+
+```bash
 juju grant-secret azure-storage-secret azure-storage-integrator
 ```
 

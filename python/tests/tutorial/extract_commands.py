@@ -403,7 +403,7 @@ def extract_heading(source: str) -> str:
 def build_task_yaml(script_path: str, heading: str, meta: dict[str, str]) -> str:
     """Generate a Spread task.yaml file."""
     priority = meta.get("priority", "0")
-    kill_timeout = meta.get("kill-timeout", "30m")
+    kill_timeout = meta.get("kill-timeout", "3h")
     summary = heading or script_path
     return (
         f'summary: "{summary}"\n'

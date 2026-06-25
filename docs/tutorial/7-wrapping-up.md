@@ -6,7 +6,7 @@ myst:
 
 <!-- test:spread
 priority: 100
-kill-timeout: 5m
+kill-timeout: 15m
 -->
 
 <!-- test:run

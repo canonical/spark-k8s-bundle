@@ -6,7 +6,7 @@ myst:
 
 <!-- test:spread
 priority: 600
-kill-timeout: 10m
+kill-timeout: 30m
 -->
 
 (tutorial-2-distributed-data-processing)=

@@ -40,14 +40,22 @@ To enable integration with an S3-compatible storage, deploy the S3-integrator ch
 juju deploy s3-integrator --channel 2/stable
 ```
 
-Create a Juju secret that contains the S3 access key and secret key, and grant the secret to the `s3-integrator` app.
-Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
-in the next step.
+Create a Juju secret that contains the S3 access key and secret key:
 
-```shell
+```bash
 juju add-secret s3-creds access-key=<ACCESS-KEY> secret-key=<SECRET-KEY>
-# secret:jem6a4josup6rui0g2q0  <-- make note of this secret URI
+```
 
+Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
+in the next step. The output should look something similar to the following:
+
+```text
+secret:jem6a4josup6rui0g2q0
+```
+
+Grant the Juju secret that was created just now to the `s3-integrator` app:
+
+```bash
 juju grant-secret s3-creds s3-integrator
 ```
 
