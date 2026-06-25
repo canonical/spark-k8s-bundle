@@ -6,15 +6,15 @@ resource "juju_application" "kyuubi" {
   model_uuid = var.model_uuid
 
   charm {
-    name     = "kyuubi-k8s"
-    base     = var.kyuubi.base
-    channel  = "${var.kyuubi.track}/${var.risk}"
-    revision = var.kyuubi.revision
+    name     = local.resolved_application.charm
+    base     = local.resolved_application.base
+    channel  = local.resolved_application.channel
+    revision = local.resolved_application.revision
   }
 
   config      = var.kyuubi.config
   units       = var.kyuubi.units
-  constraints = var.kyuubi.constraints
-  resources   = var.kyuubi.resources
+  constraints = local.resolved_application.constraints
+  resources   = local.resolved_application.resources
   trust       = true
 }
