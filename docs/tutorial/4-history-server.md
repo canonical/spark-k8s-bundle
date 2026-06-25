@@ -67,7 +67,7 @@ The `spark-history-server-k8s` charm from track `3` supports Apache Spark 3.5 an
 ```
 
 The Apache Spark History Server needs to connect to the S3 bucket for it to be able to read the logs.
-The credentials for this connection are provided to the Spark History Server charm by the [`s3-integrator`](https://github.com/canonical/object-storage-integrator/tree/main/s3) charm. 
+The credentials for this connection are provided to the Spark History Server charm by the [`s3-integrator`](https://github.com/canonical/object-storage-integrator/tree/main/s3) charm.
 
 Deploy the `s3-integrator` charm from channel `2/stable`:
 
@@ -75,21 +75,30 @@ Deploy the `s3-integrator` charm from channel `2/stable`:
 juju deploy s3-integrator --channel 2/stable
 ```
 
-Create a Juju secret that contains the S3 access key and secret key, and grant the secret to the `s3-integrator` app.
+Create a Juju secret that contains the S3 access key and secret key:
+
+```shell
+juju add-secret s3-creds access-key=$ACCESS_KEY secret-key=$SECRET_KEY
+```
+
 Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
-in the next step.
+in the next step. The output should look something similar to the following:
 
-```bash
-juju add-secret s3-creds access-key=<ACCESS-KEY> secret-key=<SECRET-KEY>
-# secret:jem6a4josup6rui0g2q0  <-- make note of this secret URI
+```text
+secret:jem6a4josup6rui0g2q0
+```
 
+Grant the Juju secret that was created just now to the `s3-integrator` app:
+
+```shell
 juju grant-secret s3-creds s3-integrator
 ```
 
 Configure S3 integrator to use your S3 object storage by setting up endpoint address, bucket, path to folder, and credentials (make sure to pass the secret URI from previous step in place of `$SECRET_URI`):
 
 <!-- test:run
-export SECRET_URI=$(juju show-secret s3creds | yq 'keys | .[0]')
+sudo apt install -y yq
+export SECRET_URI=secret:$(juju show-secret s3-creds | yq 'keys | .[0]' | tr -d '"')
 -->
 
 ```shell

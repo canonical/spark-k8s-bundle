@@ -16,7 +16,6 @@ Apache Kyuubi is a gateway to serverless SQL running on Kubernetes, bridging the
 
 This hands-on tutorial stage aims to help you learn how to use Charmed Apache Kyuubi K8s and become familiar with its available operations.
 
-
 ## Initial setup
 
 Let's create a fresh Juju model for the Charmed Apache Kyuubi K8s experiments:
