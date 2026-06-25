@@ -303,7 +303,7 @@ variable "storage_backend" {
 }
 
 variable "tls_private_key" {
-  description = "The file path of the private key to use for TLS certificates."
+  description = "The file path of the base64 encoded private key to use for TLS certificates."
   type        = string
   sensitive   = true
   default     = null

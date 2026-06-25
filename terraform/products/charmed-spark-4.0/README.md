@@ -92,7 +92,7 @@
 | <a name="input_spark_risk"></a> [spark\_risk](#input\_spark\_risk) | Spark components risk channel | `string` | `"stable"` | no |
 | <a name="input_ssc_revision"></a> [ssc\_revision](#input\_ssc\_revision) | Charm revision for self-signed-certificates | `number` | `null` | no |
 | <a name="input_storage_backend"></a> [storage\_backend](#input\_storage\_backend) | Storage backend to be used | `string` | `"s3"` | no |
-| <a name="input_tls_private_key"></a> [tls\_private\_key](#input\_tls\_private\_key) | The file path of the private key to use for TLS certificates. | `string` | `null` | no |
+| <a name="input_tls_private_key"></a> [tls\_private\_key](#input\_tls\_private\_key) | The file path of the base64 encoded private key to use for TLS certificates. | `string` | `null` | no |
 | <a name="input_zookeeper_image"></a> [zookeeper\_image](#input\_zookeeper\_image) | Image for zookeeper-k8s | `any` | `null` | no |
 | <a name="input_zookeeper_revision"></a> [zookeeper\_revision](#input\_zookeeper\_revision) | Charm revision for zookeeper-k8s | `number` | `null` | no |
 | <a name="input_zookeeper_units"></a> [zookeeper\_units](#input\_zookeeper\_units) | Define the number of zookeeper units. 3 units are recommended for high availability. | `number` | `3` | no |

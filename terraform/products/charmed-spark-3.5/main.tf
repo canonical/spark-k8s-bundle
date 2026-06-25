@@ -168,7 +168,7 @@ resource "juju_secret" "private_key_secret" {
     private-key = var.tls_private_key
   }
 
-  info = "This secret contains the TLS private key."
+  info = "This secret contains the base64 encoded TLS private key."
 }
 
 resource "juju_secret" "system_users_secret" {
