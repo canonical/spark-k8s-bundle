@@ -50,5 +50,3 @@ dist
 .build
 .env
 tmp
-
-.spread-reuse.*.yaml
