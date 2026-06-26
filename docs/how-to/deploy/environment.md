@@ -33,6 +33,7 @@ The how-to guide below shows you how to set up these to be used with Charmed Apa
 [Canonical Kubernetes](https://documentation.ubuntu.com/canonical-kubernetes/latest/) (also named Canonical K8s) is a performant, lightweight, secure and opinionated distribution of Kubernetes supported by Canonical which includes everything needed to create and manage a scalable cluster suitable for all use cases.
 
 Canonical K8s can be deployed in multiple ways:
+
 * [Using a snap](https://documentation.ubuntu.com/canonical-kubernetes/latest/snap/)
 * [Using Juju](https://documentation.ubuntu.com/canonical-kubernetes/latest/charm/)
 * [Using the Cluster API](https://documentation.ubuntu.com/canonical-kubernetes/latest/capi/)
