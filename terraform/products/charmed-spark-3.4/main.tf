@@ -26,7 +26,6 @@ module "ssc" {
   constraints = "arch=amd64"
   revision    = var.ssc_revision
   units       = 1
-
 }
 
 module "kyuubi_users" {
