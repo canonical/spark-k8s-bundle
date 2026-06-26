@@ -269,7 +269,7 @@ sudo snap install terraform --classic
 
 Once terraform is installed, we're ready to write the Terraform plan for our new AKS cluster.
 
-The terraform scripts for the creation of a simple AKS cluster for Charmed Spark is already available in the [GitHub repository](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/yaml/docs-resources/aks-setup).
+The terraform scripts for the creation of a simple AKS cluster for Charmed Spark is already available in the [GitHub repository](https://github.com/canonical/spark-k8s-bundle/tree/main/resources/aks-setup).
 If you inspect the contents there, you will see that there are different Terraform configuration files.
 These configuration files contain the specification for the resource group, virtual network and AKS cluster we're going to create.
 
