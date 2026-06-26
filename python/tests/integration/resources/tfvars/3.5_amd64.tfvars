@@ -1,20 +1,20 @@
-history_server_revision  = 98  # 3/stable
-integration_hub_revision = 123 # 3/stable
-kyuubi_revision          = 160 # 3.5/stable
-kyuubi_users_revision    = 774 # 14/stable
-metastore_revision       = 774 # 14/stable
-zookeeper_revision       = 78  # 3/stable
-data_integrator_revision = 362 # latest/stable, 24.04
-s3_revision              = 544 # 2/stable
-ssc_revision             = 586 # 1/stable, 24.04
-azure_storage_revision   = 282 # 1/stable
+history_server_revision  = 122   # 3/beta        TODO: use stable
+integration_hub_revision = 134   # 3/beta        TODO: use stable
+kyuubi_revision          = 183   # 3.5/beta      TODO: use stable
+kyuubi_users_revision    = 774   # 14/stable
+metastore_revision       = 774   # 14/stable
+zookeeper_revision       = 78    # 3/stable
+data_integrator_revision = 362   # latest/stable, 24.04
+s3_revision              = 544   # 2/stable
+ssc_revision             = 586   # 1/stable, 24.04
+azure_storage_revision   = 282   # 1/stable
 
-history_server_image = "ghcr.io/canonical/charmed-spark@sha256:f7f387a76ba2f3b6cfc34a35f36c0f4ae85bfa78c8c9d4bfa06ba86401b95d70"
-# rev24,  spark-version: 3.5.7, release date 16/03/2026
+history_server_image = "ghcr.io/canonical/charmed-spark@sha256:b8ffcf05fa16cd06f7c962a94a0c9998d23ad3f658ed2be8a24f1e4c042f2d7a"
+# rev31, spark-version: 3.5.7, release date 22/04/2026
 integration_hub_image = "ghcr.io/canonical/spark-integration-hub@sha256:a0439da3e6a9433a0db9501c8ea7b28ba3652af9a9ec22fcc2ad1b0197d48134"
 # rev13, release date 19/03/2026
-kyuubi_image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:21beea406001d161538b552cef2b47b86423bd899139ada263c1ef665fd89fff"
-# rev18, spark-version: 3.5.7, kyuubi-version: 1.10.3, release date 16/03/2026
+kyuubi_image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:421a56a1f1634282b27157161d9d0b4263854f61e8b4f1552cc9b40b58895d27"
+# rev26, spark-version: 3.5.7, kyuubi-version: 1.10.3, release date 22/04/2026
 
 kyuubi_users_image = 184 # 14/stable, rev774
 metastore_image    = 184 # 14/stable, rev774
