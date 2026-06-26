@@ -69,7 +69,7 @@ jobs:
       - checks
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Run integration test
         uses: ./.github/actions/run-test
         timeout-minutes: 40
@@ -94,14 +94,14 @@ jobs:
     if: always()
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Download artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: results
       - id: setup-python
         name: Setup Python
-        uses: actions/setup-python@v5.0.0
+        uses: actions/setup-python@v6.3.0
         with:
           python-version: 3.12
           architecture: x64
@@ -113,7 +113,7 @@ jobs:
         run: python3 .github/scripts/aggregate_results.py results/integration-results-*/matrix-result.json
 
       - name: Upload summary
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: matrix-summary
           path: matrix-summary.md
