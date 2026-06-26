@@ -6,7 +6,9 @@ on:
     branches: [ main ]
   pull_request:
     paths:
-      - 'docs/**'   # Only run on changes to the docs directory
+      - 'docs/**'         # Run on changes to the docs directory
+      - 'spread.yaml'     # Run when spread.yaml is modified (e.g., changes to the bootstrapping configuration)
+      - 'python/tox.ini'  # Run when the tox.ini file is modified (e.g., changes to the tutorial test environment)
 
   workflow_dispatch:
     # Manual trigger
@@ -22,3 +24,47 @@ jobs:
     with:
       working-directory: "docs"
       fetch-depth: 0
+
+  tutorial-test:
+    name: End-to-end tutorial test
+    runs-on: [self-hosted, linux, AMD64, X64, xlarge, noble]
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Check KVM availability
+        run: |
+          if [[ ! -e /dev/kvm ]]; then
+            echo "::error::KVM is not available on this runner. Multipass requires KVM for VM creation."
+            exit 1
+          fi
+
+      - name: Install Multipass
+        run: |
+          if ! command -v multipass &>/dev/null; then
+            sudo snap install multipass
+          fi
+
+      - name: Install Go and Spread
+        run: |
+          if ! command -v go &>/dev/null; then
+            sudo snap install go --classic
+          fi
+          go install github.com/canonical/spread/cmd/spread@latest
+          echo "$HOME/go/bin" >> "$GITHUB_PATH"
+
+      - name: Install tox
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pipx
+          pipx install tox
+
+      - name: Run tutorial tests
+        run: tox -e tutorial
+        working-directory: python
+
+      - name: Cleanup Multipass VM
+        if: always()
+        run: |
+          multipass delete --purge spark-tutorial-vm 2>/dev/null || true
