@@ -31,12 +31,12 @@ module "ssc" {
 
 module "kyuubi_users" {
   depends_on = [juju_model.spark]
-  source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev774"
-  model_uuid = local.model_uuid
+  source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev927"
+  juju_model = local.model_uuid
 
   app_name           = "kyuubi-users"
-  base               = "ubuntu@22.04"
-  channel            = "14/stable"
+  base               = "ubuntu@24.04"
+  channel            = "16/stable"
   constraints        = "arch=amd64"
   revision           = var.kyuubi_users_revision
   resources          = var.kyuubi_users_image != null ? { postgresql-image = var.kyuubi_users_image } : null
@@ -46,12 +46,12 @@ module "kyuubi_users" {
 
 module "metastore" {
   depends_on = [juju_model.spark]
-  source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev774"
-  model_uuid = local.model_uuid
+  source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev927"
+  juju_model = local.model_uuid
 
   app_name           = "metastore"
-  base               = "ubuntu@22.04"
-  channel            = "14/stable"
+  base               = "ubuntu@24.04"
+  channel            = "16/stable"
   constraints        = "arch=amd64"
   revision           = var.metastore_revision
   resources          = var.metastore_image != null ? { postgresql-image = var.metastore_image } : null

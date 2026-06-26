@@ -1,8 +1,8 @@
 history_server_revision  = 119 # 4/beta        TODO: Use stable revision
 integration_hub_revision = 134 # 3/beta        TODO: Use stable revision
 kyuubi_revision          = 181 # 4.0/beta      TODO: Use stable revision
-kyuubi_users_revision    = 774 # 14/stable
-metastore_revision       = 774 # 14/stable
+kyuubi_users_revision    = 927 # 16/stable
+metastore_revision       = 927 # 16/stable
 zookeeper_revision       = 78  # 3/stable
 data_integrator_revision = 362 # latest/stable, 24.04
 s3_revision              = 544 # 2/stable
@@ -16,6 +16,6 @@ integration_hub_image = "ghcr.io/canonical/spark-integration-hub@sha256:a0439da3
 kyuubi_image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:533273d788cb9726586b5cf5297ee670b018e40e137bcf8f34f661b6fe74544a"
 # rev25, spark-version: 4.0.2, kyuubi-version: 1.11.1, release date 23/06/2026
 
-kyuubi_users_image = 184 # 14/stable, rev774
-metastore_image    = 184 # 14/stable, rev774
+kyuubi_users_image = 200 # 16/stable, rev927
+metastore_image    = 200 # 16/stable, rev927
 zookeeper_image    = 34  # 3/stable, rev78
