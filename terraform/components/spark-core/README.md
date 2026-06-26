@@ -30,13 +30,13 @@ The spark-core module provides the core components for the Spark ecosystem, incl
 | Name | Version |
 | ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.0.0 |
-| <a name="requirement_juju"></a> [juju](#requirement\_juju) | >=1.0.0 |
+| <a name="requirement_juju"></a> [juju](#requirement\_juju) | >=1.4.0 |
 
 ### Providers
 
 | Name | Version |
 | ---- | ------- |
-| <a name="provider_juju"></a> [juju](#provider\_juju) | >=1.0.0 |
+| <a name="provider_juju"></a> [juju](#provider\_juju) | >=1.4.0 |
 
 ### Modules
 
@@ -51,6 +51,7 @@ No modules.
 | [juju_integration.history_server_object_storage](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.integration_hub_object_storage](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_offer.integration_hub_service_account](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/offer) | resource |
+| [juju_charm.spark](https://registry.terraform.io/providers/juju/juju/latest/docs/data-sources/charm) | data source |
 
 ### Inputs
 

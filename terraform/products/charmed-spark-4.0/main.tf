@@ -196,17 +196,15 @@ module "spark_core" {
   risk       = var.spark_risk
 
   history_server = {
-    config      = var.history_server_config
-    constraints = "arch=amd64"
-    revision    = var.history_server_revision
-    resources   = { spark-history-server-image = var.history_server_image }
-    track       = "4"
+    config    = var.history_server_config
+    revision  = var.history_server_revision
+    resources = var.history_server_image != null ? { spark-history-server-image = var.history_server_image } : null
+    track     = "4"
   }
   integration_hub = {
-    config      = var.integration_hub_config
-    constraints = "arch=amd64"
-    revision    = var.integration_hub_revision
-    resources   = { integration-hub-image = var.integration_hub_image }
+    config    = var.integration_hub_config
+    revision  = var.integration_hub_revision
+    resources = var.integration_hub_image != null ? { integration-hub-image = var.integration_hub_image } : null
   }
 
   # Integrations
@@ -245,11 +243,10 @@ module "kyuubi" {
       } : {},
       var.kyuubi_config
     )
-    constraints = "arch=amd64",
-    revision    = var.kyuubi_revision
-    resources   = { kyuubi-image = var.kyuubi_image }
-    track       = "4.0"
-    units       = var.kyuubi_units
+    revision  = var.kyuubi_revision
+    resources = var.kyuubi_image != null ? { kyuubi-image = var.kyuubi_image } : null
+    track     = "4.0"
+    units     = var.kyuubi_units
   }
 
   # Integrations

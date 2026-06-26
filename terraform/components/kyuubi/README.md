@@ -47,13 +47,13 @@ The kyuubi component module provides a complete deployment of the Kyuubi SQL eng
 | Name | Version |
 | ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.0.0 |
-| <a name="requirement_juju"></a> [juju](#requirement\_juju) | >=1.0.0 |
+| <a name="requirement_juju"></a> [juju](#requirement\_juju) | >=1.4.0 |
 
 ### Providers
 
 | Name | Version |
 | ---- | ------- |
-| <a name="provider_juju"></a> [juju](#provider\_juju) | >=1.0.0 |
+| <a name="provider_juju"></a> [juju](#provider\_juju) | >=1.4.0 |
 
 ### Modules
 
@@ -71,6 +71,7 @@ No modules.
 | [juju_integration.kyuubi_users_db](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.kyuubi_zookeeper](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_offer.kyuubi_jdbc](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/offer) | resource |
+| [juju_charm.kyuubi](https://registry.terraform.io/providers/juju/juju/latest/docs/data-sources/charm) | data source |
 
 ### Inputs
 
