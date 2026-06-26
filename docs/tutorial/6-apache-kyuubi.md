@@ -75,7 +75,7 @@ juju consume spark-tutorial:admin/spark-integration-hub.spark-integration-hub-k8
 We need a database to hold our users. Let's use the [Charmed PostgreSQL K8s charm](https://charmhub.io/postgresql-k8s) for that:
 
 ```shell
-juju deploy postgresql-k8s --channel 14/stable --trust auth-db
+juju deploy postgresql-k8s --channel 16/stable --trust auth-db
 ```
 
 ### External access
@@ -112,7 +112,7 @@ Model              Controller      Cloud/Region        Version  SLA          Tim
 datalake           spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:40:00+01:00
 
 App              Version  Status  Scale  Charm            Channel        Rev  Address         Exposed  Message
-auth-db          14.20    active      1  postgresql-k8s   14/stable      774  10.152.183.19   no
+auth-db          16.14    active      1  postgresql-k8s   16/stable      927  10.152.183.19   no
 data-integrator           active      1  data-integrator  latest/stable  362  10.152.183.94   no
 kyuubi-k8s       1.10     active      1  kyuubi-k8s       3.4/stable     162  10.152.183.84   no
 
@@ -247,7 +247,7 @@ This means that if a pod is reset or fails, the metadata is lost.
 To make metadata persistent, configure an external metastore by deploying Charmed PostgreSQL and integrating it with the Apache Kyuubi charm using the `metastore-db` interface:
 
 ```shell
-juju deploy postgresql-k8s --trust --channel=14/stable metastore
+juju deploy postgresql-k8s --trust --channel=16/stable metastore
 juju integrate kyuubi-k8s:metastore-db metastore
 ```
 
