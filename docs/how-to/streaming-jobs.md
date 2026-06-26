@@ -9,7 +9,7 @@ myst:
 
 The following guide is to set up Apache Spark for structured streaming with Apache Kafka. 
 
-As a pre-requisite, [Juju](https://juju.is/docs/olm/install-juju) has to be installed together with a kubernetes-based juju controller.
+As a pre-requisite, [Juju](https://canonical.com/juju/docs/juju-cli/3.6) has to be installed together with a kubernetes-based juju controller.
 
 ## Setup
 

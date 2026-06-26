@@ -9,7 +9,7 @@ myst:
 
 ## Setup
 
-After installing [Juju](https://juju.is/docs/olm/install-juju) and
+After installing [Juju](https://canonical.com/juju/docs/juju-cli/3.6) and
 [Charmed Kubernetes](https://ubuntu.com/kubernetes/docs/install-manual)
 (together with applying [set up for the latter](https://ubuntu.com/kubernetes/docs/operations)),
 now we can look into how to launch Spark jobs from within a pod in Charmed Kubernetes.

@@ -63,8 +63,8 @@ Charmed Apache Spark can be deployed via:
 Juju bundles are provided in the form of Jinja2 templates, for the following distribution:
 
 * Charmed Apache Spark 3.4.x
-  * [main `bundle.yaml`](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/yaml/bundle.yaml.j2)
-  * [`overlays`](https://github.com/canonical/spark-k8s-bundle/blob/main/releases/3.4/yaml/overlays)
+  * main `bundle.yaml`
+  * `overlays`
 
 You can easily customize these templates from the CLI using `jinja2-cli`:
 
@@ -183,13 +183,11 @@ Terraform modules make use of the Terraform Juju provider.
 More information about the Juju provider can be found in the
 [Terraform documentation](https://registry.terraform.io/providers/juju/juju/latest/docs).
 
-The [Charmed Apache Spark Terraform module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform)
+The [Charmed Apache Spark Terraform module](https://github.com/canonical/spark-k8s-bundle/tree/main/terraform/products)
 is composed of the following submodules:
 
-* [base module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/modules/spark)
+* [base module](https://github.com/canonical/spark-k8s-bundle/tree/main/terraform/products/charmed-spark-3.5)
   that bundles all the base resources of the Charmed Apache Spark solution
-* [cos-integration module](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform/modules/observability)
-  that bundles all the resources that enable integration with COS
 
 ```{caution}
 Currently only S3 storage backends are supported for Terraform-based bundles.
