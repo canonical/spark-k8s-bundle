@@ -13,7 +13,7 @@ We're excited to announce a new stable release for Charmed Apache Spark.
 
 This release includes support for Apache Kyuubi, the Apache Spark History Server, Spark Integration Hub, Apache Spark Client Snap, Canonical security maintained OCI images for Apache Spark and a Charmed Apache Spark Terraform Module to deliver a seamless, production-ready and fully open-source datalake experience. Charmed Apache Spark with Apache Kyuubi is available on [charmhub.io](https://charmhub.io) at the `3.4/stable` and `3.5/stable` channels.
 
-Charmhub: [3.4/candidate](https://charmhub.io/kyuubi-k8s?channel=3.4/candidate), [3.5/candidate](https://charmhub.io/kyuubi-k8s?channel=3.5/candidate) | [Docs](https://canonical-charmed-spark.readthedocs-hosted.com/) | [Deploy guide](https://canonical-charmed-spark.readthedocs-hosted.com/main/how-to/deploy/) | [System requirements](https://canonical-charmed-spark.readthedocs-hosted.com/main/reference/requirements/)
+Charmhub: [3.4/stable](https://charmhub.io/kyuubi-k8s?channel=3.4/stable), [3.5/stable](https://charmhub.io/kyuubi-k8s?channel=3.5/stable) | [Docs](https://canonical-charmed-spark.readthedocs-hosted.com/) | [Deploy guide](https://canonical-charmed-spark.readthedocs-hosted.com/main/how-to/deploy/) | [System requirements](https://canonical-charmed-spark.readthedocs-hosted.com/main/reference/requirements/)
 
 ## Features
 

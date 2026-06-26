@@ -6,7 +6,7 @@ myst:
 
 <!-- test:spread
 priority: 400
-kill-timeout: 15m
+kill-timeout: 30m
 -->
 
 (tutorial-4-history-server)=
@@ -59,25 +59,55 @@ during the environment setup step.
 Next, deploy the [`spark-history-server-k8s`](https://github.com/canonical/spark-history-server-k8s-operator) charm into our Juju model:
 
 ```shell
-juju deploy spark-history-server-k8s -n1 --channel 3.4/stable
+juju deploy spark-history-server-k8s -n1 --channel 3/stable
+```
+
+```{note}
+The `spark-history-server-k8s` charm from track `3` supports Apache Spark 3.5 and 3.4. For Apache Spark 4.0, deploy the charm from track `4` instead.
 ```
 
 The Apache Spark History Server needs to connect to the S3 bucket for it to be able to read the logs.
-The credentials for this connection are provided to the Spark History Server charm by the [`s3-integrator`](https://github.com/canonical/s3-integrator) charm. 
-Deploy the `s3-integrator` charm, configure it, set the credentials, and integrate with `spark-history-server-k8s`:
+The credentials for this connection are provided to the Spark History Server charm by the [`s3-integrator`](https://github.com/canonical/object-storage-integrator/tree/main/s3) charm.
+
+Deploy the `s3-integrator` charm from channel `2/stable`:
 
 ```shell
-juju deploy s3-integrator
-juju config s3-integrator bucket=spark-tutorial path="spark-events" endpoint=http://$S3_ENDPOINT
+juju deploy s3-integrator --channel 2/stable
 ```
 
-<!-- test:await-idle --timeout 600 --allow-blocked s3-integrator,spark-history-server-k8s -->
-
-Wait a minute for the `s3-integrator` charm to deploy correctly before finishing the setup:
+Create a Juju secret that contains the S3 access key and secret key:
 
 ```shell
-juju run s3-integrator/leader sync-s3-credentials \
-  access-key=$ACCESS_KEY secret-key=$SECRET_KEY
+juju add-secret s3-creds access-key=$ACCESS_KEY secret-key=$SECRET_KEY
+```
+
+Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
+in the next step. The output should look something similar to the following:
+
+```text
+secret:jem6a4josup6rui0g2q0
+```
+
+Grant the Juju secret that was created just now to the `s3-integrator` app:
+
+```shell
+juju grant-secret s3-creds s3-integrator
+```
+
+Configure S3 integrator to use your S3 object storage by setting up endpoint address, bucket, path to folder, and credentials (make sure to pass the secret URI from previous step in place of `$SECRET_URI`):
+
+<!-- test:run
+sudo apt install -y yq
+export SECRET_URI=secret:$(juju show-secret s3-creds | yq 'keys | .[0]' | tr -d '"')
+-->
+
+```shell
+juju config s3-integrator bucket=spark-tutorial path="spark-events" endpoint=http://$S3_ENDPOINT credentials=$SECRET_URI
+```
+
+Once properly configured, the `s3-integrator` app should go to an active and idle state. Now it's time to integrate the `s3-integrator` charm:
+
+```shell
 juju integrate s3-integrator spark-history-server-k8s
 ```
 
@@ -85,13 +115,13 @@ juju integrate s3-integrator spark-history-server-k8s
 
 Let's view the status of the Juju model now with the command `watch -c juju status --color --relations`. Once deployment and integration have been completed for the charms, the status should look similar to the following:
 
-```
+```text
 Model           Controller      Cloud/Region        Version  SLA          Timestamp
 history-server  spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:28:10+01:00
 
 App                       Version  Status  Scale  Charm                     Channel     Rev  Address        Exposed  Message
-s3-integrator                      active      1  s3-integrator             1/stable    330  10.152.183.99  no       
-spark-history-server-k8s           active      1  spark-history-server-k8s  3.4/stable   46  10.152.183.71  no       
+s3-integrator                      active      1  s3-integrator             2/stable    544  10.152.183.99  no       
+spark-history-server-k8s           active      1  spark-history-server-k8s  3/stable     98  10.152.183.71  no       
 
 Unit                         Workload  Agent  Address       Ports  Message
 s3-integrator/0*             active    idle   10.1.177.159         

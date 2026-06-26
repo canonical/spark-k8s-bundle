@@ -45,7 +45,7 @@ kyuubi:
   tls: "False"
   uris: jdbc:hive2://10.64.140.43:10009/
   username: relation_id_15
-  version: 1.10.2
+  version: 1.10.3
 ok: "True"
 ```
 

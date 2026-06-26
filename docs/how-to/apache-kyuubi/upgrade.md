@@ -10,7 +10,7 @@ myst:
 Charmed Apache Kyuubi K8s can perform in-place upgrades to update the charm and the workload to a newer version.
 
 ```{note}
-This charm does not support in-place upgrades for major version changes, nor for an Apache Spark support track change (e.g. upgrading from the channel `3.4` to `3.5`).
+This charm does not support in-place upgrades for major version changes, nor for an Apache Spark support track change (e.g. upgrading from the channel `3.4` to `3.5` or from `3.5` to `4.0`).
 ```
 
 ```{note}

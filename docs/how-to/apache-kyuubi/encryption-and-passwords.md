@@ -150,7 +150,7 @@ To retrieve the password of an internal system-user, run the `juju show-secret` 
 
 To update a password, update the associated secret:
 
-```text
+```shell
 juju update-secret <secret_name> admin=<new_password>
 ```
 

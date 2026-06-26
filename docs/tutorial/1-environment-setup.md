@@ -6,7 +6,7 @@ myst:
 
 <!-- test:spread
 priority: 700
-kill-timeout: 20m
+kill-timeout: 1h
 -->
 
 (tutorial-1-environment-setup)=
@@ -181,10 +181,15 @@ The MicroK8s setup is complete.
 ## The `spark-client` snap
 
 For Apache Spark jobs to be running run on top of Kubernetes, a set of resources (ServiceAccount, associated Roles, RoleBindings etc.) need to be created and configured.
-To simplify this task, the Charmed Apache Spark solution offers the `spark-client` snap. Install the snap: 
+To simplify this task, the Charmed Apache Spark solution offers the `spark-client` snap. Install the snap:
 
 ```shell
-sudo snap install spark-client --channel 3.4/edge
+sudo snap install spark-client --channel 3.5/stable
+```
+
+```{note}
+The `spark-client` snap from track `3.5` is supposed to be used for running Spark jobs using Apache Spark 3.5. 
+Please use tracks `4.0` or `3.4` for Apache Spark 4.0 and 3.4 respectively.
 ```
 
 Let's create a Kubernetes namespace for us to use as a playground in this tutorial.
@@ -200,7 +205,7 @@ spark-client.service-account-registry create \
   --username spark --namespace spark
 ```
 
-This command does a number of things in the background. First, it creates a ServiceAccount in the `spark` namespace with the name `spark`. Then it creates a Role with name `spark-role` with all the required RBAC permissions and binds that Role to the ServiceAccount by creating a RoleBinding. 
+This command does a number of things in the background. First, it creates a ServiceAccount in the `spark` namespace with the name `spark`. Then it creates a Role with name `spark-role` with all the required RBAC permissions and binds that Role to the ServiceAccount by creating a RoleBinding.
 
 These resources can be viewed with `kubectl get` commands as follows:
 
@@ -246,10 +251,10 @@ Welcome to
       ____              __
      / __/__  ___ _____/ /__
     _\ \/ _ \/ _ `/ __/  '_/
-   /__ / .__/\_,_/_/ /_/\_\   version 3.4.4
+   /__ / .__/\_,_/_/ /_/\_\   version 3.5.8
       /_/
 
-Using Python version 3.10.12 (main, Jan  8 2026 06:52:19)
+Using Python version 3.10.12 (main, Jan 26 2026 14:55:28)
 Spark context Web UI available at http://10.189.154.233:4040
 Spark context available as 'sc' (master = k8s://https://10.189.154.233:16443, app id = spark-cf06b03549f54011a0ab612df8be335e).
 SparkSession available as 'spark'.
@@ -483,17 +488,49 @@ Deploy the Integration Hub charm and an `s3-integrator` charm to supply it with 
 ```shell
 juju deploy spark-integration-hub-k8s --channel 3/stable --trust
 juju config spark-integration-hub-k8s monitored-service-accounts="*:*"
-juju deploy s3-integrator --channel 1/stable
+juju deploy s3-integrator --channel 2/stable
 juju config s3-integrator bucket=spark-tutorial path=spark-events endpoint=http://$S3_ENDPOINT
 ```
 
-<!-- test:await-idle --timeout 600 --allow-blocked s3-integrator -->
+```{note}
+The `spark-integration-hub-k8s` charm from the track `3` can be used for all of versions 3.4, 3.5 and 4.0 of Apache Spark.
+```
 
-The `s3-integrator` will remain in `blocked` state until S3 credentials are provided. Set the credentials first, then integrate:
+The `s3-integrator` will remain in `blocked` state until S3 credentials are provided.
+
+Create a Juju secret that contains the S3 access key and secret key:
 
 ```shell
-juju run s3-integrator/leader sync-s3-credentials \
-  access-key=$ACCESS_KEY secret-key=$SECRET_KEY
+juju add-secret s3-creds access-key=$ACCESS_KEY secret-key=$SECRET_KEY
+```
+
+Make note of the output of the `juju add-secret` command; this is the secret URI for the added secret that we will need
+in the next step. The output should look something similar to the following:
+
+```text
+secret:jem6a4josup6rui0g2q0
+```
+
+Grant the Juju secret that was created just now to the `s3-integrator` app:
+
+```shell
+juju grant-secret s3-creds s3-integrator
+```
+
+Configure S3 integrator to use your S3 object storage by setting up the credentials (make sure to pass the secret URI from previous step in place of `$SECRET_URI`):
+
+<!-- test:run
+sudo apt install -y yq
+export SECRET_URI=secret:$(juju show-secret s3-creds | yq 'keys | .[0]' | tr -d '"')
+-->
+
+```shell
+juju config s3-integrator credentials=$SECRET_URI
+```
+
+And finally, integrate `s3-integrator` with `spark-integration-hub-k8s` charm:
+
+```shell
 juju integrate s3-integrator spark-integration-hub-k8s
 ```
 
