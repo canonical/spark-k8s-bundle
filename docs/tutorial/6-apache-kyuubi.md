@@ -116,7 +116,7 @@ Model              Controller      Cloud/Region        Version  SLA          Tim
 datalake           spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:40:00+01:00
 
 App              Version  Status  Scale  Charm            Channel        Rev  Address         Exposed  Message
-auth-db          14.20    active      1  postgresql-k8s   16/stable      927  10.152.183.19   no
+auth-db          16.14    active      1  postgresql-k8s   16/stable      927  10.152.183.19   no
 data-integrator           active      1  data-integrator  latest/stable  362  10.152.183.94   no
 kyuubi-k8s       1.11     active      1  kyuubi-k8s       3.5/stable     160  10.152.183.84   no
 
