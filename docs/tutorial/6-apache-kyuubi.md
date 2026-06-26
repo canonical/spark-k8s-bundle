@@ -336,7 +336,7 @@ Test the server certificate by requesting it using `openssl` on the endpoint ret
 
 ```shell
 sudo snap install yq
-openssl s_client -showcerts -connect $(juju run data-integrator/0 get-credentials | yq ".kyuubi.endpoints") < /dev/null
+openssl s_client -showcerts -connect $(juju run data-integrator/0 get-credentials | yq -r ".kyuubi.endpoints") < /dev/null
 ```
 
 The resulted output should include issuer CN `Tutorial CA`.

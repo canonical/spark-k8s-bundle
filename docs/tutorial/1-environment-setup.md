@@ -520,7 +520,7 @@ juju grant-secret s3-creds s3-integrator
 Configure S3 integrator to use your S3 object storage by setting up the credentials (make sure to pass the secret URI from previous step in place of `$SECRET_URI`):
 
 <!-- test:run
-sudo apt install -y yq
+sudo snap install yq
 export SECRET_URI=secret:$(juju show-secret s3-creds | yq 'keys | .[0]' | tr -d '"')
 -->
 
