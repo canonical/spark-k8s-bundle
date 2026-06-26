@@ -86,7 +86,6 @@ For instance, if you want to use Apache Spark 4.0.2 (which natively supports Sca
 you should use the JAR `spark-examples_2.13-4.0.2.jar` instead.
 ```
 
-
 ## Spark Shell
 
 To invoke the Apache Spark shell, you can run the following command within the pod:
