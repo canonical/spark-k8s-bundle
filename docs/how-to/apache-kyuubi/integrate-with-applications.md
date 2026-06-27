@@ -29,7 +29,7 @@ juju integrate kyuubi-k8s:database <charm>
 
 To remove the integration, run
 
-```text
+```shell
 juju remove-relation kyuubi-k8s <charm>
 ```
 
@@ -59,7 +59,7 @@ juju run data-integrator/leader get-credentials
 
 To rotate the passwords of a user created for an integrated application, the associated integration must be removed and created again. This process will generate a new user and password for the application.
 
-```text
+```shell
 juju remove-relation <charm> kyuubi-k8s
 juju integrate <charm> kyuubi-k8s
 ```

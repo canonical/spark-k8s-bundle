@@ -7,7 +7,7 @@ myst:
 (explanation-component-overview)=
 # Components overview
 
-Charmed Apache Spark is composed of foundational software artifacts and a set of Juju operators (charms) that together provide a fully managed Apache Spark platform on Kubernetes. All charms are available individually on [Charmhub](https://charmhub.io/) and can also be deployed together via the [Charmed Apache Spark bundle](https://charmhub.io/spark-k8s-bundle) or [Terraform modules](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/terraform).
+Charmed Apache Spark is composed of foundational software artifacts and a set of Juju operators (charms) that together provide a fully managed Apache Spark platform on Kubernetes. All charms are available individually on [Charmhub](https://charmhub.io/) and can also be deployed together via the [Terraform modules](https://github.com/canonical/spark-k8s-bundle/tree/main/terraform/products).
 
 ## Software artifacts
 

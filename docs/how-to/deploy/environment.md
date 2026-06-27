@@ -33,6 +33,7 @@ The how-to guide below shows you how to set up these to be used with Charmed Apa
 [Canonical Kubernetes](https://documentation.ubuntu.com/canonical-kubernetes/latest/) (also named Canonical K8s) is a performant, lightweight, secure and opinionated distribution of Kubernetes supported by Canonical which includes everything needed to create and manage a scalable cluster suitable for all use cases.
 
 Canonical K8s can be deployed in multiple ways:
+
 * [Using a snap](https://documentation.ubuntu.com/canonical-kubernetes/latest/snap/)
 * [Using Juju](https://documentation.ubuntu.com/canonical-kubernetes/latest/charm/)
 * [Using the Cluster API](https://documentation.ubuntu.com/canonical-kubernetes/latest/capi/)
@@ -50,7 +51,7 @@ Concierge can be configured using a YAML file, where the versions and configurat
 ```
 juju:
   channel: 3.6/stable
-  agent-version: "3.6.9"
+  agent-version: "3.6.21"
   model-defaults:
     logging-config: <root>=INFO; unit=DEBUG
 
@@ -138,7 +139,7 @@ To deploy an EKS cluster, make sure that you have working CLI tools properly ins
   aws sts get-identity-caller
   ```
 
-* [eksctl](https://eksctl.io/) installed and configured (refer to the **README.md** file for more information on how to install it)
+* [eksctl](https://eksctl.io/) installed and configured (refer to their documentation for more information on how to install it)
 
 Make sure that your service account (configured in AWS) has the right permission to create and manage EKS clusters. In general, we recommend the use of profiles when having multiple accounts.
 
@@ -268,7 +269,7 @@ sudo snap install terraform --classic
 
 Once terraform is installed, we're ready to write the Terraform plan for our new AKS cluster.
 
-The terraform scripts for the creation of a simple AKS cluster for Charmed Spark is already available in the [GitHub repository](https://github.com/canonical/spark-k8s-bundle/tree/main/releases/3.4/yaml/docs-resources/aks-setup).
+The terraform scripts for the creation of a simple AKS cluster for Charmed Spark is already available in the [GitHub repository](https://github.com/canonical/spark-k8s-bundle/tree/main/resources/aks-setup).
 If you inspect the contents there, you will see that there are different Terraform configuration files.
 These configuration files contain the specification for the resource group, virtual network and AKS cluster we're going to create.
 
@@ -279,7 +280,7 @@ Create a file named `setup.tf` locally and reference the Terraform module:
 # file: setup.tf
 
 module "aks_cluster" {
-  source     = "git::https://github.com/canonical/spark-k8s-bundle//releases/3.4/yaml/docs-resources/aks-setup"
+  source     = "git::https://github.com/canonical/spark-k8s-bundle//resources/aks-setup"
 }
 
 ```

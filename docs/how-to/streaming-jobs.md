@@ -9,7 +9,7 @@ myst:
 
 The following guide is to set up Apache Spark for structured streaming with Apache Kafka. 
 
-As a pre-requisite, [Juju](https://juju.is/docs/olm/install-juju) has to be installed together with a kubernetes-based juju controller.
+As a pre-requisite, [Juju](https://canonical.com/juju/docs/juju-cli/3.6/) has to be installed together with a kubernetes-based juju controller.
 
 ## Setup
 
@@ -64,12 +64,17 @@ metadata:
   name: testpod
 spec:
   containers:
-  - image: ghcr.io/canonical/charmed-spark:3.4.1-22.04_stable
+  - image: ghcr.io/canonical/charmed-spark:3.5-22.04_stable
     name: spark
     ports:
     - containerPort: 18080
     command: ["sleep"]
     args: ["3600"]
+```
+
+```{note}
+Please make sure to use the correct tag for the version of Apache Spark that you'd like to use.
+For instance, if you want to use Apache Spark 4.0, you should use the image `ghcr.io/canonical/charmed-spark:4.0-22.04_stable` instead.
 ```
 
 Create the pod in the same namespace as the Juju model.
@@ -96,7 +101,12 @@ spark-client.service-account-registry create --username hello --namespace spark-
 
 spark-client.service-account-registry list
 
-spark-client.pyspark --username hello --namespace spark-streaming --conf spark.executor.instances=1 --conf spark.jars.ivy=/tmp --packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.2.0,org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0
+spark-client.pyspark --username hello --namespace spark-streaming --conf spark.executor.instances=1 --conf spark.jars.ivy=/tmp --packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.5.8,org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.8
+```
+
+```{note}
+Please make sure to use the correct package for the version of Apache Spark (eg, 3.4.4, 3.5.8, 4.0.2) and Scala (eg, 2.12, 2.13) that you'd like to use.
+Please refer to the Sonatype query page for [`spark-streaming-kafka`](https://central.sonatype.com/search?q=spark-streaming-kafka-0-10) and [`spark-sql-kafka`](https://central.sonatype.com/search?q=spark-sql-kafka-0-10) for the list of different versions.
 ```
 
 Within the `pyspark` shell, now use the credentials retrieved previously to read stream from Apache Kafka.
