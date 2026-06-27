@@ -37,10 +37,10 @@ output "models" {
           self_signed_certificates = module.ssc.app_name # TODO: expose application
         },
         {
-          metastore = module.metastore.app_name # TODO: expose application
+          metastore = module.metastore.application_name # TODO: expose application
         },
         {
-          kyuubi_users = module.kyuubi_users.app_name # TODO: expose application
+          kyuubi_users = module.kyuubi_users.application_name # TODO: expose application
         },
         length(module.azure_storage) == 0 ? {} : {
           azure_storage = module.azure_storage[0].application
