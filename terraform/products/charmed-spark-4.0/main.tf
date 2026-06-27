@@ -263,13 +263,13 @@ module "kyuubi" {
 
   metastore = {
     kind     = "endpoint"
-    name     = module.metastore.app_name
+    name     = module.metastore.application_name
     endpoint = module.metastore.provides.database
   }
 
   users_db = {
     kind     = "endpoint"
-    name     = module.kyuubi_users.app_name
+    name     = module.kyuubi_users.application_name
     endpoint = module.kyuubi_users.provides.database
   }
 
