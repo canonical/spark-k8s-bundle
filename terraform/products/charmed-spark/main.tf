@@ -40,7 +40,7 @@ module "kyuubi_users" {
   constraints        = "arch=amd64"
   revision           = var.kyuubi_users_revision
   resources          = var.kyuubi_users_image != null ? { postgresql-image = var.kyuubi_users_image } : null
-  storage_directives = { pgdata = var.kyuubi_users_size }
+  storage_directives = { data = var.kyuubi_users_size }
   units              = 1
 }
 
@@ -55,7 +55,7 @@ module "metastore" {
   constraints        = "arch=amd64"
   revision           = var.metastore_revision
   resources          = var.metastore_image != null ? { postgresql-image = var.metastore_image } : null
-  storage_directives = { pgdata = var.metastore_size }
+  storage_directives = { data = var.metastore_size }
   units              = 1
 }
 
