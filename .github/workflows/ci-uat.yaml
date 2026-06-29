@@ -12,14 +12,12 @@ on:
 
 jobs:
   integration-tests:
-    name: "UATs (MicroK8s:${{ matrix.k8s-version }}): spark-${{ matrix.spark-version }} | ${{ matrix.storage-backend }} "
+    name: "UATs (MicroK8s:${{ matrix.k8s-version }}): spark | ${{ matrix.storage-backend }} "
     runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
     timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        spark-version:
-          - "3.4.4"
         storage-backend:
           - s3
           - azure_storage
@@ -122,7 +120,7 @@ jobs:
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |
           cd python/
-          tox -e uat -- --spark-version ${{ matrix.version }}  --storage-backend ${{ matrix.storage-backend }} --cos-model cos
+          tox -e uat -- --storage-backend ${{ matrix.storage-backend }} --cos-model cos
       - id: collect-logs
         name: Collect logs if job failed
         shell: bash

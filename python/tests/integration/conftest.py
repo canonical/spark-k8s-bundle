@@ -39,6 +39,8 @@ from .helpers import (
     local_tmp_folder,
 )
 
+SPARK_VERSION = "3.4.4"
+
 COS_APPS = [
     "loki",
     "grafana",
@@ -80,14 +82,6 @@ def pytest_addoption(parser):
         help="When provided, it deploys COS as well. "
         "If the model already exists, we assume COS had already been "
         "deployed.",
-    )
-    parser.addoption(
-        "--spark-version",
-        nargs="?",
-        const="3.4.4",
-        default="3.4.4",
-        type=str,
-        help="Which Spark version to use for bundle testing.",
     )
     parser.addoption(
         "--storage-backend",
@@ -191,9 +185,9 @@ def cos_model(request) -> None | str:
 
 
 @pytest.fixture(scope="module")
-def spark_version(request) -> str:
-    """The backend which is to be used to deploy the bundle."""
-    return request.config.getoption("--spark-version") or "3.4.4"
+def spark_version() -> str:
+    """The Spark version for this branch's track."""
+    return SPARK_VERSION
 
 
 @pytest.fixture(scope="module")
@@ -475,7 +469,7 @@ def spark_bundle(
     with (IE_TEST_DIR / "integration" / "resources" / "main.tf").open(
         "r", encoding="utf-8"
     ) as f:
-        entrypoint_content = f.read().replace("<spark_flavor>", short_version)
+        entrypoint_content = f.read()
 
     bundle = TerraformBackend(
         tempdir=tempdir,
