@@ -17,7 +17,7 @@ jobs:
     uses: ./.github/workflows/ci-checks.yaml
 
   integration-tests:
-    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark-${{ matrix.spark-version }} | ${{ matrix.storage-backend }} | ${{ matrix.cos-model }}"
+    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark | ${{ matrix.storage-backend }} | ${{ matrix.cos-model }}"
     runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
     # runs-on: ubuntu-22.04
     timeout-minutes: 120
@@ -29,34 +29,15 @@ jobs:
           - integration-sparkjob
           - integration-kyuubi
           - integration-backup-restore
-        spark-version: [ "3.4.4", "3.5.7", "4.0.2" ]
         storage-backend: [ "s3", "azure_storage" ]
         juju-snap-channel: [ "3.6/stable" ]
         k8s-distribution: ["k8s", "microk8s"]
         k8s-version:
           - "1.32"
         unpinned: [""]
-        exclude:
-          - k8s-distribution: "microk8s"
-            spark-version: "3.4.4"
         include:
-          # Test integration-basic, with Spark 3.4
+          # Test integration-basic
           - tox-env: integration-basic
-            spark-version: 3.4.4
-            juju-snap-channel: "3.6/stable"
-            k8s-distribution: "k8s"
-            k8s-version: "1.32"
-
-          # Test integration-basic, with Spark 3.5
-          - tox-env: integration-basic
-            spark-version: 3.5.7
-            juju-snap-channel: "3.6/stable"
-            k8s-distribution: "k8s"
-            k8s-version: "1.32"
-
-          # Test integration-basic, with Spark 4.0
-          - tox-env: integration-basic
-            spark-version: 4.0.2
             juju-snap-channel: "3.6/stable"
             k8s-distribution: "k8s"
             k8s-version: "1.32"
@@ -99,7 +80,6 @@ jobs:
           k8s-distribution: ${{ matrix.k8s-distribution }}
           k8s-version: ${{ matrix.k8s-version }}
           tox-env: ${{ matrix.tox-env }}
-          spark-version: ${{ matrix.spark-version }}
           storage-backend: ${{ matrix.storage-backend || 's3'}}
           cos-model: ${{ matrix.cos-model }}
           juju-snap-channel: ${{ matrix.juju-snap-channel }}
