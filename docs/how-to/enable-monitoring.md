@@ -166,7 +166,7 @@ Congratulations, the COS now monitors the two charms.
 The `cos-configuration-k8s` charm included in the bundle can be used to customize the Grafana dashboards and alert rules.
 If needed, we provide a [default dashboard](https://github.com/canonical/spark-k8s-bundle/tree/main/resources/grafana) as part
 of the bundle and dedicated dashboards for the [Spark History Server](https://github.com/canonical/spark-history-server-k8s-operator/tree/3/edge/src/grafana_dashboards)
-and [Charmed Apache Kyuubi](https://github.com/canonical/kyuubi-k8s-operator/tree/3.4/edge/src/grafana_dashboards) charms.
+and [Charmed Apache Kyuubi](https://github.com/canonical/kyuubi-k8s-operator/tree/3.5/edge/src/grafana_dashboards) charms.
 
 The `cos-configuration-k8s` charm syncs the content of a repository with the resources
 provided to Grafana, thus enabling versioning of the resource.
@@ -181,7 +181,7 @@ Save your alert rules and dashboard models in a Git repository (new or existing)
 
 For rule writing examples, see the
 [Prometheus documentation](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) and
-[Charmed Apache Kyuubi K8s repository](https://github.com/canonical/kyuubi-k8s-operator/blob/3.4/edge/src/prometheus_alert_rules/prometheus.yaml).
+[Charmed Apache Kyuubi K8s repository](https://github.com/canonical/kyuubi-k8s-operator/blob/3.5/edge/src/prometheus_alert_rules/prometheus.yaml).
 
 Make sure to push your changes to the remote repository.
 

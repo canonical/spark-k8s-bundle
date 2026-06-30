@@ -197,7 +197,7 @@ and mutate incoming HTTP(s) requests, fully-integrated with the Canonical Identi
 Refer to the [how-to enable authorization in the Spark history server](how-to-spark-history-server-auth) guide
 for more information. From a permission-wise point of view, white lists of authorized users
 can be provided using the Spark History Server
-[charm configuration option](https://charmhub.io/spark-history-server-k8s/configurations?channel=3.4/edge).
+[charm configuration option](https://charmhub.io/spark-history-server-k8s/configurations?channel=3/edge).
 
 #### Kyuubi JDBC endpoint
 
