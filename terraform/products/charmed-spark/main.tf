@@ -31,7 +31,7 @@ module "ssc" {
 
 module "kyuubi_users" {
   depends_on = [juju_model.spark]
-  source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev774"
+  source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev925"
   model_uuid = local.model_uuid
 
   app_name           = "kyuubi-users"
@@ -46,7 +46,7 @@ module "kyuubi_users" {
 
 module "metastore" {
   depends_on = [juju_model.spark]
-  source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev774"
+  source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev925"
   model_uuid = local.model_uuid
 
   app_name           = "metastore"
