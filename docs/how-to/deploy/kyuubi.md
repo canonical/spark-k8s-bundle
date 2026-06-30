@@ -160,7 +160,7 @@ For the Apache Kyuubi to work with Charmed Apache Spark, it needs a `postgresql-
 Deploy and integrate the `postgresql-k8s` charm:
 
 ```bash
-juju deploy postgresql-k8s --channel=16/stable --trust kyuubi-users
+juju deploy postgresql-k8s --channel=14/stable --trust kyuubi-users
 juju integrate kyuubi-k8s:auth-db kyuubi-users
 ```
 
@@ -248,7 +248,7 @@ To make Apache Kyuubi units stateless, we need to set up external storage for me
 Deploy a new instance of `postgresql-k8s` charm for the metastore:
 
 ```bash
-juju deploy postgresql-k8s --trust --channel=16/stable metastore
+juju deploy postgresql-k8s --trust --channel=14/stable metastore
 ```
 
 Now integrate Apache Kyuubi app with the metastore:
