@@ -240,7 +240,7 @@ resource "juju_model" "spark" {
 
 module "spark" {
   depends_on = [juju_model.spark, module.cos]
-  source     = "./products/charmed-spark-<spark_flavor>" # filled by test fixture
+  source     = "./products/charmed-spark"
 
   model_uuid   = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
   create_model = false

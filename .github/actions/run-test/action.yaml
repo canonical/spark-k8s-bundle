@@ -18,11 +18,6 @@ inputs:
     default: 1.32
     required: false
     type: string
-  spark-version:
-    description: "The version of Spark to run the tests on"
-    default: 3.4.4
-    required: false
-    type: string
   storage-backend:
     description: "The object storage backend to be used"
     default: s3
@@ -242,11 +237,9 @@ runs:
         TFVARS_ARG=""
         if [[ -n "${{ inputs.tfvars-file }}" ]]; then
 
-          version=${{ inputs.spark-version }}
-          major_minor="${version%.*}"   # -> 3.5
           arch="${{ inputs.architecture }}"
 
-          TFVARS_PATH="$(find tfvars-artifacts -type f -name "${major_minor}@${arch}.yaml" | head -n1)"
+          TFVARS_PATH="$(find tfvars-artifacts -type f -name "*@${arch}.yaml" | head -n1)"
           if [[ -z "$TFVARS_PATH" ]]; then
             echo "ERROR: no tfvars file found in artifact '${{ inputs.tfvars-file }}'."
             find tfvars-artifacts -type f || true
@@ -257,7 +250,7 @@ runs:
           python3 .github/scripts/charms_promotions.py get-revisions \
             --format yaml --file $TFVARS_PATH --output tfvars
 
-          REVISION_FILE="${major_minor}@${arch}.tfvars.yaml"
+          REVISION_FILE="$(find . -maxdepth 1 -type f -name "*@${arch}.tfvars.yaml" | head -n1)"
 
           cp $REVISION_FILE python/revisions.tfvars.yaml
 
@@ -266,7 +259,7 @@ runs:
 
         juju add-model spark-bundle-test
         juju list-models
-        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --cos-model ${{ inputs.cos-model }} --spark-version ${{ inputs.spark-version }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }} ${{ inputs.unpinned }} $TFVARS_ARG
+        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --cos-model ${{ inputs.cos-model }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }} ${{ inputs.unpinned }} $TFVARS_ARG
         echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
 
     - id: collect-logs
@@ -323,11 +316,11 @@ runs:
         if [ "${TEST_EXIT_CODE}" != "0" ]; then
           STATUS="failure"
         fi
-        echo '{"tox-env": "${{ inputs.tox-env }}", "k8s-distribution": "${{ inputs.k8s-distribution }}", "spark-version": "${{ inputs.spark-version }}", "storage-backend": "${{ inputs.storage-backend }}", "cos": "${{ inputs.cos-model != '' }}", "juju-version": "${{ inputs.juju-agent-version }}", "status": "'"$STATUS"'"}' > test-result.json
+        echo '{"tox-env": "${{ inputs.tox-env }}", "k8s-distribution": "${{ inputs.k8s-distribution }}", "storage-backend": "${{ inputs.storage-backend }}", "cos": "${{ inputs.cos-model != '' }}", "juju-version": "${{ inputs.juju-agent-version }}", "status": "'"$STATUS"'"}' > test-result.json
 
     - name: Upload the test result as artifact
       if: always()
       uses: actions/upload-artifact@v6
       with:
-        name: integration-results-${{ inputs.tox-env }}-${{ inputs.k8s-distribution }}-${{ inputs.k8s-version }}-${{ inputs.spark-version }}-${{ inputs.storage-backend }}-${{ inputs.cos-model }}-${{ inputs.juju-agent-version }}
+        name: integration-results-${{ inputs.tox-env }}-${{ inputs.k8s-distribution }}-${{ inputs.k8s-version }}-${{ inputs.storage-backend }}-${{ inputs.cos-model }}-${{ inputs.juju-agent-version }}
         path: test-result.json
