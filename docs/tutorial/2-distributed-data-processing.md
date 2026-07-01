@@ -31,7 +31,7 @@ Welcome to
       ____              __
      / __/__  ___ _____/ /__
     _\ \/ _ \/ _ `/ __/  '_/
-   /__ / .__/\_,_/_/ /_/\_\   version 3.5.8
+   /__ / .__/\_,_/_/ /_/\_\   version 4.0.2
       /_/
 
 Using Python version 3.10.12 (main, Jan 26 2026 14:55:28)
@@ -115,7 +115,7 @@ Make sure your Apache Spark image used on the drivers and executors has the same
 You can do that by manually setting the version of image used on the cluster side:
 
 ```bash
-spark-client.service-account-registry add-config --username spark --namespace spark --conf spark.kubernetes.container.image=ghcr.io/canonical/charmed-spark:3.5-22.04_edge
+spark-client.service-account-registry add-config --username spark --namespace spark --conf spark.kubernetes.container.image=ghcr.io/canonical/charmed-spark:4.0-22.04_edge
 ```
 
 ```{note}

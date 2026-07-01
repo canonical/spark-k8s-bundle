@@ -64,7 +64,7 @@ metadata:
   name: testpod
 spec:
   containers:
-  - image: ghcr.io/canonical/charmed-spark:3.5-22.04_stable
+  - image: ghcr.io/canonical/charmed-spark:4.0-22.04_stable
     name: spark
     ports:
     - containerPort: 18080
@@ -101,7 +101,7 @@ spark-client.service-account-registry create --username hello --namespace spark-
 
 spark-client.service-account-registry list
 
-spark-client.pyspark --username hello --namespace spark-streaming --conf spark.executor.instances=1 --conf spark.jars.ivy=/tmp --packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.5.8,org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.8
+spark-client.pyspark --username hello --namespace spark-streaming --conf spark.executor.instances=1 --conf spark.jars.ivy=/tmp --packages org.apache.spark:spark-streaming-kafka-0-10_2.13:4.0.2,org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.2
 ```
 
 ```{note}

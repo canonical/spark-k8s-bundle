@@ -13,7 +13,7 @@ This makes it possible to run queries with hardware acceleration on NVIDIA GPUs.
 ## Prerequisites
 
 - Kubernetes cluster is up and running with NVIDIA GPU support
-- Charmed Apache Kyuubi, revision `121` (Apache Spark 3.5), `122` (Apache Spark 3.4) or higher
+- Charmed Apache Kyuubi, revision `TBD` (Apache Spark 4.0), `121` (Apache Spark 3.5), `122` (Apache Spark 3.4) or higher
 
 Check that NVIDIA GPU support is properly enabled by searching for a `gpu-operator` deployment.
 On a non-confined MicroK8s cluster, this is done by enabling the `gpu` [add-on](https://microk8s.io/docs/addon-gpu).

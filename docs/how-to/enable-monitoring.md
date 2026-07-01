@@ -5,6 +5,7 @@ myst:
 ---
 
 (how-to-monitoring)=
+
 # Enable and configure monitoring
 
 Charmed Apache Spark supports native integration with the Canonical Observability Stack (COS). If you want to enable monitoring on top of Charmed Apache Spark, make sure that you have a Juju model with COS correctly deployed.
@@ -68,8 +69,8 @@ They are used to forward executor and driver logs respectively to a Loki server.
 There are two ways to provide the `LOKI_URL` variables:
 
 1. Manually, via [Spark configuration](https://canonical.com/data/docs/spark/k8s/e-configuration):
-   * `spark.executorEnv.LOKI_URL` - for executors
-   * `spark.kubernetes.driverEnv.LOKI_URL` - for drivers
+   - `spark.executorEnv.LOKI_URL` - for executors
+   - `spark.kubernetes.driverEnv.LOKI_URL` - for drivers
 2. Using the [`logging` relation](https://charmhub.io/spark-integration-hub-k8s/integrations#logging)
    in an Integration Hub for Apache Spark charm either with the
    [Grafana-agent charm](https://charmhub.io/grafana-agent-k8s) (recommended) or
@@ -123,7 +124,7 @@ directly (as explained in the
 [Spark client tutorial](https://discourse.charmhub.io/t/spark-client-snap-tutorial-spark-submit/8953)).
 ```
 
-## (Optional) Spark History Server and Charmed Apache Kyuubi 
+## (Optional) Spark History Server and Charmed Apache Kyuubi
 
 Both the Spark History Server and Charmed Apache Kyuubi charms come with the [JMX exporter](https://github.com/prometheus/jmx_exporter/).
 The metrics can be queried by accessing the `http://<history-server-unit-ip>:9101/metrics` and `http://<kyuubi-unit-ip>:10019/metrics` endpoints, respectively.
@@ -140,7 +141,7 @@ After setting up COS following the previous sections, you should have:
 
 ### Setup
 
-To benefit from the native COS support, integrate the charms with `grafana-agent`. 
+To benefit from the native COS support, integrate the charms with `grafana-agent`.
 For Spark History Server:
 
 ```shell
@@ -165,8 +166,8 @@ Congratulations, the COS now monitors the two charms.
 
 The `cos-configuration-k8s` charm included in the bundle can be used to customize the Grafana dashboards and alert rules.
 If needed, we provide a [default dashboard](https://github.com/canonical/spark-k8s-bundle/tree/main/resources/grafana) as part
-of the bundle and dedicated dashboards for the [Spark History Server](https://github.com/canonical/spark-history-server-k8s-operator/tree/3/edge/src/grafana_dashboards)
-and [Charmed Apache Kyuubi](https://github.com/canonical/kyuubi-k8s-operator/tree/3.4/edge/src/grafana_dashboards) charms.
+of the bundle and dedicated dashboards for the [Spark History Server](https://github.com/canonical/spark-history-server-k8s-operator/tree/4/edge/src/grafana_dashboards)
+and [Charmed Apache Kyuubi](https://github.com/canonical/kyuubi-k8s-operator/tree/4.0/edge/src/grafana_dashboards) charms.
 
 The `cos-configuration-k8s` charm syncs the content of a repository with the resources
 provided to Grafana, thus enabling versioning of the resource.
@@ -181,7 +182,7 @@ Save your alert rules and dashboard models in a Git repository (new or existing)
 
 For rule writing examples, see the
 [Prometheus documentation](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) and
-[Charmed Apache Kyuubi K8s repository](https://github.com/canonical/kyuubi-k8s-operator/blob/3.4/edge/src/prometheus_alert_rules/prometheus.yaml).
+[Charmed Apache Kyuubi K8s repository](https://github.com/canonical/kyuubi-k8s-operator/blob/4.0/edge/src/prometheus_alert_rules/prometheus.yaml).
 
 Make sure to push your changes to the remote repository.
 
