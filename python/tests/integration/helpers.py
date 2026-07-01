@@ -131,16 +131,13 @@ def get_postgresql_credentials(
     juju: jubilant.Juju, application_name: str, num_unit=0
 ) -> dict[str, str]:
     """Return the credentials that can be used to connect to postgresql database."""
-    task = juju.run(f"{application_name}/{num_unit}", "get-password")
-    assert task.return_code == 0
-
-    results = task.results
+    secret = juju.show_secret(f"database-peers.{application_name}.app", reveal=True)
+    operator_password = secret.content["operator-password"]
     status = juju.status()
     address = (
         status.apps[application_name].units[f"{application_name}/{num_unit}"].address
     )
-
-    return {"username": "operator", "password": results["password"], "host": address}
+    return {"username": "operator", "password": operator_password, "host": address}
 
 
 @contextmanager
