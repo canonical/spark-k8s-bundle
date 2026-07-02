@@ -534,6 +534,9 @@ And finally, integrate `s3-integrator` with `spark-integration-hub-k8s` charm:
 juju integrate s3-integrator spark-integration-hub-k8s
 ```
 
+> [!NOTE]  
+> If the `region` is not configured in the `s3-integrator` charm before integrating it with `spark-integration-hub-k8s` charm, the `spark-integration-hub-k8s` charm uses `us-east-1` as the region to send requests to S3.
+
 <!-- test:await-idle --timeout 600 -->
 
 Wait for both charms to reach `active/idle` status:
