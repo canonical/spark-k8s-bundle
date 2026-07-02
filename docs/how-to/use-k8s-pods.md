@@ -27,7 +27,7 @@ metadata:
 spec:
   containers:
   - name: spark-client
-    image: ghcr.io/canonical/charmed-spark:3.5-22.04_stable
+    image: ghcr.io/canonical/charmed-spark:4.0-22.04_stable
     command: ["/bin/pebble", "run", "--hold"]
   serviceAccountName: spark
   hostNetwork: true
@@ -71,13 +71,13 @@ python3 -m spark8t.cli.service_account_registry create --username spark
 There is a script called ```spark-submit``` packaged within the Charmed Apache Spark container image for Spark job submission. We can use the ```Spark Pi``` job example again, such as:
 
 ```shell
-python3 -m spak8t.cli.spark_submit --username spark --class org.apache.spark.examples.SparkPi local:///opt/spark/examples/jars/spark-examples_2.12-3.5.8.jar 100
+python3 -m spak8t.cli.spark_submit --username spark --class org.apache.spark.examples.SparkPi local:///opt/spark/examples/jars/spark-examples_2.13-4.0.2.jar 100
 ```
 
 Or using the snap command (referring practically to the same thing):
 
 ```shell
-spark-client.spark-submit --username spark --class org.apache.spark.examples.SparkPi local:///opt/spark/examples/jars/spark-examples_2.12-3.5.8.jar 100
+spark-client.spark-submit --username spark --class org.apache.spark.examples.SparkPi local:///opt/spark/examples/jars/spark-examples_2.13-4.0.2.jar 100
 ```
 
 ```{note}

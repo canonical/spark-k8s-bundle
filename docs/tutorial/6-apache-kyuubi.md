@@ -74,7 +74,7 @@ juju consume spark-tutorial:admin/spark-integration-hub.spark-integration-hub-k8
 We need a database to hold our users. Let's use the [Charmed PostgreSQL K8s charm](https://charmhub.io/postgresql-k8s) for that:
 
 ```shell
-juju deploy postgresql-k8s --channel 14/stable --trust auth-db
+juju deploy postgresql-k8s --channel 16/stable --trust auth-db
 ```
 
 ### External access
@@ -90,15 +90,15 @@ juju deploy data-integrator --channel latest/stable --config database-name=test
 We are now ready to deploy the Charmed Apache Kyuubi K8s charm, and integrate it with the previously prepared charms:
 
 ```shell
-juju deploy kyuubi-k8s --channel 3.5/stable --trust --config expose-external=loadbalancer
+juju deploy kyuubi-k8s --channel 4.0/edge --trust --config expose-external=loadbalancer
 juju integrate kyuubi-k8s integration-hub 
 juju integrate kyuubi-k8s:auth-db auth-db
 juju integrate kyuubi-k8s data-integrator
 ```
 
 ```{note}
-The `kyuubi-k8s` charm in track `3.5` supports Apache Spark 3.5. If you'd like to use Apache Spark 4.0 or 3.4, use the charm
-from tracks `4.0` or `3.4` respectively.
+The `kyuubi-k8s` charm in track `4.0` supports Apache Spark 4.0. If you'd like to use Apache Spark 3.5 or 3.4, use the charm
+from tracks `3.5` or `3.4` respectively.
 ```
 
 Check the list of charms that have been deployed and their statuses:
@@ -116,9 +116,9 @@ Model              Controller      Cloud/Region        Version  SLA          Tim
 datalake           spark-tutorial  microk8s/localhost  3.6.21   unsupported  13:40:00+01:00
 
 App              Version  Status  Scale  Charm            Channel        Rev  Address         Exposed  Message
-auth-db          14.20    active      1  postgresql-k8s   14/stable      774  10.152.183.19   no
+auth-db          16.14    active      1  postgresql-k8s   16/stable      927  10.152.183.19   no
 data-integrator           active      1  data-integrator  latest/stable  362  10.152.183.94   no
-kyuubi-k8s       1.11     active      1  kyuubi-k8s       3.5/stable     160  10.152.183.84   no
+kyuubi-k8s       1.11     active      1  kyuubi-k8s       4.0/stable     181  10.152.183.84   no
 
 Unit                 Workload  Agent  Address       Ports  Message
 auth-db/0*           active    idle   10.1.111.95          Primary

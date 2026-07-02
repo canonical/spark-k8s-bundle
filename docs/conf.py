@@ -26,6 +26,7 @@ import yaml
 
 project = "Charmed Apache Spark"
 author = "Canonical Ltd."
+TRACK = "4.0"
 
 
 # Sidebar documentation title; best kept reasonably short
@@ -34,7 +35,7 @@ author = "Canonical Ltd."
 #
 # TODO: To disable the title, set to an empty string.
 
-html_title = project + " documentation"
+html_title = project + f" {TRACK} documentation"
 
 
 # Copyright string; shown at the bottom of the page
@@ -136,11 +137,9 @@ html_context = {
     # Docs branch in the repo; used in links for viewing the source files
     #
     # TODO: To customise the branch, uncomment and update as needed.
-    'repo_default_branch': 'main',
+    "repo_default_branch": "track/3.5",
     # Docs location in the repo; used in links for viewing the source files
     #
-
-
     # TODO: To customise the directory, uncomment and update as needed.
     "repo_folder": "/docs/",
     # TODO: To enable or disable the Previous / Next buttons at the bottom of pages
@@ -148,9 +147,8 @@ html_context = {
     # "sequential_nav": "both",
     # TODO: To enable listing contributors on individual pages, set to True
     "display_contributors": False,
-
-    # Required for feedback button    
-    'github_issues': 'enabled',
+    # Required for feedback button
+    "github_issues": "enabled",
 }
 
 # TODO: To enable the edit button on pages, uncomment and change the link to a
@@ -161,7 +159,7 @@ html_context = {
 # - https://git.launchpad.net/example
 
 html_theme_options = {
-'source_edit_link': 'https://github.com/canonical/spark-k8s-bundle',
+    "source_edit_link": "https://github.com/canonical/spark-k8s-bundle",
 }
 
 # Project slug; see https://meta.discourse.org/t/what-is-category-slug/87897
@@ -177,16 +175,16 @@ html_theme_options = {
 
 # Base URL of RTD hosted project
 
-html_baseurl = 'https://canonical-charmed-spark.readthedocs-hosted.com/'
+html_baseurl = "https://canonical-charmed-spark.readthedocs-hosted.com/"
 
 # URL scheme. Add language and version scheme elements.
 # When configured with RTD variables, check for RTD environment so manual runs succeed:
 
-if 'READTHEDOCS_VERSION' in os.environ:
+if "READTHEDOCS_VERSION" in os.environ:
     version = os.environ["READTHEDOCS_VERSION"]
-    sitemap_url_scheme = '{version}{link}'
+    sitemap_url_scheme = "{version}{link}"
 else:
-    sitemap_url_scheme = 'MANUAL/{link}'
+    sitemap_url_scheme = "MANUAL/{link}"
 
 # Include `lastmod` dates in the sitemap:
 
@@ -195,9 +193,9 @@ sitemap_show_lastmod = True
 # Exclude generated pages from the sitemap:
 
 sitemap_excludes = [
-    '404/',
-    'genindex/',
-    'search/',
+    "404/",
+    "genindex/",
+    "search/",
 ]
 
 # TODO: Add more pages to sitemap_excludes if needed. Wildcards are supported.
@@ -247,7 +245,7 @@ linkcheck_ignore = [
     "https://charmhub.io/spark-integration-hub-k8s/integrations#logging",
     "https://charmhub.io/kyuubi-k8s/actions#get-jdbc-endpoint",
     "https://developer.hashicorp.com/terraform/*",
-    ]
+]
 
 
 # A regex list of URLs where anchors are ignored by 'make linkcheck'
@@ -307,15 +305,13 @@ exclude_patterns = [
 
 # Adds custom CSS files, located under 'html_static_path'
 
-html_css_files = [
-	'cookie-banner.css'
-]
+html_css_files = ["cookie-banner.css"]
 
 
 # Adds custom JavaScript files, located under 'html_static_path'
 
 html_js_files = [
-	'js/bundle.js',
+    "js/bundle.js",
 ]
 
 
@@ -368,12 +364,15 @@ if "discourse_prefix" not in html_context and "discourse" in html_context:
 
 # Workaround for substitutions.yaml
 
-if os.path.exists('./reuse/substitutions.yaml'):
-    with open('./reuse/substitutions.yaml', 'r') as fd:
+if os.path.exists("./reuse/substitutions.yaml"):
+    with open("./reuse/substitutions.yaml", "r") as fd:
         myst_substitutions = yaml.safe_load(fd.read())
 
 # Add configuration for intersphinx mapping
 
 intersphinx_mapping = {
-    'starter-pack': ('https://canonical-example-product-documentation.readthedocs-hosted.com/en/latest', None)
+    "starter-pack": (
+        "https://canonical-example-product-documentation.readthedocs-hosted.com/en/latest",
+        None,
+    )
 }
