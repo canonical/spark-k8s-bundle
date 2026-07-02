@@ -26,6 +26,7 @@ import yaml
 
 project = "Charmed Apache Spark"
 author = "Canonical Ltd."
+TRACK = "4.0"
 
 
 # Sidebar documentation title; best kept reasonably short
@@ -34,7 +35,7 @@ author = "Canonical Ltd."
 #
 # TODO: To disable the title, set to an empty string.
 
-html_title = project + " documentation"
+html_title = project + f" {TRACK} documentation"
 
 
 # Copyright string; shown at the bottom of the page
