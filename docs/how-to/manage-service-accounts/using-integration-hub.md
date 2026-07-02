@@ -66,6 +66,7 @@ juju config s3-integrator \
   bucket=<S3_BUCKET> \
   endpoint=<S3_ENDPOINT> \
   path=spark-events \
+  region=<S3_REGION> \
   credentials=<SECRET_URI_FROM_PREVIOUS_STEP>
 ```
 
@@ -81,6 +82,9 @@ the Integration Hub for Apache Spark charm can be integrated with
 ```shell
 juju integrate s3-integrator spark-integration-hub-k8s
 ```
+
+> [!NOTE]  
+> If the `region` is not configured in the `s3-integrator` charm before integrating it with `spark-integration-hub-k8s` charm, the `spark-integration-hub-k8s` charm uses `us-east-1` as the region to send requests to S3.
 
 This will automatically add relevant configuration properties to your Spark jobs,
 depending on the storage backend.
