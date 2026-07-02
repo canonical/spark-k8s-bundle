@@ -5,6 +5,7 @@ myst:
 ---
 
 (how-to-use-k8s-pods)=
+
 # Working with Charmed Kubernetes from within a pod
 
 ## Setup
@@ -26,9 +27,9 @@ metadata:
   namespace: default
 spec:
   containers:
-  - name: spark-client
-    image: ghcr.io/canonical/charmed-spark:3.5-22.04_stable
-    command: ["/bin/pebble", "run", "--hold"]
+    - name: spark-client
+      image: ghcr.io/canonical/charmed-spark:3.4-22.04_stable
+      command: ["/bin/pebble", "run", "--hold"]
   serviceAccountName: spark
   hostNetwork: true
   dnsPolicy: Default
@@ -48,7 +49,7 @@ kubectl apply -f shell-demo.yaml
 We can log into the pod as below:
 
 ```shell
-kubectl exec --stdin --tty shell-demo -- /bin/bash 
+kubectl exec --stdin --tty shell-demo -- /bin/bash
 ```
 
 Now let's create the Kubernetes configuration on the pod, with contents from the original server's `.kube/config`:
@@ -60,7 +61,7 @@ $ cat > ~/.kube/config << EOF
 EOF
 ```
 
-Then we need to set up a service account for Spark job submission. Let's create a user called ```spark``` in ```default``` namespace:
+Then we need to set up a service account for Spark job submission. Let's create a user called `spark` in `default` namespace:
 
 ```shell
 python3 -m spark8t.cli.service_account_registry create --username spark
@@ -68,16 +69,16 @@ python3 -m spark8t.cli.service_account_registry create --username spark
 
 ## Spark Job Submission To Kubernetes Cluster
 
-There is a script called ```spark-submit``` packaged within the Charmed Apache Spark container image for Spark job submission. We can use the ```Spark Pi``` job example again, such as:
+There is a script called `spark-submit` packaged within the Charmed Apache Spark container image for Spark job submission. We can use the `Spark Pi` job example again, such as:
 
 ```shell
-python3 -m spak8t.cli.spark_submit --username spark --class org.apache.spark.examples.SparkPi local:///opt/spark/examples/jars/spark-examples_2.12-3.5.8.jar 100
+python3 -m spak8t.cli.spark_submit --username spark --class org.apache.spark.examples.SparkPi local:///opt/spark/examples/jars/spark-examples_2.12-3.4.4.jar 100
 ```
 
 Or using the snap command (referring practically to the same thing):
 
 ```shell
-spark-client.spark-submit --username spark --class org.apache.spark.examples.SparkPi local:///opt/spark/examples/jars/spark-examples_2.12-3.5.8.jar 100
+spark-client.spark-submit --username spark --class org.apache.spark.examples.SparkPi local:///opt/spark/examples/jars/spark-examples_2.12-3.4.4.jar 100
 ```
 
 ```{note}

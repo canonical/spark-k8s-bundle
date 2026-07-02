@@ -10,6 +10,7 @@ kill-timeout: 30m
 -->
 
 (tutorial-2-distributed-data-processing)=
+
 # 2. Distributed data processing
 
 In this section, you will learn how to use PySpark and Spark Submit to run your Spark jobs. Make sure to finish setting up the environment from the [Environment setup](/tutorial/1-environment-setup) page.
@@ -31,7 +32,7 @@ Welcome to
       ____              __
      / __/__  ___ _____/ /__
     _\ \/ _ \/ _ `/ __/  '_/
-   /__ / .__/\_,_/_/ /_/\_\   version 3.5.8
+   /__ / .__/\_,_/_/ /_/\_\   version 3.4.4
       /_/
 
 Using Python version 3.10.12 (main, Jan 26 2026 14:55:28)
@@ -41,7 +42,7 @@ SparkSession available as 'spark'.
 >>>
 ```
 
-When you open the PySpark shell, Charmed Apache Spark spawns a couple of executor K8s pods in the background to process commands. 
+When you open the PySpark shell, Charmed Apache Spark spawns a couple of executor K8s pods in the background to process commands.
 You can see them by fetching the list of pods in the `spark` namespace in a separate VM shell:
 
 ```bash
@@ -56,7 +57,7 @@ pysparkshell-xxxxxxxxxxxxxxxx-exec-1              1/1     Running            0  
 pysparkshell-xxxxxxxxxxxxxxxx-exec-2              1/1     Running            0          5s
 ```
 
-As you can see, PySpark spawned two executor pods within the `spark` namespace. This is the namespace that we provided as a value to the `--namespace` argument when launching `spark-client.pyspark`. It's in these executor pods that data is cached and the computation will be executed, therefore creating a computational architecture that can horizontally scale to large datasets ("big data"). 
+As you can see, PySpark spawned two executor pods within the `spark` namespace. This is the namespace that we provided as a value to the `--namespace` argument when launching `spark-client.pyspark`. It's in these executor pods that data is cached and the computation will be executed, therefore creating a computational architecture that can horizontally scale to large datasets ("big data").
 
 On the other hand, the PySpark shell started by the `spark-client` snap will act as a `driver`, controlling and orchestrating the operations of the executors. More information about the Apache Spark architecture can be found in the [Apache Spark documentation](https://spark.apache.org/docs/latest/cluster-overview.html).
 
@@ -94,7 +95,7 @@ To test this function, the string `lines` can now be passed into it so the numbe
 count_vowels(lines)
 ```
 
-As a result, you should see the value returned by the function: `137`. 
+As a result, you should see the value returned by the function: `137`.
 However, this approach does not leverage parallelization or the distributed processing capabilities of Apache Spark. It simply executes the Python code.
 
 Since Apache Spark is designed for distributed processing, we can run this task in parallel across multiple executor pods. This parallelization can be achieved as simply as:
@@ -104,22 +105,22 @@ from operator import add
 spark.sparkContext.parallelize(lines.splitlines(), 2).map(count_vowels).reduce(add)
 ```
 
-```{note}
+````{note}
 If you get an error message containing `java.io.InvalidClassException`, like this:
 
 ```text
 java.io.InvalidClassException: org.apache.spark.scheduler.Task; local class incompatible: stream classdesc serialVersionUID = -3760150995365899213, local class serialVersionUID = -8788749905090789633
-```
+````
 
 Make sure your Apache Spark image used on the drivers and executors has the same version of Apache Spark as your local spark.client.
 You can do that by manually setting the version of image used on the cluster side:
 
 ```bash
-spark-client.service-account-registry add-config --username spark --namespace spark --conf spark.kubernetes.container.image=ghcr.io/canonical/charmed-spark:3.5-22.04_edge
+spark-client.service-account-registry add-config --username spark --namespace spark --conf spark.kubernetes.container.image=ghcr.io/canonical/charmed-spark:3.4-22.04_edge
 ```
 
 ```{note}
-If you'd like to use Apache Spark 4.0 or 3.4, use the image `ghcr.io/canonical/charmed-spark:4.0-22.04_edge` or `ghcr.io/canonical/charmed-spark:3.4-22.04_edge` respectively.
+If you'd like to use Apache Spark 4.0 or 3.5, use the image `ghcr.io/canonical/charmed-spark:4.0-22.04_edge` or `ghcr.io/canonical/charmed-spark:3.5-22.04_edge` respectively.
 ```
 
 Here, we split the data into two parts, generating a distributed data structure, where each line is stored in one of the (possibly many) executors.
@@ -246,10 +247,12 @@ For a quick example, let's see how it can be done using slightly refactored code
 We’ve added a few more lines to what we’ve executed so far. The Apache Spark session, which would be available by default in a PySpark shell, needs to be explicitly created. Also, we’ve added `spark.stop()` at the end of the file to stop the Apache Spark session after completion of the job.
 
 Let’s save the aforementioned script in a file named `count-ubuntu.py` and proceed further to run it.
+
 <!-- test:run
 # Copy count-ubuntu.py from repo resources
 cp "$SPREAD_PATH/python/tests/tutorial/resources/count_ubuntu.py" count-ubuntu.py
 -->
+
 ### Run
 
 When submitting a Spark job, the driver won’t be running in the local machine but on a K8s pod, hence the script needs to be downloaded and then executed remotely on Kubernetes in a dedicated pod.

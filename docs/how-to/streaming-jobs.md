@@ -5,9 +5,10 @@ myst:
 ---
 
 (how-to-streaming-jobs)=
+
 # How to run Apache Spark Streaming against Apache Kafka
 
-The following guide is to set up Apache Spark for structured streaming with Apache Kafka. 
+The following guide is to set up Apache Spark for structured streaming with Apache Kafka.
 
 As a pre-requisite, [Juju](https://canonical.com/juju/docs/juju-cli/3.6/) has to be installed together with a kubernetes-based juju controller.
 
@@ -19,7 +20,7 @@ First, create a fresh Juju model to be used as a workspace for spark-streaming e
 juju add-model spark-streaming
 ```
 
-Deploy the Apache ZooKeeper and the Apache Kafka k8s-charms. Single units should be enough. 
+Deploy the Apache ZooKeeper and the Apache Kafka k8s-charms. Single units should be enough.
 
 ```shell
 juju deploy zookeeper-k8s --series=jammy --channel=edge
@@ -46,7 +47,7 @@ juju deploy data-integrator --series=jammy --channel=edge --config extra-user-ro
 
 juju integrate data-integrator kafka-k8s 
 
-juju run-action data-integrator/0 get-credentials --wait 
+juju run-action data-integrator/0 get-credentials --wait
 ```
 
 ```{note}
@@ -64,12 +65,12 @@ metadata:
   name: testpod
 spec:
   containers:
-  - image: ghcr.io/canonical/charmed-spark:3.5-22.04_stable
-    name: spark
-    ports:
-    - containerPort: 18080
-    command: ["sleep"]
-    args: ["3600"]
+    - image: ghcr.io/canonical/charmed-spark:3.4-22.04_stable
+      name: spark
+      ports:
+        - containerPort: 18080
+      command: ["sleep"]
+      args: ["3600"]
 ```
 
 ```{note}
@@ -79,7 +80,7 @@ For instance, if you want to use Apache Spark 4.0, you should use the image `ghc
 
 Create the pod in the same namespace as the Juju model.
 
-Launch a Bash shell inside the test pod. 
+Launch a Bash shell inside the test pod.
 
 ```shell
 kubectl apply -f ./testpod.yaml --namespace=spark-streaming
@@ -101,7 +102,7 @@ spark-client.service-account-registry create --username hello --namespace spark-
 
 spark-client.service-account-registry list
 
-spark-client.pyspark --username hello --namespace spark-streaming --conf spark.executor.instances=1 --conf spark.jars.ivy=/tmp --packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.5.8,org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.8
+spark-client.pyspark --username hello --namespace spark-streaming --conf spark.executor.instances=1 --conf spark.jars.ivy=/tmp --packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.4.4,org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.4
 ```
 
 ```{note}
@@ -134,4 +135,3 @@ count = lines.withColumn("origin", get_origin(col("value"))).select("origin")\
 
 count.awaitTermination()
 ```
-

@@ -31,11 +31,11 @@ juju add-model kyuubi
 Deploy the Apache Kyuubi charm:
 
 ```bash
-juju deploy kyuubi-k8s --trust --channel=3.5/stable
+juju deploy kyuubi-k8s --trust --channel=3.4/stable
 ```
 
 ```{note}
-We also offer `4.0` and `3.4` track to run Apache Spark 4.0 and 3.4 workloads respectively.
+We also offer `4.0` and `3.5` track to run Apache Spark 4.0 and 3.5 workloads respectively.
 Please make sure to use the correct track for the version of Apache Spark that you'd like to use.
 ```
 
@@ -199,7 +199,7 @@ For example, you can use the beeline tool that is a part of the Apache Kyuubi ch
 We recommend deploying a new, dedicated Apache Kyuubi app for that:
 
 ```bash
-juju deploy kyuubi-k8s --channel=3.5/stable --trust beeline
+juju deploy kyuubi-k8s --channel=3.4/stable --trust beeline
 ```
 
 ```{note}
@@ -225,7 +225,7 @@ You will see log output with `Pending` phase while Kubernetes pods are starting:
 After the initialisation is complete, you will get the Beeline version and prompt:
 
 ```text
-Connected to: Spark SQL (version 3.5.8)
+Connected to: Spark SQL (version 3.4.4)
 Driver: Kyuubi Project Hive JDBC Client (version 1.10.3)
 Beeline version 1.10.3 by Apache Kyuubi
 0: jdbc:hive2://10.41.189.148:10009/> 
