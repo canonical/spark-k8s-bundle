@@ -69,6 +69,7 @@ juju config <metastore-backup> \
   bucket=<S3_BUCKET> \
   endpoint=<S3_ENDPOINT> \
   path=<S3_PATH> \
+  region=<S3_REGION> \
   credentials=<SECRET_URI_FROM_PREVIOUS_STEP>
 ```
 

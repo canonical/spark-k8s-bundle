@@ -111,6 +111,9 @@ Once properly configured, the `s3-integrator` app should go to an active and idl
 juju integrate s3-integrator spark-history-server-k8s
 ```
 
+> [!NOTE]  
+> If the `region` is not configured in the `s3-integrator` charm before integrating it with `spark-history-server-k8s` charm, the `spark-history-server-k8s` charm uses `us-east-1` as the region to send requests to S3.
+
 <!-- test:await-idle --timeout 600 -->
 
 Let's view the status of the Juju model now with the command `watch -c juju status --color --relations`. Once deployment and integration have been completed for the charms, the status should look similar to the following:
