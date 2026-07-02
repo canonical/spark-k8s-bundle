@@ -5,10 +5,11 @@ myst:
 ---
 
 (explanation-configuration)=
+
 # Configuration management
 
 Apache Spark comes with a wide range of
-[configuration properties](https://archive.apache.org/dist/spark/docs/3.4.2/configuration.html#available-properties)
+[configuration properties](https://archive.apache.org/dist/spark/docs/3.4.4/configuration.html#available-properties)
 that can be fed into Apache Spark using a single property file, e.g. `spark.properties`, or by passing configuration
 values on the command line, as an argument to `spark-submit`, `pyspark` and `spark-shell`.
 
@@ -49,8 +50,8 @@ Environment configurations are stored in your local environment, and they can ap
 to multiple Apache Spark users launched/used from the same machine. They are valid
 across users and sessions. These configurations may be stored in:
 
-* *static properties files* specified via environment variable `SPARK_CLIENT_ENV_CONF`
-* `$SNAP_DATA/etc/spark8t/spark-defaults.conf`
+- _static properties files_ specified via environment variable `SPARK_CLIENT_ENV_CONF`
+- `$SNAP_DATA/etc/spark8t/spark-defaults.conf`
 
 The file specified by the environment variable takes the precedence.
 
@@ -60,7 +61,7 @@ Session configurations are provided as CLI arguments to the `spark-client` comma
 and they are only valid for the related command/session. CLI configurations may
 be provided by:
 
-* *Single Property* specified using parameter(s) `--conf <key>=<value>`
-* *Properties Files* specified using parameter(s) `--properties-file`
+- _Single Property_ specified using parameter(s) `--conf <key>=<value>`
+- _Properties Files_ specified using parameter(s) `--properties-file`
 
 Single Property takes the precedence.

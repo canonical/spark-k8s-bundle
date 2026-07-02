@@ -5,17 +5,17 @@ name: End-to-end Tutorial Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [track/3.4]
   pull_request:
     paths:
-      - 'docs/**'         # Run on changes to the docs directory
-      - 'spread.yaml'     # Run when spread.yaml is modified (e.g., changes to the bootstrapping configuration)
-      - 'python/tox.ini'  # Run when the tox.ini file is modified (e.g., changes to the tutorial test environment)
+      - "docs/**" # Run on changes to the docs directory
+      - "spread.yaml" # Run when spread.yaml is modified (e.g., changes to the bootstrapping configuration)
+      - "python/tox.ini" # Run when the tox.ini file is modified (e.g., changes to the tutorial test environment)
 
   workflow_dispatch:
-    # Manual trigger
+  # Manual trigger
   schedule:
-    - cron: '0 3 2 * *'  # 2nd of every month at 03:00 UTC
+    - cron: "0 3 2 * *" # 2nd of every month at 03:00 UTC
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -28,7 +28,7 @@ jobs:
     timeout-minutes: 180
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Check KVM availability
         run: |

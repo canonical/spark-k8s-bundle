@@ -10,26 +10,27 @@ kill-timeout: 1h
 -->
 
 (tutorial-1-environment-setup)=
+
 # 1. Environment setup
 
 Charmed Apache Spark solution is based on the `spark-client` snap that can run Spark jobs on a Kubernetes cluster.
 
 In this step of the tutorial, we will prepare a lightweight K8s environment, `spark-client` snap, and some additional components required for this tutorial. We are going to use [Multipass](https://canonical.com/multipass) to create a virtual environment and set up the following software:
 
-* [MicroK8s](https://microk8s.io/) — a lightweight Kubernetes that can run locally
-* [Spark-client snap](https://snapcraft.io/spark-client) — a snap that bundles client-side scripts to manage, configure, and run Apache Spark jobs on a Kubernetes cluster
-* [MiniO](https://min.io/) — S3-compliant object storage
-* [Juju](https://juju.is/) — Canonical's orchestration system
+- [MicroK8s](https://microk8s.io/) — a lightweight Kubernetes that can run locally
+- [Spark-client snap](https://snapcraft.io/spark-client) — a snap that bundles client-side scripts to manage, configure, and run Apache Spark jobs on a Kubernetes cluster
+- [MiniO](https://min.io/) — S3-compliant object storage
+- [Juju](https://juju.is/) — Canonical's orchestration system
 
 ## Minimum system requirements
 
 Before we start, make sure your machine meets the following minimal requirements:
 
-* Ubuntu 22.04 (jammy) or later (the tutorial has been prepared and tested to work on 24.04)
-* 10 GB of RAM
-* 5 CPU cores
-* At least 50 GB of available storage
-* Access to the internet for downloading the required snaps and charms
+- Ubuntu 22.04 (jammy) or later (the tutorial has been prepared and tested to work on 24.04)
+- 10 GB of RAM
+- 5 CPU cores
+- At least 50 GB of available storage
+- Access to the internet for downloading the required snaps and charms
 
 ## Virtual machine
 
@@ -133,7 +134,7 @@ addons:
 ...
 ```
 
-Let's generate a Kubernetes configuration file using MicroK8s and write it to `~/.kube/config`. 
+Let's generate a Kubernetes configuration file using MicroK8s and write it to `~/.kube/config`.
 This is where `kubectl` looks for the `kubeconfig` file by default.
 
 ```shell
@@ -184,12 +185,12 @@ For Apache Spark jobs to be running run on top of Kubernetes, a set of resources
 To simplify this task, the Charmed Apache Spark solution offers the `spark-client` snap. Install the snap:
 
 ```shell
-sudo snap install spark-client --channel 3.5/stable
+sudo snap install spark-client --channel 3.4/stable
 ```
 
 ```{note}
-The `spark-client` snap from track `3.5` is supposed to be used for running Spark jobs using Apache Spark 3.5. 
-Please use tracks `4.0` or `3.4` for Apache Spark 4.0 and 3.4 respectively.
+The `spark-client` snap from track `3.4` is supposed to be used for running Spark jobs using Apache Spark 3.4. 
+Please use tracks `4.0` or `3.5` for Apache Spark 4.0 and 3.5 respectively.
 ```
 
 Let's create a Kubernetes namespace for us to use as a playground in this tutorial.
@@ -251,14 +252,14 @@ Welcome to
       ____              __
      / __/__  ___ _____/ /__
     _\ \/ _ \/ _ `/ __/  '_/
-   /__ / .__/\_,_/_/ /_/\_\   version 3.5.8
+   /__ / .__/\_,_/_/ /_/\_\   version 3.4.4
       /_/
 
 Using Python version 3.10.12 (main, Jan 26 2026 14:55:28)
 Spark context Web UI available at http://10.189.154.233:4040
 Spark context available as 'sc' (master = k8s://https://10.189.154.233:16443, app id = spark-cf06b03549f54011a0ab612df8be335e).
 SparkSession available as 'spark'.
->>> 
+>>>
 ```
 
 Press `CTRL + D` to exit PySpark shell.
@@ -270,7 +271,7 @@ Next, we'll continue to set up additional software needed for Spark History Serv
 ## Juju
 
 [Juju](https://juju.is/) is an Operator Lifecycle Manager (OLM) for clouds, bare metal, LXD or Kubernetes.
-We'll use `juju` to deploy and manage the Spark History Server and a number of other applications later to be integrated with Apache Spark. 
+We'll use `juju` to deploy and manage the Spark History Server and a number of other applications later to be integrated with Apache Spark.
 
 To install and configure a `juju` client using a snap:
 
@@ -279,7 +280,7 @@ sudo snap install juju
 mkdir -p ~/.local/share
 ```
 
-Juju can automatically detects all available clouds on our local machine (VM) without the need of additional setup or configuration. 
+Juju can automatically detects all available clouds on our local machine (VM) without the need of additional setup or configuration.
 You can verify this by running `juju clouds` command that should produce an output similar to the following:
 
 ```text
@@ -310,7 +311,7 @@ The output of the command should be similar to:
 Use --refresh option with this command to see the latest information.
 
 Controller       Model  User   Access     Cloud/Region        Models  Nodes  HA  Version
-spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   -  3.6.21  
+spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   -  3.6.21
 ```
 
 The Juju setup is complete.
@@ -329,7 +330,7 @@ sudo microk8s enable minio
 
 <!-- test:wait --seconds 60 -->
 
-Authentication with MinIO is managed with an access key and a secret key. 
+Authentication with MinIO is managed with an access key and a secret key.
 These credentials are generated and stored as Kubernetes secret when the MinIO add-on is enabled.
 
 Let's fetch credentials and export them as environment variables in order to use them later:
@@ -413,7 +414,7 @@ Now check the list of configurations bound for the service account:
 
 ```shell
 spark-client.service-account-registry get-config \
-  --username spark --namespace spark 
+  --username spark --namespace spark
 ```
 
 You should see the following list of configurations in the output:
