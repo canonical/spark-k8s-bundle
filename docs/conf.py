@@ -64,16 +64,6 @@ html_title = project + f" {TRACK} documentation"
 copyright = "%s CC-BY-SA, %s" % (datetime.date.today().year, author)
 
 
-# Documentation website URL
-#
-# TODO: Update with the official URL of your docs or leave empty if unsure.
-#
-# NOTE: The Open Graph Protocol (OGP) enhances page display in a social graph
-#       and is used by social media platforms; see https://ogp.me/
-
-ogp_site_url = f"https://canonical.com/{slug}/{os.environ.get('READTHEDOCS_VERSION', 'local')}"
-
-
 # Preview name of the documentation website
 #
 # TODO: To use a different name for the project in previews, update as needed.
@@ -176,6 +166,15 @@ slug = 'data/spark/docs'
 # Base URL of RTD hosted project
 
 html_baseurl = f"https://canonical.com/{slug}/{os.environ.get('READTHEDOCS_VERSION', 'local')}"
+
+# Documentation website URL
+#
+# TODO: Update with the official URL of your docs or leave empty if unsure.
+#
+# NOTE: The Open Graph Protocol (OGP) enhances page display in a social graph
+#       and is used by social media platforms; see https://ogp.me/
+
+ogp_site_url = f"https://canonical.com/{slug}/{os.environ.get('READTHEDOCS_VERSION', 'local')}"
 
 
 # URL scheme. Add language and version scheme elements.
