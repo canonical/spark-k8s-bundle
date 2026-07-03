@@ -1,6 +1,6 @@
 // Replaces rtd-address with new-address in links
 
-const rtd_address = 'canonical-charmed-spark.readthedocs-hosted.com';
+const rtd_address = 'canonical-charmed-spark-proxy.readthedocs-hosted.com';
 const new_address = 'canonical.com/data/spark/docs';
 
 function escapeRegExp(value) {
