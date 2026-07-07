@@ -322,7 +322,7 @@ juju config -m <charmed_spark_juju_model> namespace-node-affinity settings_yaml=
 This is it! Any new Juju application deployment will now get the desired tolerations and affinities:
 
 ```shell
-juju deploy -m <charmed_spark_juju_model> s3-integrator s3
+juju deploy -m <charmed_spark_juju_model> s3-integrator s3 --channel 2/stable
 ```
 
 You can check that the configuration is properly applied using:
