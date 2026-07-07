@@ -1,9 +1,8 @@
 # Charmed Apache Spark
 
 [![CharmHub Badge](https://charmhub.io/spark-k8s-bundle/badge.svg)](https://charmhub.io/spark-k8s-bundle)
-[![Tests](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-tests.yaml/badge.svg?branch=main)](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-tests.yaml?query=branch%3Amain)
-[![Docs](https://readthedocs.com/projects/canonical-charmed-spark/badge/?version=main&style=plastic)](https://app.readthedocs.com/projects/canonical-charmed-spark/builds/?version__slug=main)
-<!-- [![Release](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-checks.yaml/badge.svg)](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-checks.yaml) -->
+[![Tests](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-tests-full.yaml/badge.svg?branch=track/3.4)](https://github.com/canonical/spark-k8s-bundle/actions/workflows/ci-tests-full.yaml?query=branch%3Atrack/3.4)
+[![Docs](https://readthedocs.com/projects/canonical-charmed-spark/badge/?version=3.4&style=plastic)](https://app.readthedocs.com/projects/canonical-charmed-spark/builds/?version__slug=3.4)
 
 Charmed Apache Spark is a solution that makes operating Apache Spark workloads on Kubernetes seamless, secure, and production-ready. This solution includes:
 
@@ -14,9 +13,7 @@ Charmed Apache Spark is a solution that makes operating Apache Spark workloads o
 This repository contains relevant artifacts for deploying and testing Charmed Apache Spark:
 
 * [python](./python) — contains the `spark-k8s-test` package that provides  utilities and fixtures to easily implement Charmed Apache Spark tests. Find more information in its [readme file](./python/README.md)
-* [releases](./releases) — contains the artifacts for the different channels, supporting the following backends:
-  * [yaml](./releases/3.4/yaml) — using Juju YAML bundles to easily deploy Charmed Apache Spark on K8s
-  * [terraform](releases/3.4/terraform) — using Terraform scripts to deploy Charmed Apache Spark using the [Juju Terraform provider](https://github.com/juju/terraform-provider-juju)
+* [terraform](./terraform) — contains Terraform scripts to deploy Charmed Apache Spark using the [Juju Terraform provider](https://github.com/juju/terraform-provider-juju)
 
 Charmed Apache Spark bundle is also available on [Charmhub](https://charmhub.io/spark-k8s-bundle).
 
