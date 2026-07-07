@@ -289,7 +289,7 @@ Please note that we need to specify a few extra packages to interact with Apache
 spark-client.spark-submit \
     --username spark --namespace spark-streaming \
     --deploy-mode cluster \
-    --packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.5.8,org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.8 \
+    --packages org.apache.spark:spark-streaming-kafka-0-10_2.13:4.0.2,org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.2 \
     s3a://spark-tutorial/spark_streaming.py \
         --kafka-endpoint $KAFKA_ENDPOINT \
         --kafka-username $KAFKA_USERNAME \

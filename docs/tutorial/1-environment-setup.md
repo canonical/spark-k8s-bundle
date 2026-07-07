@@ -184,12 +184,12 @@ For Apache Spark jobs to be running run on top of Kubernetes, a set of resources
 To simplify this task, the Charmed Apache Spark solution offers the `spark-client` snap. Install the snap:
 
 ```shell
-sudo snap install spark-client --channel 3.5/stable
+sudo snap install spark-client --channel 4.0/edge
 ```
 
 ```{note}
-The `spark-client` snap from track `3.5` is supposed to be used for running Spark jobs using Apache Spark 3.5. 
-Please use tracks `4.0` or `3.4` for Apache Spark 4.0 and 3.4 respectively.
+The `spark-client` snap from track `4.0` is supposed to be used for running Spark jobs using Apache Spark 4.0. 
+Please use tracks `3.5` or `3.4` for Apache Spark 3.5 and 3.4 respectively.
 ```
 
 Let's create a Kubernetes namespace for us to use as a playground in this tutorial.
@@ -251,7 +251,7 @@ Welcome to
       ____              __
      / __/__  ___ _____/ /__
     _\ \/ _ \/ _ `/ __/  '_/
-   /__ / .__/\_,_/_/ /_/\_\   version 3.5.8
+   /__ / .__/\_,_/_/ /_/\_\   version 4.0.2
       /_/
 
 Using Python version 3.10.12 (main, Jan 26 2026 14:55:28)
@@ -568,7 +568,7 @@ juju status -m spark-integration-hub --format=json | jq -e '.applications."spark
 
 ## (Optional) Create a snapshot
 
-At this stage, you may want to create a [snapshot](https://documentation.ubuntu.com/multipass/en/latest/reference/command-line-interface/snapshot/#snapshot) of the current state, for which you need to stop the Multipass VM. Exit the VM by pressing `CTRL + D` and stop it:
+At this stage, you may want to create a [snapshot](https://canonical.com/multipass/docs/latest/reference/command-line-interface/snapshot) of the current state, for which you need to stop the Multipass VM. Exit the VM by pressing `CTRL + D` and stop it:
 
 ```bash
 multipass stop spark-tutorial

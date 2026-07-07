@@ -42,7 +42,7 @@ spark-client.spark-submit \
     --conf spark.plugins=com.nvidia.spark.SQLPlugin \
     --conf spark.executor.resource.gpu.discoveryScript=/opt/getGpusResources.sh \
     --conf spark.executor.resource.gpu.vendor=nvidia.com \
-    --conf spark.kubernetes.container.image=ghcr.io/canonical/charmed-spark-gpu:3.5-22.04_edge \
+    --conf spark.kubernetes.container.image=ghcr.io/canonical/charmed-spark-gpu:4.0-22.04_edge \
     --conf spark.kubernetes.executor.podTemplateFile=gpu_executor_template.yaml
     ...
 ```
