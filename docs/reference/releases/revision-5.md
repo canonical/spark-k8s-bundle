@@ -1,0 +1,230 @@
+---
+myst:
+  html_meta:
+    description: "Release notes for Charmed Apache Spark revision 5 featuring support for Apache Spark 4.0, updated Terraform modules and enhanced security
+---
+
+(reference-releases-revision-5)=
+# Charmed Apache Spark (revision 5)
+
+July XX, 2026 (TBD)
+
+We're excited to announce a new stable release for Charmed Apache Spark.
+
+This release brings the support for Apache Spark 4.0, new Terraform modules as per the CC-008 standards, several enhancements, enhanced security and bug fixes to Charmed Apache Kyuubi, Charmed Apache Spark History Server, Spark Integration Hub, Apache Spark Client Snap, Canonical security maintained OCI images for Apache Spark and a Charmed Apache Spark Terraform Module to deliver a seamless, production-ready and fully open-source data lake experience.
+
+Charmhub: [3.4/stable](https://charmhub.io/kyuubi-k8s?channel=3.4/stable), [3.5/stable](https://charmhub.io/kyuubi-k8s?channel=3.5/stable), [4.0/stable](https://charmhub.io/kyuubi-k8s?channel=4.0/stable) | [Docs](https://canonical-charmed-spark.readthedocs-hosted.com/) | [Deploy guide](https://canonical-charmed-spark.readthedocs-hosted.com/main/how-to/deploy/) | [System requirements](https://canonical-charmed-spark.readthedocs-hosted.com/main/reference/requirements/)
+
+## Features
+
+This release includes the following major feature:
+
+* [PRA-9] Support for Apache Spark 4.0
+
+## Enhancements
+
+This release includes general enhancements across the solution, as well as to the individual components, as follows.
+
+### General
+
+* [PRA-9] Support for Apache Spark 4.0
+* [PRA-322] Components upgrade:
+  - Apache Spark versions: 3.4.4-ubuntu10, 3.5.8-ubuntu1 and 4.0.2-ubuntu2
+  - Apache Kyuubi versions: 1.10.3-ubuntu4 (for Spark 3.x) and 1.11.1-ubuntu1 (Spark 4.0)
+  - NVIDIA Spark-RAPIDS version: 26.04.2
+* General updates of Python dependencies, craft build tools, CI workflows and Github actions, and renovate bot configuration
+
+### Apache Kyuubi
+
+* [MISC] Enable renovate on track 4, fix oci updates ([#233](https://github.com/canonical/kyuubi-k8s-operator/pull/233))
+* [[PRA-63](https://warthogs.atlassian.net/browse/PRA-63)] Run integration tests using spread ([#239](https://github.com/canonical/kyuubi-k8s-operator/pull/239)) ([#240](https://github.com/canonical/kyuubi-k8s-operator/pull/240)) ([#241](https://github.com/canonical/kyuubi-k8s-operator/pull/241))
+* [MISC] Log creation of a user and password update events ([#149](https://github.com/canonical/kyuubi-k8s-operator/pull/149)) ([#248](https://github.com/canonical/kyuubi-k8s-operator/pull/248)) ([#246](https://github.com/canonical/kyuubi-k8s-operator/pull/246))
+* [[PRA-76](https://warthogs.atlassian.net/browse/PRA-76)] Renovate configuration to update OCI resources ([#201](https://github.com/canonical/kyuubi-k8s-operator/pull/201)) ([#203](https://github.com/canonical/kyuubi-k8s-operator/pull/203))
+
+
+### Apache Spark History Server
+
+* [[PRA-74](https://warthogs.atlassian.net/browse/PRA-74)] Renovate configuration to update OCI resource ([#163](https://github.com/canonical/spark-history-server-k8s/pull/163))
+* [[PRA-76](https://warthogs.atlassian.net/browse/PRA-76)] Split OCI resource tag and digest definition ([#164](https://github.com/canonical/spark-history-server-k8s/pull/164))
+* [[PRA-264](https://warthogs.atlassian.net/browse/PRA-264)] Improve TIOBE workflow reliability ([#165](https://github.com/canonical/spark-history-server-k8s/pull/165))
+* [[PRA-63](https://warthogs.atlassian.net/browse/PRA-63)] Run integration tests using spread ([#171](https://github.com/canonical/spark-history-server-k8s/pull/171))
+* [[PRA-287](https://warthogs.atlassian.net/browse/PRA-287)] Use s3 integrator from track 2 and adopt object-storage-charmlib ([#174](https://github.com/canonical/spark-history-server-k8s/pull/174)) ([#173](https://github.com/canonical/spark-history-server-k8s/pull/173))
+
+### Spark Integration Hub
+
+* [[PRA-74](https://warthogs.atlassian.net/browse/PRA-74)] Renovate configuration to update OCI resource ([#195](https://github.com/canonical/spark-integration-hub-k8s/pull/195))
+* [[PRA-76](https://warthogs.atlassian.net/browse/PRA-76)] Split OCI resource tag and digest definition ([#196](https://github.com/canonical/spark-integration-hub-k8s/pull/196))
+* [[PRA-264](https://warthogs.atlassian.net/browse/PRA-264)] Improve TIOBE workflow reliability ([#197](https://github.com/canonical/spark-integration-hub-k8s/pull/197))
+* [[PRA-63](https://warthogs.atlassian.net/browse/PRA-63)] Run integration tests using spread ([#202](https://github.com/canonical/spark-integration-hub-k8s/pull/202))
+* [[PRA-277](https://warthogs.atlassian.net/browse/PRA-277)] Use s3 integrator from track 2 and adopt object-storage-charmlib ([#187](https://github.com/canonical/spark-integration-hub-k8s/pull/187)) ([#205](https://github.com/canonical/spark-integration-hub-k8s/pull/205))
+
+### Apache Spark Client snap
+
+* Component bumps (see General section for versions of various components)
+* [MISC] Reduce the K8s matrix validation and disable fail-fast feature ([#148](https://github.com/canonical/spark-client-snap/pull/148)) ([#149](https://github.com/canonical/spark-client-snap/pull/149))
+* [[PRA-211](https://warthogs.atlassian.net/browse/PRA-211)] Reorder PYTHONPATH to give priority to the snap's stdlib ([#146](https://github.com/canonical/spark-client-snap/pull/146)) ([#150](https://github.com/canonical/spark-client-snap/pull/150))
+* [[PRA-256](https://warthogs.atlassian.net/browse/PRA-256)] Set driver metrics sink to JmxSink for shell entrypoints ([#159](https://github.com/canonical/spark-client-snap/pull/159)) ([#160](https://github.com/canonical/spark-client-snap/pull/160))
+* [MISC] Remove workflow on_spark_update_available ([#154](https://github.com/canonical/spark-client-snap/pull/154))
+* [MISC] Fix permissions for snap release workflow ([#156](https://github.com/canonical/spark-client-snap/pull/156))
+* chore: adding scheduled test runs on weekends ([#168](https://github.com/canonical/spark-client-snap/pull/168))
+* [MISC] Update renovate configuration ([#162](https://github.com/canonical/spark-client-snap/pull/162))
+
+
+### Canonical security maintained OCI Images for Apache Spark
+
+* Component bumps (see General section for versions of various components)
+* [[PRA-222](https://warthogs.atlassian.net/browse/PRA-222)] Add additional labels (commit hash, source, description, etc.) to the images ([#225](https://github.com/canonical/charmed-spark-rock/pull/225)) ([#226](https://github.com/canonical/charmed-spark-rock/pull/226))
+
+
+### Charmed Apache Spark Terraform Module
+
+* [[PRA-101](https://warthogs.atlassian.net/browse/PRA-101)] Remove deprecated mailing and updating lockfile ([#222](https://github.com/canonical/spark-k8s-bundle/pull/222))
+* [[PRA-257](https://warthogs.atlassian.net/browse/PRA-257)] Automatic promotion bundle ([#214](https://github.com/canonical/spark-k8s-bundle/pull/214))
+* [MISC] Let users decide whether to use COS in UAT tests ([#232](https://github.com/canonical/spark-k8s-bundle/pull/232))
+* [[PRA-306](https://warthogs.atlassian.net/browse/PRA-306)] Unpin juju-agent-version in Spark K8s Bundle integration tests ([#231](https://github.com/canonical/spark-k8s-bundle/pull/231))
+* [[PRA-7](https://warthogs.atlassian.net/browse/PRA-7)][[KF-8066](https://warthogs.atlassian.net/browse/KF-8066)] Enable Spark <> Kubeflow integration with new standard ([#233](https://github.com/canonical/spark-k8s-bundle/pull/233))
+* [[PRA-318](https://warthogs.atlassian.net/browse/PRA-318)] Implement automated OCI getter for our products ([#240](https://github.com/canonical/spark-k8s-bundle/pull/240))
+* [[PRA-324](https://warthogs.atlassian.net/browse/PRA-324)] Split bundle by tracks
+* [[PRA-330](https://warthogs.atlassian.net/browse/PRA-330)] Update Postgresql to latest revision on 14/stable ([#251](https://github.com/canonical/spark-k8s-bundle/pull/251))
+* [[PRA-324](https://warthogs.atlassian.net/browse/PRA-324)] Update renovate configuration (3.5) ([#253](https://github.com/canonical/spark-k8s-bundle/pull/253)) ([#255](https://github.com/canonical/spark-k8s-bundle/pull/255)) ([#256](https://github.com/canonical/spark-k8s-bundle/pull/256))
+* [MISC] chore: adding CODEOWNERS file ([#287](https://github.com/canonical/spark-k8s-bundle/pull/287)) ([#289](https://github.com/canonical/spark-k8s-bundle/pull/289))
+* [[PRA-330](https://warthogs.atlassian.net/browse/PRA-330)] Bump postgresql charm to 16/stable on track/4.0 ([#246](https://github.com/canonical/spark-k8s-bundle/pull/246))
+* [[PRA-312](https://warthogs.atlassian.net/browse/PRA-312)] Split TLS private key and admin password secrets ([#241](https://github.com/canonical/spark-k8s-bundle/pull/241))
+
+## Bug Fixes
+
+This release includes several bug fixes across the solution, which are listed below categorized to individual components.
+
+### Apache Kyuubi
+
+* [[PRA-264](https://warthogs.atlassian.net/browse/PRA-264)] Fix TIOBE workflow ([#212](https://github.com/canonical/kyuubi-k8s-operator/pull/212)) ([#214](https://github.com/canonical/kyuubi-k8s-operator/pull/214)) ([#215](https://github.com/canonical/kyuubi-k8s-operator/pull/215))
+* [MISC] Fix invalid JSON5 syntax in Renovate repository config ([#213](https://github.com/canonical/kyuubi-k8s-operator/pull/213)) ([#217](https://github.com/canonical/kyuubi-k8s-operator/pull/217)) ([#218](https://github.com/canonical/kyuubi-k8s-operator/pull/218))
+
+### Apache Spark History Server
+
+* [MISC] Fix Github workflow permissions ([#181](https://github.com/canonical/spark-history-server-k8s/pull/181)) ([#182](https://github.com/canonical/spark-history-server-k8s/pull/182))
+
+### Spark Integration Hub
+
+* [[PRA-168](https://warthogs.atlassian.net/browse/PRA-168)] Charm errors when related to the s3-integrator and bucket name is empty ([#203](https://github.com/canonical/spark-integration-hub-k8s/pull/203))
+* [MISC] Grant actions: read and contents: read permissions to Release workflow ci-tests caller ([#216](https://github.com/canonical/spark-integration-hub-k8s/pull/216))
+
+### Canonical security maintained OCI Images for Apache Spark
+
+* [[PRA-221](https://warthogs.atlassian.net/browse/PRA-221)] Fix trivy scan failures ([#248](https://github.com/canonical/charmed-spark-rock/pull/248)) ([#223](https://github.com/canonical/charmed-spark-rock/pull/223)) ([#224](https://github.com/canonical/charmed-spark-rock/pull/224))
+* [MISC] Various fixes in the GithHub workflows ([#231](https://github.com/canonical/charmed-spark-rock/pull/231))
+
+## Breaking Changes
+
+This release includes the following breaking change:
+
+### Charmed Apache Spark Terraform Module
+
+* [[PRA-234](https://warthogs.atlassian.net/browse/PRA-234)] Terraform modules refactor following CC008 ([#208](https://github.com/canonical/spark-k8s-bundle/pull/208))
+
+## Documentation improvements
+
+The current release also features the following documentation changes:
+
+* [[PRA-11](https://warthogs.atlassian.net/browse/PRA-11)] Automated tutorial testing ([#221](https://github.com/canonical/spark-k8s-bundle/pull/221))
+* docs: FE Feedback fixes ([#210](https://github.com/canonical/spark-k8s-bundle/pull/210))
+* [[PRA-309](https://warthogs.atlassian.net/browse/PRA-309)] Update docs for s3-integrator 2/stable and multi-track awareness ([#237](https://github.com/canonical/spark-k8s-bundle/pull/237))
+* [[PRA-165](https://warthogs.atlassian.net/browse/PRA-165)] Update docs to reflect correct behavior when S3 region is not configured ([#257](https://github.com/canonical/spark-k8s-bundle/pull/257)) ([#284](https://github.com/canonical/spark-k8s-bundle/pull/284)) ([#286](https://github.com/canonical/spark-k8s-bundle/pull/286))
+* [[PRA-324](https://warthogs.atlassian.net/browse/PRA-324)] Adapt docs content to match Spark version on various tracks ([#252](https://github.com/canonical/spark-k8s-bundle/pull/252)) ([#258](https://github.com/canonical/spark-k8s-bundle/pull/258)) ([#254](https://github.com/canonical/spark-k8s-bundle/pull/254))
+
+## Security
+
+The following CVEs have been fixed in the new artifacts:
+
+```{eval-rst}
++------------------+----------+-----------------------------------------------------------------------------------------------+
+| Component        | Severity | Fixed                                                                                         |
++==================+==========+===============================================================================================+
+| Apache Spark     | High     | TODO                                                                                          |
++                  +----------+-----------------------------------------------------------------------------------------------+
+|                  | Medium   | TODO                                                                                          |
++------------------+----------+-----------------------------------------------------------------------------------------------+
+| Apache Kyuubi    | High     | TODO                                                                                          |
++                  +----------+-----------------------------------------------------------------------------------------------+
+|                  | Medium   | TODO                                                                                          |
++------------------+----------+-----------------------------------------------------------------------------------------------+
+```
+
+## Compatibility
+
+The following table summarize the compatibility matrix of the solution:
+
+
+```{eval-rst}
++-----------------------------+-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+| Component                   | Hardware architecture | Channel             | Artifact                                                                                                                                                                                                                                                                                                                                        | Revision | Minimum Juju version | Recommended Juju version |
++=============================+=======================+=====================+=================================================================================================================================================================================================================================================================================================================================================+==========+======================+==========================+
+| Apache Spark History Server | AMD64                 | 3/stable            | `Charmed Apache Spark Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark/970974501>`__ (Apache Spark version: `3.5.8-ubuntu1 <https://launchpad.net/spark-releases/+milestone/3.5.8-ubuntu1>`__)                                                                                                               | 98       | v.3.6.13+            | v.3.6.14                 |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | ARM64                 | 3/candidate         | `Charmed Apache Spark Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark/970974501>`__ (Apache Spark version: `3.5.8-ubuntu1 <https://launchpad.net/spark-releases/+milestone/3.5.8-ubuntu1>`__)                                                                                                               | 97       | v.3.6.13+            | v.3.6.14                 |
++-----------------------------+-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+| Spark Integration Hub       | AMD64                 | 3/stable            | `Integration Hub Image (13) <https://github.com/canonical/spark-integration-hub-rock/pkgs/container/spark-integration-hub/746475114>`__                                                                                                                                                                                                         | 123      | v.3.6.13+            | v.3.6.14                 |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | ARM64                 | 3/candidate         | `Integration Hub Image (13) <https://github.com/canonical/spark-integration-hub-rock/pkgs/container/spark-integration-hub/746475114>`__                                                                                                                                                                                                         | 124      | v.3.6.13+            | v.3.6.14                 |
++-----------------------------+-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+| Apache Kyuubi               | AMD64                 | 3.4/stable          | `Charmed Apache Kyuubi Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark-kyuubi/970969007>`__ (Apache Spark version: `3.4.4-ubuntu10 <https://launchpad.net/spark-releases/+milestone/3.4.4-ubuntu10>`__, Apache Kyuubi version: `1.10.3-ubuntu4 <https://launchpad.net/kyuubi-releases/1.x/1.10.3-ubuntu4>`__) | 162      | v.3.6.13+            | v.3.6.14                 |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | ARM64                 | 3.4/candidate       | `Charmed Apache Kyuubi Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark-kyuubi/970969007>`__ (Apache Spark version: `3.4.4-ubuntu10 <https://launchpad.net/spark-releases/+milestone/3.4.4-ubuntu10>`__, Apache Kyuubi version: `1.10.3-ubuntu4 <https://launchpad.net/kyuubi-releases/1.x/1.10.3-ubuntu4>`__) | 161      | v.3.6.13+            | v.3.6.14                 |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | AMD64                 | 3.5/stable          | `Charmed Apache Kyuubi Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark-kyuubi/970989890>`__ (Apache Spark version: `3.5.8-ubuntu1 <https://launchpad.net/spark-releases/+milestone/3.5.8-ubuntu1>`__, Apache Kyuubi version: `1.10.3-ubuntu4 <https://launchpad.net/kyuubi-releases/1.x/1.10.3-ubuntu4>`__) | 160      | v.3.6.13+            | v.3.6.14                 |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | ARM64                 | 3.5/candidate       | `Charmed Apache Kyuubi Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark-kyuubi/970989890>`__ (Apache Spark version: `3.5.8-ubuntu1 <https://launchpad.net/spark-releases/+milestone/3.5.8-ubuntu1>`__, Apache Kyuubi version: `1.10.3-ubuntu4 <https://launchpad.net/kyuubi-releases/1.x/1.10.3-ubuntu4>`__) | 159      | v.3.6.13+            | v.3.6.14                 |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | AMD64                 | 4.0/stable          | `Charmed Apache Kyuubi Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark-kyuubi/967540665>`__ (Apache Spark version: `4.0.2-ubuntu2 <https://launchpad.net/spark-releases/+milestone/4.0.2-ubuntu2>`__, Apache Kyuubi version: `1.11.1-ubuntu1 <https://launchpad.net/kyuubi-releases/1.x/1.11.1-ubuntu1>`__) | 160      | v.3.6.13+            | v.3.6.14                 |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | ARM64                 | 4.0/candidate       | `Charmed Apache Kyuubi Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark-kyuubi/967540665>`__ (Apache Spark version: `4.0.2-ubuntu2 <https://launchpad.net/spark-releases/+milestone/4.0.2-ubuntu2>`__, Apache Kyuubi version: `1.11.1-ubuntu1 <https://launchpad.net/kyuubi-releases/1.x/1.11.1-ubuntu1>`__) | 159      | v.3.6.13+            | v.3.6.14                 |
++-----------------------------+-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+| Apache Spark Client Snap    | AMD64                 | 3.4/stable          | Apache Spark version: `3.4.4-ubuntu10 <https://launchpad.net/spark-releases/+milestone/3.4.4-ubuntu10>`__                                                                                                                                                                                                                                       | 100      | N/A                  | N/A                      |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | ARM64                 | 3.4/candidate       | Apache Spark version: `3.4.4-ubuntu10 <https://launchpad.net/spark-releases/+milestone/3.4.4-ubuntu10>`__                                                                                                                                                                                                                                       | 102      | N/A                  | N/A                      |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | AMD64                 | 3.5/stable          | Apache Spark version: `3.5.8-ubuntu1 <https://launchpad.net/spark-releases/+milestone/3.5.8-ubuntu1>`__                                                                                                                                                                                                                                         | 101      | N/A                  | N/A                      |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | ARM64                 | 3.5/candidate       | Apache Spark version: `3.5.8-ubuntu1 <https://launchpad.net/spark-releases/+milestone/3.5.8-ubuntu1>`__                                                                                                                                                                                                                                         | 99       | N/A                  | N/A                      |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | AMD64                 | 4.0/stable          | Apache Spark version: `4.0.2-ubuntu2 <https://launchpad.net/spark-releases/+milestone/4.0.2-ubuntu2>`__                                                                                                                                                                                                                                         | 101      | N/A                  | N/A                      |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | ARM64                 | 4.0/candidate       | Apache Spark version: `4.0.2-ubuntu2 <https://launchpad.net/spark-releases/+milestone/4.0.2-ubuntu2>`__                                                                                                                                                                                                                                         | 99       | N/A                  | N/A                      |
++-----------------------------+-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+| Charmed Apache Spark        | AMD64                 | 3.4-22.04_stable    | `Charmed Apache Spark Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark/970966179>`__ Apache Spark version: `3.4.4-ubuntu10 <https://launchpad.net/spark-releases/+milestone/3.4.4-ubuntu10>`__                                                                                                                 | 100      | N/A                  | N/A                      |
++ Base Image                  +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | ARM64                 | 3.4-22.04_candidate | `Charmed Apache Spark Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark/970966179>`__ Apache Spark version: `3.4.4-ubuntu10 <https://launchpad.net/spark-releases/+milestone/3.4.4-ubuntu10>`__                                                                                                                 | 102      | N/A                  | N/A                      |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | AMD64                 | 3.5-22.04_stable    | `Charmed Apache Spark Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark/970974501>`__ Apache Spark version: `3.5.8-ubuntu1 <https://launchpad.net/spark-releases/+milestone/3.5.8-ubuntu1>`__                                                                                                                 | 101      | N/A                  | N/A                      |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | ARM64                 | 3.5-22.04_candidate | `Charmed Apache Spark Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark/970974501>`__ Apache Spark version: `3.5.8-ubuntu1 <https://launchpad.net/spark-releases/+milestone/3.5.8-ubuntu1>`__                                                                                                                 | 99       | N/A                  | N/A                      |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | AMD64                 | 4.0-22.04_stable    | `Charmed Apache Spark Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark/967526337>`__ Apache Spark version: `4.0.2-ubuntu2 <https://launchpad.net/spark-releases/+milestone/4.0.2-ubuntu2>`__                                                                                                                 | 101      | N/A                  | N/A                      |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | ARM64                 | 4.0-22.04_candidate | `Charmed Apache Spark Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark/967526337>`__ Apache Spark version: `4.0.2-ubuntu2 <https://launchpad.net/spark-releases/+milestone/4.0.2-ubuntu2>`__                                                                                                                 | 99       | N/A                  | N/A                      |
++-----------------------------+-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+| Charmed Apache Spark        | AMD64                 | 3.4-22.04_stable    | `Charmed Apache Spark Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark-gpu/971000321>`__ Apache Spark version: `3.4.4-ubuntu10 <https://launchpad.net/spark-releases/+milestone/3.4.4-ubuntu10>`__ NVIDIA Spark RAPIDS version: `26.04.2`                                                                    | 100      | N/A                  | N/A                      |
++ GPU Image                   +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | ARM64                 | 3.4-22.04_candidate | `Charmed Apache Spark GPU Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark-gpu/971000321>`__ Apache Spark version: `3.4.4-ubuntu10 <https://launchpad.net/spark-releases/+milestone/3.4.4-ubuntu10>`__ NVIDIA Spark RAPIDS version: `26.04.2`                                                                | 102      | N/A                  | N/A                      |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | AMD64                 | 3.5-22.04_stable    | `Charmed Apache Spark GPU Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark-gpu/971016054>`__ Apache Spark version: `3.5.8-ubuntu1 <https://launchpad.net/spark-releases/+milestone/3.5.8-ubuntu1>`__ NVIDIA Spark RAPIDS version: `26.04.2`                                                                  | 101      | N/A                  | N/A                      |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | ARM64                 | 3.5-22.04_candidate | `Charmed Apache Spark GPU Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark-gpu/971016054>`__ Apache Spark version: `3.5.8-ubuntu1 <https://launchpad.net/spark-releases/+milestone/3.5.8-ubuntu1>`__ NVIDIA Spark RAPIDS version: `26.04.2`                                                                  | 99       | N/A                  | N/A                      |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | AMD64                 | 4.0-22.04_stable    | `Charmed Apache Spark GPU Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark-gpu/967569367>`__ Apache Spark version: `4.0.2-ubuntu2 <https://launchpad.net/spark-releases/+milestone/4.0.2-ubuntu2>`__ NVIDIA Spark RAPIDS version: `26.04.2`                                                                  | 101      | N/A                  | N/A                      |
++                             +-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+|                             | ARM64                 | 4.0-22.04_candidate | `Charmed Apache Spark GPU Image <https://github.com/canonical/charmed-spark-rock/pkgs/container/charmed-spark-gpu/967569367>`__ Apache Spark version: `4.0.2-ubuntu2 <https://launchpad.net/spark-releases/+milestone/4.0.2-ubuntu2>`__ NVIDIA Spark RAPIDS version: `26.04.2`                                                                  | 99       | N/A                  | N/A                      |
++-----------------------------+-----------------------+---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+----------------------+--------------------------+
+```
+
+```{note}
+When using Juju controller versions greater or equal to `3.6.13`, make sure you use a charm revision above `107` for `spark-integration-hub-k8s`. On Juju controller versions lower or equal to `3.6.9`, use charm revisions below `107`.
+```
+
+```{note}
+Model destruction for controllers above 3.6.18+ may sometimes freeze (see [Juju issue #22105](https://github.com/juju/juju/issues/22105)). In these cases, we recommend destroying the resources manually.
+```
+
+## Acknowledgements
+
+We are extremely grateful to the Apache Spark and Apache Kyuubi communities for their continuous work, involvement and engagement with open-source to make technologies that process data at scale available to the broader audience.
