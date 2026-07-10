@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    description: "Release notes for Charmed Apache Spark revision 5 featuring support for Apache Spark 4.0, updated Terraform modules and enhanced security
+    description: "Release notes for Charmed Apache Spark revision 5 featuring support for Apache Spark 4.0, updated Terraform modules and enhanced security"
 ---
 
 (reference-releases-revision-5)=
@@ -78,7 +78,7 @@ This release includes general enhancements across the solution, as well as to th
 
 ### Charmed Apache Spark Terraform Module
 
-* [[PRA-101](https://warthogs.atlassian.net/browse/PRA-101)] Remove deprecated mailing and updating lockfile ([#222](https://github.com/canonical/spark-k8s-bundle/pull/222))
+* [[PRA-101](https://warthogs.atlassian.net/browse/PRA-101)] Remove deprecated mailing and updating lock file ([#222](https://github.com/canonical/spark-k8s-bundle/pull/222))
 * [[PRA-257](https://warthogs.atlassian.net/browse/PRA-257)] Automatic promotion bundle ([#214](https://github.com/canonical/spark-k8s-bundle/pull/214))
 * [MISC] Let users decide whether to use COS in UAT tests ([#232](https://github.com/canonical/spark-k8s-bundle/pull/232))
 * [[PRA-306](https://warthogs.atlassian.net/browse/PRA-306)] Unpin juju-agent-version in Spark K8s Bundle integration tests ([#231](https://github.com/canonical/spark-k8s-bundle/pull/231))
