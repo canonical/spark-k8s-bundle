@@ -13,7 +13,7 @@ We're excited to announce a new stable release for Charmed Apache Spark.
 
 This release brings the support for Apache Spark 4.0, new Terraform modules as per the CC-008 standards, several enhancements, enhanced security and bug fixes to Charmed Apache Kyuubi, Charmed Apache Spark History Server, Spark Integration Hub, Apache Spark Client Snap, Canonical security maintained OCI images for Apache Spark and a Charmed Apache Spark Terraform Module to deliver a seamless, production-ready and fully open-source data lake experience.
 
-Charmhub: [3.4/stable](https://charmhub.io/kyuubi-k8s?channel=3.4/stable), [3.5/stable](https://charmhub.io/kyuubi-k8s?channel=3.5/stable), [4.0/stable](https://charmhub.io/kyuubi-k8s?channel=4.0/stable) | [Docs](https://canonical-charmed-spark.readthedocs-hosted.com/) | [Deploy guide](https://canonical-charmed-spark.readthedocs-hosted.com/main/how-to/deploy/) | [System requirements](https://canonical-charmed-spark.readthedocs-hosted.com/main/reference/requirements/)
+Charmhub: [3.4/stable](https://charmhub.io/kyuubi-k8s?channel=3.4/stable), [3.5/stable](https://charmhub.io/kyuubi-k8s?channel=3.5/stable), 4.0/stable | [Docs](https://canonical-charmed-spark.readthedocs-hosted.com/) | [Deploy guide](https://canonical-charmed-spark.readthedocs-hosted.com/main/how-to/deploy/) | [System requirements](https://canonical-charmed-spark.readthedocs-hosted.com/main/reference/requirements/)
 
 ## Features
 
@@ -44,19 +44,19 @@ This release includes general enhancements across the solution, as well as to th
 
 ### Apache Spark History Server
 
-* [[PRA-74](https://warthogs.atlassian.net/browse/PRA-74)] Renovate configuration to update OCI resource ([#163](https://github.com/canonical/spark-history-server-k8s/pull/163))
-* [[PRA-76](https://warthogs.atlassian.net/browse/PRA-76)] Split OCI resource tag and digest definition ([#164](https://github.com/canonical/spark-history-server-k8s/pull/164))
-* [[PRA-264](https://warthogs.atlassian.net/browse/PRA-264)] Improve TIOBE workflow reliability ([#165](https://github.com/canonical/spark-history-server-k8s/pull/165))
-* [[PRA-63](https://warthogs.atlassian.net/browse/PRA-63)] Run integration tests using spread ([#171](https://github.com/canonical/spark-history-server-k8s/pull/171))
-* [[PRA-287](https://warthogs.atlassian.net/browse/PRA-287)] Use s3 integrator from track 2 and adopt object-storage-charmlib ([#174](https://github.com/canonical/spark-history-server-k8s/pull/174)) ([#173](https://github.com/canonical/spark-history-server-k8s/pull/173))
+* [[PRA-74](https://warthogs.atlassian.net/browse/PRA-74)] Renovate configuration to update OCI resource ([#163](https://github.com/canonical/spark-history-server-k8s-operator/pull/163))
+* [[PRA-76](https://warthogs.atlassian.net/browse/PRA-76)] Split OCI resource tag and digest definition ([#164](https://github.com/canonical/spark-history-server-k8s-operator/pull/164))
+* [[PRA-264](https://warthogs.atlassian.net/browse/PRA-264)] Improve TIOBE workflow reliability ([#165](https://github.com/canonical/spark-history-server-k8s-operator/pull/165))
+* [[PRA-63](https://warthogs.atlassian.net/browse/PRA-63)] Run integration tests using spread ([#171](https://github.com/canonical/spark-history-server-k8s-operator/pull/171))
+* [[PRA-287](https://warthogs.atlassian.net/browse/PRA-287)] Use s3 integrator from track 2 and adopt object-storage-charmlib ([#174](https://github.com/canonical/spark-history-server-k8s-operator/pull/174)) ([#173](https://github.com/canonical/spark-history-server-k8s-operator/pull/173))
 
 ### Spark Integration Hub
 
-* [[PRA-74](https://warthogs.atlassian.net/browse/PRA-74)] Renovate configuration to update OCI resource ([#195](https://github.com/canonical/spark-integration-hub-k8s/pull/195))
-* [[PRA-76](https://warthogs.atlassian.net/browse/PRA-76)] Split OCI resource tag and digest definition ([#196](https://github.com/canonical/spark-integration-hub-k8s/pull/196))
-* [[PRA-264](https://warthogs.atlassian.net/browse/PRA-264)] Improve TIOBE workflow reliability ([#197](https://github.com/canonical/spark-integration-hub-k8s/pull/197))
-* [[PRA-63](https://warthogs.atlassian.net/browse/PRA-63)] Run integration tests using spread ([#202](https://github.com/canonical/spark-integration-hub-k8s/pull/202))
-* [[PRA-277](https://warthogs.atlassian.net/browse/PRA-277)] Use s3 integrator from track 2 and adopt object-storage-charmlib ([#187](https://github.com/canonical/spark-integration-hub-k8s/pull/187)) ([#205](https://github.com/canonical/spark-integration-hub-k8s/pull/205))
+* [[PRA-74](https://warthogs.atlassian.net/browse/PRA-74)] Renovate configuration to update OCI resource ([#195](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/195))
+* [[PRA-76](https://warthogs.atlassian.net/browse/PRA-76)] Split OCI resource tag and digest definition ([#196](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/196))
+* [[PRA-264](https://warthogs.atlassian.net/browse/PRA-264)] Improve TIOBE workflow reliability ([#197](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/197))
+* [[PRA-63](https://warthogs.atlassian.net/browse/PRA-63)] Run integration tests using spread ([#202](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/202))
+* [[PRA-277](https://warthogs.atlassian.net/browse/PRA-277)] Use s3 integrator from track 2 and adopt object-storage-charmlib ([#187](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/187)) ([#205](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/205))
 
 ### Apache Spark Client snap
 
@@ -102,12 +102,12 @@ This release includes several bug fixes across the solution, which are listed be
 
 ### Apache Spark History Server
 
-* [MISC] Fix Github workflow permissions ([#181](https://github.com/canonical/spark-history-server-k8s/pull/181)) ([#182](https://github.com/canonical/spark-history-server-k8s/pull/182))
+* [MISC] Fix Github workflow permissions ([#181](https://github.com/canonical/spark-history-server-k8s-operator/pull/181)) ([#182](https://github.com/canonical/spark-history-server-k8s-operator/pull/182))
 
 ### Spark Integration Hub
 
-* [[PRA-168](https://warthogs.atlassian.net/browse/PRA-168)] Charm errors when related to the s3-integrator and bucket name is empty ([#203](https://github.com/canonical/spark-integration-hub-k8s/pull/203))
-* [MISC] Grant actions: read and contents: read permissions to Release workflow ci-tests caller ([#216](https://github.com/canonical/spark-integration-hub-k8s/pull/216))
+* [[PRA-168](https://warthogs.atlassian.net/browse/PRA-168)] Charm errors when related to the s3-integrator and bucket name is empty ([#203](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/203))
+* [MISC] Grant actions: read and contents: read permissions to Release workflow ci-tests caller ([#216](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/216))
 
 ### Canonical security maintained OCI Images for Apache Spark
 
