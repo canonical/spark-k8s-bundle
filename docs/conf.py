@@ -64,16 +64,6 @@ html_title = project + f" {TRACK} documentation"
 copyright = "%s CC-BY-SA, %s" % (datetime.date.today().year, author)
 
 
-# Documentation website URL
-#
-# TODO: Update with the official URL of your docs or leave empty if unsure.
-#
-# NOTE: The Open Graph Protocol (OGP) enhances page display in a social graph
-#       and is used by social media platforms; see https://ogp.me/
-
-ogp_site_url = "https://canonical-charmed-spark.readthedocs-hosted.com/"
-
-
 # Preview name of the documentation website
 #
 # TODO: To use a different name for the project in previews, update as needed.
@@ -167,7 +157,7 @@ html_theme_options = {
 # TODO: If your documentation is hosted on https://docs.ubuntu.com/,
 #       uncomment and update as needed.
 
-# slug = 'charmed-spark'
+slug = 'data/spark/docs'
 
 #######################
 # Sitemap configuration: https://sphinx-sitemap.readthedocs.io/
@@ -175,16 +165,23 @@ html_theme_options = {
 
 # Base URL of RTD hosted project
 
-html_baseurl = "https://canonical-charmed-spark.readthedocs-hosted.com/"
+html_baseurl = f"https://canonical.com/{slug}/{os.environ.get('READTHEDOCS_VERSION', 'local')}"
+
+# Documentation website URL
+#
+# TODO: Update with the official URL of your docs or leave empty if unsure.
+#
+# NOTE: The Open Graph Protocol (OGP) enhances page display in a social graph
+#       and is used by social media platforms; see https://ogp.me/
+
+ogp_site_url = f"https://canonical.com/{slug}/{os.environ.get('READTHEDOCS_VERSION', 'local')}"
+
 
 # URL scheme. Add language and version scheme elements.
 # When configured with RTD variables, check for RTD environment so manual runs succeed:
 
-if "READTHEDOCS_VERSION" in os.environ:
-    version = os.environ["READTHEDOCS_VERSION"]
-    sitemap_url_scheme = "{version}{link}"
-else:
-    sitemap_url_scheme = "MANUAL/{link}"
+sitemap_url_scheme = "{link}"
+sitemap_filename = "doc-sitemap.xml"
 
 # Include `lastmod` dates in the sitemap:
 
@@ -312,6 +309,7 @@ html_css_files = ["cookie-banner.css"]
 
 html_js_files = [
     "js/bundle.js",
+    "js/overwrite_links.js",
 ]
 
 
