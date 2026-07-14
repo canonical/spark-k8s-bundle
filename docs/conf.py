@@ -165,7 +165,7 @@ slug = 'data/spark/docs'
 
 # Base URL of RTD hosted project
 
-html_baseurl = f"https://canonical.com/{slug}/{os.environ.get('READTHEDOCS_VERSION', 'local')}"
+html_baseurl = f"https://canonical.com/{slug}/{os.environ.get('READTHEDOCS_VERSION', 'local')}/"
 
 # Documentation website URL
 #
@@ -174,7 +174,7 @@ html_baseurl = f"https://canonical.com/{slug}/{os.environ.get('READTHEDOCS_VERSI
 # NOTE: The Open Graph Protocol (OGP) enhances page display in a social graph
 #       and is used by social media platforms; see https://ogp.me/
 
-ogp_site_url = f"https://canonical.com/{slug}/{os.environ.get('READTHEDOCS_VERSION', 'local')}"
+ogp_site_url = f"https://canonical.com/{slug}/{os.environ.get('READTHEDOCS_VERSION', 'local')}/"
 
 
 # URL scheme. Add language and version scheme elements.
