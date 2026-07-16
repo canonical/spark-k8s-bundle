@@ -20,6 +20,11 @@
       "matchManagers": ["github-actions"],
       "matchDepNames": ["python"],
       "enabled": false
+    },
+    {
+      "matchDepNames": ["pandas"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
     }
   ],
 }
