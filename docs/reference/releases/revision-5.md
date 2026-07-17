@@ -27,7 +27,6 @@ This release includes general enhancements across the solution, as well as to th
 
 ### General
 
-* [PRA-9] Support for Apache Spark 4.0
 * [PRA-322] Components upgrade:
   - Apache Spark versions: 3.4.4-ubuntu10, 3.5.8-ubuntu1 and 4.0.2-ubuntu2
   - Apache Kyuubi versions: 1.10.3-ubuntu4 (for Spark 3.x) and 1.11.1-ubuntu1 (Spark 4.0)
