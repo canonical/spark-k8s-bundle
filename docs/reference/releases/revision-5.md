@@ -20,6 +20,7 @@ Charmhub: [3.4/stable](https://charmhub.io/kyuubi-k8s?channel=3.4/stable), [3.5/
 This release includes the following major feature:
 
 * [PRA-9] Support for Apache Spark 4.0
+* [[PRA-234](https://warthogs.atlassian.net/browse/PRA-234)] Terraform modules refactor following CC008 ([#208](https://github.com/canonical/spark-k8s-bundle/pull/208))
 
 ## Enhancements
 
