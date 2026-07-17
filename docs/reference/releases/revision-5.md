@@ -33,30 +33,24 @@ This release includes general enhancements across the solution, as well as to th
   - Apache Spark versions: 3.4.4-ubuntu10, 3.5.8-ubuntu1 and 4.0.2-ubuntu2
   - Apache Kyuubi versions: 1.10.3-ubuntu4 (for Spark 3.x) and 1.11.1-ubuntu1 (Spark 4.0)
   - NVIDIA Spark-RAPIDS version: 26.04.2
-* General updates of Python dependencies, craft build tools, CI workflows and Github actions, and renovate bot configuration
+* General updates of Python dependencies, craft build tools, CI workflows and Github actions
+* [[PRA-63](https://warthogs.atlassian.net/browse/PRA-63)] Run integration tests using spread
+* [[PRA-74](https://warthogs.atlassian.net/browse/PRA-74)][[PRA-76](https://warthogs.atlassian.net/browse/PRA-76)] Configure Renovate to update OCI resources
 
 ### Apache Kyuubi
 
 * [MISC] Enable renovate on track 4, fix oci updates ([#233](https://github.com/canonical/kyuubi-k8s-operator/pull/233))
-* [[PRA-63](https://warthogs.atlassian.net/browse/PRA-63)] Run integration tests using spread ([#239](https://github.com/canonical/kyuubi-k8s-operator/pull/239)) ([#240](https://github.com/canonical/kyuubi-k8s-operator/pull/240)) ([#241](https://github.com/canonical/kyuubi-k8s-operator/pull/241))
 * [MISC] Log creation of a user and password update events ([#149](https://github.com/canonical/kyuubi-k8s-operator/pull/149)) ([#248](https://github.com/canonical/kyuubi-k8s-operator/pull/248)) ([#246](https://github.com/canonical/kyuubi-k8s-operator/pull/246))
-* [[PRA-76](https://warthogs.atlassian.net/browse/PRA-76)] Renovate configuration to update OCI resources ([#201](https://github.com/canonical/kyuubi-k8s-operator/pull/201)) ([#203](https://github.com/canonical/kyuubi-k8s-operator/pull/203))
 
 
 ### Apache Spark History Server
 
-* [[PRA-74](https://warthogs.atlassian.net/browse/PRA-74)] Renovate configuration to update OCI resource ([#163](https://github.com/canonical/spark-history-server-k8s-operator/pull/163))
-* [[PRA-76](https://warthogs.atlassian.net/browse/PRA-76)] Split OCI resource tag and digest definition ([#164](https://github.com/canonical/spark-history-server-k8s-operator/pull/164))
 * [[PRA-264](https://warthogs.atlassian.net/browse/PRA-264)] Improve TIOBE workflow reliability ([#165](https://github.com/canonical/spark-history-server-k8s-operator/pull/165))
-* [[PRA-63](https://warthogs.atlassian.net/browse/PRA-63)] Run integration tests using spread ([#171](https://github.com/canonical/spark-history-server-k8s-operator/pull/171))
 * [[PRA-287](https://warthogs.atlassian.net/browse/PRA-287)] Use s3 integrator from track 2 and adopt object-storage-charmlib ([#174](https://github.com/canonical/spark-history-server-k8s-operator/pull/174)) ([#173](https://github.com/canonical/spark-history-server-k8s-operator/pull/173))
 
 ### Spark Integration Hub
 
-* [[PRA-74](https://warthogs.atlassian.net/browse/PRA-74)] Renovate configuration to update OCI resource ([#195](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/195))
-* [[PRA-76](https://warthogs.atlassian.net/browse/PRA-76)] Split OCI resource tag and digest definition ([#196](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/196))
 * [[PRA-264](https://warthogs.atlassian.net/browse/PRA-264)] Improve TIOBE workflow reliability ([#197](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/197))
-* [[PRA-63](https://warthogs.atlassian.net/browse/PRA-63)] Run integration tests using spread ([#202](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/202))
 * [[PRA-277](https://warthogs.atlassian.net/browse/PRA-277)] Use s3 integrator from track 2 and adopt object-storage-charmlib ([#187](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/187)) ([#205](https://github.com/canonical/spark-integration-hub-k8s-operator/pull/205))
 
 ### Apache Spark Client snap
