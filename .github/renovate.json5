@@ -20,6 +20,11 @@
       "matchManagers": ["github-actions"],
       "matchDepNames": ["python"],
       "enabled": false
+    },
+    {
+      "description": "Block pandas v3 updates due to python3.11 requirement",
+      "matchPackageNames": ["pandas"],
+      "allowedVersions": "<3.0.0"
     }
   ],
 }
