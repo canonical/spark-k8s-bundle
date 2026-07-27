@@ -16,11 +16,11 @@ poetry-plugin-export = ">=1.9"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
-spark8t = ">=0.0.12"
-boto3 = ">=1.43.40"
+spark8t = ">=1.4.0"
+boto3 = ">=1.43.56"
 pytest = "^9.1.1"
 azure-storage-blob = "^12.30.0"
-lightkube = ">=0.21.0"
+lightkube = ">=0.22.0"
 impyla = "^0.24.0"
 
 [tool.poetry.group.fmt]
@@ -33,13 +33,13 @@ ruff = "^0.15.20"
 optional = true
 
 [tool.poetry.group.lint.dependencies]
-codespell = "^2.4.2"
+codespell = "^2.4.3"
 ruff = "^0.15.20"
-mypy = ">=0.991"
+mypy = ">=2.3.0"
 pytest-mypy = ">=1.0.1"
 types-psycopg2 = "^2.9.21.20250718"
 types-pyyaml = "^6.0.12.20250516"
-types-boto3 = { extras = ["s3"], version = "^1.43.40" }
+types-boto3 = { extras = ["s3"], version = "^1.43.56" }
 
 [tool.poetry.group.unit]
 optional = true
@@ -66,7 +66,7 @@ optional = true
 
 [tool.poetry.group.benchmark.dependencies]
 great-tables = "^0.22.0"
-polars = "^1.42.1"
+polars = "^1.43.0"
 pandas = "^2.3.3" # needed for great-tables' nanoplot
 
 [build-system]
