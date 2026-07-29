@@ -19,7 +19,7 @@ The Charmed Apache Kyuubi K8s charm provides a `metastore-db` integration throug
 To use it, deploy a Charmed PostgreSQL K8s charm:
 
 ```shell
-juju deploy postgresql-k8s metastore --channel 14/stable --trust
+juju deploy postgresql-k8s metastore --channel 16/stable --trust
 ```
 
 Then, integrate it with the Charmed Apache Kyuubi K8s charm on the `metastore-db` relation:
