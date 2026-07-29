@@ -11,6 +11,7 @@ Charmed Apache Spark has the following stable revisions:
 
 * [2](reference-releases-revision-2)
 * [4](reference-releases-revision-4)
+* [6](reference-releases-revision-6)
 
 ```{toctree}
 :titlesonly:
@@ -18,4 +19,5 @@ Charmed Apache Spark has the following stable revisions:
 
 Revision 2<revision-2.md>
 Revision 4<revision-4.md>
+Revision 6<revision-6.md>
 ```
