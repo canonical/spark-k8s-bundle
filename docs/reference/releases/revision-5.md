@@ -11,7 +11,7 @@ July 29th, 2026
 
 We're excited to announce a new stable release for Charmed Apache Spark.
 
-This release most notably brings the support for Apache Spark 4.0 and a Charmed Apache Spark Terraform Module to deliver a seamless, production-ready and fully open-source data lake experience. Moreover, this new release also comes with enhanced security and bug fixes to the various components that makes the Charmed Apache Spark solution.
+This release most notably brings the support for a Charmed Apache Spark Terraform Module to deliver a seamless, production-ready and fully open-source data lake experience. Moreover, this new release also comes with enhanced security and bug fixes to the various components that makes the Charmed Apache Spark solution.
 
 Charmhub: [3.4/stable](https://charmhub.io/kyuubi-k8s?channel=3.4/stable) | [Docs](https://canonical.com/data/spark/docs/3.4/) | [Deploy guide](https://canonical.com/data/spark/docs/3.4/how-to/deploy/) | [System requirements](https://canonical.com/data/spark/docs/3.4/reference/requirements/)
 
