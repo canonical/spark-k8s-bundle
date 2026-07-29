@@ -101,3 +101,4 @@ Alertmanager
 Ory
 middleware
 Entra
+stdlib
