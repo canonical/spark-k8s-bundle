@@ -139,7 +139,7 @@ See the [how-to manage certificates](how-to-self-signed-certificates) guide for 
 #### Apache Kyuubi <> PostgreSQL connection
 
 Charmed Apache Kyuubi integration with PostgreSQL can be secured by enabling encryption for the PostgreSQL K8s charm.
-See the [PostgreSQL K8s how-to enable TLS](https://canonical-charmed-postgresql.readthedocs-hosted.com/14/how-to/enable-tls/)
+See the [PostgreSQL K8s how-to enable TLS](https://canonical.com/data/postgresql/docs/14/how-to/network-and-encryption/enable-tls/)
 guide for more information on how to enable and customize encryption.
 
 #### Apache Kyuubi <> Apache ZooKeeper connection
