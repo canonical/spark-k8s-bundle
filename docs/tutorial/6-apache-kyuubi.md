@@ -251,7 +251,7 @@ This means that if a pod is reset or fails, the metadata is lost.
 To make metadata persistent, configure an external metastore by deploying Charmed PostgreSQL and integrating it with the Apache Kyuubi charm using the `metastore-db` interface:
 
 ```shell
-juju deploy postgresql-k8s --trust --channel=14/stable metastore
+juju deploy postgresql-k8s --trust --channel=16/stable metastore
 juju integrate kyuubi-k8s:metastore-db metastore
 ```
 

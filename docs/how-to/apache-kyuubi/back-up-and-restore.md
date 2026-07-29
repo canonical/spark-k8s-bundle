@@ -33,7 +33,7 @@ and this requires a backup of the PostgreSQL database that stores that informati
 
 First of all, we need to create a backup of the database that stores the metastore from the Charmed Apache Kyuubi deployment that you want to back up.
 
-The PostgreSQL charm supports the creation of a backup to an S3 compliant object storage. Please refer to [PostgreSQL documentation](https://canonical-charmed-postgresql-k8s.readthedocs-hosted.com/14/how-to/back-up-and-restore/) to check the available options and more details.
+The PostgreSQL charm supports the creation of a backup to an S3 compliant object storage. Please refer to [PostgreSQL documentation](https://canonical.com/data/postgresql/docs/16/how-to/back-up-and-restore/) to check the available options and more details.
 
 After the selection of the object storage, the first step is the create an S3 bucket (by using one of the supported S3 providers that has TLS enabled).
 
