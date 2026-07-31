@@ -1,30 +1,31 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "github>canonical/data-platform//renovate_presets/charm.json5",
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: [
+    "github>canonical/data-platform//renovate_presets/base.json5",
+    "helpers:pinGitHubActionDigests",
   ],
-  "reviewers": [
-    "welpaolo",
-    "theoctober19th",
-    "batalex",
-  ],
-  "baseBranchPatterns": ["/^track\\/[0-9]+\\.[0-9]+$/"],
-  "schedule": ["* 3 * * 5"],
-  "lockFileMaintenance": {
-    "enabled": true,
-    "schedule": ["* 3 * * 5"]
+  // Between 1AM and 6:59AM, first Friday of the month
+  schedule: ["* 1-6 1-7 * 5"],
+  lockFileMaintenance: {
+    enabled: true,
+    // Between 1AM and 6:59AM, Friday mid-month
+    schedule: ["* 1-6 14-21 * 5"],
   },
-  "ignoreDeps": ["ubuntu"],
-  "packageRules": [
+  baseBranchPatterns: ["/^track\\/[0-9]+\\.[0-9]+$/"],
+  useBaseBranchConfig: "merge",
+  commitMessagePrefix: "[RENOVATE] ",
+  ignoreDeps: ["ubuntu"],
+  enabledManagers: ["github-actions", "poetry"],
+  packageRules: [
     {
-      "matchManagers": ["github-actions"],
-      "matchDepNames": ["python"],
-      "enabled": false
+      matchManagers: ["github-actions"],
+      matchDepNames: ["python"],
+      enabled: false,
     },
     {
-      "description": "Block pandas v3 updates due to python3.11 requirement",
-      "matchPackageNames": ["pandas"],
-      "allowedVersions": "<3.0.0"
-    }
+      description: "Block pandas v3 updates due to python3.11 requirement",
+      matchPackageNames: ["pandas"],
+      allowedVersions: "<3.0.0",
+    },
   ],
 }
