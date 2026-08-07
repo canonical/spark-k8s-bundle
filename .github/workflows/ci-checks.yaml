@@ -20,10 +20,10 @@ jobs:
     steps:
       - id: checkout
         name: Checkout repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - id: setup-python
         name: Setup Python
-        uses: actions/setup-python@v7.0.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{matrix.python-version}}
           architecture: x64
@@ -32,7 +32,7 @@ jobs:
           pipx install tox
           pipx install poetry
 
-      - uses: terraform-linters/setup-tflint@v6
+      - uses: terraform-linters/setup-tflint@6e1e0642c0289bd619021bf6b34e3c08ed1e005a # v6
         name: Setup TFLint
 
       - id: code-checks
