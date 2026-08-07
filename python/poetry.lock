@@ -802,14 +802,14 @@ files = [
 
 [[package]]
 name = "great-tables"
-version = "0.22.0"
+version = "0.23.0"
 description = "Easily generate information-rich, publication-quality tables from Python."
 optional = false
 python-versions = ">=3.10"
 groups = ["benchmark"]
 files = [
-    {file = "great_tables-0.22.0-py3-none-any.whl", hash = "sha256:7a7f81c2d1eb66d88166e864ac820966c23f04e4ecb41eeca8f9df1e1b21764d"},
-    {file = "great_tables-0.22.0.tar.gz", hash = "sha256:ccf031d90cab599328232bc32afadef215da1457dbc025d0972048cc2050fd57"},
+    {file = "great_tables-0.23.0-py3-none-any.whl", hash = "sha256:6a0f20b2ce66cdd45c6633d01ca3d0970c17e9be8397ea932ad17ef9603af531"},
+    {file = "great_tables-0.23.0.tar.gz", hash = "sha256:dc45bb80642e109608688e38edd88e6883cbf38fd00e4617fc0dadfa51b9bad4"},
 ]
 
 [package.dependencies]
@@ -3338,4 +3338,4 @@ type = ["pytest-mypy (>=1.0.1) ; platform_python_implementation != \"PyPy\""]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "3ff541f3935de29149f850982089b6804a7e13caf56086182fa2dee7fd926b95"
+content-hash = "164190ed43e1b4c7bb27bc6ff102e4eec988fcd2d4f11527422a8213060f91c8"
