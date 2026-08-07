@@ -62,7 +62,7 @@ python-hcl2 = "^8.1.2"
 optional = true
 
 [tool.poetry.group.benchmark.dependencies]
-great-tables = "^0.22.0"
+great-tables = "^0.23.0"
 polars = "^1.43.0"
 pandas = "^2.3.3" # needed for great-tables' nanoplot
 
