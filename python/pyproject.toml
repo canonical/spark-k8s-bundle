@@ -20,7 +20,7 @@ spark8t = ">=0.0.10"
 boto3 = ">=1.36"
 pytest = "^9.0.3"
 azure-storage-blob = "^12.21.0"
-lightkube = ">=0.11"
+lightkube = ">=1.0.1"
 impyla = "^0.20.0"
 
 [tool.poetry.group.fmt]
@@ -35,7 +35,7 @@ optional = true
 [tool.poetry.group.lint.dependencies]
 codespell = "^2.1.0"
 ruff = "^0.9.4"
-mypy = ">=0.910"
+mypy = ">=2.3.1"
 pytest-mypy = ">=0.10.3"
 types-psycopg2 = "^2.9.21.20250718"
 types-pyyaml = "^6.0.12.20250516"
@@ -67,7 +67,7 @@ optional = true
 [tool.poetry.group.benchmark.dependencies]
 great-tables = "^0.16.1"
 polars = "^1.23.0"
-pandas = "^2.2.3" # needed for great-tables' nanoplot
+pandas = "^3.0.5" # needed for great-tables' nanoplot
 
 [build-system]
 requires = ["poetry-core"]
