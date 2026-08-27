@@ -214,9 +214,11 @@ def published_prometheus_data(
     cos_model_name: str, host: str, field: str
 ) -> dict | None:
     """Check the existence of field among Prometheus published data."""
-    if "://" not in host:
-        host = f"http://{host}"
-    url = f"{host}/{cos_model_name}-prometheus-0/api/v1/query?query={field}"
+    parsed = urllib.parse.urlparse(host)
+    if not parsed.scheme:
+        parsed = urllib.parse.urlparse(f"http://{host}")
+    base = parsed._replace(path=f"/{cos_model_name}-prometheus-0/api/v1/query", query="")
+    url = urllib.parse.urlunparse(base) + f"?query={field}"
     try:
         response = httpx.get(url)
     except httpx.RequestError:
@@ -260,9 +262,11 @@ def get_grafana_access(cos_model_name: str) -> tuple[str, str]:
 
 def published_prometheus_alerts(cos_model_name: str, host: str) -> dict | None:
     """Retrieve all Prometheus Alert rules that have been published."""
-    if "://" not in host:
-        host = f"http://{host}"
-    url = f"{host}/{cos_model_name}-prometheus-0/api/v1/rules"
+    parsed = urllib.parse.urlparse(host)
+    if not parsed.scheme:
+        parsed = urllib.parse.urlparse(f"http://{host}")
+    base = parsed._replace(path=f"/{cos_model_name}-prometheus-0/api/v1/rules", query="")
+    url = urllib.parse.urlunparse(base)
     try:
         response = httpx.get(url)
     except httpx.RequestError:
@@ -280,9 +284,11 @@ def published_loki_logs(
     limit: int = 300,
 ) -> dict:
     """Get the list of dashboards published to Grafana."""
-    if "://" not in host:
-        host = f"http://{host}"
-    url = f"{host}/{cos_model_name}-loki-0/loki/api/v1/query_range"
+    parsed = urllib.parse.urlparse(host)
+    if not parsed.scheme:
+        parsed = urllib.parse.urlparse(f"http://{host}")
+    base = parsed._replace(path=f"/{cos_model_name}-loki-0/loki/api/v1/query_range", query="")
+    url = urllib.parse.urlunparse(base)
 
     try:
         response = httpx.get(
