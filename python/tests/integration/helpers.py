@@ -214,9 +214,9 @@ def published_prometheus_data(
     cos_model_name: str, host: str, field: str
 ) -> dict | None:
     """Check the existence of field among Prometheus published data."""
-    if "http://" in host:
-        host = host.split("//")[1]
-    url = f"http://{host}/{cos_model_name}-prometheus-0/api/v1/query?query={field}"
+    if "://" not in host:
+        host = f"http://{host}"
+    url = f"{host}/{cos_model_name}-prometheus-0/api/v1/query?query={field}"
     try:
         response = httpx.get(url)
     except httpx.RequestError:
@@ -260,9 +260,9 @@ def get_grafana_access(cos_model_name: str) -> tuple[str, str]:
 
 def published_prometheus_alerts(cos_model_name: str, host: str) -> dict | None:
     """Retrieve all Prometheus Alert rules that have been published."""
-    if "http://" in host:
-        host = host.split("//")[1]
-    url = f"http://{host}/{cos_model_name}-prometheus-0/api/v1/rules"
+    if "://" not in host:
+        host = f"http://{host}"
+    url = f"{host}/{cos_model_name}-prometheus-0/api/v1/rules"
     try:
         response = httpx.get(url)
     except httpx.RequestError:
@@ -280,9 +280,9 @@ def published_loki_logs(
     limit: int = 300,
 ) -> dict:
     """Get the list of dashboards published to Grafana."""
-    if "http://" in host:
-        host = host.split("//")[1]
-    url = f"http://{host}/{cos_model_name}-loki-0/loki/api/v1/query_range"
+    if "://" not in host:
+        host = f"http://{host}"
+    url = f"{host}/{cos_model_name}-loki-0/loki/api/v1/query_range"
 
     try:
         response = httpx.get(
