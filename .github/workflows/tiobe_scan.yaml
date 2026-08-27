@@ -7,6 +7,7 @@ on:
   schedule:
     - cron: "0 2 * * 6" # Every Saturday 2:00 AM UTC
   workflow_dispatch:
+  pull_request:
 
 jobs:
   TICS:
@@ -46,4 +47,5 @@ jobs:
           ticsAuthToken: ${{ secrets.TICSAUTHTOKEN }}
           installTics: true
           calc: ALL
-    permissions: {}
+    permissions:
+      pull-requests: write
