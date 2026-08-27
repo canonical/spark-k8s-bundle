@@ -34,8 +34,8 @@ jobs:
 
       - name: Move results to the necessary folder for TICS
         run: |
-          mkdir -p cover
-          mv python/coverage.xml cover/cobertura.xml
+          mkdir -p python/cover
+          mv python/coverage.xml python/cover/cobertura.xml
 
       - name: TICS GitHub Action
         uses: tiobe/tics-github-action@016a4d79f3027fe7b4a2901619a58c745ab7cadf # v3
