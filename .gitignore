@@ -43,6 +43,7 @@ terraform.rc
 .idea
 .tox
 .coverage
+coverage.xml
 __pycache__
 env
 .vscode
