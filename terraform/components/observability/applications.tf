@@ -6,7 +6,7 @@ resource "juju_application" "grafana_agent" {
   model_uuid = var.model_uuid
 
   charm {
-    name     = "grafana-agent-k8s"
+    name     = "opentelemetry-collector-k8s"
     channel  = var.grafana_agent.channel
     revision = var.grafana_agent.revision
   }
