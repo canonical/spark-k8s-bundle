@@ -20,7 +20,7 @@ output "provides" {
     }
     grafana_agent_logging_provider = {
       name     = juju_application.grafana_agent.name
-      endpoint = "logging-provider"
+      endpoint = "receive-loki-logs"
     }
     grafana_agent_grafana_dashboards_consumer = {
       name     = juju_application.grafana_agent.name
@@ -42,7 +42,7 @@ output "requires" {
     }
     grafana_agent_logging_consumer = {
       name     = juju_application.grafana_agent.name
-      endpoint = "logging-consumer"
+      endpoint = "send-loki-logs"
     }
   }
 }
