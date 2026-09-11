@@ -55,6 +55,14 @@ Use the `get-credentials` action to retrieve credentials from `data-integrator`:
 juju run data-integrator/leader get-credentials
 ```
 
+```{dropdown} Obtaining credentials in LDAP authentication mode
+:class-container: dropdown-caution
+:icon: alert-fill
+:class-title: sd-font-weight-normal
+
+The `data-integrator` charm's `get-credentials` does not return `username` and `password` in when LDAP authentication is used. This is because in LDAP, the users are managed externally, and thus the username and password should be received externally from the LDAP provider.
+```
+
 ## Rotate application password
 
 To rotate the passwords of a user created for an integrated application, the associated integration must be removed and created again. This process will generate a new user and password for the application.
