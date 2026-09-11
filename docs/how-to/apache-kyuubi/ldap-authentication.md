@@ -5,11 +5,11 @@ myst:
 ---
 
 (how-to-apache-kyuubi-ldap-authentication)=
-# LDAP Authentication
+# LDAP authentication
 
-The Lightweight Directory Access Protocol (LDAP) enables centralised authentication for Kyuubi. This guide shows how to enable LDAP authentication in Charmed Apache Kyuubi K8s charm, so that the users in a LDAP directory can be used to authenticate and run SQL queries with Apache Kyuubi. This guide will also show how such users can be managed with Juju.
+The Lightweight Directory Access Protocol (LDAP) enables centralised authentication for Kyuubi, removing the overhead of user management from the Apache Kyuubi charm. This guide shows how to enable LDAP authentication in Charmed Apache Kyuubi K8s charm, so that the users in a LDAP directory can be used to authenticate and run SQL queries with Apache Kyuubi. This guide will also show how such users can be managed with Juju.
 
-## Enable LDAP Authentication
+## Enable LDAP authentication
 
 The Charmed Apache Kyuubi K8s charm implements the `ldap-credentials` relation endpoint over the `ldap` interface, which can be used to integrate LDAP provider charms such as GlAuth K8s to enable LDAP authentication.
 
@@ -65,7 +65,7 @@ juju integrate kyuubi-k8s:receive-ca-cert glauth-k8s
 
 Once the all charms are settled to `active/idle` status, the LDAP users are now able to authenticate with the Charmed Apache Kyuubi K8s charm.
 
-## Manage LDAP Users
+## Manage LDAP users
 
 The user management in GlAuth K8s charm is done using the `glauth-utils` charm. Deploy the `glauth-utils` charm and integrate it with GlAuth K8s charm:
 
@@ -113,20 +113,23 @@ juju run glauth-utils/0 apply-ldif path=/tmp/operations.ldif
 The output similar to the following can be seen in the shell, if the operation is successful:
 
 ```text
-Sample LDIF file applied successfully
+LDIF file applied successfully
 ```
 
 Once the LDIF has been applied successfully, the username `testuser` with the password `testpassword` can be used to authenticate with Kyuubi charm.
 
 ```shell
-spark-client.beeline -u "jdbc://<kyuubi-host>:<kyuubi-port>/" -n testuser -p testpassword
+spark-client.beeline \
+  -u "jdbc://<kyuubi-host>:<kyuubi-port>/" \
+  -n testuser \
+  -p testpassword
 ```
 
 ### Using custom LDAP search filter
 
-The LDAP authentication can be used to authenticate with Kyuubi charm using custom attributes of the LDAP users. This can be done by providing custom LDAP search filter using the `ldap-search-filter` config option in the Kyuubi charm.
+The custom attributes of the LDAP users can be used to authenticate with Charmed Apache Kyuubi K8s charm. This can be done by providing custom LDAP search filter using the `ldap-search-filter` config option in the Kyuubi charm.
 
-The default search filter used by Kyuubi to for LDAP user discovery is `(|(uid=%s)(cn=%s)(mail=%s))`. This filters the LDAP users that any one of `uid`, `cn` or `mail` attributes matching the provided username.  The `%s` is the placeholder for the username provided during authentication.
+The default search filter used by Kyuubi charm for LDAP user discovery is `(|(uid=%s)(cn=%s)(mail=%s))`. This filters the LDAP users that have any one of `uid`, `cn` or `mail` attributes matching the provided username.  The `%s` is the placeholder for the username provided during authentication. The `|` does the logical OR operation, meaning that any one of the three attributes can match.
 
 For instance, to enable authentication using either of custom attributes `firstName` or `lastName`, a custom search filter `(|(firstName=%s)(lastName=%s))` can be used:
 
