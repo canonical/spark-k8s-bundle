@@ -1,6 +1,6 @@
-history_server_revision  = 119 # 4/beta        TODO: Use stable revision
-integration_hub_revision = 134 # 3/beta        TODO: Use stable revision
-kyuubi_revision          = 181 # 4.0/beta      TODO: Use stable revision
+history_server_revision  = 119 # 4/candidate        TODO: Use stable revision
+integration_hub_revision = 134 # 3/candidate        TODO: Use stable revision
+kyuubi_revision          = 181 # 4.0/candidate      TODO: Use stable revision
 kyuubi_users_revision    = 927 # 16/stable
 metastore_revision       = 927 # 16/stable
 zookeeper_revision       = 78  # 3/stable
