@@ -107,10 +107,8 @@ juju run data-integrator/0 get-credentials | yq ".kyuubi.tls-ca"
 
 Charmed Apache Kyuubi K8s uses [Juju secrets](https://documentation.ubuntu.com/juju/latest/reference/secret/#secret) to manage passwords for system users.
 
-```{dropdown} Not supported in LDAP authentication mode.
-:class-container: dropdown-caution
-:icon: alert-fill
-:class-title: sd-font-weight-normal
+```{note}
+**Not supported in LDAP authentication mode.**
 
 The management of the passwords for system users in Kyuubi charm is not supported in LDAP authentication mode. This is because the LDAP users are not managed by Kyuubi and therefore the user management is done outside Kyuubi.
 

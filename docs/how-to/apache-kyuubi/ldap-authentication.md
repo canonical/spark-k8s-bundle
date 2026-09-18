@@ -38,10 +38,8 @@ juju deploy self-signed-certificates
 juju integrate glauth-k8s:certificates self-signed-certificates
 ```
 
-```{dropdown} Do **not** use self-signed certificates in production.
-:class-container: dropdown-caution
-:icon: alert-fill
-:class-title: sd-font-weight-normal
+```{note}
+Do **not** use self-signed certificates in production.
 
 In this guide, we use [self-signed certificates](https://en.wikipedia.org/wiki/Self-signed_certificate) provided by the [`self-signed-certificates` operator](https://github.com/canonical/self-signed-certificates-operator).
 

@@ -55,10 +55,8 @@ Use the `get-credentials` action to retrieve credentials from `data-integrator`:
 juju run data-integrator/leader get-credentials
 ```
 
-```{dropdown} Obtaining credentials in LDAP authentication mode
-:class-container: dropdown-caution
-:icon: alert-fill
-:class-title: sd-font-weight-normal
+```{note}
+**Obtaining credentials in LDAP authentication mode**
 
 The `data-integrator` charm's `get-credentials` does not return `username` and `password` in when LDAP authentication is used. This is because in LDAP, the users are managed externally, and thus the username and password should be received externally from the LDAP provider.
 ```
@@ -73,4 +71,3 @@ juju integrate <charm> kyuubi-k8s
 ```
 
 For a non-charmed application, the `data-integrator` is the `<charm>` to remove and re-create the integration with.
-
