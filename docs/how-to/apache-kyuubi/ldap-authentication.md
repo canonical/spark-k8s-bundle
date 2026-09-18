@@ -25,13 +25,9 @@ juju integrate glauth-k8s:certificates self-signed-certificates
 ```
 
 ```{note}
-Do **not** use self-signed certificates in production.
+Avoid using self-signed TLS certificates in production environments.
 
-In this guide, we use [self-signed certificates](https://en.wikipedia.org/wiki/Self-signed_certificate) provided by the [`self-signed-certificates` operator](https://github.com/canonical/self-signed-certificates-operator).
-
-**This is not recommended for a production environment.**
-
-Check the collection of [Charmhub operators](https://charmhub.io/?q=tls-certificates) that implement the `tls-certificate` interface.
+Please refer to the [X.509 certificates post](https://charmhub.io/topics/security-with-x-509-certificates) for an overview of the TLS certificates Providers charms and some guidance on how to choose the right charm for your use case.
 ```
 
 The GlAuth K8s uses PostgreSQL database to store the users in the backend. Deploy `postgresql-k8s` charm, and integrate it with GlAuth K8s charm to enable it to store the user information.
