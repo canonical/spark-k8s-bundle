@@ -9,26 +9,12 @@ myst:
 
 The Lightweight Directory Access Protocol (LDAP) enables centralised authentication for Kyuubi, removing the overhead of user management from the Apache Kyuubi charm. This guide shows how to enable LDAP authentication in Charmed Apache Kyuubi K8s charm, so that the users in a LDAP directory can be used to authenticate and run SQL queries with Apache Kyuubi. This guide will also show how such users can be managed with Juju.
 
-## Enable LDAP authentication
+## Deploy LDAP server setup
 
-The Charmed Apache Kyuubi K8s charm implements the `ldap-credentials` relation endpoint over the `ldap` interface, which can be used to integrate LDAP provider charms such as GlAuth K8s to enable LDAP authentication.
-
-To enable LDAP authentication, first deploy the GlAuth K8s charm which is a standalone LDAP server:
+Deploy the GlAuth K8s charm, which is a standalone LDAP server charm that supports integration with the Kyuubi charm. Make sure to enable LDAPS, because Kyuubi charm by design supports only LDAPS (LDAP over SSL/TLS).
 
 ```shell
-juju deploy glauth-k8s glauth --channel latest/stable --trust
-```
-
-Then, integrate it with the Charmed Apache Kyuubi K8s charm on the `ldap-credentials` relation:
-
-```shell
-juju integrate kyuubi-k8s:ldap-credentials gauth-k8s:ldap
-```
-
-The Kyuubi charm by design only supports LDAPS (LDAP with TLS), and thus will stay blocked until it receives LDAPS credentials over the relation. To unblock, enable LDAPS in the GlAuth K8s charm:
-
-```shell
-juju config glauth-k8s ldaps_enabled=true
+juju deploy glauth-k8s glauth --channel latest/stable --config ldaps_enabled=true --trust
 ```
 
 For LDAPS to work, GlAuth K8s needs TLS certificates, which is provided by any charm that provides a relation over `tls-certificates` interface. For instance, deploy the `self-signed-certificates` charm, and integrate it with GlAuth K8s:
@@ -53,6 +39,16 @@ The GlAuth K8s uses PostgreSQL database to store the users in the backend. Deplo
 ```shell
 juju deploy postgresql-k8s --channel 16/stable --trust ldap-db
 juju integrate glauth-k8s:pg-database ldap-db:database
+```
+
+Now the LDAP server setup is ready for integration with Kyuubi charm.
+
+## Enable LDAP authentication
+
+The Charmed Apache Kyuubi K8s charm implements the `ldap-credentials` relation endpoint over the `ldap` interface. Integrate the Kyuubi charm with GlAuth K8s charm over this relation endpoint:
+
+```shell
+juju integrate kyuubi-k8s:ldap-credentials gauth-k8s:ldap
 ```
 
 Since the Kyuubi charm needs to connect to GlAuth LDAP server internally, it needs to know the CA certificate to initiate LDAPS connection. Integrate Kyuubi charm with GlAuth K8s charm using `receive-ca-cert` relation endpoint, such that this CA certificate is passed to Kyuubi charm.
@@ -108,10 +104,11 @@ juju scp operations.ldif glauth-utils/0:/tmp/operations.ldif
 juju run glauth-utils/0 apply-ldif path=/tmp/operations.ldif
 ```
 
-The output similar to the following can be seen in the shell, if the operation is successful:
+Ensure the operation is successful by verifying that the following message is seen as output:
 
 ```text
-LDIF file applied successfully
+Applying LDIF file...
+Successfully applied the LDIF file.
 ```
 
 Once the LDIF has been applied successfully, the username `testuser` with the password `testpassword` can be used to authenticate with Kyuubi charm.
