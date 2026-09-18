@@ -58,7 +58,7 @@ juju run data-integrator/leader get-credentials
 ```{note}
 **Obtaining credentials in LDAP authentication mode**
 
-The `data-integrator` charm's `get-credentials` does not return `username` and `password` in when LDAP authentication is used. This is because in LDAP, the users are managed externally, and thus the username and password should be received externally from the LDAP provider.
+The `data-integrator` charm's `get-credentials` action does not return `username` and `password` in the results when LDAP authentication is used. This is because in LDAP, the users are managed externally, and thus the username and password should be received externally from the LDAP provider.
 ```
 
 ## Rotate application password
