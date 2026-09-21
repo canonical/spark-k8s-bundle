@@ -105,7 +105,15 @@ juju run data-integrator/0 get-credentials | yq ".kyuubi.tls-ca"
 
 ## Manage passwords
 
-Charmed Apache Kyuubi K8s uses [Juju secrets](https://documentation.ubuntu.com/juju/latest/reference/secret/#secret) to manage passwords.
+Charmed Apache Kyuubi K8s uses [Juju secrets](https://documentation.ubuntu.com/juju/latest/reference/secret/#secret) to manage passwords for system users.
+
+```{note}
+**Not supported in LDAP authentication mode.**
+
+The management of the passwords for system users in Kyuubi charm is not supported in LDAP authentication mode. This is because the LDAP users are not managed by Kyuubi and therefore the user management is done outside Kyuubi.
+
+Refer to [this guide](how-to-apache-kyuubi-ldap-authentication) for user management in LDAP authentication mode.
+```
 
 > See also: [Juju | How to manage secrets](https://documentation.ubuntu.com/juju/latest/howto/manage-secrets/#manage-secrets)
 
@@ -153,4 +161,3 @@ To update a password, update the associated secret:
 ```shell
 juju update-secret <secret_name> admin=<new_password>
 ```
-

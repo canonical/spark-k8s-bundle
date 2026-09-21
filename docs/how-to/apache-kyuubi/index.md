@@ -24,6 +24,7 @@ see the [Tutorial](tutorial-6-apache-kyuubi) and the following guides:
 Encryption and passwords<encryption-and-passwords.md>
 External connections<external-connections.md>
 External metastore<external-metastore.md>
+LDAP authentication<ldap-authentication.md>
 Integrate with apps<integrate-with-applications.md>
 Backups<back-up-and-restore.md>
 Upgrades<upgrade.md>
