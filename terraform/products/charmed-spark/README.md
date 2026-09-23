@@ -72,10 +72,12 @@
 | <a name="input_kyuubi_image"></a> [kyuubi\_image](#input\_kyuubi\_image) | Image for kyuubi-k8s | `any` | `null` | no |
 | <a name="input_kyuubi_revision"></a> [kyuubi\_revision](#input\_kyuubi\_revision) | Charm revision for kyuubi-k8s | `number` | `null` | no |
 | <a name="input_kyuubi_units"></a> [kyuubi\_units](#input\_kyuubi\_units) | Number of Kyuubi units. 3 units are recommended for high availability. | `number` | `3` | no |
+| <a name="input_kyuubi_users_config"></a> [kyuubi\_users\_config](#input\_kyuubi\_users\_config) | Kyuubi users database (postgresql-k8s auth-db) configuration options. | `map(any)` | `{}` | no |
 | <a name="input_kyuubi_users_image"></a> [kyuubi\_users\_image](#input\_kyuubi\_users\_image) | Image for postgresql-k8s (auth-db) | `any` | `null` | no |
 | <a name="input_kyuubi_users_revision"></a> [kyuubi\_users\_revision](#input\_kyuubi\_users\_revision) | Charm revision for postgresql-k8s (auth-db) | `number` | `null` | no |
 | <a name="input_kyuubi_users_size"></a> [kyuubi\_users\_size](#input\_kyuubi\_users\_size) | Storage size for the Kyuubi users database | `string` | `"1G"` | no |
 | <a name="input_logging_config"></a> [logging\_config](#input\_logging\_config) | Logging configuration to be used | `string` | `"<root>=INFO"` | no |
+| <a name="input_metastore_config"></a> [metastore\_config](#input\_metastore\_config) | Metastore database (postgresql-k8s) configuration options. | `map(any)` | `{}` | no |
 | <a name="input_metastore_image"></a> [metastore\_image](#input\_metastore\_image) | Image for postgresql-k8s (metastore) | `any` | `null` | no |
 | <a name="input_metastore_revision"></a> [metastore\_revision](#input\_metastore\_revision) | Charm revision for postgresql-k8s (metastore) | `number` | `null` | no |
 | <a name="input_metastore_size"></a> [metastore\_size](#input\_metastore\_size) | Storage size for the metastore database | `string` | `"10G"` | no |

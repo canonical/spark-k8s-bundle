@@ -37,6 +37,7 @@ module "kyuubi_users" {
   app_name           = "kyuubi-users"
   base               = "ubuntu@22.04"
   channel            = "14/stable"
+  config             = var.kyuubi_users_config
   constraints        = "arch=amd64"
   revision           = var.kyuubi_users_revision
   resources          = var.kyuubi_users_image != null ? { postgresql-image = var.kyuubi_users_image } : null
@@ -52,6 +53,7 @@ module "metastore" {
   app_name           = "metastore"
   base               = "ubuntu@22.04"
   channel            = "14/stable"
+  config             = var.metastore_config
   constraints        = "arch=amd64"
   revision           = var.metastore_revision
   resources          = var.metastore_image != null ? { postgresql-image = var.metastore_image } : null
