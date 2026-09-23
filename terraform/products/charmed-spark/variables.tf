@@ -136,6 +136,12 @@ variable "integration_hub_revision" {
   nullable    = true
 }
 
+variable "kyuubi_users_config" {
+  description = "Kyuubi users database (postgresql-k8s auth-db) configuration options."
+  type        = map(any)
+  default     = {}
+}
+
 variable "kyuubi_users_image" {
   description = "Image for postgresql-k8s (auth-db)"
   type        = any
@@ -185,6 +191,12 @@ variable "logging_config" {
   description = "Logging configuration to be used"
   type        = string
   default     = "<root>=INFO"
+}
+
+variable "metastore_config" {
+  description = "Metastore database (postgresql-k8s) configuration options."
+  type        = map(any)
+  default     = {}
 }
 
 variable "metastore_image" {
