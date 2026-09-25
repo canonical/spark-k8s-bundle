@@ -29,33 +29,20 @@ module "ssc" {
 
 }
 
-module "kyuubi_users" {
+module "postgresql" {
+  count      = var.postgresql.kind == "app" ? 1 : 0
   depends_on = [juju_model.spark]
-  source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev925"
+  source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev925&depth=1"
   model_uuid = local.model_uuid
 
-  app_name           = "kyuubi-users"
-  base               = "ubuntu@22.04"
-  channel            = "14/stable"
+  app_name           = "postgresql"
+  base               = "ubuntu@24.04"
+  channel            = "16/stable"
+  config             = var.postgresql.config
   constraints        = "arch=amd64"
-  revision           = var.kyuubi_users_revision
-  resources          = var.kyuubi_users_image != null ? { postgresql-image = var.kyuubi_users_image } : null
-  storage_directives = { pgdata = var.kyuubi_users_size }
-  units              = 1
-}
-
-module "metastore" {
-  depends_on = [juju_model.spark]
-  source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev925"
-  model_uuid = local.model_uuid
-
-  app_name           = "metastore"
-  base               = "ubuntu@22.04"
-  channel            = "14/stable"
-  constraints        = "arch=amd64"
-  revision           = var.metastore_revision
-  resources          = var.metastore_image != null ? { postgresql-image = var.metastore_image } : null
-  storage_directives = { pgdata = var.metastore_size }
+  revision           = var.postgresql.revision
+  resources          = var.postgresql.image != null ? { postgresql-image = var.postgresql.image } : null
+  storage_directives = { data = var.postgresql.size }
   units              = 1
 }
 
@@ -218,8 +205,7 @@ module "kyuubi" {
     juju_secret.system_users_secret,
     juju_secret.private_key_secret,
     module.azure_storage,
-    module.kyuubi_users,
-    module.metastore,
+    module.postgresql,
     module.s3,
     module.ssc,
     module.zookeeper,
@@ -260,17 +246,9 @@ module "kyuubi" {
 
   data_integrator = merge({ kind = "endpoint" }, module.data_integrator.requires.kyuubi)
 
-  metastore = {
-    kind     = "endpoint"
-    name     = module.metastore.app_name
-    endpoint = module.metastore.provides.database
-  }
+  metastore = local.postgresql_ref
 
-  users_db = {
-    kind     = "endpoint"
-    name     = module.kyuubi_users.app_name
-    endpoint = module.kyuubi_users.provides.database
-  }
+  users_db = local.postgresql_ref
 
   zookeeper = merge({ kind = "endpoint" }, module.zookeeper.provides.zookeeper)
 }
