@@ -9,7 +9,7 @@ locals {
   postgresql_ref = (
     var.postgresql.kind == "app" ? {
       kind     = "endpoint"
-      name     = module.postgresql[0].app_name
+      name     = module.postgresql[0].application_name
       endpoint = module.postgresql[0].provides.database
       } : var.postgresql.kind == "endpoint" ? {
       kind     = "endpoint"
