@@ -99,16 +99,10 @@ variable "kyuubi_revision" {
   description = "Revision for Kyuubi"
 }
 
-variable "kyuubi_users_revision" {
+variable "postgresql_revision" {
   type        = string
   default     = null
-  description = "Revision for Kyuubi users"
-}
-
-variable "metastore_revision" {
-  type        = string
-  default     = null
-  description = "Revision for the metastore"
+  description = "Revision for PostgreSQL (backs both the metastore and Kyuubi's users db)"
 }
 
 variable "zookeeper_revision" {
@@ -159,16 +153,10 @@ variable "kyuubi_image" {
   description = "Image for Kyuubi"
 }
 
-variable "kyuubi_users_image" {
+variable "postgresql_image" {
   type        = string
   default     = null
-  description = "Image for Kyuubi users"
-}
-
-variable "metastore_image" {
-  type        = string
-  default     = null
-  description = "Image for the metastore"
+  description = "Image for PostgreSQL (backs both the metastore and Kyuubi's users db)"
 }
 
 variable "zookeeper_image" {
@@ -228,7 +216,7 @@ module "cos" {
   count = var.cos_model_uuid == null ? 0 : 1
   # the source is pinned to the last commit on branch track/2 that's still compatible with Juju TF < 1.4.0. 
   # For more details, see this section in cos-lite docs: https://github.com/canonical/observability-stack/blob/track/2/terraform/cos-lite/README.md#provider--100--140
-  source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=7448dadb996835c1c0ae1d79d2f435992652d410" 
+  source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=7448dadb996835c1c0ae1d79d2f435992652d410"
   model_uuid   = var.cos_model_uuid
   internal_tls = false
 }
@@ -260,26 +248,25 @@ module "spark" {
   kyuubi_config              = var.kyuubi_config
   kyuubi_image               = var.kyuubi_image
   kyuubi_revision            = var.kyuubi_revision
-  kyuubi_users_image         = var.kyuubi_users_image
-  kyuubi_users_revision      = var.kyuubi_users_revision
-  kyuubi_users_size          = "500M"
-  metastore_image            = var.metastore_image
-  metastore_revision         = var.metastore_revision
-  metastore_size             = "500M"
-  pushgateway_image          = var.pushgateway_image
-  pushgateway_revision       = var.pushgateway_revision
-  s3_access_key              = var.s3_access_key
-  s3_config                  = var.s3_config
-  s3_revision                = var.s3_revision
-  s3_secret_key              = var.s3_secret_key
-  scrape_config_revision     = var.scrape_config_revision
-  ssc_revision               = var.ssc_revision
-  storage_backend            = var.storage_backend
-  tls_private_key            = var.tls_private_key
-  zookeeper_image            = var.zookeeper_image
-  zookeeper_revision         = var.zookeeper_revision
-  zookeeper_units            = 1
-  spark_risk                 = var.spark_risk
+  postgresql = {
+    revision = var.postgresql_revision
+    image    = var.postgresql_image
+    size     = "500M"
+  }
+  pushgateway_image      = var.pushgateway_image
+  pushgateway_revision   = var.pushgateway_revision
+  s3_access_key          = var.s3_access_key
+  s3_config              = var.s3_config
+  s3_revision            = var.s3_revision
+  s3_secret_key          = var.s3_secret_key
+  scrape_config_revision = var.scrape_config_revision
+  ssc_revision           = var.ssc_revision
+  storage_backend        = var.storage_backend
+  tls_private_key        = var.tls_private_key
+  zookeeper_image        = var.zookeeper_image
+  zookeeper_revision     = var.zookeeper_revision
+  zookeeper_units        = 1
+  spark_risk             = var.spark_risk
 
   cos_offers = module.cos != [] ? {
     dashboard = module.cos[0].offers.grafana_dashboards.url
