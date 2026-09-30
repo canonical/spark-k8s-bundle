@@ -334,3 +334,25 @@ module "observability" {
   kyuubi_logging_endpoint           = module.kyuubi.requires.kyuubi_logging
   kyuubi_metrics_endpoint           = module.kyuubi.provides.kyuubi_metrics
 }
+
+
+module "istio_ambient" {
+  depends_on = [juju_model.spark]
+  count  = var.enable_service_mesh ? 1 : 0
+  source = "../../components/istio-ambient"
+
+  model_uuid = local.model_uuid
+
+  istio_ingress_k8s = {
+    channel  = "2/stable"
+    revision = var.istio_ingress_k8s_revision
+    config   = var.istio_ingress_k8s_config
+  }
+
+  istio_beacon_k8s = {
+    channel  = "2/stable"
+    revision = var.istio_beacon_k8s_revision
+    config   = var.istio_beacon_k8s_config
+  }
+
+}

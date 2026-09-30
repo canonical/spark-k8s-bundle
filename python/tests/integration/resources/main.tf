@@ -201,6 +201,12 @@ variable "scrape_config_revision" {
   description = "Revision for the scrape configuration"
 }
 
+variable "istio_k8s_revision" {
+  type        = string
+  default     = null
+  description = "Revision for the Istio k8s application"
+}
+
 variable "grafana_agent_image" {
   type        = string
   default     = null
@@ -221,6 +227,17 @@ variable "spark_risk" {
   validation {
     condition     = contains(["edge", "beta", "candidate", "stable"], var.spark_risk)
     error_message = "'spark_risk' can only take the following value: 'edge', 'beta', 'candidate' or 'stable'."
+  }
+}
+
+variable "istio_k8s_platform" {
+  description = "Platform for the Istio k8s application"
+  type        = string
+  default     = "microk8s"
+
+  validation {
+    condition     = contains(["microk8s", "k8s"], var.istio_k8s_platform)
+    error_message = "'istio_k8s_platform' can only take the following value: 'microk8s', or 'k8s'."
   }
 }
 
@@ -286,6 +303,16 @@ module "spark" {
     logging   = module.cos[0].offers.loki_logging.url
     metrics   = module.cos[0].offers.prometheus_receive_remote_write.url
   } : null
+}
+
+module "istio_k8s" {
+  source = "git::https://github.com/canonical/istio-k8s-operator//terraform?ref=df6c85dea5decdd014fd187404163ef2d73263da"
+
+  model_uuid = var.model_uuid
+  app_name   = "istio-k8s"
+  channel    = "2/stable"
+  revision   = var.istio_k8s_revision
+  config     = { platform = var.istio_k8s_platform })
 }
 
 output "models" {

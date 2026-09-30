@@ -19,3 +19,6 @@ kyuubi_image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:421a56a1f1634282b2
 kyuubi_users_image = 201 # 14/stable, rev925
 metastore_image    = 201 # 14/stable, rev925
 zookeeper_image    = 34  # 3/stable, rev78
+
+istio_k8s_platform = "microk8s"
+istio_k8s_revision = 45

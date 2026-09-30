@@ -328,3 +328,33 @@ variable "zookeeper_units" {
   default     = 3
   nullable    = false
 }
+
+variable "istio_ingress_k8s_revision" {
+  description = "Revision of the istio-ingress-k8s application"
+  type        = number
+  default     = null
+}
+
+variable "istio_ingress_k8s_config" {
+  description = "Configuration for istio-ingress-k8s application"
+  type        = map(string)
+  default     = {}
+}
+
+variable "istio_beacon_k8s_revision" {
+  description = "Revision of the istio-beacon-k8s application"
+  type        = number
+  default     = null
+}
+
+variable "istio_beacon_k8s_config" {
+  description = "Configuration for istio-beacon-k8s application"
+  type        = map(string)
+  default     = {}
+}
+
+variable "enable_service_mesh" {
+  description = "Enable or disable the Istio Ambient service mesh."
+  type        = bool
+  default     = false
+}
