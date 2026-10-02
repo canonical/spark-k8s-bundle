@@ -16,6 +16,7 @@ import uuid
 from contextlib import contextmanager
 from pathlib import Path
 from subprocess import PIPE, Popen, TimeoutExpired, check_output
+from psutil import Process
 from typing import cast
 
 import hcl2
@@ -415,12 +416,12 @@ def port_forward(kubectl: str):
         except:
             raise
         finally:
-            # Stop port-forward command. If we timeout, we will get
-            # a related exception to signal that we should investigate.
+            p = Process(forwarder.pid)
+            for child_process in p.children(recursive=True):
+                child_process.kill()
 
-            forwarder.send_signal(signal.SIGINT)
-            forwarder.wait(timeout=3)
-            logger.info("Stopped port forwarding")
+            forwarder.kill()
+            logger.info(f"Stopped port forwarding {forwarder.pid}")
 
     return _forwarder
 
