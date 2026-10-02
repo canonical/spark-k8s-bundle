@@ -12,58 +12,58 @@ readme = "README.md"
 packages = [{ include = "spark_test" }]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<4.0"
-spark8t = ">=1.4.0"
-boto3 = ">=1.43.56"
+python = ">=3.14.8,<4.0"
+spark8t = ">=1.5.0"
+boto3 = ">=1.43.107"
 pytest = "^9.1.1"
-azure-storage-blob = "^12.30.0"
-lightkube = ">=0.22.0"
+azure-storage-blob = "^12.31.0"
+lightkube = ">=1.0.1"
 impyla = "^0.24.0"
 
 [tool.poetry.group.fmt]
 optional = true
 
 [tool.poetry.group.fmt.dependencies]
-ruff = "^0.16.0"
+ruff = "^0.16.10"
 
 [tool.poetry.group.lint]
 optional = true
 
 [tool.poetry.group.lint.dependencies]
 codespell = "^2.4.3"
-ruff = "^0.16.0"
-mypy = ">=2.3.0"
+ruff = "^0.16.10"
+mypy = ">=2.4.0"
 pytest-mypy = ">=1.0.1"
 types-psycopg2 = "^2.9.21.20250718"
 types-pyyaml = "^6.0.12.20250516"
-types-boto3 = { extras = ["s3"], version = "^1.43.56" }
+types-boto3 = { extras = ["s3"], version = "^1.43.106" }
 
 [tool.poetry.group.unit]
 optional = true
 
 [tool.poetry.group.unit.dependencies]
-pytest-mock = ">=3.15.1"
-coverage = "^7.15.4"
+pytest-mock = ">=3.16.0"
+coverage = "^7.16.2"
 
 [tool.poetry.group.integration]
 optional = true
 
 [tool.poetry.group.integration.dependencies]
 pytest-cov = ">=7.1.0"
-pytest-mock = ">=3.15.1"
-psycopg2-binary = "^2.9.12"
+pytest-mock = ">=3.16.0"
+psycopg2-binary = "^2.9.13"
 tenacity = "^9.1.4"
 httpx = "^0.28.1"
-jubilant = "^1.11.0"
-python-dotenv = "^1.2.2"
-python-hcl2 = "^8.1.2"
+jubilant = "^1.14.0"
+python-dotenv = "^1.2.4"
+python-hcl2 = "^8.1.4"
 
 [tool.poetry.group.benchmark]
 optional = true
 
 [tool.poetry.group.benchmark.dependencies]
-great-tables = "^0.22.0"
-polars = "^1.43.0"
+great-tables = "^0.24.0"
+polars = "^1.44.2"
 pandas = "^2.3.3" # needed for great-tables' nanoplot
 
 [build-system]
