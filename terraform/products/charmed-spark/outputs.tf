@@ -33,9 +33,9 @@ output "models" {
         {
           data_integrator = module.data_integrator.application
         },
-        {
-          self_signed_certificates = module.ssc.app_name # TODO: expose application
-        },
+        var.certificates == null ? {
+          self_signed_certificates = module.ssc[0].app_name # TODO: expose application
+        } : {},
         {
           metastore = module.metastore.app_name # TODO: expose application
         },

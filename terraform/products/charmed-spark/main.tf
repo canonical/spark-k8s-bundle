@@ -15,6 +15,7 @@ resource "juju_model" "spark" {
 
 module "ssc" {
   depends_on = [juju_model.spark]
+  count      = var.certificates == null ? 1 : 0
   source     = "git::https://github.com/canonical/self-signed-certificates-operator//terraform?ref=rev586"
   model_uuid = local.model_uuid
 
@@ -221,7 +222,6 @@ module "kyuubi" {
     module.kyuubi_users,
     module.metastore,
     module.s3,
-    module.ssc,
     module.zookeeper,
     module.spark_core,
   ]
@@ -252,10 +252,10 @@ module "kyuubi" {
 
   spark_service_account = merge({ kind = "endpoint" }, module.spark_core.provides.integration_hub_service_account)
 
-  certificates = {
+  certificates = var.certificates != null ? var.certificates : {
     kind     = "endpoint"
-    name     = module.ssc.app_name
-    endpoint = module.ssc.provides.certificates
+    name     = module.ssc[0].app_name
+    endpoint = module.ssc[0].provides.certificates
   }
 
   data_integrator = merge({ kind = "endpoint" }, module.data_integrator.requires.kyuubi)

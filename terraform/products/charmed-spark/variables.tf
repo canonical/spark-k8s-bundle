@@ -54,6 +54,46 @@ variable "certificate_common_name" {
   default     = "charmed-spark"
 }
 
+variable "certificates" {
+  description = "Optional external integration for the certificate provider application."
+  type = object({
+    kind     = string
+    name     = optional(string, null)
+    endpoint = optional(string, null)
+    url      = optional(string, null)
+  })
+  default = null
+
+  validation {
+    condition = (
+      var.certificates == null ||
+      contains(["endpoint", "offer"], var.certificates.kind)
+    )
+    error_message = "If provided, the 'kind' attribute must be either 'endpoint' or 'offer'."
+  }
+
+  validation {
+    condition = (
+      var.certificates == null ||
+      var.certificates.kind != "endpoint" ||
+      (
+        var.certificates.name != null && var.certificates.name != "" &&
+        var.certificates.endpoint != null && var.certificates.endpoint != ""
+      )
+    )
+    error_message = "Both 'name' and 'endpoint' attributes must be provided for an in-model integration."
+  }
+
+  validation {
+    condition = (
+      var.certificates == null ||
+      var.certificates.kind != "offer" ||
+      (var.certificates.url != null && var.certificates.url != "")
+    )
+    error_message = "The 'url' attribute must be provided for a cross-model integration."
+  }
+}
+
 variable "create_model" {
   description = "Should terraform create the Juju models? If set to false, assume the models are created by a different mechanism."
   type        = bool
