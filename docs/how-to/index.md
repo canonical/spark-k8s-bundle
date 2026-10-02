@@ -69,6 +69,7 @@ Advanced features of Charmed Apache Spark include:
 * [Streaming jobs](how-to-streaming-jobs)
 * [Use GPU](how-to-use-gpu)
 * [Advanced Scheduling](how-to-advanced-scheduling)
+* [Istio service mesh for workloads](how-to-enable-service-mesh)
 
 ```{toctree}
 :titlesonly:
@@ -84,4 +85,5 @@ Streaming Jobs<streaming-jobs.md>
 Use GPU<use-gpu.md>
 Advanced Scheduling<advanced-scheduling.md>
 Self-signed certificates<self-signed-certificates.md>
+Istio service mesh<enable-service-mesh>
 ```
