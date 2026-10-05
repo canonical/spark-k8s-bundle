@@ -6,7 +6,7 @@ resource "juju_model" "spark" {
 
   name = var.spark_model_name
   config = {
-    logging     = var.logging_config
+    logging          = var.logging_config
     juju-http-proxy  = var.proxy.http
     juju-https-proxy = var.proxy.https
     juju-no-proxy    = var.proxy.no-proxy
