@@ -1,3 +1,10 @@
+---
+myst:
+  html_meta:
+    description: "Documentation for manually validating Charmed Apache Spark on ProdStack 7 (PS7)."
+---
+
+(validation-ps7)=
 # PS7
 
 The repository contains the instructions and the artifact to validate the Charmed Spark solution on VMware ProdStack (PS7).
