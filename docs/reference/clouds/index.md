@@ -9,7 +9,7 @@ myst:
 
 This section includes the guide to perform manual validation for the following clouds:
 
-* [vSphere Kubernetes Service (VKS)](reference-releases-revision-2)
+* [vSphere Kubernetes Service (VKS)](validation-vks)
 
 ```{toctree}
 :titlesonly:

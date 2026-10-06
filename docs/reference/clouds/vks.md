@@ -1,3 +1,10 @@
+---
+myst:
+  html_meta:
+    description: "Documentation for manually validating Charmed Apache Spark on vSphere Kubernetes Service (VKS)."
+---
+
+(validation-vks)=
 # Charmed Spark Validation on VKS
 
 The repository contains the instructions and the artifact to validate the Charmed Spark solution on VMware vSphere Kubernetes Service (VKS).
