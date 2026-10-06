@@ -5,26 +5,21 @@ myst:
 ---
 
 (how-to-spark-history-server-enable-service-mesh)=
-# Add the Spark History Server to Istio ambient service mesh
+# Add Spark History Server to Istio service mesh
 
-The Spark History server charm can be put behind Istio service mesh such that only specified set of pods are allowed to make connections to it and mTLS encryption is enforced on the traffic between the Spark History Server and other meshed pods.
+The Spark History server charm can be put behind Istio service mesh such that only specified set of pods are allowed to make connections to it and mTLS encryption is enforced on the traffic between the Spark History Server and other meshed pods. The Istio service mesh is supported in the ambient mode only, and therefore the legacy istio sidecar mode is not supported.
 
-## Adding Istio control plane
+## Prerequisites
 
-Enabling Istio service mesh requires Istio control to be installed in the K8s cluster, which is done by deploying the `istio-k8s` charm. Create a new Juju model (recommended) named `istio-system` and deploy `istio-k8s` charm to it as follows:
+### Deploy Istio control plane
+
+Enabling Istio service mesh requires Istio control to be installed in the K8s cluster, which is done by deploying the `istio-k8s` charm. You can skip this step if you already have a working Istio control plane installed in your Kubernetes cluster. If not, deploy `istio-k8s` charm to it as follows:
 
 ```bash
-juju add-model istio-system
 juju deploy istio-k8s --channel 2/stable --trust
 ```
 
-Once the Istio K8s charm is deployed, idle and active, switch back to the model where you deployed Spark History Server charm as follows:
-
-```bash
-juju switch <spark-history-server-juju-model>
-```
-
-## Deploy Istio Beacon charm
+### Deploy Istio Beacon charm
 
 The Istio Beacon charm facilitates adding Juju charms to the Istio service mesh. Deploy `istio-beacon-k8s` charm from charmhub as follows:
 
@@ -32,7 +27,7 @@ The Istio Beacon charm facilitates adding Juju charms to the Istio service mesh.
 juju deploy istio-beacon-k8s --channel 2/stable --trust
 ```
 
-## Add Spark History Server to the mesh
+## Enable Istio service mesh
 
 Integrate the Spark History Server charm with the Istio Bacon charm over the `service-mesh` relation endpoint, which will add the Spark History server charm pods to the Istio service mesh:
 
@@ -42,7 +37,7 @@ juju integrate spark-history-server-k8s:service-mesh istio-beacon-k8s
 
 The Spark History Server charm pods will then be restarted, and the Istio labels are added to the pods along with necessary authorization policies.
 
-## Verify access to the Spark History Server pod
+## Verify the charm pods are meshed
 
 In order to verify that the Spark History Server is indeed protected behind the Istio service mesh, perform a `curl` to the Spark History Server UI address using an ephemeral pod:
 
@@ -57,17 +52,21 @@ You should see that the `curl` does not succeed, because the pod `test-curl-hist
 
 When the Spark History Server is put behind the Istio service mesh, the Spark History Server UI should be accessed using the Istio Ingress.
 
+### Deploy and integrate Istio Ingress
+
 Deploy the `istio-ingress-k8s` charm in the same model as the Spark History Server charm:
 
 ```bash
 juju deploy istio-ingress-k8s --channel 2/stable --trust
 ```
 
-Then integrate `istio-ingress-k8s` with the Spark History Server charm over the `ingress` relation interface.
+Integrate `istio-ingress-k8s` with the Spark History Server charm over the `ingress` relation interface.
 
 ```bash
 juju integrate spark-history-server-k8s:ingress istio-ingress-k8s:ingress
 ```
+
+### Find the Ingress gateway address
 
 Once the charms are active and idle, find the address for the Ingress Gateway load balancer:
 
@@ -75,8 +74,10 @@ Once the charms are active and idle, find the address for the Ingress Gateway lo
 kubectl get services -n <juju-model-name> 
 ```
 
+### Access Spark History Server UI
+
 The Spark History Server UI can then be accessed at the following address:
 
 ```txt
-http://<ingress-gateway-ip>/<juju-model>-spark-integration-hub-k8s/
+http://<ingress-gateway-ip>/<juju-model>-spark-history-server-k8s/
 ```
