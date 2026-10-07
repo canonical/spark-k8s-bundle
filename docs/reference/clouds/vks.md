@@ -138,7 +138,7 @@ sudo snap install spark-client --channel 3.5/stable
 
 ### Deploy Charmed Spark using Terraform
 
-First install terraform snap
+First install the terraform snap
 
 ```
 sudo snap install terraform --classic
