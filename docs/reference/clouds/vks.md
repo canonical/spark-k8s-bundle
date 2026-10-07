@@ -9,7 +9,7 @@ myst:
 
 The repository contains the instructions and the artifact to validate the Charmed Spark solution on VMware vSphere Kubernetes Service (VKS).
 
-You can find the resources used in the guide in the `spark-k8s-bundle` repo at [`./resources/vks`](https://github.com/canonical/spark-k8s-bundle/tree/track/3.5/resources/vks).
+You can find the resources used in the guide in the `spark-k8s-bundle` repository at [`./resources/vks`](https://github.com/canonical/spark-k8s-bundle/tree/track/3.5/resources/vks).
 
 ## Instructions
 
@@ -82,7 +82,7 @@ First, install juju and terraform
 sudo snap install juju --channel 3.6/stable
 ```
 
-(use the password provided in the text file PASSWORD.txt if needed to gain eleveted privileges)
+(use the password provided in the text file PASSWORD.txt if needed to gain elevated privileges)
 
 Use the context active to bootstrap the controller. So first add the k8s:
 
@@ -108,7 +108,7 @@ To expose the controller service, you can create an LoadBalancer dedicated servi
 kubectl get ns
 ```
 
-And apply the LB service resource provided in this repo:
+And apply the LB service resource provided in this repository:
 
 ```
 kubectl apply -f setup/juju-lb.yaml -n <controller-vks-namespace>

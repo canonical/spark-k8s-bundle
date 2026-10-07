@@ -31,10 +31,12 @@ https
 Intersphinx
 io
 ip
+ips
 Jira
 Kaggle
 kaggle
 kubeconfig
+kubectl
 lakehouse
 landscape
 lang
@@ -44,9 +46,11 @@ latexmk
 loadbalancer
 loadbalancers
 metastore
+miniconda
 Multipass
 MyST
 nodeSelector
+ns
 Open Graph
 otf
 PDF
@@ -83,10 +87,14 @@ toctree
 tolerations
 Trivy
 txt
+UAT
+UATs
 uncommenting
+unsetting
 URL
 utils
 VMs
+vSphere
 WCAG
 whitespace
 whitespaces
