@@ -15,5 +15,5 @@ see the [Tutorial](tutorial-4-history-server) and the following guides:
 
 Authentication and authorization<auth.md>
 Expose web GUI<expose-web-gui.md>
-Istio service mesh<enable-service-mesh.md>
+Enable istio service mesh<enable-service-mesh.md>
 ```

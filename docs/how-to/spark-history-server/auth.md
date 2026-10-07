@@ -74,7 +74,7 @@ juju deploy oauth2-proxy-k8s --channel latest/stable --trust
 juju integrate oauth2-proxy-k8s spark-history-server-k8s:oauth2-proxy
 ```
 
-Now, consume the Identity Platform OIDC provider offer `oauth-offer` offered by the `iam` model, 
+Now, consume the `oauth-offer` offered from the `iam` model, 
 and integrate OAuth2 Proxy with it:
 
 ```bash
@@ -82,7 +82,7 @@ juju consume iam.oauth-offer
 juju integrate oauth2-proxy-k8s:oauth oauth-offer
 ```
 
-Finally, consume the `send-ca-cert` relation offer from `core` model, and integrate it with Oauth2 Proxy over
+Finally, consume the `send-ca-cert` offered from the `core` model, and integrate it with Oauth2 Proxy over
 the `receive-ca-cert` relation endpoint:
 
 ```bash
@@ -92,44 +92,44 @@ juju integrate oauth2-proxy-k8s:receive-ca-cert send-ca-cert
 
 ### Configure ingress
 
-The Ingress now needs to be configured such that it forwards authentication requests to 
+An ingress needs to be deployed and configured such that it forwards authentication requests to 
 Charmed OAuth2 Proxy charm, and only the requests that are completely authenticated are
 passed to the Spark History Server charm.
 
-Spark History Server charm currently supports two Ingress provider charms, depending upon whether it is
+Spark History Server charm currently supports two Ingress provider charms (namely the Traefik ingress and the Istio ingress), depending upon whether it is
 added to Istio service mesh or not.
 
 #### Traefik Ingress (non meshed setup)
 
 For a non meshed setup, the Traefik ingress that comes already bundled in the Identity Platform bundle can be used.
-To use it, first configure the existing Traefik ingress to enable the forward-auth feature, and expose the offer.
+To use it, first configure the existing Traefik ingress to enable the forward-auth feature, and expose the `forward-auth` offer.
 
 ```bash
 juju switch core
 juju config traefik-public enable_experimental_forward_auth=True
-juju offer traefik-public:experimental-forward-auth forward-auth
+juju offer traefik-public:experimental-forward-auth traefik-forward-auth
 ```
 
 Also offer the endpoint `ingress` from the `core` module:
 
 ```bash
-juju offer traefik-public:ingress ingress
+juju offer traefik-public:ingress traefik-ingress
 ```
 
-Now integrate the ingress with the Spark History Server and the OAuth2 Proxy charms.
+Now, switch back to the model containing Spark History Server app and integrate the ingress with the Spark History Server and the OAuth2 Proxy charms.
 
 ```bash
 juju switch <spark-history-server-model>
-juju consume core.ingress
-juju integrate spark-history-server-k8s:ingress ingress
-juju integrate oauth2-proxy-k8s:ingress ingress
+juju consume core.traefik-ingress
+juju integrate spark-history-server-k8s:ingress traefik-ingress
+juju integrate oauth2-proxy-k8s:ingress traefik-ingress
 ```
 
-Integrate the ingress with OAuth2 Proxy charm over the `forward-auth` relation endpoint:
+Integrate the OAuth2 Proxy charm with the `traefik-forward-auth` offer over the `forward-auth` relation endpoint:
 
 ```bash
-juju consume core.forward-auth
-juju integrate oauth2-proxy-k8s:forward-auth forward-auth
+juju consume core.traefik-forward-auth
+juju integrate oauth2-proxy-k8s:forward-auth traefik-forward-auth
 ```
 
 After integration completes, get the endpoint by running:
@@ -149,7 +149,7 @@ The URL endpoint for the Spark History Server is the one ending with `spark-hist
 #### Istio Ingress (Istio service mesh setup)
 
 If the Spark History Server is running behind Istio service mesh, Traefik is not supported as Ingress and therefore,
-Istio Ingress should be used. Istio ingress requires the Istio control plane to be installed in the cluster.
+Istio ingress should be used. Istio ingress requires the Istio control plane to be installed in the cluster.
 
 Deploy `istio-ingress-k8s` charm:
 
@@ -159,8 +159,8 @@ juju deploy istio-ingress-k8s --channel 2/stable --trust
 
 ```{note}
 The `istio-ingress-k8s` requires `istio-k8s` properly deployed in order to work. It is assumed that if you have a Istio 
-service mesh setup, you already have a working `istio-k8s` installation. If not, deploy it with 
-`juju integrate istio-k8s --channel 2/stable --trust` before you deploy `istio-ingress-k8s`.
+service mesh setup, you already have a working `istio-k8s` deployment. If not, deploy it with 
+`juju deploy istio-k8s --channel 2/stable --trust` before you deploy `istio-ingress-k8s`.
 ```
 
 Integrate `istio-k8s` and `istio-ingress-k8s` over the `istio-ingress-config` relation endpoint:
@@ -184,16 +184,21 @@ juju integrate istio-ingress-k8s:forward-auth oauth2-proxy-k8s:forward-auth
 juju integrate istio-ingress-k8s:ingress spark-history-server-k8s:ingress
 ```
 
-After the integration completes and the charms are in active and idle state, you can find the address of the Ingress gateway
-in the message column for the `istio-ingress-k8s` application. The gateway address is displayed at the end of the message. 
-
-Or you can fetch the ingress gateway address directly using `juju` CLI:
+After the integration completes and the charms are in active and idle state, get the Juju status
+of the `istio-ingress-k8s` app.
 
 ```bash
-juju status istio-ingress-k8s | grep "Serving at" | awk '{print $NF}'
+juju status istio-ingress-k8s
 ```
 
-Once you find the ingress gateway address, the URL endpoint for the Spark History Server should be at the following path:
+You will see a message similar to the following under the Message column in the Juju status:
+
+```text
+Serving at <ip-address>
+```
+
+This is the address for the Ingress gateway. Once you find the ingress gateway address, 
+the URL endpoint for the Spark History Server should be at the following path:
 
 ```text
 https://<ingress-gateway-address>/<juju-model-name>-spark-history-server-k8s

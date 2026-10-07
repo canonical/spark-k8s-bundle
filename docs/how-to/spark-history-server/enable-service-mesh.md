@@ -13,7 +13,7 @@ The Spark History server charm can be put behind Istio service mesh such that on
 
 ### Deploy Istio control plane
 
-Enabling Istio service mesh requires Istio control to be installed in the K8s cluster, which is done by deploying the `istio-k8s` charm. You can skip this step if you already have a working Istio control plane installed in your Kubernetes cluster. If not, deploy `istio-k8s` charm to it as follows:
+Enabling Istio service mesh requires Istio control to be installed in the K8s cluster, which is done by deploying the `istio-k8s` charm. You can skip this step if you already have a working Istio control plane installed in your Kubernetes cluster. If not, deploy `istio-k8s` charm as follows:
 
 ```bash
 juju deploy istio-k8s --channel 2/stable --trust
@@ -21,7 +21,7 @@ juju deploy istio-k8s --channel 2/stable --trust
 
 ### Deploy Istio Beacon charm
 
-The Istio Beacon charm facilitates adding Juju charms to the Istio service mesh. Deploy `istio-beacon-k8s` charm from charmhub as follows:
+The Istio Beacon charm facilitates adding Juju charms to the Istio service mesh. Deploy `istio-beacon-k8s` charm as follows:
 
 ```bash
 juju deploy istio-beacon-k8s --channel 2/stable --trust
@@ -29,13 +29,13 @@ juju deploy istio-beacon-k8s --channel 2/stable --trust
 
 ## Enable Istio service mesh
 
-Integrate the Spark History Server charm with the Istio Bacon charm over the `service-mesh` relation endpoint, which will add the Spark History server charm pods to the Istio service mesh:
+Integrate the Spark History Server charm with the Istio Beacon charm over the `service-mesh` relation endpoint, which will add the Spark History server charm pods to the Istio service mesh:
 
 ```bash
 juju integrate spark-history-server-k8s:service-mesh istio-beacon-k8s
 ```
 
-The Spark History Server charm pods will then be restarted, and the Istio labels are added to the pods along with necessary authorization policies.
+The Spark History Server charm pods will then be restarted, and the Istio labels are added to the pods along with the creation of necessary authorization policies.
 
 ## Verify the charm pods are meshed
 
@@ -60,6 +60,12 @@ Deploy the `istio-ingress-k8s` charm in the same model as the Spark History Serv
 juju deploy istio-ingress-k8s --channel 2/stable --trust
 ```
 
+Integrate `istio-ingress-k8s` with the `istio-k8s` charm over the `istio-ingress-config` relation:
+
+```bash
+juju integrate istio-ingress-k8s:istio-ingress-config istio-k8s
+```
+
 Integrate `istio-ingress-k8s` with the Spark History Server charm over the `ingress` relation interface.
 
 ```bash
@@ -68,16 +74,26 @@ juju integrate spark-history-server-k8s:ingress istio-ingress-k8s:ingress
 
 ### Find the Ingress gateway address
 
-Once the charms are active and idle, find the address for the Ingress Gateway load balancer:
+After the integration completes and the charms are in active and idle state, get the Juju status
+of the `istio-ingress-k8s` app.
 
 ```bash
-kubectl get services -n <juju-model-name> 
+juju status istio-ingress-k8s
 ```
+
+You will see a message similar to the following under the Message column in the Juju status:
+
+```text
+Serving at <ip-address>
+```
+
+This is the address for the Ingress gateway load balancer.
 
 ### Access Spark History Server UI
 
-The Spark History Server UI can then be accessed at the following address:
+Once you find the ingress gateway address, 
+the URL endpoint for the Spark History Server should be at the following path:
 
-```txt
-http://<ingress-gateway-ip>/<juju-model>-spark-history-server-k8s/
+```text
+http://<ingress-gateway-address>/<juju-model-name>-spark-history-server-k8s
 ```

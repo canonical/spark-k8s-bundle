@@ -43,7 +43,7 @@ juju integrate traefik-k8s spark-history-server-k8s
 After the charms settle down into `idle/active` states, fetch the URL of the Spark History server with
 
 ```bash
-juju run-action traefik-k8s/0 show-proxied-endpoints --wait
+juju run traefik-k8s/0 show-proxied-endpoints
 ```
 
 This should print a JSON with all the ingress endpoints exposed by the
@@ -53,6 +53,8 @@ a public domain or to enable TLS encryption, please refer to this
 about integration of `traefik-k8s` with Route53 and Let's Encrypt (note that
 this is currently only supported on AWS EKS only).
 
-## With Istio Ingress
+## With Istio Ingress (meshed setup)
 
 The Spark History Server needs to be accessed using the Istio Ingress if it is running behind Istio service mesh. Follow [this guide](how-to-spark-history-server-enable-service-mesh) for more information on how to access the Spark History Server using Istio Ingress.
+
+> See also: [Enable authentication and authorization with the Spark History Server](how-to-spark-history-server-auth) guide.
