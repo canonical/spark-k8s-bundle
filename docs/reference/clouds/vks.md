@@ -120,7 +120,7 @@ Check that the newly created LB service has been assigned with an external IP:
 kubectl get svc -n controller-vks
 ```
 
-Store the IP into a dedicated env variable:
+Store the IP into a dedicated environment variable:
 
 ```
 export CONTROLLER_IP=$(kubectl get svc controller-service-lb -n <controller-vks-namespace> -o yaml | yq '.status.loadBalancer.ingress[0].ip')
@@ -221,7 +221,7 @@ select * from users;
 
 #### Setting up the Python Environment
 
-To run the UATs we need to have a working Python 3.10 environment. Creating a new python env using the pre-installed python, with `python3 -m venv uats`, didn't prove to work. The python installation seems to be broken, and after activating the environment and installing tox, the tox installation was not functioning.
+To run the UATs we need to have a working Python 3.10 environment. Creating a new python environment using the pre-installed python, with `python3 -m venv uats`, didn't prove to work. The python installation seems to be broken, and after activating the environment and installing tox, the tox installation was not functioning.
 
 I also tried to install a new python using `pyenv`, but to do so, some apt packages are required, which could also not be installed, with errors of the type:
 
