@@ -36,7 +36,6 @@ Jira
 Kaggle
 kaggle
 kubeconfig
-kubectl
 lakehouse
 landscape
 lang

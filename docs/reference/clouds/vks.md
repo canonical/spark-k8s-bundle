@@ -96,7 +96,7 @@ and then bootstrap controller on that cloud
 juju bootstrap vks-cloud vks-controller
 ```
 
-Note that the controller that is bootstrapped in this way will not be reachable from the edge node since it will not be exposed outside of K8s. `juju` commands (using the SNAP) will still be working since Juju CLI will proxy the requests via kubectl and the K8s api. However terraform provider will not be able to connect to the Juju controller. Unfortunately, bootstrapping Juju controller using `--config controller-service-type=loadbalance` did not work out of the box and returned an error when bootstrapping:
+Note that the controller that is bootstrapped in this way will not be reachable from the edge node since it will not be exposed outside of K8s. `juju` commands (using the SNAP) will still be working since Juju CLI will proxy the requests via `kubectl` and the K8s api. However terraform provider will not be able to connect to the Juju controller. Unfortunately, bootstrapping Juju controller using `--config controller-service-type=loadbalance` did not work out of the box and returned an error when bootstrapping:
 
 ```
 ERROR unable to contact api server after 0 attempts: unknown error in bootstrap api connect: unable to connect to API: read tcp 10.1..10.130:48286->10.1.7.5:17070: read: connection reset by peer
