@@ -25,7 +25,7 @@ The edge node contains a number of useful scripts under `/home/holuser/Desktop/S
 
 Once logged in, an existing VKS cluster may be present, running on 1.35. The validation had been agreed to be performed on 1.34. Follow the below steps to delete an existing cluster. 
 
-First go to the scripts folder ``.
+First go to the scripts folder `/home/holuser/Desktop/Scripts/`.
 
 Then, login into the supervisor
 
