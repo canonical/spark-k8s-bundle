@@ -7,7 +7,7 @@ myst:
 (validation-vks)=
 # Charmed Spark Validation on VKS
 
-The repository contains the instructions and the artifact to validate the Charmed Spark solution on VMware vSphere Kubernetes Service (VKS).
+This guide contains the instructions to validate the Charmed Spark solution on VMware vSphere Kubernetes Service (VKS).
 
 You can find the resources used in the guide in the `spark-k8s-bundle` repository at [`./resources/vks`](https://github.com/canonical/spark-k8s-bundle/tree/track/3.5/resources/vks).
 
@@ -102,7 +102,7 @@ Note that the controller that is bootstrapped in this way will not be reachable 
 ERROR unable to contact api server after 0 attempts: unknown error in bootstrap api connect: unable to connect to API: read tcp 10.1..10.130:48286->10.1.7.5:17070: read: connection reset by peer
 ```
 
-To expose the controller service, you can create an LoadBalancer dedicated service by first finding out the ns for the controller
+To expose the controller service, you can create an LoadBalancer dedicated service by first finding out the namespace for the controller
 
 ```
 kubectl get ns
@@ -221,76 +221,7 @@ select * from users;
 
 #### Setting up the Python Environment
 
-To run the UATs we need to have a working Python 3.10 environment. Creating a new python environment using the pre-installed python, with `python3 -m venv uats`, didn't prove to work. The python installation seems to be broken, and after activating the environment and installing tox, the tox installation was not functioning.
-
-I also tried to install a new python using `pyenv`, but to do so, some apt packages are required, which could also not be installed, with errors of the type:
-
-```
-holuser@console:~/Desktop/Spark/vks-validation$ sudo apt update; sudo apt install python3-venv
-Hit:1 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
-Hit:2 http://security.ubuntu.com/ubuntu noble-security InRelease
-Hit:3 http://archive.ubuntu.com/ubuntu noble InRelease
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-All packages are up to date.
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-Some packages could not be installed. This may mean that you have
-requested an impossible situation or if you are using the unstable
-distribution that some required packages have not yet been created
-or been moved out of Incoming.
-The following information may help to resolve the situation:
-
-The following packages have unmet dependencies:
- python3-venv : Depends: python3 (= 3.12.3-0ubuntu1) but 3.12.3-0ubuntu2 is to be installed
-E: Unable to correct problems, you have held broken packages.
-holuser@console:~/Desktop/Spark/vks-validation$ sudo apt update; sudo apt install build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev curl libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
-Hit:1 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
-Hit:2 http://archive.ubuntu.com/ubuntu noble InRelease
-Hit:3 http://security.ubuntu.com/ubuntu noble-security InRelease
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-All packages are up to date.
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-Note, selecting 'libncurses-dev' instead of 'libncursesw5-dev'
-build-essential is already the newest version (12.10ubuntu1).
-build-essential set to manually installed.
-zlib1g-dev is already the newest version (1:1.3.dfsg-3.1ubuntu2.1).
-zlib1g-dev set to manually installed.
-curl is already the newest version (8.5.0-2ubuntu10).
-xz-utils is already the newest version (5.6.1+really5.4.5-1build0.1).
-xz-utils set to manually installed.
-Some packages could not be installed. This may mean that you have
-requested an impossible situation or if you are using the unstable
-distribution that some required packages have not yet been created
-or been moved out of Incoming.
-The following information may help to resolve the situation:
-
-The following packages have unmet dependencies:
- libbz2-dev : Depends: libbz2-1.0 (= 1.0.8-5.1) but 1.0.8-5.1build0.1 is to be installed
-              Recommends: bzip2-doc but it is not going to be installed
- libgnutls28-dev : Depends: libgnutls-dane0t64 (= 3.8.3-1.1ubuntu3) but it is not going to be installed
-                   Depends: libgnutls-openssl27t64 (= 3.8.3-1.1ubuntu3) but it is not going to be installed
-                   Depends: libgnutls30t64 (= 3.8.3-1.1ubuntu3) but 3.8.3-1.1ubuntu3.2 is to be installed
-                   Depends: libp11-kit-dev but it is not going to be installed
-                   Depends: nettle-dev (>= 3.6) but it is not going to be installed
- liblzma-dev : Depends: liblzma5 (= 5.6.1+really5.4.5-1) but 5.6.1+really5.4.5-1build0.1 is to be installed
- libssl-dev : Depends: libssl3t64 (= 3.0.13-0ubuntu3) but 3.0.13-0ubuntu3.4 is to be installed
- libxft-dev : Depends: libfontconfig1-dev
- libxml2-dev : Depends: libicu-dev but it is not going to be installed
-               Depends: libxml2 (= 2.9.14+dfsg-1.3ubuntu3) but 2.9.14+dfsg-1.3ubuntu3.1 is to be installed
-E: Unable to correct problems, you have held broken packages.
-holuser@console:~/Desktop/Spark/vks-validation$
-```
-
-The issue has been notified to the VMware/Broadcom team. We therefore decided to use miniconda isolated installation to create a python environment which turned out to work.
-
-To create the environment, first install anaconda:
+To run the UATs, a working Python 3.10 environment is needed, and miniconda will be used. Therefore, first download and install anaconda:
 
 ```
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -304,14 +235,14 @@ unset PYTHONPATH
 eval "$(/home/holuser/miniconda3/bin/conda shell.bash hook)"
 ```
 
-At this point, you can use `conda` to create and activate a new python 3.10 environment:
+At this point, use `conda` to create and activate a new python 3.10 environment:
 
 ```
 conda create -n uats python=3.10
 conda activate uats
 ```
 
-Within the environment, just install `tox` and `poetry`
+Within the environment, install `tox` and `poetry`
 
 ```
 pip install tox
@@ -320,7 +251,7 @@ pip install poetry
 
 #### Running the UATs
 
-First clone the UATs
+To run the UATs, first clone the UATs repository
 
 ```
 git clone https://github.com/canonical/spark-k8s-bundle.git

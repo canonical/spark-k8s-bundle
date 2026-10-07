@@ -50,7 +50,6 @@ miniconda
 Multipass
 MyST
 nodeSelector
-ns
 Open Graph
 otf
 PDF
