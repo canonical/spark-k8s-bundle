@@ -51,5 +51,6 @@ Once the ambient mesh is enabled, the Kyuubi pods should be in this list, and an
 
 ```txt
 NAMESPACE     NAME                      READY   STATUS    RESTARTS   AGE
-test-model    integration-hub-k8s-0     2/2     Running   0          17m
+test-model    istio-beacon-k8s-0        2/2     Running   0          2m2s
+test-model    integration-hub-k8s-0     2/2     Running   0          1m10s
 ```

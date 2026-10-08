@@ -65,7 +65,7 @@ For supported identity providers and additional details, see the
 
 The connection between Spark History Server and the Identity Platform is handled by
 the Charmed OAuth2 Proxy charm. OAuth2 Proxy protects endpoints exposed through
-an ingress (eg, Traefik).
+an ingress (for example, Traefik).
 
 Deploy OAuth2 Proxy charm and integrate it with Spark History Server:
 
@@ -159,8 +159,8 @@ juju deploy istio-ingress-k8s --channel 2/stable --trust
 
 ```{note}
 The `istio-ingress-k8s` requires `istio-k8s` properly deployed in order to work. It is assumed that if you have a Istio 
-service mesh setup, you already have a working `istio-k8s` deployment. If not, deploy it with 
-`juju deploy istio-k8s --channel 2/stable --trust` before you deploy `istio-ingress-k8s`.
+service mesh setup, you already have a working `istio-k8s` deployment. If not, follow [this guide](how-to-spark-history-server-enable-service-mesh) 
+to deploy `istio-k8s` and enable service mesh for Spark History Server.
 ```
 
 Integrate `istio-k8s` and `istio-ingress-k8s` over the `istio-ingress-config` relation endpoint:

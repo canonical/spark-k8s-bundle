@@ -35,18 +35,41 @@ Integrate the Spark History Server charm with the Istio Beacon charm over the `s
 juju integrate spark-history-server-k8s:service-mesh istio-beacon-k8s
 ```
 
+```{note}
+This integration requires the Spark History Server charm deployed with `--trust`. If not, you can elevate the permissions to an existing charm deployment using `juju trust --scope=cluster spark-history-server-k8s`.
+```
+
 The Spark History Server charm pods will then be restarted, and the Istio labels are added to the pods along with the creation of necessary authorization policies.
 
 ## Verify the charm pods are meshed
 
-In order to verify that the Spark History Server is indeed protected behind the Istio service mesh, perform a `curl` to the Spark History Server UI address using an ephemeral pod:
+One way to verify that the charm pods are meshed is by inspecting whether they have been labeled with Istio ambient mesh labels. List the pods in the cluster with the Istio ambient labels:
 
 ```bash
-kubectl run test-curl-history-server --rm -i --restart=Never --image=curlimages/curl:8.10.1 \
-    -- curl -sS --max-time 10 http://<history-server-unit-address>:18080
+kubectl get pods -A -l istio.io/dataplane-mode=ambient
 ```
 
-You should see that the `curl` does not succeed, because the pod `test-curl-history-server` is not inside the service mesh, and no authorization policies exist that allow traffic from it to the Spark History Server pod.
+You should see the Spark History Server charm pod among the ones in the list, similar to the following:
+
+```text
+NAMESPACE   NAME                         READY   STATUS    RESTARTS   AGE
+ubuntu      istio-beacon-k8s-0           2/2     Running   0          2m2s
+ubuntu      spark-history-server-k8s-0   2/2     Running   0          45s
+```
+
+In addition, to verify that the Spark History Server is indeed protected behind the Istio service mesh, perform a `curl` to the Spark History Server UI address using an ephemeral pod:
+
+```bash
+kubectl run test-curl-history-server \
+  --rm -i --restart=Never --image=curlimages/curl:8.10.1 \
+  -- curl -sS --max-time 10 http://<history-server-unit-address>:18080
+```
+
+You should see that the `curl` does not succeed, because the pod `test-curl-history-server` is not inside the service mesh, and no authorization policies exist that allow traffic from it to the Spark History Server pod. You should see an error similar to the following:
+
+```text
+curl: (56) Recv failure: Connection reset by peer
+```
 
 ## Access Spark History Server using Istio Ingress
 
@@ -58,12 +81,6 @@ Deploy the `istio-ingress-k8s` charm in the same model as the Spark History Serv
 
 ```bash
 juju deploy istio-ingress-k8s --channel 2/stable --trust
-```
-
-Integrate `istio-ingress-k8s` with the `istio-k8s` charm over the `istio-ingress-config` relation:
-
-```bash
-juju integrate istio-ingress-k8s:istio-ingress-config istio-k8s
 ```
 
 Integrate `istio-ingress-k8s` with the Spark History Server charm over the `ingress` relation interface.
@@ -87,12 +104,11 @@ You will see a message similar to the following under the Message column in the 
 Serving at <ip-address>
 ```
 
-This is the address for the Ingress gateway load balancer.
+The address you see here is the address for the Ingress gateway load balancer.
 
 ### Access Spark History Server UI
 
-Once you find the ingress gateway address, 
-the URL endpoint for the Spark History Server should be at the following path:
+Once you find the ingress gateway address, the URL endpoint for the Spark History Server should be at the following path:
 
 ```text
 http://<ingress-gateway-address>/<juju-model-name>-spark-history-server-k8s

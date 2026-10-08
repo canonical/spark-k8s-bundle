@@ -37,6 +37,11 @@ Integrate the Charmed Apache Kyuubi K8s charm with the Istio Bacon charm over th
 juju integrate kyuubi-k8s:service-mesh istio-beacon-k8s
 ```
 
+```{note}
+This integration requires the `kyuubi-k8s` charm deployed with `--trust`. If not, you can elevate the permissions to 
+an existing charm deployment using `juju trust --scope=cluster kyuubi-k8s`.
+```
+
 The Charmed Apache Kyuubi K8s charm pods will then be restarted, and the Istio labels are added to the pods along with necessary authorization policies.
 
 ### Add Apache Kyuubi workload pods to the mesh
