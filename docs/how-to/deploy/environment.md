@@ -26,7 +26,9 @@ There are multiple ways that a K8s cluster can be deployed. We provide full comp
 * AWS EKS
 * Azure AKS
 
-The how-to guide below shows you how to set up these to be used with Charmed Apache Spark. 
+The how-to guide below shows you how to set up these to be used with Charmed Apache Spark.
+
+The Charmed Spark solution has also been validated on VMware vSphere Kubernetes Service (VKS). See the [reference documentation](validation-vks) for more information on how to run Charmed Spark on VKS. 
 
 ### Canonical K8s
 
