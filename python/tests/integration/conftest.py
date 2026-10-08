@@ -127,6 +127,11 @@ def pytest_addoption(parser):
         action="store_true",
         help="Do not use the pinned revisions for the product module",
     )
+    parser.addoption(
+        "--service-mesh-enabled",
+        action="store_true",
+        help="Enable service mesh on supported charms and Spark workloads."
+    )
 
 
 def determine_scope(fixture_name, config):
@@ -534,7 +539,14 @@ def spark_bundle(
             "s3_secret_key": credentials.secret_key,
         }
 
-    vars = base_vars | cos_vars | storage_vars
+    service_mesh_vars = {}
+    service_mesh_enabled = bool(request.config.getoption("--service_mesh_enabled"))
+    if service_mesh_enabled:
+        service_mesh_vars = {
+            "enable_service_mesh" : "true"
+        }
+
+    vars = base_vars | cos_vars | storage_vars | service_mesh_vars
     logger.info(f"Applying vars: {vars.keys()}")
 
     deployed_applications = bundle.apply(vars=vars)

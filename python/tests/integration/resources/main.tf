@@ -241,6 +241,12 @@ variable "istio_k8s_platform" {
   }
 }
 
+variable "enable_service_mesh" {
+  description = "Enable or disable the Istio Ambient service mesh"
+  type        = bool
+  default     = false
+}
+
 module "cos" {
   count = var.cos_model_uuid == null ? 0 : 1
   # the source is pinned to the last commit on branch track/2 that's still compatible with Juju TF < 1.4.0. 
@@ -298,21 +304,13 @@ module "spark" {
   zookeeper_units            = 1
   spark_risk                 = var.spark_risk
 
+  enable_service_mesh        = var.enable_service_mesh
+
   cos_offers = module.cos != [] ? {
     dashboard = module.cos[0].offers.grafana_dashboards.url
     logging   = module.cos[0].offers.loki_logging.url
     metrics   = module.cos[0].offers.prometheus_receive_remote_write.url
   } : null
-}
-
-module "istio_k8s" {
-  source = "git::https://github.com/canonical/istio-k8s-operator//terraform?ref=df6c85dea5decdd014fd187404163ef2d73263da"
-
-  model_uuid = var.model_uuid
-  app_name   = "istio-k8s"
-  channel    = "2/stable"
-  revision   = var.istio_k8s_revision
-  config     = { platform = var.istio_k8s_platform })
 }
 
 output "models" {
