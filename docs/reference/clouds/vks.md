@@ -128,12 +128,12 @@ export CONTROLLER_IP=$(kubectl get svc controller-service-lb -n <controller-vks-
 
 ### Deploy Charmed Spark (manually)
 
-Charmed Spark can be deployed following the guide in the [documentation](https://canonical.com/data/spark/docs/3.5/how-to/deploy/kyuubi/) with no issue. Note that you will need to provide the credentials for an S3 bucket during the process.
+Charmed Spark can be deployed following the guide in the [documentation](https://canonical.com/data/spark/docs/3.4/how-to/deploy/kyuubi/) with no issue. Note that you will need to provide the credentials for an S3 bucket during the process.
 
 The deployment can be validated as shown in the documentation by connecting to Spark using `beeline`. Feel free to use the `beeline` provided in the `spark-client` snap that can be easily installed with
 
 ```
-sudo snap install spark-client --channel 3.5/stable
+sudo snap install spark-client --channel 3.4/stable
 ```
 
 ### Deploy Charmed Spark using Terraform
