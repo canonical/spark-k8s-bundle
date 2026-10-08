@@ -9,7 +9,7 @@ myst:
 
 This guide contains the instructions to validate the Charmed Spark solution on VMware vSphere Kubernetes Service (VKS).
 
-You can find the resources used in the guide in the `spark-k8s-bundle` repository at [`./resources/vks`](https://github.com/canonical/spark-k8s-bundle/tree/track/3.5/resources/vks).
+You can find the resources used in the guide in the `spark-k8s-bundle` repository at [`./resources/vks`](https://github.com/canonical/spark-k8s-bundle/tree/track/3.4/resources/vks).
 
 ## Instructions
 
