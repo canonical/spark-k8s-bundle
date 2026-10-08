@@ -192,8 +192,8 @@ Verify that the tests completes successfully
 
 ```
 ================================================================================================ warnings summary =================================================================================================
-../../vks-validation/uats/lib/python3.12/site-packages/_pytest/config/__init__.py:1464
-  /home/ubuntu/repos/vks-validation/uats/lib/python3.12/site-packages/_pytest/config/__init__.py:1464: PytestConfigWarning: Unknown config option: asyncio_mode
+./uats/lib/python3.12/site-packages/_pytest/config/__init__.py:1464
+  /home/ubuntu/repos/uats/lib/python3.12/site-packages/_pytest/config/__init__.py:1464: PytestConfigWarning: Unknown config option: asyncio_mode
   
     self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
 
