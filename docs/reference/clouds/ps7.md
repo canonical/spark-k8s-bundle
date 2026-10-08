@@ -7,9 +7,9 @@ myst:
 (validation-ps7)=
 # PS7
 
-The repository contains the instructions and the artifact to validate the Charmed Spark solution on VMware ProdStack (PS7).
+The repository contains the instructions and the artifact to validate the Charmed Spark solution on ProdStack (PS7).
 
-You can find the resources used in the guide in the `spark-k8s-bundle` repo at [`./resources/vks`](https://github.com/canonical/spark-k8s-bundle/tree/track/3.5/resources/ps7).
+You can find the resources used in the guide in the `spark-k8s-bundle` repo at [`./resources/ps7`](https://github.com/canonical/spark-k8s-bundle/tree/track/3.5/resources/ps7).
 
 ## Object storage setup
 
@@ -22,7 +22,7 @@ Execute the following commands:
 
 ```bash
 lxc init ubuntu:jammy ceph -c limits.cpu=2 -c limits.memory=2GB -d root,size=5GB
-lxc config set ceph cloud-init.user-data - < proxy.yaml
+lxc config set ceph cloud-init.user-data - < microceph.yaml
 lxc start ceph 
 ```
 
@@ -43,13 +43,13 @@ Extract the endpoint, access key and secret key into variables
 ```bash
 CEPH_IP=$(lxc list --format json | yq '.[] | select(.name == "ceph") .state.network.eth0.addresses.[] | select(.family == "inet") .address')
 ENDPOINT_URL="http://$CEPH_IP:80"
-S3_ACCESS_KEY=...
-S3_SECRET_KEY=...
+S3_ACCESS_KEY=foo
+S3_SECRET_KEY=bar
 ```
 
 ### Test the object storage
 
-First install the AWS SKD
+First install the AWS CLI
 
 ```bash
 sudo snap install aws-cli --classic
