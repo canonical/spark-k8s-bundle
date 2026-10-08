@@ -236,4 +236,38 @@ variable "zookeeper" {
   }
 }
 
+variable "service_mesh" {
+  description = "External integration for the istio service mesh"
+  type = object({
+    kind     = string
+    name     = optional(string, null)
+    endpoint = optional(string, null)
+    url      = optional(string, null)
+  })
+  default    = null
+  nullable   = true
 
+  validation {
+    condition     = contains(["endpoint", "offer"], var.service_mesh.kind)
+    error_message = "The 'kind' attribute must be either 'endpoint' or 'offer'."
+  }
+
+  validation {
+    condition = (
+      var.service_mesh.kind == "endpoint" ? (
+        var.service_mesh.name != null && var.service_mesh.name != "" &&
+        var.service_mesh.endpoint != null && var.service_mesh.endpoint != ""
+      ) : true
+    )
+    error_message = "Both 'name' and 'endpoint' attributes must be provided for an in-model integration."
+  }
+
+  validation {
+    condition = (
+      var.service_mesh.kind == "offer" ? (
+        var.service_mesh.url != null && var.service_mesh.url != ""
+      ) : true
+    )
+    error_message = "The 'url' attribute must be provided for a cross-model integration."
+  }
+}
