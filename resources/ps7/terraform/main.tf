@@ -28,9 +28,6 @@ resource "juju_model" "cos" {
 }
 
 module "cos" {
-  # the source is pinned to the last commit on branch track/2 that's still compatible with Juju TF < 1.4.0. 
-  # For more details, see this section in cos-lite docs: https://github.com/canonical/observability-stack/blob/track/2/terraform/cos-lite/README.md#provider--100--140
-  # source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=7448dadb996835c1c0ae1d79d2f435992652d410"
   source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=track/2"
   model_uuid = juju_model.cos.uuid
 }
