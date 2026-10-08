@@ -13,6 +13,8 @@ This section contains the following reference materials.
 
 [Minimum system requirements](reference-requirements) to run Charmed Apache Spark and its components.
 
+[Cloud Validations](cloud-validations-index) to run Charmed Apache Spark and its components.
+
 Our [contact information](reference-contacts) for any questions and feedback.
 
 ```{toctree}
