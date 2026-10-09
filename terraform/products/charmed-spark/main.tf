@@ -370,7 +370,7 @@ module "observability" {
 }
 
 module "istio_k8s" {
-  source = "git::https://github.com/canonical/istio-k8s-operator//terraform?ref=df6c85dea5decdd014fd187404163ef2d73263da"
+  source = "git::https://github.com/canonical/istio-k8s-operator//terraform?ref=155402d1be41398b3a08ff4be54a2dd881f488c2"
   count  = var.enable_service_mesh ? 1 : 0
 
   model_uuid = local.istio_system_model_uuid

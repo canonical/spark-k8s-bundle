@@ -102,25 +102,29 @@ variable "service_mesh" {
   nullable = true
 
   validation {
-    condition     = contains(["endpoint", "offer"], var.service_mesh.kind)
+    condition     = var.service_mesh == null || contains(["endpoint", "offer"], var.service_mesh.kind)
     error_message = "The 'kind' attribute must be either 'endpoint' or 'offer'."
   }
 
   validation {
     condition = (
-      var.service_mesh.kind == "endpoint" ? (
-        var.service_mesh.name != null && var.service_mesh.name != "" &&
-        var.service_mesh.endpoint != null && var.service_mesh.endpoint != ""
-      ) : true
+      var.service_mesh == null ? true : (
+        var.service_mesh.kind == "endpoint" ? (
+          var.service_mesh.name != null && var.service_mesh.name != "" &&
+          var.service_mesh.endpoint != null && var.service_mesh.endpoint != ""
+        ) : true
+      )
     )
     error_message = "Both 'name' and 'endpoint' attributes must be provided for an in-model integration."
   }
 
   validation {
     condition = (
-      var.service_mesh.kind == "offer" ? (
-        var.service_mesh.url != null && var.service_mesh.url != ""
-      ) : true
+      var.service_mesh == null ? true : (
+        var.service_mesh.kind == "offer" ? (
+          var.service_mesh.url != null && var.service_mesh.url != ""
+        ) : true
+      )
     )
     error_message = "The 'url' attribute must be provided for a cross-model integration."
   }
@@ -138,25 +142,29 @@ variable "ingress" {
   nullable = true
 
   validation {
-    condition     = contains(["endpoint", "offer"], var.ingress.kind)
+    condition     = var.ingress == null || contains(["endpoint", "offer"], var.ingress.kind)
     error_message = "The 'kind' attribute must be either 'endpoint' or 'offer'."
   }
 
   validation {
     condition = (
-      var.ingress.kind == "endpoint" ? (
-        var.ingress.name != null && var.ingress.name != "" &&
-        var.ingress.endpoint != null && var.ingress.endpoint != ""
-      ) : true
+      var.ingress == null ? true : (
+        var.ingress.kind == "endpoint" ? (
+          var.ingress.name != null && var.ingress.name != "" &&
+          var.ingress.endpoint != null && var.ingress.endpoint != ""
+        ) : true
+      )
     )
     error_message = "Both 'name' and 'endpoint' attributes must be provided for an in-model integration."
   }
 
   validation {
     condition = (
-      var.ingress.kind == "offer" ? (
-        var.ingress.url != null && var.ingress.url != ""
-      ) : true
+      var.ingress == null ? true : (
+        var.ingress.kind == "offer" ? (
+          var.ingress.url != null && var.ingress.url != ""
+        ) : true
+      )
     )
     error_message = "The 'url' attribute must be provided for a cross-model integration."
   }
