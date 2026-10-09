@@ -23,7 +23,7 @@ and retrieve the Spark History server POD IP using
 IP=$(kubectl get pod spark-history-server-k8s-0 -n spark --template '{{.status.podIP}}')
 ```
 
-## With Ingress
+## With Traefik Ingress
 
 The Spark History server can be exposed outside a K8s cluster by means of an ingress. This is the recommended way in production for any K8s distribution. Exposing Kubernetes services through an ingress generally requires the cloud provider/infrastrucutre to have an external load balancer integrated with the Kubernetes cluster. Most cloud providers (such as AWS, Google and Azure) provide this integration out-of-the-box. If you are running on MicroK8s, make sure that you have enabled `metallb`, as shown in the "How-To Setup K8s" user guide.
 
@@ -43,7 +43,7 @@ juju integrate traefik-k8s spark-history-server-k8s
 After the charms settle down into `idle/active` states, fetch the URL of the Spark History server with
 
 ```bash
-juju run-action traefik-k8s/0 show-proxied-endpoints --wait
+juju run traefik-k8s/0 show-proxied-endpoints
 ```
 
 This should print a JSON with all the ingress endpoints exposed by the
@@ -52,3 +52,9 @@ a public domain or to enable TLS encryption, please refer to this
 [guide for Let’s Encrypt certificates](https://discourse.charmhub.io/t/lets-encrypt-certificates-in-the-juju-ecosystem/8704)
 about integration of `traefik-k8s` with Route53 and Let's Encrypt (note that
 this is currently only supported on AWS EKS only).
+
+## With Istio Ingress (meshed setup)
+
+The Spark History Server needs to be accessed using the Istio Ingress if it is running behind Istio service mesh. Follow [this guide](how-to-spark-history-server-enable-service-mesh) for more information on how to access the Spark History Server using Istio Ingress.
+
+> See also: [Enable authentication and authorization with the Spark History Server](how-to-spark-history-server-auth) guide.

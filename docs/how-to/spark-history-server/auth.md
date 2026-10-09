@@ -13,88 +13,203 @@ authentication or authorization, both of which are essential in production envir
 To address this limitation, you can integrate the Spark History Server charm with the
 Canonical Identity Platform bundle.
 
-## Deploy the Identity Bundle and integrate it with the Spark History Server
-
-To enable authentication and authorization for Spark History Server, complete the
-following steps. This guide assumes you already deployed Charmed Apache Spark as
+This guide assumes you already deployed Charmed Apache Spark as
 described in the [Charmed Apache Spark deployment guide](how-to-deploy-spark),
 including a Spark History Server charm configured with an object storage backend.
 
-### Deploy the Identity bundle
+## Enable Authentication
 
-Authentication is provided by the
-[Canonical Identity Bundle](https://charmhub.io/topics/canonical-identity-platform).
-Deploy it by following this
-[tutorial](https://charmhub.io/topics/canonical-identity-platform/tutorials/e2e-tutorial),
-which installs all required Identity Platform components.
+Authentication for Spark History Server charm is provided by the
+[Canonical Identity Bundle](https://canonical-identity.readthedocs-hosted.com/identity-platform/).
 
-The deployment includes these charms:
+### Deploy the Canonical Identity bundle
+
+Deploy the Canonical Identity bundle by following this
+[tutorial](https://canonical-identity.readthedocs-hosted.com/identity-platform/tutorial/canonical-identity-platform/).
+
+The deployment will create two Juju models where Identity Platform charmed applications
+and their charm dependencies are deployed, configured and integrated.
+
+The `iam` model contains all the crucial identity applications:
 
 - [Charmed Ory Hydra](https://charmhub.io/hydra): the OAuth/OIDC server.
-- [Charmed Ory Kratos](https://charmhub.io/kratos): user management and authentication.
-- [Login UI operator](https://charmhub.io/identity-platform-login-ui-operator): middleware that routes requests between services and serves login/error pages.
-- [Kratos External IdP Integrator](https://charmhub.io/kratos-external-idp-integrator): integration with external identity providers.
+- [Charmed Ory Kratos](https://charmhub.io/kratos): the user management and authentication.
+- [Login UI operator](https://charmhub.io/identity-platform-login-ui-operator): a middleware that routes requests between services and serves login/error pages.
+
+And the `core` model contains all of their shared dependencies:
+
 - [Charmed PostgreSQL](https://charmhub.io/postgresql-k8s): SQL database backend.
 - [Charmed Traefik](https://charmhub.io/traefik-k8s): ingress controller.
 - [Self Signed Certificates](https://charmhub.io/self-signed-certificates): TLS certificate provider for ingress.
 
-You must also configure the identity provider you want to use. Configure
-`kratos-external-idp-integrator` with the parameters for your provider.
+### Configure the identity provider
 
-Example configuration for Microsoft Entra ID (Azure AD):
+You must also configure the identity provider you want to use. You can either use the built-in identity provider that is enabled by
+default in Charmed Kratos, or use an external identity provider.
+
+This guide uses the local identity provider via Charmed Kratos. Follow [this guide](https://canonical-identity.readthedocs-hosted.com/identity-platform/how-to/manage-external-identity-providers/) if you want to use an external identity provider.
+
+Create your personal admin account:
 
 ```bash
-juju config kratos-external-idp-integrator microsoft_tenant_id=<YOUR_TENANT_ID> provider=microsoft client_id=<YOUR_CLIENT_ID> client_secret=<YOUR_CLIENT_SECRET>
+juju run -m iam kratos/0 create-admin-account email=<your-email> username=<username>
 ```
+
+After the account is created, use the provided password reset link to set your password and complete the setup. You can now use this account
+to log in to the Spark History Server.
 
 For supported identity providers and additional details, see the
 [How to manage external identity providers guide](https://discourse.charmhub.io/t/how-to-manage-external-identity-providers/11910).
 
+### Deploy and integrate Charmed OAuth2 Proxy
+
 The connection between Spark History Server and the Identity Platform is handled by
 the Charmed OAuth2 Proxy charm. OAuth2 Proxy protects endpoints exposed through
-ingress (Traefik).
+an ingress (for example, Traefik).
 
-## Enable authentication with Charmed OAuth2 Proxy
-
-To set up OAuth2 Proxy, first enable the feature in Traefik, expose the forward-auth
-offer, and integrate it with Spark History Server through the ingress relation.
-
-```bash
-juju config traefik-public enable_experimental_forward_auth=True -m <IDENTITY_MODEL>
-juju offer traefik-public:experimental-forward-auth forward-auth -m <IDENTITY_MODEL>
-juju integrate spark-history-server-k8s admin/<IDENTITY_MODEL>.ingress
-```
-
-Next, deploy OAuth2 Proxy and integrate it with Traefik using the exposed offer:
+Deploy OAuth2 Proxy charm and integrate it with Spark History Server:
 
 ```bash
 juju deploy oauth2-proxy-k8s --channel latest/stable --trust
-juju integrate oauth2-proxy-k8s:forward-auth admin/<IDENTITY_MODEL>.forward-auth
-```
-
-Then integrate Spark History Server with OAuth2 Proxy:
-
-```bash
 juju integrate oauth2-proxy-k8s spark-history-server-k8s:oauth2-proxy
 ```
 
-Finally, integrate OAuth2 Proxy with the Identity Platform OIDC provider
-(Charmed Hydra):
+Now, consume the `oauth-offer` offered from the `iam` model, 
+and integrate OAuth2 Proxy with it:
 
 ```bash
-juju offer hydra:oauth oauth -m <IDENTITY_MODEL>
-juju integrate oauth2-proxy-k8s:oauth admin/<IDENTITY_MODEL>.oauth
+juju consume iam.oauth-offer
+juju integrate oauth2-proxy-k8s:oauth oauth-offer
+```
+
+Finally, consume the `send-ca-cert` offered from the `core` model, and integrate it with Oauth2 Proxy over
+the `receive-ca-cert` relation endpoint:
+
+```bash
+juju consume core.send-ca-cert
+juju integrate oauth2-proxy-k8s:receive-ca-cert send-ca-cert
+```
+
+### Configure ingress
+
+An ingress needs to be deployed and configured such that it forwards authentication requests to 
+Charmed OAuth2 Proxy charm, and only the requests that are completely authenticated are
+passed to the Spark History Server charm.
+
+Spark History Server charm currently supports two Ingress provider charms (namely the Traefik ingress and the Istio ingress), depending upon whether it is
+added to Istio service mesh or not.
+
+#### Traefik Ingress (non meshed setup)
+
+For a non meshed setup, the Traefik ingress that comes already bundled in the Identity Platform bundle can be used.
+To use it, first configure the existing Traefik ingress to enable the forward-auth feature, and expose the `forward-auth` offer.
+
+```bash
+juju switch core
+juju config traefik-public enable_experimental_forward_auth=True
+juju offer traefik-public:experimental-forward-auth traefik-forward-auth
+```
+
+Also offer the endpoint `ingress` from the `core` module:
+
+```bash
+juju offer traefik-public:ingress traefik-ingress
+```
+
+Now, switch back to the model containing Spark History Server app and integrate the ingress with the Spark History Server and the OAuth2 Proxy charms.
+
+```bash
+juju switch <spark-history-server-model>
+juju consume core.traefik-ingress
+juju integrate spark-history-server-k8s:ingress traefik-ingress
+juju integrate oauth2-proxy-k8s:ingress traefik-ingress
+```
+
+Integrate the OAuth2 Proxy charm with the `traefik-forward-auth` offer over the `forward-auth` relation endpoint:
+
+```bash
+juju consume core.traefik-forward-auth
+juju integrate oauth2-proxy-k8s:forward-auth traefik-forward-auth
 ```
 
 After integration completes, get the endpoint by running:
 
 ```bash
-juju run traefik-public/leader show-proxied-endpoints -m <IDENTITY_MODEL>
+juju run -m core traefik-public/leader show-proxied-endpoints
 ```
 
-When you open the URL exposed by Traefik, you are redirected to your configured
+You should see an output similar to the following:
+
+```text
+proxied-endpoints: '{"traefik-public": {"url": "https://10.99.99.0"}, "remote-xxxxxxxxxxxx": "http://10.99.99.0/testmodel-spark-history-server-k8s/"}'
+```
+
+The URL endpoint for the Spark History Server is the one ending with `spark-history-server-k8s` (or the name of the Spark History Server app).
+
+#### Istio Ingress (Istio service mesh setup)
+
+If the Spark History Server is running behind Istio service mesh, Traefik is not supported as Ingress and therefore,
+Istio ingress should be used. Istio ingress requires the Istio control plane to be installed in the cluster.
+
+Deploy `istio-ingress-k8s` charm:
+
+```bash
+juju deploy istio-ingress-k8s --channel 2/stable --trust
+```
+
+```{note}
+The `istio-ingress-k8s` requires `istio-k8s` properly deployed in order to work. It is assumed that if you have a Istio 
+service mesh setup, you already have a working `istio-k8s` deployment. If not, follow [this guide](how-to-spark-history-server-enable-service-mesh) 
+to deploy `istio-k8s` and enable service mesh for Spark History Server.
+```
+
+Integrate `istio-k8s` and `istio-ingress-k8s` over the `istio-ingress-config` relation endpoint:
+
+```bash
+juju integrate istio-k8s:istio-ingress-config istio-ingress-k8s:ingress-config
+```
+
+Integrate `istio-ingress-k8s` with the `certificates` offer, such that HTTPS is enabled:
+
+```bash
+juju consume core.certificates
+juju integrate istio-ingress-k8s:certificates certificates
+```
+
+Integrate the Istio ingress charm with OAuth2Proxy and Spark History Server charms:
+
+```bash
+juju integrate istio-ingress-k8s:ingress-unauthenticated oauth2-proxy-k8s:ingress
+juju integrate istio-ingress-k8s:forward-auth oauth2-proxy-k8s:forward-auth
+juju integrate istio-ingress-k8s:ingress spark-history-server-k8s:ingress
+```
+
+After the integration completes and the charms are in active and idle state, get the Juju status
+of the `istio-ingress-k8s` app.
+
+```bash
+juju status istio-ingress-k8s
+```
+
+You will see a message similar to the following under the Message column in the Juju status:
+
+```text
+Serving at <ip-address>
+```
+
+This is the address for the Ingress gateway. Once you find the ingress gateway address, 
+the URL endpoint for the Spark History Server should be at the following path:
+
+```text
+https://<ingress-gateway-address>/<juju-model-name>-spark-history-server-k8s
+```
+
+### Access Spark History Server UI
+
+Once you find the URL endpoint for the Spark History Server using the ingress of your choice,
+open the URL in the browser. When you open the URL, you are redirected to your configured
 identity provider for authentication. After successful login, you can access the
-Spark History Server endpoint.
+Spark History Server UI.
 
 ## Authorization Management
 
