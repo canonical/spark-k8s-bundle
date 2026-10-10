@@ -69,11 +69,11 @@ variable "cos_configuration_revision" {
 }
 
 variable "cos_offers" {
-  description = "Observability stack offers."
+  description = "COS integration interface: the offers Spark requires, keyed by the Juju interface each satisfies. Set all or leave null."
   type = object({
-    dashboard = string
-    logging   = string
-    metrics   = string
+    grafana_dashboard       = string
+    loki_push_api           = string
+    prometheus_remote_write = string
   })
   default = null
 }

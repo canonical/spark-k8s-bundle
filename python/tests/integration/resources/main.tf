@@ -282,9 +282,9 @@ module "spark" {
   spark_risk                 = var.spark_risk
 
   cos_offers = module.cos != [] ? {
-    dashboard = module.cos[0].offers.grafana_dashboards.url
-    logging   = module.cos[0].offers.loki_logging.url
-    metrics   = module.cos[0].offers.prometheus_receive_remote_write.url
+    grafana_dashboard       = module.cos[0].offers.grafana_dashboards.url
+    loki_push_api           = module.cos[0].offers.loki_logging.url
+    prometheus_remote_write = module.cos[0].offers.prometheus_receive_remote_write.url
   } : null
 }
 

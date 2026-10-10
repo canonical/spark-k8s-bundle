@@ -310,9 +310,9 @@ module "observability" {
   source     = "../../components/observability"
   model_uuid = local.model_uuid
 
-  dashboards_offer = var.cos_offers.dashboard
-  logging_offer    = var.cos_offers.logging
-  metrics_offer    = var.cos_offers.metrics
+  dashboards_offer = var.cos_offers.grafana_dashboard
+  logging_offer    = var.cos_offers.loki_push_api
+  metrics_offer    = var.cos_offers.prometheus_remote_write
 
   cos_configuration = { revision = var.cos_configuration_revision }
   grafana_agent = {
