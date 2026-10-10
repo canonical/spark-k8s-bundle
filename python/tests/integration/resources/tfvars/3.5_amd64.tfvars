@@ -22,3 +22,14 @@ zookeeper_image    = 34  # 3/stable, rev78
 
 istio_k8s_platform = "microk8s"
 istio_k8s_revision = 45
+
+# TODO: REMOVE THIS 
+
+s3_config = {
+    "endpoint"      : "http://192.168.1.68",
+    "path"          : "spark-events",
+    "bucket"        : "test-bucket"
+}
+
+s3_access_key = "foo"
+s3_secret_key = "bar"

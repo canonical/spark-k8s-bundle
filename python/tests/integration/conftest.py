@@ -64,6 +64,11 @@ def pytest_runtest_setup(item):
     ):
         pytest.skip("Skipping deployment because --no-deploy was specified.")
 
+    if "skip_if_service_mesh" in item.keywords and item.config.getoption(
+        "--service-mesh-enabled"
+    ):
+        pytest.skip("Skipping test that is incompatible with the service mesh.")
+
 
 def pytest_addoption(parser):
     """Add CLI options to pytest."""
@@ -130,7 +135,7 @@ def pytest_addoption(parser):
     parser.addoption(
         "--service-mesh-enabled",
         action="store_true",
-        help="Enable service mesh on supported charms and Spark workloads."
+        help="Enable service mesh on supported charms and Spark workloads.",
     )
 
 
@@ -187,6 +192,12 @@ def juju(request: pytest.FixtureRequest):
 def cos_model(request) -> None | str:
     """The name of the model in which COS is either already deployed or is to be deployed."""
     return request.config.getoption("--cos-model")
+
+
+@pytest.fixture(scope="module")
+def service_mesh_enabled(request) -> bool:
+    """Whether the Istio service mesh has been enabled for this deployment."""
+    return bool(request.config.getoption("--service-mesh-enabled"))
 
 
 @pytest.fixture(scope="module")
@@ -466,6 +477,7 @@ def spark_bundle(
     admin_password,
     private_key,
     tfvars,
+    service_mesh_enabled,
 ):
     """Deploy the Spark K8s bundle using Terraform."""
     unpinned_revisions = bool(request.config.getoption("--unpinned-revisions"))
@@ -540,11 +552,8 @@ def spark_bundle(
         }
 
     service_mesh_vars = {}
-    service_mesh_enabled = bool(request.config.getoption("--service_mesh_enabled"))
     if service_mesh_enabled:
-        service_mesh_vars = {
-            "enable_service_mesh" : "true"
-        }
+        service_mesh_vars = {"enable_service_mesh": "true"}
 
     vars = base_vars | cos_vars | storage_vars | service_mesh_vars
     logger.info(f"Applying vars: {vars.keys()}")

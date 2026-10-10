@@ -29,11 +29,10 @@ variable "cos_configuration" {
   default = {}
 }
 
-variable "grafana_agent" {
+variable "otelcol" {
   type = object({
-    app_name    = optional(string, "grafana-agent")
-    base        = optional(string, "ubuntu@22.04")
-    channel     = optional(string, "1/stable")
+    app_name    = optional(string, "otel-collector")
+    channel     = optional(string, "dev/edge")
     config      = optional(map(string), {})
     constraints = optional(string, "arch=amd64")
     resources   = optional(map(string), {})
@@ -41,6 +40,46 @@ variable "grafana_agent" {
     units       = optional(number, 1)
   })
   default = {}
+}
+
+variable "service_mesh" {
+  description = "External integration for the istio service mesh."
+  type = object({
+    kind     = string
+    name     = optional(string, null)
+    endpoint = optional(string, null)
+    url      = optional(string, null)
+  })
+  default  = null
+  nullable = true
+
+  validation {
+    condition     = var.service_mesh == null || contains(["endpoint", "offer"], var.service_mesh.kind)
+    error_message = "The 'kind' attribute must be either 'endpoint' or 'offer'."
+  }
+
+  validation {
+    condition = (
+      var.service_mesh == null ? true : (
+        var.service_mesh.kind == "endpoint" ? (
+          var.service_mesh.name != null && var.service_mesh.name != "" &&
+          var.service_mesh.endpoint != null && var.service_mesh.endpoint != ""
+        ) : true
+      )
+    )
+    error_message = "Both 'name' and 'endpoint' attributes must be provided for an in-model integration."
+  }
+
+  validation {
+    condition = (
+      var.service_mesh == null ? true : (
+        var.service_mesh.kind == "offer" ? (
+          var.service_mesh.url != null && var.service_mesh.url != ""
+        ) : true
+      )
+    )
+    error_message = "The 'url' attribute must be provided for a cross-model integration."
+  }
 }
 
 variable "pushgateway" {

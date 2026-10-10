@@ -2,33 +2,63 @@
 # See LICENSE file for licensing details.
 
 variable "model_uuid" {
-  description = "UUID of the Juju model where Istio Ambient is deployed"
+  description = "UUID of the Juju model where Traefik ingress is deployed."
   type        = string
   nullable    = false
 }
 
-variable "istio_ingress_k8s" {
-  description = "Configuration for istio-ingress-k8s ingress gateway"
-  type = object({
-    channel     = optional(string, "2/stable")
-    revision    = optional(number)
-    units       = optional(number, 1)
-    constraints = optional(string)
-    config      = optional(map(string), {})
-  })
-  default = {}
+variable "app_name" {
+  description = "Name to give the deployed Traefik application."
+  type        = string
+  default     = "traefik"
 }
 
-variable "istio_beacon_k8s" {
-  description = "Configuration for istio-beacon-k8s application"
-  type = object({
-    channel     = optional(string, "2/stable")
-    revision    = optional(number)
-    units       = optional(number, 1)
-    constraints = optional(string)
-    config      = optional(map(string), {})
-  })
-  default = {}
+variable "base" {
+  description = "The operating system on which to deploy."
+  type        = string
+  nullable    = true
+  default     = null
+}
+
+variable "channel" {
+  description = "Channel that the charm is deployed from."
+  type        = string
+}
+
+variable "config" {
+  description = "Map of the charm configuration options."
+  type        = map(string)
+  default     = {}
+}
+
+variable "constraints" {
+  description = "String listing constraints for this application."
+  type        = string
+  default     = "arch=amd64"
+}
+
+variable "resources" {
+  description = "The charm's resources."
+  type        = map(string)
+  default     = {}
+}
+
+variable "revision" {
+  description = "Revision number of the charm."
+  type        = number
+  default     = null
+}
+
+variable "storage_directives" {
+  description = "Map of storage used by the application."
+  type        = map(string)
+  default     = {}
+}
+
+variable "units" {
+  description = "Unit count/scale."
+  type        = number
+  default     = 1
 }
 
 variable "certificates" {

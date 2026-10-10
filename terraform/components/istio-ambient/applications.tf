@@ -5,7 +5,7 @@
 # Istio Ingress: provides the entry point for external traffic into the service mesh.
 # The upstream module hardcodes trust = true and does not accept base/resources,
 module "istio_ingress_k8s" {
-  source = "git::https://github.com/canonical/istio-ingress-k8s-operator//terraform?ref=a9ef9646aea149a00a6a7620acaf483249714d04"
+  source = "git::https://github.com/canonical/istio-ingress-k8s-operator//terraform?ref=rev61"
 
   model_uuid  = var.model_uuid
   app_name    = "istio-ingress"
@@ -22,7 +22,7 @@ module "istio_ingress_k8s" {
 #
 # The upstream module hardcodes trust = true and does not accept base/resources.
 module "istio_beacon_k8s" {
-  source = "git::https://github.com/canonical/istio-beacon-k8s-operator//terraform?ref=51b204dd50392809692263f6e973d81dd9fe200a"
+  source = "git::https://github.com/canonical/istio-beacon-k8s-operator//terraform?ref=rev63"
 
   model_uuid  = var.model_uuid
   app_name    = "istio-beacon-k8s"

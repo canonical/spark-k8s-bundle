@@ -85,14 +85,8 @@ variable "data_integrator_revision" {
   nullable    = true
 }
 
-variable "grafana_agent_image" {
-  description = "Image for grafana-agent-k8s"
-  type        = any
-  default     = null
-}
-
-variable "grafana_agent_revision" {
-  description = "Charm revision for grafana-agent-k8s"
+variable "otelcol_revision" {
+  description = "Charm revision for opentelemetry-collector-k8s"
   type        = number
   default     = null
   nullable    = true

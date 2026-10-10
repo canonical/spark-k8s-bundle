@@ -203,7 +203,7 @@ module "spark_core" {
     module.s3,
     module.ssc,
     module.istio_ambient,
-    module.traefik,
+    module.traefik_ingress,
   ]
   source     = "../../components/spark-core"
   model_uuid = local.model_uuid
@@ -236,8 +236,8 @@ module "spark_core" {
     module.istio_ambient[0].provides.istio_ingress_k8s_ingress
     ) : {
     kind     = "endpoint"
-    name     = module.traefik[0].app_name
-    endpoint = module.traefik[0].provides.ingress
+    name     = module.traefik_ingress[0].app_name
+    endpoint = module.traefik_ingress[0].provides.ingress
   }
 }
 
@@ -349,15 +349,19 @@ module "observability" {
   metrics_offer    = var.cos_offers.metrics
 
   cos_configuration = { revision = var.cos_configuration_revision }
-  grafana_agent = {
-    revision = var.grafana_agent_revision
-    resource = var.grafana_agent_image != null ? { agent-image = var.grafana_agent_image } : null
+  otelcol = {
+    revision = var.otelcol_revision
   }
   pushgateway = {
     revision = var.pushgateway_revision
     resource = var.pushgateway_image != null ? { pushgateway-image = var.pushgateway_image } : null
   }
   scrape_config = { revision = var.scrape_config_revision }
+
+  service_mesh = var.enable_service_mesh ? merge(
+    { kind = "endpoint" },
+    module.istio_ambient[0].provides.istio_beacon_k8s_service_mesh
+  ) : null
 
   history_server_dashboard_endpoint = module.spark_core.provides.history_server_dashboard
   history_server_logging_endpoint   = module.spark_core.requires.history_server_logging
@@ -370,7 +374,7 @@ module "observability" {
 }
 
 module "istio_k8s" {
-  source = "git::https://github.com/canonical/istio-k8s-operator//terraform?ref=155402d1be41398b3a08ff4be54a2dd881f488c2"
+  source = "git::https://github.com/canonical/istio-k8s-operator//terraform?ref=rev45"
   count  = var.enable_service_mesh ? 1 : 0
 
   model_uuid = local.istio_system_model_uuid
@@ -399,12 +403,17 @@ module "istio_ambient" {
     config   = var.istio_beacon_k8s_config
   }
 
+  certificates = {
+    kind     = "endpoint"
+    name     = module.ssc.app_name
+    endpoint = module.ssc.provides.certificates
+  }
 }
 
-module "traefik" {
+module "traefik_ingress" {
   depends_on = [juju_model.spark]
   count      = var.enable_service_mesh ? 0 : 1
-  source     = "git::https://github.com/canonical/traefik-k8s-operator//terraform?ref=abd922dd7605d7d5b8cdfd0956b1efe47e5649cc"
+  source     = "../../components/traefik-ingress"
   model_uuid = local.model_uuid
 
   app_name    = "traefik-public"
@@ -413,4 +422,10 @@ module "traefik" {
   revision    = var.traefik_revision
   config      = var.traefik_config
   units       = 1
+
+  certificates = {
+    kind     = "endpoint"
+    name     = module.ssc.app_name
+    endpoint = module.ssc.provides.certificates
+  }
 }

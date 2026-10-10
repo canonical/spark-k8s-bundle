@@ -198,6 +198,27 @@ def get_cos_address(cos_model_name: str) -> str:
     return json.loads(endpoints)["traefik"]["url"]
 
 
+def get_history_server_ingress_url(
+    juju: jubilant.Juju, app: str = "history-server", unit: int = 0
+) -> str:
+    """Return the external ingress URL for the Spark History Server.
+
+    The ingress provider (traefik-k8s or istio-ingress-k8s) publishes the external
+    URL into the `ingress` relation application databag, so this works whether or not
+    the service mesh is enabled.
+    """
+    raw = juju.cli("show-unit", f"{app}/{unit}", "--format", "json")
+    data = json.loads(raw)
+    relations = data[f"{app}/{unit}"].get("relation-info", [])
+    for relation in relations:
+        if relation.get("endpoint") != "ingress":
+            continue
+        ingress = relation.get("application-data", {}).get("ingress")
+        if ingress:
+            return json.loads(ingress)["url"]
+    raise ValueError(f"No ingress URL found for {app}/{unit}")
+
+
 def prometheus_exporter_data(host: str, port: int) -> str | None:
     """Check if a given host has metric service available and it is publishing."""
     url = f"http://{host}:{port}/metrics"

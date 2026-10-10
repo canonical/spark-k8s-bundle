@@ -4,7 +4,7 @@
 output "components" {
   description = "List of the deployed applications for this component module."
   value = {
-    grafana_agent     = juju_application.grafana_agent
+    otel_collector    = juju_application.otel_collector
     cos_configuration = juju_application.cos_configuration
     pushgateway       = juju_application.pushgateway
     scrape_config     = juju_application.scrape_config
@@ -14,16 +14,16 @@ output "components" {
 output "provides" {
   description = "Map of all the provided endpoints."
   value = {
-    grafana_agent_metrics_endpoint = {
-      name     = juju_application.grafana_agent.name
+    otel_collector_metrics_endpoint = {
+      name     = juju_application.otel_collector.name
       endpoint = "metrics-endpoint"
     }
-    grafana_agent_logging_provider = {
-      name     = juju_application.grafana_agent.name
-      endpoint = "logging-provider"
+    otel_collector_receive_loki_logs = {
+      name     = juju_application.otel_collector.name
+      endpoint = "receive-loki-logs"
     }
-    grafana_agent_grafana_dashboards_consumer = {
-      name     = juju_application.grafana_agent.name
+    otel_collector_grafana_dashboards_consumer = {
+      name     = juju_application.otel_collector.name
       endpoint = "grafana-dashboards-consumer"
     }
   }
@@ -32,17 +32,17 @@ output "provides" {
 output "requires" {
   description = "Map of the required endpoints."
   value = {
-    grafana_agent_grafana_dashboards_provider = {
-      name     = juju_application.grafana_agent.name
+    otel_collector_grafana_dashboards_provider = {
+      name     = juju_application.otel_collector.name
       endpoint = "grafana-dashboards-provider"
     }
-    grafana_agent_send_remote_write = {
-      name     = juju_application.grafana_agent.name
+    otel_collector_send_remote_write = {
+      name     = juju_application.otel_collector.name
       endpoint = "send-remote-write"
     }
-    grafana_agent_logging_consumer = {
-      name     = juju_application.grafana_agent.name
-      endpoint = "logging-consumer"
+    otel_collector_send_loki_logs = {
+      name     = juju_application.otel_collector.name
+      endpoint = "send-loki-logs"
     }
   }
 }
