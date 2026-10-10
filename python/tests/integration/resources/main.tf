@@ -141,6 +141,13 @@ variable "azure_storage_revision" {
   description = "Revision for Azure storage"
 }
 
+variable "istio_k8s_revision" {
+  description = "Revision of the istio-k8s application"
+  type        = number
+  default     = null
+  nullable    = true
+}
+
 variable "history_server_image" {
   type        = any
   default     = null
@@ -183,10 +190,10 @@ variable "cos_configuration_revision" {
   description = "Revision for COS configuration"
 }
 
-variable "grafana_agent_revision" {
+variable "otelcol_revision" {
   type        = string
   default     = null
-  description = "Revision for the Grafana agent"
+  description = "Revision for the OpenTelemetry Collector"
 }
 
 variable "pushgateway_revision" {
@@ -201,10 +208,10 @@ variable "scrape_config_revision" {
   description = "Revision for the scrape configuration"
 }
 
-variable "grafana_agent_image" {
+variable "istio_k8s_revision" {
   type        = string
   default     = null
-  description = "Image for the Grafana agent"
+  description = "Revision for the Istio k8s application"
 }
 
 variable "pushgateway_image" {
@@ -224,11 +231,28 @@ variable "spark_risk" {
   }
 }
 
+variable "istio_k8s_platform" {
+  description = "Platform for the Istio k8s application"
+  type        = string
+  default     = "microk8s"
+
+  validation {
+    condition     = contains(["microk8s", "k8s"], var.istio_k8s_platform)
+    error_message = "'istio_k8s_platform' can only take the following value: 'microk8s', or 'k8s'."
+  }
+}
+
+variable "enable_service_mesh" {
+  description = "Enable or disable the Istio Ambient service mesh"
+  type        = bool
+  default     = false
+}
+
 module "cos" {
   count = var.cos_model_uuid == null ? 0 : 1
   # the source is pinned to the last commit on branch track/2 that's still compatible with Juju TF < 1.4.0. 
   # For more details, see this section in cos-lite docs: https://github.com/canonical/observability-stack/blob/track/2/terraform/cos-lite/README.md#provider--100--140
-  source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=7448dadb996835c1c0ae1d79d2f435992652d410" 
+  source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=7448dadb996835c1c0ae1d79d2f435992652d410"
   model_uuid   = var.cos_model_uuid
   internal_tls = false
 }
@@ -251,8 +275,7 @@ module "spark" {
   azure_storage_secret_key   = var.azure_storage_secret_key
   cos_configuration_revision = var.cos_configuration_revision
   data_integrator_revision   = var.data_integrator_revision
-  grafana_agent_image        = var.grafana_agent_image
-  grafana_agent_revision     = var.grafana_agent_revision
+  otelcol_revision           = var.otelcol_revision
   history_server_image       = var.history_server_image
   history_server_revision    = var.history_server_revision
   integration_hub_image      = var.integration_hub_image
@@ -280,6 +303,10 @@ module "spark" {
   zookeeper_revision         = var.zookeeper_revision
   zookeeper_units            = 1
   spark_risk                 = var.spark_risk
+
+  enable_service_mesh = var.enable_service_mesh
+  istio_k8s_platform  = var.istio_k8s_platform
+  istio_k8s_revision  = var.istio_k8s_revision
 
   cos_offers = module.cos != [] ? {
     dashboard = module.cos[0].offers.grafana_dashboards.url

@@ -30,6 +30,7 @@ from .helpers import (
     JMX_EXPORTER_PORT,
     assert_logs,
     get_cos_address,
+    get_history_server_ingress_url,
     get_secret_data,
     prometheus_exporter_data,
     published_grafana_dashboards,
@@ -214,30 +215,26 @@ def test_job_logs_are_persisted(
     assert logs_discovered
 
 
-def test_job_in_history_server(
-    juju: jubilant.Juju, tmp_folder, port_forward: PortForwarder
-) -> None:
+def test_job_in_history_server(juju: jubilant.Juju, tmp_folder) -> None:
     driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
-    show_unit_cmd = ["show-unit", f"{HISTORY_SERVER}/0"]
-    stdout = juju.cli(*show_unit_cmd)
-    logger.info(f"Show unit: {stdout}")
     spark_id = driver_pod.labels["spark-app-selector"]
     logger.info(f"Spark ID: {spark_id}")
 
+    ingress_url = get_history_server_ingress_url(juju, app=HISTORY_SERVER)
+    logger.info(f"History server ingress URL: {ingress_url}")
+
     apps = []
-    with port_forward(
-        pod=f"{HISTORY_SERVER}-0", port=18080, namespace=cast(str, juju.model)
-    ):
-        for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
-            with attempt:
-                raw_apps = httpx.get(
-                    "http://127.0.0.1:18080/api/v1/applications"
-                ).json()
-                logger.info(f"apps: {raw_apps}")
-                apps = [app for app in raw_apps if app["id"] == spark_id]
-                assert len(apps) == 1
+    for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
+        with attempt:
+            raw_apps = httpx.get(
+                f"{ingress_url.rstrip('/')}/api/v1/applications"
+            ).json()
+            logger.info(f"apps: {raw_apps}")
+            apps = [app for app in raw_apps if app["id"] == spark_id]
+            assert len(apps) == 1
 
 
+@pytest.mark.skip_if_service_mesh
 def test_job_not_in_prometheus_pushgateway(
     juju: jubilant.Juju, cos, tmp_folder: Path, port_forward: PortForwarder
 ) -> None:
@@ -330,6 +327,7 @@ def test_spark_logforwaring_to_loki(
         assert_logs("127.0.0.1")
 
 
+@pytest.mark.skip_if_service_mesh
 def test_history_server_metrics_in_cos(
     juju: jubilant.Juju, cos, port_forward: PortForwarder
 ) -> None:

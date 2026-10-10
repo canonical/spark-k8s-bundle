@@ -85,14 +85,8 @@ variable "data_integrator_revision" {
   nullable    = true
 }
 
-variable "grafana_agent_image" {
-  description = "Image for grafana-agent-k8s"
-  type        = any
-  default     = null
-}
-
-variable "grafana_agent_revision" {
-  description = "Charm revision for grafana-agent-k8s"
+variable "otelcol_revision" {
+  description = "Charm revision for opentelemetry-collector-k8s"
   type        = number
   default     = null
   nullable    = true
@@ -232,6 +226,12 @@ variable "spark_model_name" {
   default     = "spark"
 }
 
+variable "istio_system_model_name" {
+  description = "The name of the juju model to deploy Istio control plane to"
+  type        = string
+  default     = "istio-system"
+}
+
 variable "spark_risk" {
   description = "Spark components risk channel"
   type        = string
@@ -245,6 +245,12 @@ variable "spark_risk" {
 
 variable "model_uuid" {
   description = "Optional existing Juju model UUID to deploy Spark to. If provided, model creation is skipped in higher-level modules."
+  type        = string
+  default     = null
+}
+
+variable "istio_system_model_uuid" {
+  description = "Optional existing Juju model UUID to deploy Istio control plane to. If provided, model creation is skipped in higher-level modules."
   type        = string
   default     = null
 }
@@ -327,4 +333,65 @@ variable "zookeeper_units" {
   type        = number
   default     = 3
   nullable    = false
+}
+
+variable "istio_ingress_k8s_revision" {
+  description = "Revision of the istio-ingress-k8s application"
+  type        = number
+  default     = null
+}
+
+variable "istio_ingress_k8s_config" {
+  description = "Configuration for istio-ingress-k8s application"
+  type        = map(string)
+  default     = {}
+}
+
+variable "istio_k8s_revision" {
+  description = "Revision of the istio-k8s application"
+  type        = number
+  default     = null
+  nullable    = true
+}
+
+variable "istio_k8s_config" {
+  description = "Configuration for istio-k8s application"
+  type        = map(string)
+  default     = {}
+}
+
+variable "istio_beacon_k8s_revision" {
+  description = "Revision of the istio-beacon-k8s application"
+  type        = number
+  default     = null
+}
+
+variable "istio_beacon_k8s_config" {
+  description = "Configuration for istio-beacon-k8s application"
+  type        = map(string)
+  default     = {}
+}
+
+variable "enable_service_mesh" {
+  description = "Enable or disable the Istio Ambient service mesh."
+  type        = bool
+  default     = false
+}
+
+variable "istio_k8s_platform" {
+  description = "Platform value for istio-k8s (always merged into its config as 'platform', including an empty string)."
+  type        = string
+  default     = ""
+}
+
+variable "traefik_revision" {
+  description = "Revision of the traefik-k8s application (used as history server ingress when the service mesh is disabled)."
+  type        = number
+  default     = null
+}
+
+variable "traefik_config" {
+  description = "Configuration for the traefik-k8s application."
+  type        = map(string)
+  default     = {}
 }

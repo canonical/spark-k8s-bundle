@@ -19,3 +19,17 @@ kyuubi_image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:421a56a1f1634282b2
 kyuubi_users_image = 201 # 14/stable, rev925
 metastore_image    = 201 # 14/stable, rev925
 zookeeper_image    = 34  # 3/stable, rev78
+
+istio_k8s_platform = "microk8s"
+istio_k8s_revision = 45
+
+# TODO: REMOVE THIS 
+
+s3_config = {
+    "endpoint"      : "http://192.168.1.68",
+    "path"          : "spark-events",
+    "bucket"        : "test-bucket"
+}
+
+s3_access_key = "foo"
+s3_secret_key = "bar"

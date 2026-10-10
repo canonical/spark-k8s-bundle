@@ -13,6 +13,18 @@ resource "juju_model" "spark" {
   }
 }
 
+resource "juju_model" "istio_system" {
+  count = (var.istio_system_model_uuid == null && var.create_model == true) ? 1 : 0
+
+  name = var.istio_system_model_name
+  config = {
+    logging     = var.logging_config
+    http-proxy  = var.proxy.http
+    https-proxy = var.proxy.https
+    no-proxy    = var.proxy.no-proxy
+  }
+}
+
 module "ssc" {
   depends_on = [juju_model.spark]
   source     = "git::https://github.com/canonical/self-signed-certificates-operator//terraform?ref=rev586"
@@ -190,6 +202,8 @@ module "spark_core" {
     module.data_integrator,
     module.s3,
     module.ssc,
+    module.istio_ambient,
+    module.traefik_ingress,
   ]
   source     = "../../components/spark-core"
   model_uuid = local.model_uuid
@@ -210,6 +224,21 @@ module "spark_core" {
 
   object_storage           = merge({ kind = "endpoint" }, length(module.s3) != 0 ? module.s3[0].provides.s3_credentials : module.azure_storage[0].provides.azure_storage_credentials)
   object_storage_interface = length(module.s3) != 0 ? module.s3[0].provides.s3_credentials.endpoint : module.azure_storage[0].provides.azure_storage_credentials.endpoint
+
+  service_mesh = var.enable_service_mesh ? merge(
+    { kind = "endpoint" },
+    module.istio_ambient[0].provides.istio_beacon_k8s_service_mesh
+  ) : null
+
+  # Ingress comes from istio-ingress-k8s when the mesh is enabled, otherwise from traefik-k8s.
+  ingress = var.enable_service_mesh ? merge(
+    { kind = "endpoint" },
+    module.istio_ambient[0].provides.istio_ingress_k8s_ingress
+    ) : {
+    kind     = "endpoint"
+    name     = module.traefik_ingress[0].app_name
+    endpoint = module.traefik_ingress[0].provides.ingress
+  }
 }
 
 module "kyuubi" {
@@ -273,6 +302,11 @@ module "kyuubi" {
   }
 
   zookeeper = merge({ kind = "endpoint" }, module.zookeeper.provides.zookeeper)
+
+  service_mesh = var.enable_service_mesh ? merge(
+    { kind = "endpoint" },
+    module.istio_ambient[0].provides.istio_beacon_k8s_service_mesh
+  ) : null
 }
 
 
@@ -315,15 +349,19 @@ module "observability" {
   metrics_offer    = var.cos_offers.metrics
 
   cos_configuration = { revision = var.cos_configuration_revision }
-  grafana_agent = {
-    revision = var.grafana_agent_revision
-    resource = var.grafana_agent_image != null ? { agent-image = var.grafana_agent_image } : null
+  otelcol = {
+    revision = var.otelcol_revision
   }
   pushgateway = {
     revision = var.pushgateway_revision
     resource = var.pushgateway_image != null ? { pushgateway-image = var.pushgateway_image } : null
   }
   scrape_config = { revision = var.scrape_config_revision }
+
+  service_mesh = var.enable_service_mesh ? merge(
+    { kind = "endpoint" },
+    module.istio_ambient[0].provides.istio_beacon_k8s_service_mesh
+  ) : null
 
   history_server_dashboard_endpoint = module.spark_core.provides.history_server_dashboard
   history_server_logging_endpoint   = module.spark_core.requires.history_server_logging
@@ -333,4 +371,61 @@ module "observability" {
   kyuubi_dashboard_endpoint         = module.kyuubi.provides.kyuubi_dashboard
   kyuubi_logging_endpoint           = module.kyuubi.requires.kyuubi_logging
   kyuubi_metrics_endpoint           = module.kyuubi.provides.kyuubi_metrics
+}
+
+module "istio_k8s" {
+  source = "git::https://github.com/canonical/istio-k8s-operator//terraform?ref=rev45"
+  count  = var.enable_service_mesh ? 1 : 0
+
+  model_uuid = local.istio_system_model_uuid
+  app_name   = "istio-k8s"
+  channel    = "2/stable"
+  revision   = var.istio_k8s_revision
+  config     = merge(var.istio_k8s_config, { platform = var.istio_k8s_platform })
+}
+
+module "istio_ambient" {
+  depends_on = [juju_model.spark]
+  count      = var.enable_service_mesh ? 1 : 0
+  source     = "../../components/istio-ambient"
+
+  model_uuid = local.model_uuid
+
+  istio_ingress_k8s = {
+    channel  = "2/stable"
+    revision = var.istio_ingress_k8s_revision
+    config   = var.istio_ingress_k8s_config
+  }
+
+  istio_beacon_k8s = {
+    channel  = "2/stable"
+    revision = var.istio_beacon_k8s_revision
+    config   = var.istio_beacon_k8s_config
+  }
+
+  certificates = {
+    kind     = "endpoint"
+    name     = module.ssc.app_name
+    endpoint = module.ssc.provides.certificates
+  }
+}
+
+module "traefik_ingress" {
+  depends_on = [juju_model.spark]
+  count      = var.enable_service_mesh ? 0 : 1
+  source     = "../../components/traefik-ingress"
+  model_uuid = local.model_uuid
+
+  app_name    = "traefik-public"
+  channel     = "latest/stable"
+  constraints = "arch=amd64"
+  revision    = var.traefik_revision
+  config      = var.traefik_config
+  units       = 1
+
+  certificates = {
+    kind     = "endpoint"
+    name     = module.ssc.app_name
+    endpoint = module.ssc.provides.certificates
+  }
 }
