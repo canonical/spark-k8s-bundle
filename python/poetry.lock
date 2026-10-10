@@ -929,14 +929,14 @@ files = [
 
 [[package]]
 name = "great-tables"
-version = "0.22.0"
+version = "1.0.0"
 description = "Easily generate information-rich, publication-quality tables from Python."
 optional = false
 python-versions = ">=3.10"
 groups = ["benchmark"]
 files = [
-    {file = "great_tables-0.22.0-py3-none-any.whl", hash = "sha256:7a7f81c2d1eb66d88166e864ac820966c23f04e4ecb41eeca8f9df1e1b21764d"},
-    {file = "great_tables-0.22.0.tar.gz", hash = "sha256:ccf031d90cab599328232bc32afadef215da1457dbc025d0972048cc2050fd57"},
+    {file = "great_tables-1.0.0-py3-none-any.whl", hash = "sha256:bbe12456b3c6f3c29da94aa6931973d03cee957d790ea4d9bcad679b5f3e9d94"},
+    {file = "great_tables-1.0.0.tar.gz", hash = "sha256:d0d4a05f6cc15bd553c4654dc9e7a8b38288b1f7219444056bb68b698f0791c7"},
 ]
 
 [package.dependencies]
@@ -2316,7 +2316,7 @@ files = [
     {file = "pycparser-3.0-py3-none-any.whl", hash = "sha256:b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992"},
     {file = "pycparser-3.0.tar.gz", hash = "sha256:600f49d217304a5902ac3c37e1281c9fe94e4d0489de643a9504c5cdfdfc6b29"},
 ]
-markers = {main = "platform_python_implementation != \"PyPy\" and implementation_name != \"PyPy\"", benchmark = "implementation_name != \"PyPy\""}
+markers = {main = "implementation_name != \"PyPy\" and platform_python_implementation != \"PyPy\"", benchmark = "implementation_name != \"PyPy\""}
 
 [[package]]
 name = "pygments"
@@ -3811,4 +3811,4 @@ type = ["pytest-mypy (>=1.0.1) ; platform_python_implementation != \"PyPy\""]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "3853f773bded0bf4f0484b7816ba60b2b67c451a99717ad1e74199489562a330"
+content-hash = "34e2784320574450ccecfb76b0665f8dcde0b8783509d982742ecf9405470814"
