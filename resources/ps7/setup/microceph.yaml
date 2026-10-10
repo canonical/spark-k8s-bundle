@@ -1,0 +1,29 @@
+#cloud-config
+package_upgrade: false
+
+# 1. Set global proxy environment variables across the OS
+etc_default:
+  http_proxy: &proxy "http://egress.ps7.internal:3128"
+  https_proxy: *proxy
+  HTTP_PROXY: *proxy
+  HTTPS_PROXY: *proxy
+  no_proxy: &noproxy "localhost,127.0.0.1,::1,.local,10.151.42.97"
+  NO_PROXY: *noproxy
+
+# 2. Configure snapd proxy FIRST, then install snaps directly in runcmd
+runcmd:
+  # Set snapd system proxy
+  - snap set system proxy.http="$http_proxy"
+  - snap set system proxy.https="https_proxy"
+  - systemctl restart snapd
+
+  # Wait briefly for snapd socket to re-establish
+  - snap wait system seed.loaded || true
+
+  # Now install snaps safely through the configured proxy
+  - snap install yq
+  - snap install microceph
+  - microceph cluster bootstrap
+  - microceph disk add loop,1G,3
+  - microceph enable rgw
+  - microceph.radosgw-admin user create --uid test --display-name test --access-key=foo --secret-key=bar
