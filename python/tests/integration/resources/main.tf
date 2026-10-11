@@ -285,7 +285,7 @@ module "spark" {
     grafana_dashboard       = module.cos[0].offers.grafana_dashboards.url
     loki_push_api           = module.cos[0].offers.loki_logging.url
     prometheus_remote_write = module.cos[0].offers.prometheus_receive_remote_write.url
-  } : null
+  } : {}
 }
 
 output "models" {

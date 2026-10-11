@@ -306,13 +306,11 @@ resource "juju_access_secret" "system_users_secret_access" {
 
 module "observability" {
   depends_on = [juju_model.spark, module.spark_core, module.kyuubi]
-  count      = var.cos_offers == null ? 0 : 1
+  count      = length(var.cos_offers) > 0 ? 1 : 0
   source     = "../../components/observability"
   model_uuid = local.model_uuid
 
-  dashboards_offer = var.cos_offers.grafana_dashboard
-  logging_offer    = var.cos_offers.loki_push_api
-  metrics_offer    = var.cos_offers.prometheus_remote_write
+  offers = var.cos_offers
 
   cos_configuration = { revision = var.cos_configuration_revision }
   grafana_agent = {

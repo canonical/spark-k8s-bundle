@@ -69,13 +69,9 @@ variable "cos_configuration_revision" {
 }
 
 variable "cos_offers" {
-  description = "COS integration interface: the offers Spark uses, keyed by the Juju interface each satisfies. Enable any subset; an omitted interface is not integrated. Leave null to disable observability."
-  type = object({
-    grafana_dashboard       = optional(string)
-    loki_push_api           = optional(string)
-    prometheus_remote_write = optional(string)
-  })
-  default = null
+  description = "COS integration interface: the offer URLs Spark uses, keyed by the Juju interface each satisfies (grafana_dashboard, loki_push_api, prometheus_remote_write). Provide any subset; an omitted interface is not integrated."
+  type        = map(string)
+  default     = {}
 }
 
 variable "data_integrator_revision" {

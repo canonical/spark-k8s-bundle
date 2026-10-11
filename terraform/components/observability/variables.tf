@@ -76,22 +76,10 @@ variable "scrape_config" {
   default = {}
 }
 
-variable "dashboards_offer" {
-  description = "URL of the `grafana_dashboard` interface offer. Null disables the dashboard integration."
-  type        = string
-  default     = null
-}
-
-variable "logging_offer" {
-  description = "URL of the `loki_push_api` interface offer. Null disables the logging integration."
-  type        = string
-  default     = null
-}
-
-variable "metrics_offer" {
-  description = "URL of the `prometheus_remote_write` interface offer. Null disables the metrics integration."
-  type        = string
-  default     = null
+variable "offers" {
+  description = "Offer URLs keyed by the Juju interface each satisfies (grafana_dashboard, loki_push_api, prometheus_remote_write). An interface absent from the map is not integrated."
+  type        = map(string)
+  default     = {}
 }
 
 variable "history_server_logging_endpoint" {
