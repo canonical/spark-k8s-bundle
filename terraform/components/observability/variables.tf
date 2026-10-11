@@ -77,22 +77,21 @@ variable "scrape_config" {
 }
 
 variable "dashboards_offer" {
-  description = "URL of the `grafana_dashboard` interface offer."
+  description = "URL of the `grafana_dashboard` interface offer. Null disables the dashboard integration."
   type        = string
-  nullable    = false
+  default     = null
 }
 
-
 variable "logging_offer" {
-  description = "URL of the `loki_push_api` interface offer."
+  description = "URL of the `loki_push_api` interface offer. Null disables the logging integration."
   type        = string
-  nullable    = false
+  default     = null
 }
 
 variable "metrics_offer" {
-  description = "URL of the `prometheus_remote_write` interface offer."
+  description = "URL of the `prometheus_remote_write` interface offer. Null disables the metrics integration."
   type        = string
-  nullable    = false
+  default     = null
 }
 
 variable "history_server_logging_endpoint" {

@@ -2,15 +2,18 @@
 # See LICENSE file for licensing details.
 
 data "juju_offer" "grafana_dashboards" {
-  url = var.dashboards_offer
+  count = var.dashboards_offer != null ? 1 : 0
+  url   = var.dashboards_offer
 }
 
 data "juju_offer" "prometheus_receive_remote_write" {
-  url = var.metrics_offer
+  count = var.metrics_offer != null ? 1 : 0
+  url   = var.metrics_offer
 }
 
 data "juju_offer" "loki_logging" {
-  url = var.logging_offer
+  count = var.logging_offer != null ? 1 : 0
+  url   = var.logging_offer
 }
 
 ## Component internal integrations
@@ -60,6 +63,7 @@ resource "juju_integration" "scrape_config_grafana_agent" {
 ## Cross-model COS integrations
 
 resource "juju_integration" "grafana_agent_grafana_dashboards" {
+  count      = var.dashboards_offer != null ? 1 : 0
   model_uuid = var.model_uuid
 
   application {
@@ -68,7 +72,7 @@ resource "juju_integration" "grafana_agent_grafana_dashboards" {
   }
 
   application {
-    offer_url = data.juju_offer.grafana_dashboards.url
+    offer_url = data.juju_offer.grafana_dashboards[0].url
   }
 
   lifecycle {
@@ -83,6 +87,7 @@ resource "juju_integration" "grafana_agent_grafana_dashboards" {
 }
 
 resource "juju_integration" "grafana_agent_prometheus" {
+  count      = var.metrics_offer != null ? 1 : 0
   model_uuid = var.model_uuid
 
   application {
@@ -91,7 +96,7 @@ resource "juju_integration" "grafana_agent_prometheus" {
   }
 
   application {
-    offer_url = data.juju_offer.prometheus_receive_remote_write.url
+    offer_url = data.juju_offer.prometheus_receive_remote_write[0].url
   }
 
   lifecycle {
@@ -106,6 +111,7 @@ resource "juju_integration" "grafana_agent_prometheus" {
 }
 
 resource "juju_integration" "grafana_agent_loki" {
+  count      = var.logging_offer != null ? 1 : 0
   model_uuid = var.model_uuid
 
   application {
@@ -114,7 +120,7 @@ resource "juju_integration" "grafana_agent_loki" {
   }
 
   application {
-    offer_url = data.juju_offer.loki_logging.url
+    offer_url = data.juju_offer.loki_logging[0].url
   }
 
   lifecycle {
