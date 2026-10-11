@@ -267,7 +267,7 @@ module "spark" {
   source     = "./products/charmed-spark"
 
   model_uuid   = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
-  create_model = false
+  create_model = var.create_model
 
   admin_password             = var.admin_password
   azure_storage_config       = var.azure_storage_config
