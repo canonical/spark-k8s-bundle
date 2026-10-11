@@ -68,6 +68,20 @@ jobs:
             k8s-version: "1.32"
             unpinned: "--unpinned-revisions"
 
+          # Test Spark Job once with service mesh
+          - tox-env: integration-sparkjob
+            storage-backend: s3
+            juju-snap-channel: "3.6/stable"
+            cos-model: cos
+            meshed: "--service-mesh-enabled"
+
+          # Test Kyuubi once with service mesh
+          - tox-env: integration-kyuubi
+            storage-backend: s3
+            juju-snap-channel: "3.6/stable"
+            cos-model: cos
+            meshed: "--service-mesh-enabled"
+
     needs:
       - checks
 
@@ -87,6 +101,7 @@ jobs:
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
           pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || ''}}
           unpinned: ${{ matrix.unpinned }}
+          meshed: ${{ matrix.meshed }}
           tfvars-file: ${{ inputs.tfvars-file }}
 
   aggregate-results:

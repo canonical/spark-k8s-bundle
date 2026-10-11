@@ -208,12 +208,6 @@ variable "scrape_config_revision" {
   description = "Revision for the scrape configuration"
 }
 
-variable "istio_k8s_revision" {
-  type        = string
-  default     = null
-  description = "Revision for the Istio k8s application"
-}
-
 variable "pushgateway_image" {
   type        = string
   default     = null
@@ -246,6 +240,12 @@ variable "enable_service_mesh" {
   description = "Enable or disable the Istio Ambient service mesh"
   type        = bool
   default     = false
+}
+
+variable "istio_system_model_uuid" {
+  description = "UUID of the existing Juju model for the Istio control plane."
+  type        = string
+  default     = null
 }
 
 module "cos" {
@@ -304,9 +304,10 @@ module "spark" {
   zookeeper_units            = 1
   spark_risk                 = var.spark_risk
 
-  enable_service_mesh = var.enable_service_mesh
-  istio_k8s_platform  = var.istio_k8s_platform
-  istio_k8s_revision  = var.istio_k8s_revision
+  enable_service_mesh     = var.enable_service_mesh
+  istio_k8s_platform      = var.istio_k8s_platform
+  istio_k8s_revision      = var.istio_k8s_revision
+  istio_system_model_uuid = var.istio_system_model_uuid
 
   cos_offers = module.cos != [] ? {
     dashboard = module.cos[0].offers.grafana_dashboards.url
