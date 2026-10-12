@@ -15,7 +15,7 @@ terraform {
 variable "create_model" {
   description = "Should terraform create the Juju models? If set to false, assume the models are created by a different mechanism."
   type        = bool
-  default     = true
+  default     = false
   nullable    = false
 }
 

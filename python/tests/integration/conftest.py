@@ -137,6 +137,17 @@ def pytest_addoption(parser):
         action="store_true",
         help="Enable service mesh on supported charms and Spark workloads.",
     )
+    parser.addoption(
+        "--istio-system-model",
+        required=False,
+        type=str,
+        nargs="?",
+        const="",
+        default="",
+        help="When provided, it deploys the Istio system model as well. "
+        "If the model already exists, we assume the Istio system model had already been "
+        "deployed.",
+    )
 
 
 def determine_scope(fixture_name, config):
@@ -192,6 +203,12 @@ def juju(request: pytest.FixtureRequest):
 def cos_model(request) -> None | str:
     """The name of the model in which COS is either already deployed or is to be deployed."""
     return request.config.getoption("--cos-model")
+
+
+@pytest.fixture(scope="module")
+def istio_system_model(request) -> None | str:
+    """The name of the model in which COS is either already deployed or is to be deployed."""
+    return request.config.getoption("--istio-system-model")
 
 
 @pytest.fixture(scope="module")
@@ -478,6 +495,7 @@ def spark_bundle(
     private_key,
     tfvars,
     service_mesh_enabled,
+    istio_system_model,
 ):
     """Deploy the Spark K8s bundle using Terraform."""
     unpinned_revisions = bool(request.config.getoption("--unpinned-revisions"))
@@ -528,6 +546,10 @@ def spark_bundle(
         with (TFVARS_DIR / "obs_amd64.tfvars").open("r", encoding="utf-8") as f:
             cos_vars = {"cos_model_uuid": cos, **hcl2.load(f)}
 
+    istio_vars = {}
+    if istio_system_model:
+        istio_vars = {"istio_system_model_uuid": istio_system_model}
+
     if storage_backend == "azure_storage":
         storage_unit = cast(Container, object_storage)
         storage_vars = {
@@ -555,7 +577,7 @@ def spark_bundle(
     if service_mesh_enabled:
         service_mesh_vars = {"enable_service_mesh": "true"}
 
-    vars = base_vars | cos_vars | storage_vars | service_mesh_vars
+    vars = base_vars | cos_vars | storage_vars | service_mesh_vars | istio_vars
     logger.info(f"Applying vars: {vars.keys()}")
 
     deployed_applications = bundle.apply(vars=vars)
