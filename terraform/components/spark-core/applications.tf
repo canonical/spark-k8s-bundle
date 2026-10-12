@@ -16,6 +16,7 @@ resource "juju_application" "history_server" {
   constraints = local.resolved_applications.history_server.constraints
   resources   = local.resolved_applications.history_server.resources
   units       = var.history_server.units
+  trust       = var.service_mesh != null ? true : false
 }
 
 resource "juju_application" "integration_hub" {

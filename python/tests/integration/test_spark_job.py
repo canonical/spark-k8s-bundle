@@ -234,9 +234,11 @@ def test_job_in_history_server(juju: jubilant.Juju, tmp_folder) -> None:
             assert len(apps) == 1
 
 
-@pytest.mark.skip_if_service_mesh
 def test_job_not_in_prometheus_pushgateway(
-    juju: jubilant.Juju, cos, tmp_folder: Path, port_forward: PortForwarder
+    juju: jubilant.Juju,
+    cos,
+    tmp_folder: Path,
+    port_forward: PortForwarder,
 ) -> None:
     """Once the job is completed, we don't expect the prometheus pushgateway to hold any data."""
     if not cos:
@@ -327,23 +329,28 @@ def test_spark_logforwaring_to_loki(
         assert_logs("127.0.0.1")
 
 
-@pytest.mark.skip_if_service_mesh
 def test_history_server_metrics_in_cos(
-    juju: jubilant.Juju, cos, port_forward: PortForwarder
+    juju: jubilant.Juju,
+    cos,
+    port_forward: PortForwarder,
+    service_mesh_enabled: bool,
 ) -> None:
     if not cos:
         pytest.skip("Not possible to test without cos")
 
-    # Prometheus data is being published by the app
-    with port_forward(
-        pod=f"{HISTORY_SERVER}-0",
-        port=JMX_EXPORTER_PORT,
-        namespace=cast(str, juju.model),
-    ):
-        logger.info("Accessing prometheus")
-        result = prometheus_exporter_data(host="127.0.0.1", port=JMX_EXPORTER_PORT)
-        assert result is not None
-        assert "jmx_scrape_duration_seconds" in result
+    if not service_mesh_enabled:
+        # Test that Prometheus data is being published by the app
+        # The JMX exporter port in History server can't be reached directly when
+        # service mesh is enabled.
+        with port_forward(
+            pod=f"{HISTORY_SERVER}-0",
+            port=JMX_EXPORTER_PORT,
+            namespace=cast(str, juju.model),
+        ):
+            logger.info("Accessing prometheus")
+            result = prometheus_exporter_data(host="127.0.0.1", port=JMX_EXPORTER_PORT)
+            assert result is not None
+            assert "jmx_scrape_duration_seconds" in result
 
     # We should leave time for Prometheus data to be published
     for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
