@@ -22,6 +22,7 @@ Our [contact information](reference-contacts) for any questions and feedback.
 :hidden:
 
 releases/index
+clouds/index
 Requirements<requirements.md>
 contacts
 ```
