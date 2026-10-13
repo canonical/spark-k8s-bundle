@@ -227,7 +227,7 @@ def test_job_in_history_server(juju: jubilant.Juju, tmp_folder) -> None:
     for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
         with attempt:
             raw_apps = httpx.get(
-                f"{ingress_url.rstrip('/')}/api/v1/applications"
+                f"{ingress_url.rstrip('/')}/api/v1/applications", verify=False
             ).json()
             logger.info(f"apps: {raw_apps}")
             apps = [app for app in raw_apps if app["id"] == spark_id]

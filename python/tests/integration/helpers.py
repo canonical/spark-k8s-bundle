@@ -15,6 +15,7 @@ from typing import cast
 
 import httpx
 import jubilant
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 from tests.integration.types import KyuubiCredentials
 
@@ -321,9 +322,10 @@ def published_loki_logs(
     return logs
 
 
+@retry(stop=stop_after_attempt(6), wait=wait_fixed(5), reraise=True)
 def assert_logs(loki_address: str) -> None:
     """Check the existence of the logs."""
-    log_gl = urllib.parse.quote('{app="spark", pebble_service="sparkd"}')
+    log_gl = urllib.parse.quote('{pebble_service="sparkd"}')
     query = httpx.get(
         f"http://{loki_address}:3100/loki/api/v1/query_range?query={log_gl}"
     ).json()
