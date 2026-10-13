@@ -306,7 +306,7 @@ resource "juju_access_secret" "system_users_secret_access" {
 
 module "observability" {
   depends_on = [juju_model.spark, module.spark_core, module.kyuubi]
-  count      = length(var.cos_offers) > 0 ? 1 : 0
+  count      = var.cos_offers == null ? 0 : 1
   source     = "../../components/observability"
   model_uuid = local.model_uuid
 

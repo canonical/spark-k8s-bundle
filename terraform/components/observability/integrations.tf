@@ -2,18 +2,15 @@
 # See LICENSE file for licensing details.
 
 data "juju_offer" "grafana_dashboards" {
-  count = contains(keys(var.offers), "grafana_dashboard") ? 1 : 0
-  url   = lookup(var.offers, "grafana_dashboard", null)
+  url = var.offers.grafana_dashboard
 }
 
 data "juju_offer" "prometheus_receive_remote_write" {
-  count = contains(keys(var.offers), "prometheus_remote_write") ? 1 : 0
-  url   = lookup(var.offers, "prometheus_remote_write", null)
+  url = var.offers.prometheus_remote_write
 }
 
 data "juju_offer" "loki_logging" {
-  count = contains(keys(var.offers), "loki_push_api") ? 1 : 0
-  url   = lookup(var.offers, "loki_push_api", null)
+  url = var.offers.loki_push_api
 }
 
 ## Component internal integrations
@@ -63,7 +60,6 @@ resource "juju_integration" "scrape_config_grafana_agent" {
 ## Cross-model COS integrations
 
 resource "juju_integration" "grafana_agent_grafana_dashboards" {
-  count      = contains(keys(var.offers), "grafana_dashboard") ? 1 : 0
   model_uuid = var.model_uuid
 
   application {
@@ -72,7 +68,7 @@ resource "juju_integration" "grafana_agent_grafana_dashboards" {
   }
 
   application {
-    offer_url = data.juju_offer.grafana_dashboards[0].url
+    offer_url = data.juju_offer.grafana_dashboards.url
   }
 
   lifecycle {
@@ -87,7 +83,6 @@ resource "juju_integration" "grafana_agent_grafana_dashboards" {
 }
 
 resource "juju_integration" "grafana_agent_prometheus" {
-  count      = contains(keys(var.offers), "prometheus_remote_write") ? 1 : 0
   model_uuid = var.model_uuid
 
   application {
@@ -96,7 +91,7 @@ resource "juju_integration" "grafana_agent_prometheus" {
   }
 
   application {
-    offer_url = data.juju_offer.prometheus_receive_remote_write[0].url
+    offer_url = data.juju_offer.prometheus_receive_remote_write.url
   }
 
   lifecycle {
@@ -111,7 +106,6 @@ resource "juju_integration" "grafana_agent_prometheus" {
 }
 
 resource "juju_integration" "grafana_agent_loki" {
-  count      = contains(keys(var.offers), "loki_push_api") ? 1 : 0
   model_uuid = var.model_uuid
 
   application {
@@ -120,7 +114,7 @@ resource "juju_integration" "grafana_agent_loki" {
   }
 
   application {
-    offer_url = data.juju_offer.loki_logging[0].url
+    offer_url = data.juju_offer.loki_logging.url
   }
 
   lifecycle {
