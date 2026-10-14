@@ -104,7 +104,7 @@ Once the command has finished, test that all the services are up and running:
 kubectl get pod -A
 ```
 
-# Juju
+* Juju
 ```bash
 juju model-config
 ```
