@@ -45,7 +45,6 @@ METASTORE_BACKUP_BUCKET = "metastore-backup"
 TEST_DB_NAME = "sparkdb"
 TEST_TABLE_NAME = "sparktable"
 METASTORE_DATABASE_NAME = "hivemetastore"
-METASTORE_APP_NAME = POSTGRESQL_APP_NAME
 KYUUBI_APP_NAME = "kyuubi"
 BACKUP_S3_INTEGRATOR_APP_NAME = "metastore-backup"
 MICROCEPH_REVISION = 1169
@@ -302,10 +301,10 @@ class TestFirstDeployment:
         self, juju: jubilant.Juju, port_forward: PortForwarder
     ) -> None:
         "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
-        metastore_credentials = get_postgresql_credentials(juju, METASTORE_APP_NAME)
+        metastore_credentials = get_postgresql_credentials(juju, POSTGRESQL_APP_NAME)
 
         with port_forward(
-            pod=f"{METASTORE_APP_NAME}-0", port=5432, namespace=cast(str, juju.model)
+            pod=f"{POSTGRESQL_APP_NAME}-0", port=5432, namespace=cast(str, juju.model)
         ):
             connection = psycopg2.connect(
                 host="127.0.0.1",
@@ -347,7 +346,7 @@ class TestFirstDeployment:
     def test_deploy_backup_s3_integrator(
         self, juju: jubilant.Juju, microceph_credentials: dict[str, str]
     ) -> None:
-        """Deploy an extra instance of s3-integrator, this time for creating Postgresql (metastore) backup."""
+        """Deploy an extra instance of s3-integrator, this time for creating PostgreSQL backup."""
         juju.deploy("s3-integrator", app=BACKUP_S3_INTEGRATOR_APP_NAME, channel="edge")
         juju.wait(
             lambda status: jubilant.all_blocked(status, BACKUP_S3_INTEGRATOR_APP_NAME)
@@ -376,37 +375,37 @@ class TestFirstDeployment:
 
         juju.wait(
             lambda status: jubilant.all_active(
-                status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
+                status, BACKUP_S3_INTEGRATOR_APP_NAME, POSTGRESQL_APP_NAME
             )
         )
 
     def test_create_metastore_backup(
         self, juju: jubilant.Juju, context: dict[Any, Any]
     ) -> None:
-        """Create Postgres (metastore) backup."""
+        """Create PostgreSQL backup (metastore and Kyuubi users databases)."""
         # Make sure the operator password is the one that will be reused on restore
-        get_postgresql_credentials(juju, METASTORE_APP_NAME)
-        juju.integrate(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
+        get_postgresql_credentials(juju, POSTGRESQL_APP_NAME)
+        juju.integrate(POSTGRESQL_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
         juju.wait(
             lambda status: jubilant.all_active(
-                status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
+                status, BACKUP_S3_INTEGRATOR_APP_NAME, POSTGRESQL_APP_NAME
             ),
             delay=10,
         )
 
         # The `wait` param specified here due to a bug in `jubilant/juju`:
         # https://github.com/canonical/jubilant/issues/159
-        task = juju.run(f"{METASTORE_APP_NAME}/0", "create-backup", wait=5 * 60)
+        task = juju.run(f"{POSTGRESQL_APP_NAME}/0", "create-backup", wait=5 * 60)
         assert task.return_code == 0
         juju.wait(
             lambda status: jubilant.all_active(
-                status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
+                status, BACKUP_S3_INTEGRATOR_APP_NAME, POSTGRESQL_APP_NAME
             ),
         )
 
         # The `wait` param specified here due to a bug in `jubilant/juju`:
         # https://github.com/canonical/jubilant/issues/159
-        task = juju.run(f"{METASTORE_APP_NAME}/0", "list-backups", wait=5 * 60)
+        task = juju.run(f"{POSTGRESQL_APP_NAME}/0", "list-backups", wait=5 * 60)
         assert task.return_code == 0
         results = task.results
         backup_lines = [
@@ -417,7 +416,7 @@ class TestFirstDeployment:
         assert len(backup_lines) == 1
 
         backup_id = backup_lines[0].split(maxsplit=1)[0]
-        logger.info(f"Found metastore DB backup with ID {backup_id}.")
+        logger.info(f"Found PostgreSQL backup with ID {backup_id}.")
 
         context["backup_id"] = backup_id
         context["old_model"] = juju.model
@@ -461,7 +460,7 @@ class TestNewDeployment:
     def test_deploy_backup_s3_integrator(
         self, juju: jubilant.Juju, microceph_credentials: dict[str, str]
     ) -> None:
-        """Deploy an extra instance of s3-integrator, this time for restoring Postgresql (metastore) backup."""
+        """Deploy an extra instance of s3-integrator, this time for restoring PostgreSQL backup."""
         juju.deploy("s3-integrator", app=BACKUP_S3_INTEGRATOR_APP_NAME, channel="edge")
         juju.wait(
             lambda status: jubilant.all_blocked(status, BACKUP_S3_INTEGRATOR_APP_NAME)
@@ -490,7 +489,7 @@ class TestNewDeployment:
 
         juju.wait(
             lambda status: jubilant.all_active(
-                status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
+                status, BACKUP_S3_INTEGRATOR_APP_NAME, POSTGRESQL_APP_NAME
             )
         )
 
@@ -498,13 +497,13 @@ class TestNewDeployment:
         """Remove kyuubi <> postgresql relations to prepare postgresql for restoration of backup."""
         # The restore needs the original operator password, and all relations
         # to postgresql broken (they are recreated later)
-        get_postgresql_credentials(juju, METASTORE_APP_NAME)
-        juju.remove_relation(METASTORE_APP_NAME, f"{KYUUBI_APP_NAME}:metastore-db")
-        juju.remove_relation(METASTORE_APP_NAME, f"{KYUUBI_APP_NAME}:auth-db")
+        get_postgresql_credentials(juju, POSTGRESQL_APP_NAME)
+        juju.remove_relation(POSTGRESQL_APP_NAME, f"{KYUUBI_APP_NAME}:metastore-db")
+        juju.remove_relation(POSTGRESQL_APP_NAME, f"{KYUUBI_APP_NAME}:auth-db")
         juju.wait(
             lambda status: (
                 jubilant.all_active(
-                    status, METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME
+                    status, POSTGRESQL_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME
                 )
                 and jubilant.all_blocked(status, KYUUBI_APP_NAME)
             )
@@ -513,8 +512,8 @@ class TestNewDeployment:
     def test_restore_metastore_backup(
         self, juju: jubilant.Juju, context: dict[str, str]
     ) -> None:
-        """Restore the backup from previous deployment on Postgres (metastore)."""
-        juju.integrate(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
+        """Restore the PostgreSQL backup from previous deployment."""
+        juju.integrate(POSTGRESQL_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
         juju.wait(jubilant.all_agents_idle)
         juju.wait(
             lambda status: jubilant.all_active(status, BACKUP_S3_INTEGRATOR_APP_NAME)
@@ -523,12 +522,12 @@ class TestNewDeployment:
         # detected in the S3 is from some other cluster (which in our case, is true).
         juju.wait(
             lambda status: (
-                status.apps[METASTORE_APP_NAME]
-                .units[f"{METASTORE_APP_NAME}/0"]
+                status.apps[POSTGRESQL_APP_NAME]
+                .units[f"{POSTGRESQL_APP_NAME}/0"]
                 .workload_status.current
                 == "blocked"
-                and status.apps[METASTORE_APP_NAME]
-                .units[f"{METASTORE_APP_NAME}/0"]
+                and status.apps[POSTGRESQL_APP_NAME]
+                .units[f"{POSTGRESQL_APP_NAME}/0"]
                 .workload_status.message.strip()
                 == "the S3 repository has backups from another cluster"
             ),
@@ -538,7 +537,7 @@ class TestNewDeployment:
 
         # The `wait` param specified here due to a bug in `jubilant/juju`:
         # https://github.com/canonical/jubilant/issues/159
-        task = juju.run(f"{METASTORE_APP_NAME}/0", "list-backups", wait=5 * 60)
+        task = juju.run(f"{POSTGRESQL_APP_NAME}/0", "list-backups", wait=5 * 60)
         assert task.return_code == 0
         results = task.results
         backup_lines = [
@@ -549,7 +548,7 @@ class TestNewDeployment:
         assert len(backup_lines) == 1
 
         backup_id = backup_lines[0].split(maxsplit=1)[0]
-        logger.info(f"Found metastore DB backup with ID {backup_id}.")
+        logger.info(f"Found PostgreSQL backup with ID {backup_id}.")
 
         expected_backup_id = context["backup_id"]
         assert backup_id == expected_backup_id
@@ -557,7 +556,7 @@ class TestNewDeployment:
         # The `wait` param specified here due to a bug in `jubilant/juju`:
         # https://github.com/canonical/jubilant/issues/159
         task = juju.run(
-            f"{METASTORE_APP_NAME}/0", "restore", {"backup-id": backup_id}, wait=5 * 60
+            f"{POSTGRESQL_APP_NAME}/0", "restore", {"backup-id": backup_id}, wait=5 * 60
         )
         assert task.return_code == 0
 
@@ -565,12 +564,12 @@ class TestNewDeployment:
         # detected in the S3 is from some other cluster (which in our case, is true).
         juju.wait(
             lambda status: (
-                status.apps[METASTORE_APP_NAME]
-                .units[f"{METASTORE_APP_NAME}/0"]
+                status.apps[POSTGRESQL_APP_NAME]
+                .units[f"{POSTGRESQL_APP_NAME}/0"]
                 .workload_status.current
                 == "blocked"
-                and status.apps[METASTORE_APP_NAME]
-                .units[f"{METASTORE_APP_NAME}/0"]
+                and status.apps[POSTGRESQL_APP_NAME]
+                .units[f"{POSTGRESQL_APP_NAME}/0"]
                 .workload_status.message.strip()
                 == "the S3 repository has backups from another cluster"
             ),
@@ -579,24 +578,23 @@ class TestNewDeployment:
         )
 
     def test_remove_backup_s3_integrator(self, juju: jubilant.Juju) -> None:
-        """Remove the extra instance of S3 integrator after the metastore restoration is complete."""
-        juju.remove_relation(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
+        """Remove the extra instance of S3 integrator after the PostgreSQL restoration is complete."""
+        juju.remove_relation(POSTGRESQL_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
         juju.wait(
             lambda status: jubilant.all_active(
-                status, BACKUP_S3_INTEGRATOR_APP_NAME, METASTORE_APP_NAME
+                status, BACKUP_S3_INTEGRATOR_APP_NAME, POSTGRESQL_APP_NAME
             ),
         )
 
         juju.remove_application(
             BACKUP_S3_INTEGRATOR_APP_NAME, destroy_storage=True, force=True
         )
-        juju.wait(lambda status: jubilant.all_active(status, METASTORE_APP_NAME))
+        juju.wait(lambda status: jubilant.all_active(status, POSTGRESQL_APP_NAME))
 
     def test_reintegrate_kyuubi_with_metastore(self, juju: jubilant.Juju) -> None:
-        """Add backup kyuubi <> metastore relation after the metastore restoration is complete."""
-        # Now re-integrate the metastore back to kyuubi
-        juju.integrate(METASTORE_APP_NAME, f"{KYUUBI_APP_NAME}:metastore-db")
-        juju.integrate(METASTORE_APP_NAME, f"{KYUUBI_APP_NAME}:auth-db")
+        """Re-add kyuubi <> postgresql relations after the PostgreSQL restoration is complete."""
+        juju.integrate(POSTGRESQL_APP_NAME, f"{KYUUBI_APP_NAME}:metastore-db")
+        juju.integrate(POSTGRESQL_APP_NAME, f"{KYUUBI_APP_NAME}:auth-db")
         juju.wait(
             lambda status: (
                 jubilant.all_active(status) and jubilant.all_agents_idle(status)
@@ -629,10 +627,10 @@ class TestNewDeployment:
     ) -> None:
         "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
         juju.wait(jubilant.all_active, delay=3)
-        metastore_credentials = get_postgresql_credentials(juju, METASTORE_APP_NAME)
+        metastore_credentials = get_postgresql_credentials(juju, POSTGRESQL_APP_NAME)
 
         with port_forward(
-            pod=f"{METASTORE_APP_NAME}-0", port=5432, namespace=cast(str, juju.model)
+            pod=f"{POSTGRESQL_APP_NAME}-0", port=5432, namespace=cast(str, juju.model)
         ):
             connection = psycopg2.connect(
                 host="127.0.0.1",
