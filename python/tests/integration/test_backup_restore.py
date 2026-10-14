@@ -24,6 +24,7 @@ from spark_test.core.kyuubi import KyuubiClient
 
 from .helpers import (
     COS,
+    POSTGRESQL_APP_NAME,
     get_active_kyuubi_servers_list,
     get_cos_address,
     get_kyuubi_ca_cert,
@@ -44,7 +45,7 @@ METASTORE_BACKUP_BUCKET = "metastore-backup"
 TEST_DB_NAME = "sparkdb"
 TEST_TABLE_NAME = "sparktable"
 METASTORE_DATABASE_NAME = "hivemetastore"
-METASTORE_APP_NAME = "metastore"
+METASTORE_APP_NAME = POSTGRESQL_APP_NAME
 KYUUBI_APP_NAME = "kyuubi"
 BACKUP_S3_INTEGRATOR_APP_NAME = "metastore-backup"
 MICROCEPH_REVISION = 1169
@@ -383,6 +384,8 @@ class TestFirstDeployment:
         self, juju: jubilant.Juju, context: dict[Any, Any]
     ) -> None:
         """Create Postgres (metastore) backup."""
+        # Make sure the operator password is the one that will be reused on restore
+        get_postgresql_credentials(juju, METASTORE_APP_NAME)
         juju.integrate(METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME)
         juju.wait(
             lambda status: jubilant.all_active(
@@ -492,16 +495,18 @@ class TestNewDeployment:
         )
 
     def test_remove_kyuubi_and_metastore_relation(self, juju: jubilant.Juju) -> None:
-        """Remove kyuubi <> metastore relation to prepare metastore for restoration of backup."""
-        # It is necessary to break kyuubi <> metastore relation
-        # and recreate it later for metastore restore to work
+        """Remove kyuubi <> postgresql relations to prepare postgresql for restoration of backup."""
+        # The restore needs the original operator password, and all relations
+        # to postgresql broken (they are recreated later)
+        get_postgresql_credentials(juju, METASTORE_APP_NAME)
         juju.remove_relation(METASTORE_APP_NAME, f"{KYUUBI_APP_NAME}:metastore-db")
+        juju.remove_relation(METASTORE_APP_NAME, f"{KYUUBI_APP_NAME}:auth-db")
         juju.wait(
-            lambda status: jubilant.all_active(
-                status,
-                METASTORE_APP_NAME,
-                KYUUBI_APP_NAME,
-                BACKUP_S3_INTEGRATOR_APP_NAME,
+            lambda status: (
+                jubilant.all_active(
+                    status, METASTORE_APP_NAME, BACKUP_S3_INTEGRATOR_APP_NAME
+                )
+                and jubilant.all_blocked(status, KYUUBI_APP_NAME)
             )
         )
 
@@ -585,16 +590,13 @@ class TestNewDeployment:
         juju.remove_application(
             BACKUP_S3_INTEGRATOR_APP_NAME, destroy_storage=True, force=True
         )
-        juju.wait(
-            lambda status: jubilant.all_active(
-                status, METASTORE_APP_NAME, KYUUBI_APP_NAME
-            ),
-        )
+        juju.wait(lambda status: jubilant.all_active(status, METASTORE_APP_NAME))
 
     def test_reintegrate_kyuubi_with_metastore(self, juju: jubilant.Juju) -> None:
         """Add backup kyuubi <> metastore relation after the metastore restoration is complete."""
         # Now re-integrate the metastore back to kyuubi
         juju.integrate(METASTORE_APP_NAME, f"{KYUUBI_APP_NAME}:metastore-db")
+        juju.integrate(METASTORE_APP_NAME, f"{KYUUBI_APP_NAME}:auth-db")
         juju.wait(
             lambda status: (
                 jubilant.all_active(status) and jubilant.all_agents_idle(status)

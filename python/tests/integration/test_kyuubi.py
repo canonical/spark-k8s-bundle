@@ -18,6 +18,7 @@ from tests.integration.types import PortForwarder
 
 from .helpers import (
     COS,
+    POSTGRESQL_APP_NAME,
     get_active_kyuubi_servers_list,
     get_cos_address,
     get_kyuubi_credentials,
@@ -30,7 +31,7 @@ from .helpers import (
 
 logger = logging.getLogger(__name__)
 
-METASTORE = "metastore"
+METASTORE = POSTGRESQL_APP_NAME
 METASTORE_DATABASE_NAME = "hivemetastore"
 KYUUBI_APP_NAME = "kyuubi"
 
