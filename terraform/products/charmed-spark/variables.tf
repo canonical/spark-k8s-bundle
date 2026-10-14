@@ -162,33 +162,53 @@ variable "logging_config" {
   default     = "<root>=INFO"
 }
 
-variable "postgresql" {
-  description = "PostgreSQL (16/stable) backing Kyuubi's auth database and the Hive metastore. `kind`: \"app\" (default, deploys one app for both), \"endpoint\" (existing in-model app, set `name`), or \"offer\" (cross-model offer, set `url`). `config` keys use 16/stable's hyphenated naming."
-  type = object({
-    kind     = optional(string, "app")
-    name     = optional(string)
-    url      = optional(string)
-    config   = optional(map(any), {})
-    revision = optional(number)
-    image    = optional(any)
-    size     = optional(string, "10G")
-  })
-  default = {}
+variable "postgresql_kind" {
+  description = "How PostgreSQL (backing Kyuubi's auth database and the Hive metastore) is provided: \"app\" (deploy one app in the model), \"endpoint\" (existing in-model app, set postgresql_name) or \"offer\" (cross-model offer, set postgresql_url)."
+  type        = string
+  default     = "app"
+  nullable    = false
 
   validation {
-    condition     = contains(["app", "endpoint", "offer"], var.postgresql.kind)
-    error_message = "'postgresql.kind' must be one of: 'app', 'endpoint', 'offer'."
+    condition     = contains(["app", "endpoint", "offer"], var.postgresql_kind)
+    error_message = "'postgresql_kind' must be one of: 'app', 'endpoint', 'offer'."
   }
+}
 
-  validation {
-    condition     = var.postgresql.kind != "endpoint" || (var.postgresql.name != null && var.postgresql.name != "")
-    error_message = "'postgresql.name' must be set when 'postgresql.kind' is 'endpoint'."
-  }
+variable "postgresql_name" {
+  description = "Name of the existing in-model PostgreSQL application. Required when postgresql_kind is \"endpoint\"."
+  type        = string
+  default     = null
+}
 
-  validation {
-    condition     = var.postgresql.kind != "offer" || (var.postgresql.url != null && var.postgresql.url != "")
-    error_message = "'postgresql.url' must be set when 'postgresql.kind' is 'offer'."
-  }
+variable "postgresql_url" {
+  description = "URL of the PostgreSQL offer. Required when postgresql_kind is \"offer\"."
+  type        = string
+  default     = null
+}
+
+variable "postgresql_config" {
+  description = "Configuration options for postgresql-k8s (16/stable naming). Only used when postgresql_kind is \"app\"."
+  type        = map(any)
+  default     = {}
+}
+
+variable "postgresql_image" {
+  description = "Image for postgresql-k8s"
+  type        = any
+  default     = null
+}
+
+variable "postgresql_revision" {
+  description = "Charm revision for postgresql-k8s"
+  type        = number
+  default     = null
+  nullable    = true
+}
+
+variable "postgresql_size" {
+  description = "Storage size for the PostgreSQL database"
+  type        = string
+  default     = "10G"
 }
 
 variable "pushgateway_image" {
