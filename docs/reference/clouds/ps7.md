@@ -9,7 +9,7 @@ myst:
 
 The repository contains the instructions and the artifact to validate the Charmed Spark solution on ProdStack (PS7).
 
-You can find the resources used in the guide in the `spark-k8s-bundle` repo at [`./resources/ps7`](https://github.com/canonical/spark-k8s-bundle/tree/track/3.5/resources/ps7).
+You can find the resources used in the guide in the `spark-k8s-bundle` repository at [`./resources/ps7`](https://github.com/canonical/spark-k8s-bundle/tree/track/3.5/resources/ps7).
 
 ## Object storage setup
 
@@ -63,7 +63,7 @@ aws configure set aws_secret_access_key $S3_SECRET_KEY
 aws configure set endpoint_url $ENDPOINT_URL
 ```
 
-Make sure that the Ceph IP is added to the NO_PROXY env variable
+Make sure that the Ceph IP is added to the NO_PROXY environment variable
 
 ```bash
 export NO_PROXY=$NO_PROXY,$CEPH_IP
