@@ -25,7 +25,7 @@
 | <a name="module_data_integrator"></a> [data\_integrator](#module\_data\_integrator) | ../../charms/data-integrator | n/a |
 | <a name="module_kyuubi"></a> [kyuubi](#module\_kyuubi) | ../../components/kyuubi | n/a |
 | <a name="module_observability"></a> [observability](#module\_observability) | ../../components/observability | n/a |
-| <a name="module_postgresql"></a> [postgresql](#module\_postgresql) | git::https://github.com/canonical/postgresql-k8s-operator//terraform | rev925 |
+| <a name="module_postgresql"></a> [postgresql](#module\_postgresql) | git::https://github.com/canonical/postgresql-k8s-operator//terraform | rev957 |
 | <a name="module_s3"></a> [s3](#module\_s3) | ../../charms/s3-integrator | n/a |
 | <a name="module_spark_core"></a> [spark\_core](#module\_spark\_core) | ../../components/spark-core | n/a |
 | <a name="module_ssc"></a> [ssc](#module\_ssc) | git::https://github.com/canonical/self-signed-certificates-operator//terraform | rev586 |
@@ -73,7 +73,13 @@
 | <a name="input_kyuubi_units"></a> [kyuubi\_units](#input\_kyuubi\_units) | Number of Kyuubi units. 3 units are recommended for high availability. | `number` | `3` | no |
 | <a name="input_logging_config"></a> [logging\_config](#input\_logging\_config) | Logging configuration to be used | `string` | `"<root>=INFO"` | no |
 | <a name="input_model_uuid"></a> [model\_uuid](#input\_model\_uuid) | Optional existing Juju model UUID to deploy Spark to. If provided, model creation is skipped in higher-level modules. | `string` | `null` | no |
-| <a name="input_postgresql"></a> [postgresql](#input\_postgresql) | PostgreSQL (16/stable) backing Kyuubi's auth database and the Hive metastore. `kind`: "app" (default, deploys one app for both), "endpoint" (existing in-model app, set `name`), or "offer" (cross-model offer, set `url`). `config` keys use 16/stable's hyphenated naming. | <pre>object({<br/>    kind     = optional(string, "app")<br/>    name     = optional(string)<br/>    url      = optional(string)<br/>    config   = optional(map(any), {})<br/>    revision = optional(number)<br/>    image    = optional(any)<br/>    size     = optional(string, "10G")<br/>  })</pre> | `{}` | no |
+| <a name="input_postgresql_config"></a> [postgresql\_config](#input\_postgresql\_config) | Configuration options for postgresql-k8s (16/stable naming). Only used when postgresql\_kind is "app". | `map(any)` | `{}` | no |
+| <a name="input_postgresql_image"></a> [postgresql\_image](#input\_postgresql\_image) | Image for postgresql-k8s | `any` | `null` | no |
+| <a name="input_postgresql_kind"></a> [postgresql\_kind](#input\_postgresql\_kind) | How PostgreSQL (backing Kyuubi's auth database and the Hive metastore) is provided: "app" (deploy one app in the model), "endpoint" (existing in-model app, set postgresql\_name) or "offer" (cross-model offer, set postgresql\_url). | `string` | `"app"` | no |
+| <a name="input_postgresql_name"></a> [postgresql\_name](#input\_postgresql\_name) | Name of the existing in-model PostgreSQL application. Required when postgresql\_kind is "endpoint". | `string` | `null` | no |
+| <a name="input_postgresql_revision"></a> [postgresql\_revision](#input\_postgresql\_revision) | Charm revision for postgresql-k8s | `number` | `null` | no |
+| <a name="input_postgresql_size"></a> [postgresql\_size](#input\_postgresql\_size) | Storage size for the PostgreSQL database | `string` | `"10G"` | no |
+| <a name="input_postgresql_url"></a> [postgresql\_url](#input\_postgresql\_url) | URL of the PostgreSQL offer. Required when postgresql\_kind is "offer". | `string` | `null` | no |
 | <a name="input_proxy"></a> [proxy](#input\_proxy) | Proxy information for the deployment. | <pre>object({<br/>    http     = optional(string, "")<br/>    https    = optional(string, "")<br/>    no-proxy = optional(string, "")<br/>  })</pre> | `{}` | no |
 | <a name="input_pushgateway_image"></a> [pushgateway\_image](#input\_pushgateway\_image) | Image for pushgateway | `any` | `null` | no |
 | <a name="input_pushgateway_revision"></a> [pushgateway\_revision](#input\_pushgateway\_revision) | Charm revision for pushgateway | `number` | `null` | no |

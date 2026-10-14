@@ -30,7 +30,7 @@ module "ssc" {
 }
 
 module "postgresql" {
-  count      = var.postgresql.kind == "app" ? 1 : 0
+  count      = var.postgresql_kind == "app" ? 1 : 0
   depends_on = [juju_model.spark]
   source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev957&depth=1"
   juju_model = local.model_uuid
@@ -38,11 +38,11 @@ module "postgresql" {
   app_name           = "postgresql"
   base               = "ubuntu@24.04"
   channel            = "16/stable"
-  config             = var.postgresql.config
+  config             = var.postgresql_config
   constraints        = "arch=amd64"
-  revision           = var.postgresql.revision
-  resources          = var.postgresql.image != null ? { postgresql-image = var.postgresql.image } : null
-  storage_directives = { data = var.postgresql.size }
+  revision           = var.postgresql_revision
+  resources          = var.postgresql_image != null ? { postgresql-image = var.postgresql_image } : null
+  storage_directives = { data = var.postgresql_size }
   units              = 1
 }
 
