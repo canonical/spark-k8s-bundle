@@ -36,13 +36,8 @@ output "models" {
         {
           self_signed_certificates = module.ssc.app_name # TODO: expose application
         },
-        # metastore and kyuubi_users are aliases for the same app/offer when
-        # var.postgresql.kind == "app" (a single postgresql-k8s backs both).
-        {
-          metastore = var.postgresql.kind == "app" ? module.postgresql[0].application_name : var.postgresql.name
-        },
-        {
-          kyuubi_users = var.postgresql.kind == "app" ? module.postgresql[0].application_name : var.postgresql.name
+        length(module.postgresql) == 0 ? {} : {
+          postgresql = module.postgresql[0].application_name
         },
         length(module.azure_storage) == 0 ? {} : {
           azure_storage = module.azure_storage[0].application
