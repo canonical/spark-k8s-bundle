@@ -74,8 +74,7 @@ juju deploy oauth2-proxy-k8s --channel latest/stable --trust
 juju integrate oauth2-proxy-k8s spark-history-server-k8s:oauth2-proxy
 ```
 
-Now, consume the `oauth-offer` offered from the `iam` model, 
-and integrate OAuth2 Proxy with it:
+Now, consume the `oauth-offer` offered from the `iam` model, and integrate OAuth2 Proxy with it:
 
 ```bash
 juju consume iam.oauth-offer
@@ -148,6 +147,10 @@ The URL endpoint for the Spark History Server is the one ending with `spark-hist
 
 #### Istio Ingress (Istio service mesh setup)
 
+```{note}
+Supported only for charm revisions greater than `143` (arm64) and `144` (amd64) on track `3/`.
+```
+
 If the Spark History Server is running behind Istio service mesh, Traefik is not supported as Ingress and therefore,
 Istio ingress should be used. Istio ingress requires the Istio control plane to be installed in the cluster.
 
@@ -159,7 +162,7 @@ juju deploy istio-ingress-k8s --channel 2/stable --trust
 
 ```{note}
 The `istio-ingress-k8s` requires `istio-k8s` properly deployed in order to work. It is assumed that if you have a Istio 
-service mesh setup, you already have a working `istio-k8s` deployment. If not, follow [this guide](how-to-spark-history-server-enable-service-mesh) 
+service mesh setup, you already have a working `istio-k8s` deployment. If not, follow [this guide](how-to-enable-service-mesh) 
 to deploy `istio-k8s` and enable service mesh for Spark History Server.
 ```
 

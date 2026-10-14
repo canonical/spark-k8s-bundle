@@ -39,7 +39,6 @@ We have a series of guides for using Charmed Apache Kyuubi with Charmed Apache S
 * [Integrate with apps](how-to-apache-kyuubi-integrate-with-applications)
 * [Backups](how-to-apache-kyuubi-back-up-and-restore)
 * [Upgrades](how-to-apache-kyuubi-upgrade)
-* [Enable istio service mesh](how-to-apache-kyuubi-enable-service-mesh)
 
 ## Monitoring
 
@@ -53,7 +52,6 @@ We have guides for using Spark History Server with Charmed Apache Spark:
 
 * [Authentication and authorization](how-to-spark-history-server-auth)
 * [Expose web GUI](how-to-spark-history-server-expose-web-gui)
-* [Enable istio service mesh](how-to-spark-history-server-enable-service-mesh)
 
 ## Security
 
@@ -69,7 +67,7 @@ Advanced features of Charmed Apache Spark include:
 * [Streaming jobs](how-to-streaming-jobs)
 * [Use GPU](how-to-use-gpu)
 * [Advanced Scheduling](how-to-advanced-scheduling)
-* [Meshed workloads](how-to-enable-service-mesh)
+* [Enable istio service mesh](how-to-enable-service-mesh)
 
 ```{toctree}
 :titlesonly:
@@ -85,5 +83,5 @@ Streaming Jobs<streaming-jobs.md>
 Use GPU<use-gpu.md>
 Advanced Scheduling<advanced-scheduling.md>
 Self-signed certificates<self-signed-certificates.md>
-Meshed workloads<enable-service-mesh>
+Enable istio service mesh<enable-service-mesh>
 ```

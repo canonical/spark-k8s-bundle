@@ -55,6 +55,10 @@ this is currently only supported on AWS EKS only).
 
 ## With Istio Ingress (meshed setup)
 
-The Spark History Server needs to be accessed using the Istio Ingress if it is running behind Istio service mesh. Follow [this guide](how-to-spark-history-server-enable-service-mesh) for more information on how to access the Spark History Server using Istio Ingress.
+```{note}
+Supported only for charm revisions greater than `143` (arm64) and `144` (amd64) on track `3/`.
+```
+
+The Spark History Server needs to be accessed using the Istio Ingress if it is running behind Istio service mesh. Follow [this guide](how-to-enable-service-mesh) for more information on how to access the Spark History Server using Istio Ingress.
 
 > See also: [Enable authentication and authorization with the Spark History Server](how-to-spark-history-server-auth) guide.

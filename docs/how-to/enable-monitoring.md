@@ -20,7 +20,7 @@ Once COS is correctly deployed, to enable monitoring it is necessary to:
 
 ## Integrating and configuring with COS
 
-The Charmed Apache Spark solution can integrate with the Canonical Observability Stack (COS) natively, providing all the built-in configurations required to monitor your Spark workloads. The solution also includes charms like `grafana-agent-k8s`, `prometheus-pushgateway-k8s`, `prometheus-scrape-config-k8s`, `cos-configuration-k8s` that are necessary to integrate Charmed Spark with COS.
+The Charmed Apache Spark solution can integrate with the Canonical Observability Stack (COS) natively, providing all the built-in configurations required to monitor your Spark workloads. The solution also includes charms like `grafana-agent-k8s`, `opentelemetry-collector-k8s`, `prometheus-pushgateway-k8s`, `prometheus-scrape-config-k8s`, `cos-configuration-k8s` that are necessary to integrate Charmed Spark with COS.
 The actual COS bundle however, is not deployed alongside Charmed Spark, and thus needs to be deployed and integrated separately.
 
 To deploy the Canonical Observability Stack (COS), you must use the [COS Lite Terraform module](https://github.com/canonical/observability-stack/tree/main/terraform/cos-lite) maintained by Canonical's Observability team. This module packages the core monitoring components alongside their required integrations, including charms like `grafana-k8s`, `prometheus-k8s`, `alertmanager-k8s`, `loki-k8s` and many more. For step-by-step instructions on provisioning these resources, please refer to the [how-to deploy](./deploy/spark.md) guide.
@@ -136,22 +136,28 @@ After setting up COS following the previous sections, you should have:
 
 - a Juju model running the COS component
 - Juju cross-model offers to integrate with the COS components
-- the `grafana-agent-k8s` charm running and consuming the offers
+- the `grafana-agent-k8s` (or `opentelemetry-collector-k8s`) charm running and consuming the offers
 
 ### Setup
 
-To benefit from the native COS support, integrate the charms with `grafana-agent`. 
-For Spark History Server:
+To benefit from the native COS support, we need to integrate the charms with a telemetry collector agent.
+
+There are two telemetry collector agents that can be used -- Grafana Agent and the OpenTelemetry Collector agent.
+
+#### Grafana Agent
+
+```{note}
+Grafana Agent is not supported for Spark History Server and Charmed Apache Kyuubi charms behind Istio service mesh.
+For meshed setup, use OpenTelemetry Collector instead.
+```
+
+Integrate the Spark History Server and Charmed Apache Kyuubi charms with `grafana-agent` as follows:
 
 ```shell
 juju integrate grafana-agent-k8s spark-history-server-k8s:grafana-dashboard
 juju integrate grafana-agent-k8s spark-history-server-k8s:logging
 juju integrate grafana-agent-k8s spark-history-server-k8s:metrics-endpoint
-```
 
-For Charmed Apache Kyuubi:
-
-```shell
 juju integrate grafana-agent-k8s kyuubi-k8s:grafana-dashboard
 juju integrate grafana-agent-k8s kyuubi-k8s:logging
 juju integrate grafana-agent-k8s kyuubi-k8s:metrics-endpoint
@@ -159,7 +165,21 @@ juju integrate grafana-agent-k8s kyuubi-k8s:metrics-endpoint
 
 Wait for all components to settle down to the `active/idle` state on both models.
 
-Congratulations, the COS now monitors the two charms.
+#### OpenTelemetry Collector
+
+Integrate the Spark History Server and Charmed Apache Kyuubi charms with `opentelemetry-collector-agent` as follows:
+
+```shell
+juju integrate opentelemetry-collector-k8s spark-history-server-k8s:grafana-dashboard
+juju integrate opentelemetry-collector-k8s spark-history-server-k8s:logging
+juju integrate opentelemetry-collector-k8s spark-history-server-k8s:metrics-endpoint
+
+juju integrate opentelemetry-collector-k8s kyuubi-k8s:grafana-dashboard
+juju integrate opentelemetry-collector-k8s kyuubi-k8s:logging
+juju integrate opentelemetry-collector-k8s kyuubi-k8s:metrics-endpoint
+```
+
+Wait for all components to settle down to the `active/idle` state on both models.
 
 ## Customize dashboards and alert rules
 
