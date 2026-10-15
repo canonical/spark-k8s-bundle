@@ -22,9 +22,9 @@ At this step of the tutorial, you’ll need some environment variables that were
 If you’ve restarted the VM and lost those variables, you can refresh them by running the following commands:
 
 ```shell
-export ACCESS_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d)
-export SECRET_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d)
-export S3_ENDPOINT=$(kubectl get service minio -n minio-operator -o jsonpath='{.spec.clusterIP}')
+export ACCESS_KEY=$(sudo microceph.radosgw-admin user info --uid test | jq -r ".keys[] .access_key")
+export SECRET_KEY=$(sudo microceph.radosgw-admin user info --uid test | jq -r ".keys[] .secret_key")
+export S3_ENDPOINT=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
 ```
 
 ## Initial setup
@@ -160,7 +160,7 @@ The Spark History Server comes with a Web UI for users to view and monitor the S
 
 ### Setup
 
-The web UI can be accessed at port 18080 of the IP address of the `spark-history-server-k8s/0` unit. However, it's good practice to access it via an ingress rather than directly accessing the unit's IP address. Using an ingress will allow us to have a common entrypoint to the applications running in the Juju model. 
+The web UI can be accessed at port 18080 of the IP address of the `spark-history-server-k8s/0` unit. However, it's good practice to access it via an ingress rather than directly accessing the unit's IP address. Using an ingress will allow us to have a common entrypoint to the applications running in the Juju model.
 
 Let's add an ingress by deploying and integrating the [`traefik-k8s`](https://charmhub.io/traefik-k8s) charm with `spark-history-server-k8s`:
 
