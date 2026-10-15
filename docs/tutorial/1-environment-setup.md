@@ -350,8 +350,7 @@ sudo microceph.radosgw-admin user create \
 Let's also export the S3 endpoint and S3 bucket as environment variables in order to use them later.
 
 ```shell
-IP=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
-export S3_ENDPOINT=http://$IP
+S3_ENDPOINT=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
 export S3_BUCKET="spark-tutorial"
 ```
 
