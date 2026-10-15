@@ -30,6 +30,6 @@ s3_config = {
   "path" : "spark-events",
   "bucket" : "test-bucket"
 }
-s3_access_key       = "foo"
-s3_secret_key       = "bar"
-enable_service_mesh = true
+s3_access_key     = "foo"
+s3_secret_key     = "bar"
+service_mesh_mode = "managed"

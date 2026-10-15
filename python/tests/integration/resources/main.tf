@@ -236,14 +236,20 @@ variable "istio_k8s_platform" {
   }
 }
 
-variable "enable_service_mesh" {
-  description = "Enable or disable the Istio Ambient service mesh"
-  type        = bool
-  default     = false
+variable "service_mesh_mode" {
+  description = "Service mesh ownership: disabled, managed, or external."
+  type        = string
+  default     = "disabled"
+  nullable    = false
+
+  validation {
+    condition     = contains(["disabled", "managed", "external"], var.service_mesh_mode)
+    error_message = "service_mesh_mode must be disabled, managed, or external."
+  }
 }
 
 variable "istio_system_model_uuid" {
-  description = "UUID of the existing Juju model for the Istio control plane."
+  description = "UUID of the existing Juju model into which managed mode deploys istio-k8s; not a reference to an existing Istio deployment."
   type        = string
   default     = null
 }
@@ -304,7 +310,7 @@ module "spark" {
   zookeeper_units            = 1
   spark_risk                 = var.spark_risk
 
-  enable_service_mesh     = var.enable_service_mesh
+  service_mesh_mode       = var.service_mesh_mode
   istio_k8s_platform      = var.istio_k8s_platform
   istio_k8s_revision      = var.istio_k8s_revision
   istio_system_model_uuid = var.istio_system_model_uuid

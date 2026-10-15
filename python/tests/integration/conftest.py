@@ -64,10 +64,10 @@ def pytest_runtest_setup(item):
     ):
         pytest.skip("Skipping deployment because --no-deploy was specified.")
 
-    if "skip_if_service_mesh" in item.keywords and item.config.getoption(
+    if "skip_if_not_service_mesh" in item.keywords and not item.config.getoption(
         "--service-mesh-enabled"
     ):
-        pytest.skip("Skipping test that is incompatible with the service mesh.")
+        pytest.skip("Skipping test that is relevant only with the service mesh.")
 
 
 def pytest_addoption(parser):
@@ -337,7 +337,7 @@ def cos(cos_model: str, request: pytest.FixtureRequest):
     cos.model = cos_model
     try:
         cos.status()
-        yield cos_model
+        yield cast(str, cos.show_model().model_uuid)
     except jubilant.CLIError:
         cos.add_model(cos_model)
         yield cast(str, cos.show_model().model_uuid)
@@ -354,6 +354,41 @@ def cos(cos_model: str, request: pytest.FixtureRequest):
         keep_models = bool(request.config.getoption("--keep-models"))
         if not keep_models and test_passed:
             cos.destroy_model(cos.model, destroy_storage=True, force=True)
+
+
+@pytest.fixture(scope=determine_scope)
+def istio_system(istio_system_model: str, request: pytest.FixtureRequest):
+    """
+    Handle istio-system Juju model lifecycle and yield its uuid.
+    """
+    if not istio_system_model:
+        yield None
+        return
+
+    istio_system = jubilant.Juju()
+    istio_system.wait_timeout = 30 * 60
+    istio_system.model = istio_system_model
+    try:
+        istio_system.status()
+        yield cast(str, istio_system.show_model().model_uuid)
+    except jubilant.CLIError:
+        istio_system.add_model(istio_system_model)
+        yield cast(str, istio_system.show_model().model_uuid)
+    finally:
+        debug_log = istio_system.debug_log(limit=50)
+        status = istio_system.cli("status")
+
+        test_passed = True
+        if request.session.testsfailed:
+            print(debug_log, end="")
+            logger.info(status)
+            test_passed = False
+
+        keep_models = bool(request.config.getoption("--keep-models"))
+        if not keep_models and test_passed:
+            istio_system.destroy_model(
+                istio_system.model, destroy_storage=True, force=True
+            )
 
 
 @pytest.fixture(scope="module")
@@ -500,7 +535,7 @@ def spark_bundle(
     private_key,
     tfvars,
     service_mesh_enabled,
-    istio_system_model,
+    istio_system,
 ):
     """Deploy the Spark K8s bundle using Terraform."""
     unpinned_revisions = bool(request.config.getoption("--unpinned-revisions"))
@@ -552,10 +587,6 @@ def spark_bundle(
         with (TFVARS_DIR / "obs_amd64.tfvars").open("r", encoding="utf-8") as f:
             cos_vars = {"cos_model_uuid": cos, **hcl2.load(f)}
 
-    istio_vars = {}
-    if istio_system_model:
-        istio_vars = {"istio_system_model_uuid": istio_system_model}
-
     if storage_backend == "azure_storage":
         storage_unit = cast(Container, object_storage)
         storage_vars = {
@@ -580,10 +611,11 @@ def spark_bundle(
         }
 
     service_mesh_vars = {}
+    if istio_system:
+        service_mesh_vars.update({"istio_system_model_uuid": istio_system})
     if service_mesh_enabled:
-        service_mesh_vars = {"enable_service_mesh": "true"}
-
-    vars = base_vars | cos_vars | storage_vars | service_mesh_vars | istio_vars
+        service_mesh_vars.update({"service_mesh_mode": "managed"})
+    vars = base_vars | cos_vars | storage_vars | service_mesh_vars
     logger.info(f"Applying vars: {vars.keys()}")
 
     deployed_applications = bundle.apply(vars=vars)

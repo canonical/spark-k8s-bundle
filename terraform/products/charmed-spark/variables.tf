@@ -227,7 +227,7 @@ variable "spark_model_name" {
 }
 
 variable "istio_system_model_name" {
-  description = "The name of the juju model to deploy Istio control plane to"
+  description = "Name of the Juju model to create for the managed Istio control plane."
   type        = string
   default     = "istio-system"
 }
@@ -250,9 +250,14 @@ variable "model_uuid" {
 }
 
 variable "istio_system_model_uuid" {
-  description = "Optional existing Juju model UUID to deploy Istio control plane to. If provided, model creation is skipped in higher-level modules."
+  description = "Existing Juju model UUID into which managed mode deploys istio-k8s. This does not reuse an existing Istio application and is ignored in external and disabled modes."
   type        = string
   default     = null
+
+  validation {
+    condition     = var.istio_system_model_uuid == null ? true : trimspace(var.istio_system_model_uuid) != ""
+    error_message = "istio_system_model_uuid must be null or a non-empty Juju model UUID."
+  }
 }
 
 variable "proxy" {
@@ -372,10 +377,16 @@ variable "istio_beacon_k8s_config" {
   default     = {}
 }
 
-variable "enable_service_mesh" {
-  description = "Enable or disable the Istio Ambient service mesh."
-  type        = bool
-  default     = false
+variable "service_mesh_mode" {
+  description = "Service mesh ownership: disabled, managed (deploy istio-k8s), or external (use an existing compatible control plane on the Spark cluster)."
+  type        = string
+  default     = "disabled"
+  nullable    = false
+
+  validation {
+    condition     = contains(["disabled", "managed", "external"], var.service_mesh_mode)
+    error_message = "service_mesh_mode must be disabled, managed, or external."
+  }
 }
 
 variable "istio_k8s_platform" {

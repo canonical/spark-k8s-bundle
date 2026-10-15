@@ -75,6 +75,16 @@ def test_active_status(juju: jubilant.Juju) -> None:
     )
 
 
+@pytest.mark.skip_if_not_service_mesh
+def test_service_mesh_enabled(juju: jubilant.Juju) -> None:
+    """Test whether the service mesh is enabled in the cluster."""
+    status = juju.status()
+    assert all(
+        app in status["applications"]
+        for app in ("istio-beacon-k8s", "istio-ingress-k8s")
+    )
+
+
 def test_run_job(
     registry,
     service_account,

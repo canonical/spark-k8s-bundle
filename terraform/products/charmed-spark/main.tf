@@ -14,7 +14,7 @@ resource "juju_model" "spark" {
 }
 
 resource "juju_model" "istio_system" {
-  count = (var.istio_system_model_uuid == null && var.create_model == true) ? 1 : 0
+  count = (local.managed_istio && var.istio_system_model_uuid == null && var.create_model) ? 1 : 0
 
   name = var.istio_system_model_name
   config = {
@@ -225,13 +225,13 @@ module "spark_core" {
   object_storage           = merge({ kind = "endpoint" }, length(module.s3) != 0 ? module.s3[0].provides.s3_credentials : module.azure_storage[0].provides.azure_storage_credentials)
   object_storage_interface = length(module.s3) != 0 ? module.s3[0].provides.s3_credentials.endpoint : module.azure_storage[0].provides.azure_storage_credentials.endpoint
 
-  service_mesh = var.enable_service_mesh ? merge(
+  service_mesh = local.service_mesh_enabled ? merge(
     { kind = "endpoint" },
     module.istio_ambient[0].provides.istio_beacon_k8s_service_mesh
   ) : null
 
   # Ingress comes from istio-ingress-k8s when the mesh is enabled, otherwise from traefik-k8s.
-  ingress = var.enable_service_mesh ? merge(
+  ingress = local.service_mesh_enabled ? merge(
     { kind = "endpoint" },
     module.istio_ambient[0].provides.istio_ingress_k8s_ingress
     ) : {
@@ -303,7 +303,7 @@ module "kyuubi" {
 
   zookeeper = merge({ kind = "endpoint" }, module.zookeeper.provides.zookeeper)
 
-  service_mesh = var.enable_service_mesh ? merge(
+  service_mesh = local.service_mesh_enabled ? merge(
     { kind = "endpoint" },
     module.istio_ambient[0].provides.istio_beacon_k8s_service_mesh
   ) : null
@@ -353,12 +353,12 @@ module "observability" {
     revision = var.otelcol_revision
   }
   pushgateway = {
-    revision = var.pushgateway_revision
-    resource = var.pushgateway_image != null ? { pushgateway-image = var.pushgateway_image } : null
+    revision  = var.pushgateway_revision
+    resources = var.pushgateway_image != null ? { pushgateway-image = var.pushgateway_image } : null
   }
   scrape_config = { revision = var.scrape_config_revision }
 
-  service_mesh = var.enable_service_mesh ? merge(
+  service_mesh = local.service_mesh_enabled ? merge(
     { kind = "endpoint" },
     module.istio_ambient[0].provides.istio_beacon_k8s_service_mesh
   ) : null
@@ -375,7 +375,7 @@ module "observability" {
 
 module "istio_k8s" {
   source = "git::https://github.com/canonical/istio-k8s-operator//terraform?ref=rev45"
-  count  = var.enable_service_mesh ? 1 : 0
+  count = local.managed_istio ? 1 : 0
 
   model_uuid = local.istio_system_model_uuid
   app_name   = "istio-k8s"
@@ -385,8 +385,8 @@ module "istio_k8s" {
 }
 
 module "istio_ambient" {
-  depends_on = [juju_model.spark]
-  count      = var.enable_service_mesh ? 1 : 0
+  depends_on = [juju_model.spark, module.istio_k8s]
+  count      = local.service_mesh_enabled ? 1 : 0
   source     = "../../components/istio-ambient"
 
   model_uuid = local.model_uuid
@@ -412,7 +412,7 @@ module "istio_ambient" {
 
 module "traefik_ingress" {
   depends_on = [juju_model.spark]
-  count      = var.enable_service_mesh ? 0 : 1
+  count      = local.service_mesh_enabled ? 0 : 1
   source     = "../../components/traefik-ingress"
   model_uuid = local.model_uuid
 
