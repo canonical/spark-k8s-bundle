@@ -361,7 +361,7 @@ sudo snap install aws-cli --classic
 
 aws configure set aws_access_key_id $ACCESS_KEY 
 aws configure set aws_secret_access_key $SECRET_KEY 
-aws configure set region "us-west-2" 
+aws configure set region default # default region for microceph 
 aws configure set endpoint_url "http://$S3_ENDPOINT"
 ```
 
