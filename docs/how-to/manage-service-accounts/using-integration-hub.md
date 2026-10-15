@@ -72,7 +72,7 @@ juju config s3-integrator \
 
 Please refer to the [How-To Setup Environment](how-to-deploy-environment)
 for guidance on how to set up and retrieve the
-different parameters for a MinIO deployed on MicroK8s and AWS S3.
+different parameters for MicroCeph and AWS S3.
 For more information on how to deploy and configure the `s3-integrator`
 charm refer to the [charm documentation](https://github.com/canonical/object-storage-integrator/tree/main/s3/README.md).
 

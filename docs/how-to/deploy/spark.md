@@ -24,8 +24,8 @@ To set up a Juju controller on K8s and the Juju client, you can refer to existin
 and documentation for [MicroK8s](https://documentation.ubuntu.com/juju/3.6/tutorial/) and for
 [AWS EKS](https://juju.is/docs/juju/amazon-eks).
 Also refer to the [How-to set up environment](how-to-deploy-environment) guide to install and set up
-an S3-compatible object storage on MicroK8s (MinIO), EKS (AWS S3), or Azure object storages.
-For other backends or K8s distributions other than MinIO on MicroK8s and S3 on EKS
+an S3-compatible object storage on MicroK8s (with MicroCeph), EKS (AWS S3), or Azure object storages.
+For other backends or K8s distributions other than MicroCeph with MicroK8s and S3 on EKS
 (e.g. Ceph, Charmed Kubernetes, GKE, etc.), please refer to their documentation.
 
 ## Preparation
