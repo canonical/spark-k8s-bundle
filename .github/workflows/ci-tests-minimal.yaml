@@ -17,7 +17,7 @@ jobs:
     uses: ./.github/workflows/ci-checks.yaml
 
   integration-tests:
-    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark | ${{ matrix.storage-backend }} | ${{ matrix.cos-model }} | ${{ matrix.meshed }}"
+    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark | ${{ matrix.storage-backend }} | ${{ matrix.cos-model }} | ${{ matrix.istio-model }}"
     runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
     # runs-on: ubuntu-22.04
     timeout-minutes: 120
@@ -101,7 +101,7 @@ jobs:
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
           pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || ''}}
           unpinned: ${{ matrix.unpinned }}
-          meshed: ${{ matrix.meshed }}
+          istio-model: ${{ matrix.istio-model }}
           tfvars-file: ${{ inputs.tfvars-file }}
 
   aggregate-results:

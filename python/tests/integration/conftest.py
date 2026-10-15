@@ -65,7 +65,7 @@ def pytest_runtest_setup(item):
         pytest.skip("Skipping deployment because --no-deploy was specified.")
 
     if "skip_if_not_service_mesh" in item.keywords and not item.config.getoption(
-        "--service-mesh-enabled"
+        "--istio-system-model"
     ):
         pytest.skip("Skipping test that is relevant only with the service mesh.")
 
@@ -204,12 +204,6 @@ def cos_model(request) -> None | str:
 def istio_system_model(request) -> None | str:
     """The name of the model in which COS is either already deployed or is to be deployed."""
     return request.config.getoption("--istio-system-model")
-
-
-@pytest.fixture(scope="module")
-def service_mesh_enabled(request) -> bool:
-    """Whether the Istio service mesh has been enabled for this deployment."""
-    return bool(request.config.getoption("--service-mesh-enabled"))
 
 
 @pytest.fixture(scope="module")

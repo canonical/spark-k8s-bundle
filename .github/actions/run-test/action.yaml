@@ -68,8 +68,8 @@ inputs:
     required: false
     default: ""
     type: string
-  meshed:
-    description: "Enable service mesh for the test run"
+  istio-model:
+    description: "The name of the Istio model to be used for the test run"
     required: false
     default: ""
     type: string
@@ -265,7 +265,7 @@ runs:
 
         juju add-model spark-bundle-test
         juju list-models
-        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --cos-model ${{ inputs.cos-model }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }} ${{ inputs.unpinned }} ${{ inputs.meshed }} $TFVARS_ARG
+        cd python && tox run -e ${{ inputs.tox-env }} -- -m '${{ steps.select-tests.outputs.mark_expression }}' --cos-model ${{ inputs.cos-model }} --storage-backend ${{ inputs.storage-backend }} --model spark-bundle-test ${{ inputs.pytest-args }} ${{ inputs.unpinned }} --istio-system-model ${{ inputs.istio-model }} $TFVARS_ARG
         echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
 
     - id: collect-logs

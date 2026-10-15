@@ -383,12 +383,12 @@ def test_history_server_metrics_in_cos(
     juju: jubilant.Juju,
     cos,
     port_forward: PortForwarder,
-    service_mesh_enabled: bool,
+    istio_system: str,
 ) -> None:
     if not cos:
         pytest.skip("Not possible to test without cos")
 
-    if not service_mesh_enabled:
+    if not istio_system:
         # Test that Prometheus data is being published by the app
         # The JMX exporter port in History server can't be reached directly when
         # service mesh is enabled.
