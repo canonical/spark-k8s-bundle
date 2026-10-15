@@ -1,43 +1,61 @@
+# Istio Ambient component Terraform module
+
+The `istio-ambient` component deploys the Istio Beacon and Istio Ingress charms into an existing Juju model. Beacon connects applications in the model to the Istio service mesh, and Istio Ingress provides an ingress gateway for mesh traffic.
+
+## Module reference
+
+The module integrates the Istio Ingress certificate endpoint with a certificate provider. Its outputs expose deployed applications and the endpoints they provide and require.
+
+### Inputs
+
+- `model_uuid`: UUID of the Juju model where the Istio Ambient applications are deployed (required)
+- `istio_beacon_k8s`: Configuration for the Istio Beacon application (optional)
+- `istio_ingress_k8s`: Configuration for the Istio Ingress gateway (optional)
+- `certificates`: Certificate provider integration, supplied as an in-model endpoint or cross-model offer (required)
+
+### Outputs
+
+- `components`: Map of the deployed Istio Ambient applications
+- `provides`: Map of endpoints provided to other components
+- `requires`: Map of endpoints required from other components
+
 <!-- BEGIN_TF_DOCS -->
-## Requirements
+### Requirements
 
 | Name | Version |
 | ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.6 |
 | <a name="requirement_juju"></a> [juju](#requirement\_juju) | >= 1.1.1 |
 
-## Providers
+### Providers
 
 | Name | Version |
 | ---- | ------- |
 | <a name="provider_juju"></a> [juju](#provider\_juju) | >= 1.1.1 |
 
-## Modules
+### Modules
 
 | Name | Source | Version |
 | ---- | ------ | ------- |
-| <a name="module_istio_beacon_k8s"></a> [istio\_beacon\_k8s](#module\_istio\_beacon\_k8s) | git::https://github.com/canonical/istio-beacon-k8s-operator//terraform | 51b204dd50392809692263f6e973d81dd9fe200a |
-| <a name="module_istio_ingress_k8s_m2m"></a> [istio\_ingress\_k8s\_m2m](#module\_istio\_ingress\_k8s\_m2m) | git::https://github.com/canonical/istio-ingress-k8s-operator//terraform | a9ef9646aea149a00a6a7620acaf483249714d04 |
-| <a name="module_istio_ingress_k8s_ui"></a> [istio\_ingress\_k8s\_ui](#module\_istio\_ingress\_k8s\_ui) | git::https://github.com/canonical/istio-ingress-k8s-operator//terraform | a9ef9646aea149a00a6a7620acaf483249714d04 |
+| <a name="module_istio_beacon_k8s"></a> [istio\_beacon\_k8s](#module\_istio\_beacon\_k8s) | git::https://github.com/canonical/istio-beacon-k8s-operator//terraform | rev63 |
+| <a name="module_istio_ingress_k8s"></a> [istio\_ingress\_k8s](#module\_istio\_ingress\_k8s) | git::https://github.com/canonical/istio-ingress-k8s-operator//terraform | rev61 |
 
-## Resources
+### Resources
 
 | Name | Type |
 | ---- | ---- |
-| [juju_integration.istio_ingress_k8s_ui_config](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.istio_ingress_k8s_certificates](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 
-## Inputs
+### Inputs
 
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
+| <a name="input_certificates"></a> [certificates](#input\_certificates) | External integration for the certificate provider application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
 | <a name="input_istio_beacon_k8s"></a> [istio\_beacon\_k8s](#input\_istio\_beacon\_k8s) | Configuration for istio-beacon-k8s application | <pre>object({<br/>    channel     = optional(string, "2/stable")<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>    constraints = optional(string)<br/>    config      = optional(map(string), {})<br/>  })</pre> | `{}` | no |
-| <a name="input_istio_ingress_config"></a> [istio\_ingress\_config](#input\_istio\_ingress\_config) | Control-plane ingress-config provider consumed by the UI gateway, from<br/>istio-k8s:istio-ingress-config (interface istio\_ingress\_config). Supports a<br/>same-model endpoint (kind = "endpoint") or a cross-model offer<br/>(kind = "offer"). When istio-k8s runs in the istio-system model this is the<br/>cross-model offer. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | `null` | no |
-| <a name="input_istio_ingress_k8s"></a> [istio\_ingress\_k8s](#input\_istio\_ingress\_k8s) | Common configuration for both istio-ingress-k8s gateways (UI and M2M) | <pre>object({<br/>    channel     = optional(string, "2/stable")<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>    constraints = optional(string)<br/>    config      = optional(map(string), {})<br/>  })</pre> | `{}` | no |
-| <a name="input_istio_ingress_k8s_m2m_config"></a> [istio\_ingress\_k8s\_m2m\_config](#input\_istio\_ingress\_k8s\_m2m\_config) | Extra configuration for the M2M gateway (merged over istio\_ingress\_k8s.config) | `map(string)` | `{}` | no |
-| <a name="input_istio_ingress_k8s_ui_config"></a> [istio\_ingress\_k8s\_ui\_config](#input\_istio\_ingress\_k8s\_ui\_config) | Extra configuration for the UI gateway (merged over istio\_ingress\_k8s.config) | `map(string)` | `{}` | no |
+| <a name="input_istio_ingress_k8s"></a> [istio\_ingress\_k8s](#input\_istio\_ingress\_k8s) | Configuration for istio-ingress-k8s ingress gateway | <pre>object({<br/>    channel     = optional(string, "2/stable")<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>    constraints = optional(string)<br/>    config      = optional(map(string), {})<br/>  })</pre> | `{}` | no |
 | <a name="input_model_uuid"></a> [model\_uuid](#input\_model\_uuid) | UUID of the Juju model where Istio Ambient is deployed | `string` | n/a | yes |
 
-## Outputs
+### Outputs
 
 | Name | Description |
 | ---- | ----------- |

@@ -30,6 +30,7 @@ The kyuubi component module provides a complete deployment of the Kyuubi SQL eng
 - `certificates`: External integration for the certificate provider application (required)
 - `data_integrator`: External integration for the data-integrator application (required)
 - `metastore`: External integration for the metastore (postgresql-k8s) application (required)
+- `service_mesh`: Optional integration with an Istio service mesh, supplied as an in-model endpoint or cross-model offer (default: null)
 - `users_db`: External integration for the Kyuubi users database (postgresql-k8s) application (required)
 - `zookeeper`: External integration for the ZooKeeper application (required)
 
@@ -68,6 +69,7 @@ No modules.
 | [juju_integration.kyuubi_data_integrator](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.kyuubi_metastore](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.kyuubi_service_account](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.kyuubi_service_mesh](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.kyuubi_users_db](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.kyuubi_zookeeper](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_offer.kyuubi_jdbc](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/offer) | resource |
@@ -83,6 +85,7 @@ No modules.
 | <a name="input_metastore"></a> [metastore](#input\_metastore) | External integration for the metastore (postgresql-k8s) application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
 | <a name="input_model_uuid"></a> [model\_uuid](#input\_model\_uuid) | Reference to an existing model uuid. | `string` | n/a | yes |
 | <a name="input_risk"></a> [risk](#input\_risk) | Component's charms risk channel | `string` | `"stable"` | no |
+| <a name="input_service_mesh"></a> [service\_mesh](#input\_service\_mesh) | External integration for the istio service mesh | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | `null` | no |
 | <a name="input_spark_service_account"></a> [spark\_service\_account](#input\_spark\_service\_account) | External integration for the object storage integrator application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
 | <a name="input_users_db"></a> [users\_db](#input\_users\_db) | External integration for the Kyuubi users database (postgresql-k8s) application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
 | <a name="input_zookeeper"></a> [zookeeper](#input\_zookeeper) | External integration for the ZooKeeper application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
