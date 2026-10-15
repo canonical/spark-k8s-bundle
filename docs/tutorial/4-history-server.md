@@ -19,11 +19,12 @@ The Apache Spark History Server is most suitable for engineer running Spark jobs
 ## Environment variables
 
 At this step of the tutorial, you’ll need some environment variables that were set earlier during the environment setup.
-If you’ve restarted the VM and lost those variables, you can refresh them by running the following commands:
+If you’ve restarted the VM and lost those variables, you can refresh them by running the following commands. Note that we had
+created a RadosGW user named `spark` during the environment setup.
 
 ```shell
-export ACCESS_KEY=$(sudo microceph.radosgw-admin user info --uid test | jq -r ".keys[] .access_key")
-export SECRET_KEY=$(sudo microceph.radosgw-admin user info --uid test | jq -r ".keys[] .secret_key")
+export ACCESS_KEY=$(sudo microceph.radosgw-admin user info --uid spark | jq -r ".keys[] .access_key")
+export SECRET_KEY=$(sudo microceph.radosgw-admin user info --uid spark | jq -r ".keys[] .secret_key")
 export S3_ENDPOINT=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
 ```
 
