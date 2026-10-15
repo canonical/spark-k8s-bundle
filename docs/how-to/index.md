@@ -7,6 +7,8 @@ myst:
 (how-to-index)=
 # How-To guides
 
+placeholder
+
 The following guides cover key processes and common tasks for Charmed Apache Spark.
 If you are missing a particular how-to guide, feel free to leave us feedback via the
 **Give feedback** button above, or [contact us](reference-contacts) directly.
