@@ -136,19 +136,6 @@ variable "integration_hub_revision" {
   nullable    = true
 }
 
-variable "kyuubi_users_image" {
-  description = "Image for postgresql-k8s (auth-db)"
-  type        = any
-  default     = null
-}
-
-variable "kyuubi_users_revision" {
-  description = "Charm revision for postgresql-k8s (auth-db)"
-  type        = number
-  default     = null
-  nullable    = true
-}
-
 variable "kyuubi_config" {
   description = "Kyuubi configuration options."
   type        = map(any)
@@ -175,33 +162,57 @@ variable "kyuubi_units" {
   nullable    = false
 }
 
-variable "kyuubi_users_size" {
-  description = "Storage size for the Kyuubi users database"
-  type        = string
-  default     = "1G"
-}
-
 variable "logging_config" {
   description = "Logging configuration to be used"
   type        = string
   default     = "<root>=INFO"
 }
 
-variable "metastore_image" {
-  description = "Image for postgresql-k8s (metastore)"
+variable "postgresql_kind" {
+  description = "How PostgreSQL (backing Kyuubi's auth database and the Hive metastore) is provided: \"app\" (deploy one app in the model), \"endpoint\" (existing in-model app, set postgresql_name) or \"offer\" (cross-model offer, set postgresql_url)."
+  type        = string
+  default     = "app"
+  nullable    = false
+
+  validation {
+    condition     = contains(["app", "endpoint", "offer"], var.postgresql_kind)
+    error_message = "'postgresql_kind' must be one of: 'app', 'endpoint', 'offer'."
+  }
+}
+
+variable "postgresql_name" {
+  description = "Name of the existing in-model PostgreSQL application. Required when postgresql_kind is \"endpoint\"."
+  type        = string
+  default     = null
+}
+
+variable "postgresql_url" {
+  description = "URL of the PostgreSQL offer. Required when postgresql_kind is \"offer\"."
+  type        = string
+  default     = null
+}
+
+variable "postgresql_config" {
+  description = "Configuration options for postgresql-k8s (16/stable naming). Only used when postgresql_kind is \"app\"."
+  type        = map(any)
+  default     = {}
+}
+
+variable "postgresql_image" {
+  description = "Image for postgresql-k8s"
   type        = any
   default     = null
 }
 
-variable "metastore_revision" {
-  description = "Charm revision for postgresql-k8s (metastore)"
+variable "postgresql_revision" {
+  description = "Charm revision for postgresql-k8s"
   type        = number
   default     = null
   nullable    = true
 }
 
-variable "metastore_size" {
-  description = "Storage size for the metastore database"
+variable "postgresql_size" {
+  description = "Storage size for the PostgreSQL database"
   type        = string
   default     = "10G"
 }
