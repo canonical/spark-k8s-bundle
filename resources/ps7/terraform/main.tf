@@ -34,11 +34,11 @@ module "cos" {
 
 
 module "spark" {
-  source     = "git::https://github.com/canonical/spark-k8s-bundle//terraform/products/charmed-spark?ref=pra-414-testing-on-ps7"
+  source     = "git::https://github.com/canonical/spark-k8s-bundle//terraform/products/charmed-spark?ref=track/3.4"
 
-  history_server_image       = "ghcr.io/canonical/charmed-spark:3.5-22.04_stable"
+  history_server_image       = "ghcr.io/canonical/charmed-spark:3.4-22.04_stable"
   integration_hub_image      = "ghcr.io/canonical/spark-integration-hub:3-22.04_stable"
-  kyuubi_image               = "ghcr.io/canonical/charmed-spark-kyuubi:3.5-22.04_stable"
+  kyuubi_image               = "ghcr.io/canonical/charmed-spark-kyuubi:3.4-22.04_stable"
 
   spark_model_name           = "spark"
 
