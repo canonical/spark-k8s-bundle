@@ -9,7 +9,7 @@ myst:
 
 The repository contains the instructions and the artifact to validate the Charmed Spark solution on ProdStack (PS7).
 
-You can find the resources used in the guide in the `spark-k8s-bundle` repository at [`./resources/ps7`](https://github.com/canonical/spark-k8s-bundle/tree/track/3.5/resources/ps7).
+You can find the resources used in the guide in the `spark-k8s-bundle` repository at [`./resources/ps7`](https://github.com/canonical/spark-k8s-bundle/tree/track/4.0/resources/ps7).
 
 ## Object storage setup
 
