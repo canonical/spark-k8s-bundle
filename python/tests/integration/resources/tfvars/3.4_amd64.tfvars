@@ -1,13 +1,13 @@
-history_server_revision  = 122   # 3/beta        TODO: use stable
-integration_hub_revision = 134   # 3/beta        TODO: use stable
-kyuubi_revision          = 180   # 3.4/beta      TODO: use stable  
-kyuubi_users_revision    = 925   # 14/stable
-metastore_revision       = 925   # 14/stable
-zookeeper_revision       = 78    # 3/stable
-data_integrator_revision = 362   # latest/stable, 24.04
-s3_revision              = 544   # 2/stable
-ssc_revision             = 586   # 1/stable, 24.04
-azure_storage_revision   = 282   # 1/stable
+history_server_revision  = 122 # 3/beta        TODO: use stable
+integration_hub_revision = 134 # 3/beta        TODO: use stable
+kyuubi_revision          = 180 # 3.4/beta      TODO: use stable
+kyuubi_users_revision    = 925 # 14/stable
+metastore_revision       = 925 # 14/stable
+zookeeper_revision       = 78  # 3/stable
+data_integrator_revision = 362 # latest/stable, 24.04
+s3_revision              = 544 # 2/stable
+ssc_revision             = 586 # 1/stable, 24.04
+azure_storage_revision   = 282 # 1/stable
 
 history_server_image = "ghcr.io/canonical/charmed-spark@sha256:7bcf100560677b9ee17b1ff4fe4e1a1cd9aed6db06f30ce5e94cc066b10fcd94"
 # spark-version: 3.4.4, release date 24/06/2026
