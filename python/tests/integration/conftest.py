@@ -133,11 +133,6 @@ def pytest_addoption(parser):
         help="Do not use the pinned revisions for the product module",
     )
     parser.addoption(
-        "--service-mesh-enabled",
-        action="store_true",
-        help="Enable service mesh on supported charms and Spark workloads.",
-    )
-    parser.addoption(
         "--istio-system-model",
         required=False,
         type=str,
@@ -534,7 +529,6 @@ def spark_bundle(
     admin_password,
     private_key,
     tfvars,
-    service_mesh_enabled,
     istio_system,
 ):
     """Deploy the Spark K8s bundle using Terraform."""
@@ -610,12 +604,14 @@ def spark_bundle(
             "s3_secret_key": credentials.secret_key,
         }
 
-    service_mesh_vars = {}
+    istio_vars = {}
     if istio_system:
-        service_mesh_vars.update({"istio_system_model_uuid": istio_system})
-    if service_mesh_enabled:
-        service_mesh_vars.update({"service_mesh_mode": "managed"})
-    vars = base_vars | cos_vars | storage_vars | service_mesh_vars
+        istio_vars = {
+            "istio_system_model_uuid": istio_system,
+            "service_mesh_mode": "managed",
+        }
+
+    vars = base_vars | cos_vars | storage_vars | istio_vars
     logger.info(f"Applying vars: {vars.keys()}")
 
     deployed_applications = bundle.apply(vars=vars)

@@ -73,14 +73,14 @@ jobs:
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
             cos-model: cos
-            meshed: "--service-mesh-enabled"
+            istio-model: istio-system
 
           # Test Kyuubi once with service mesh
           - tox-env: integration-kyuubi
             storage-backend: s3
             juju-snap-channel: "3.6/stable"
             cos-model: cos
-            meshed: "--service-mesh-enabled"
+            istio-model: istio-system
 
     needs:
       - checks

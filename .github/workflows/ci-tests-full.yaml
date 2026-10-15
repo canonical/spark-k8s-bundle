@@ -48,6 +48,7 @@ jobs:
           - k8s-distribution: "k8s"
             k8s-version: "1.28"
         include:
+
           # Test with unpinned revisions
           - tox-env: integration-bundle
             storage-backend: s3
@@ -56,6 +57,19 @@ jobs:
             k8s-version: "1.32"
             unpinned: "--unpinned-revisions"
 
+          # Test Spark Job once with service mesh
+          - tox-env: integration-sparkjob
+            storage-backend: s3
+            juju-snap-channel: "3.6/stable"
+            cos-model: cos
+            istio-model: istio-system
+
+          # Test Kyuubi once with service mesh
+          - tox-env: integration-kyuubi
+            storage-backend: s3
+            juju-snap-channel: "3.6/stable"
+            cos-model: cos
+            istio-model: istio-system
     needs:
       - checks
     steps:

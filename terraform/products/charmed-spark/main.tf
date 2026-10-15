@@ -375,7 +375,7 @@ module "observability" {
 
 module "istio_k8s" {
   source = "git::https://github.com/canonical/istio-k8s-operator//terraform?ref=rev45"
-  count = local.managed_istio ? 1 : 0
+  count  = local.managed_istio ? 1 : 0
 
   model_uuid = local.istio_system_model_uuid
   app_name   = "istio-k8s"

@@ -10,6 +10,7 @@ import jubilant
 import pytest
 from azure.storage.blob import BlobServiceClient
 from botocore.client import Config
+from lightkube import Client, KubeConfig
 from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.core.azure_storage import Container
@@ -32,6 +33,8 @@ from .helpers import (
     get_cos_address,
     get_history_server_ingress_url,
     get_secret_data,
+    get_unit_pod_names,
+    pod_has_labels,
     prometheus_exporter_data,
     published_grafana_dashboards,
     published_loki_logs,
@@ -47,6 +50,9 @@ PUSHGATEWAY = "pushgateway"
 PROMETHEUS = "prometheus"
 LOKI = "loki"
 HUB = "integration-hub"
+KYUUBI = "kyuubi"
+AMBIENT_MESH_LABEL = "istio.io/dataplane-mode"
+AMBIENT_MESH_LABEL_VALUE = "ambient"
 
 
 @pytest.fixture
@@ -76,13 +82,32 @@ def test_active_status(juju: jubilant.Juju) -> None:
 
 
 @pytest.mark.skip_if_not_service_mesh
-def test_service_mesh_enabled(juju: jubilant.Juju) -> None:
+def test_service_mesh_charms_deployed(juju: jubilant.Juju) -> None:
     """Test whether the service mesh is enabled in the cluster."""
     status = juju.status()
-    assert all(
-        app in status["applications"]
-        for app in ("istio-beacon-k8s", "istio-ingress-k8s")
+    assert all(app in status.apps for app in ("istio-beacon-k8s", "istio-ingress")), (
+        "Missing service mesh charmed applications"
     )
+
+
+@pytest.mark.skip_if_not_service_mesh
+def test_charm_pods_have_service_mesh_labels(
+    juju: jubilant.Juju, kubeconfig: KubeConfig
+) -> None:
+    """Check ambient mesh enrollment on every pod of each Spark charm."""
+    client = Client(config=kubeconfig)
+    for application in (HISTORY_SERVER, HUB, KYUUBI):
+        pod_names = get_unit_pod_names(client, cast(str, juju.model), application)
+        for pod_name in pod_names:
+            assert pod_has_labels(
+                client,
+                pod_name,
+                cast(str, juju.model),
+                {AMBIENT_MESH_LABEL: AMBIENT_MESH_LABEL_VALUE},
+            ), (
+                f"Pod {cast(str, juju.model)}/{pod_name} is missing "
+                f"{AMBIENT_MESH_LABEL}={AMBIENT_MESH_LABEL_VALUE}"
+            )
 
 
 def test_run_job(
@@ -144,6 +169,21 @@ def test_run_job(
 
     # write out spark_job_id to be used elsewhere
     driver_pod[0].write(tmp_folder / "spark-job-driver.json")
+
+
+@pytest.mark.skip_if_not_service_mesh
+def test_driver_pod_has_service_mesh_labels(tmp_folder: Path) -> None:
+    """Check ambient mesh enrollment on the Spark job's driver pod."""
+    driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
+    assert pod_has_labels(
+        driver_pod.client,
+        driver_pod.pod_name,
+        driver_pod.namespace,
+        {AMBIENT_MESH_LABEL: AMBIENT_MESH_LABEL_VALUE},
+    ), (
+        f"Spark driver pod {driver_pod.namespace}/{driver_pod.pod_name} "
+        f"is missing {AMBIENT_MESH_LABEL}={AMBIENT_MESH_LABEL_VALUE}"
+    )
 
 
 def test_job_logs_are_persisted(

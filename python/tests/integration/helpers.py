@@ -15,6 +15,9 @@ from typing import cast
 
 import httpx
 import jubilant
+from lightkube import ApiError, Client
+from lightkube.core.client import LabelSelector
+from lightkube.resources.core_v1 import Pod as KubernetesPod
 from tenacity import retry, stop_after_attempt, wait_fixed
 
 from tests.integration.types import KyuubiCredentials
@@ -28,6 +31,64 @@ ZOOKEEPER_NAME = "zookeeper"
 HA_ZNODE_NAME = "/kyuubi"
 
 logger = logging.getLogger(__name__)
+
+
+def get_pods_by_label(
+    lightkube_client: Client, labels: dict[str, str], namespace: str | None = None
+) -> list[str]:
+    """Return the names of all pods that carry the given set of labels.
+
+    Args:
+        lightkube_client: the Lightkube client instance.
+        labels: label key/value pairs a pod must all match.
+        namespace: namespace to search in. If None, searches all namespaces.
+
+    Returns:
+        A list of pod names matching the given labels.
+    """
+    try:
+        pods = lightkube_client.list(
+            KubernetesPod, labels=cast(LabelSelector, labels), namespace=namespace
+        )
+        return [pod.metadata.name for pod in pods if pod.metadata and pod.metadata.name]
+    except ApiError as e:
+        logger.error(f"Error retrieving pods for labels {labels}: {e}")
+        return []
+
+
+def pod_has_labels(
+    lightkube_client: Client, pod_name: str, namespace: str, labels: dict[str, str]
+) -> bool:
+    """Check if a pod has the given set of labels.
+
+    Args:
+        lightkube_client: the Lightkube client instance.
+        pod_name: name of the pod to check.
+        namespace: namespace of the pod.
+        labels: label key/value pairs the pod must all match.
+
+    Returns:
+        True if the pod has all the given labels, False otherwise.
+    """
+    try:
+        pod = lightkube_client.get(KubernetesPod, name=pod_name, namespace=namespace)
+        if not pod.metadata or not pod.metadata.labels:
+            return False
+        return all(pod.metadata.labels.get(k) == v for k, v in labels.items())
+    except ApiError as e:
+        logger.error(f"Error retrieving pod {pod_name} in namespace {namespace}: {e}")
+        return False
+
+
+def get_unit_pod_names(
+    lightkube_client: Client, model: str, application_name: str
+) -> list[str]:
+    """Retrieve names of all pods belonging to a specific Juju application."""
+    return get_pods_by_label(
+        lightkube_client,
+        labels={"app.kubernetes.io/name": application_name},
+        namespace=model,
+    )
 
 
 def get_kyuubi_credentials(
