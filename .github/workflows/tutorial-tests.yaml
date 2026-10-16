@@ -62,6 +62,10 @@ jobs:
         run: tox -e tutorial
         working-directory: python
 
+      - name: Setup tmate session
+        uses: canonical/action-tmate@main
+        if: always()
+
       - name: Cleanup Multipass VM
         if: always()
         run: |
