@@ -35,6 +35,7 @@ We have a series of guides for using Charmed Apache Kyuubi with Charmed Apache S
 * [Encryption and password](how-to-apache-kyuubi-encryption-and-passwords)
 * [External connections](how-to-apache-kyuubi-external-connections)
 * [External metastore](how-to-apache-kyuubi-external-metastore)
+* [LDAP authentication](how-to-apache-kyuubi-ldap-authentication)
 * [Integrate with apps](how-to-apache-kyuubi-integrate-with-applications)
 * [Backups](how-to-apache-kyuubi-back-up-and-restore)
 * [Upgrades](how-to-apache-kyuubi-upgrade)
@@ -66,6 +67,7 @@ Advanced features of Charmed Apache Spark include:
 * [Streaming jobs](how-to-streaming-jobs)
 * [Use GPU](how-to-use-gpu)
 * [Advanced Scheduling](how-to-advanced-scheduling)
+* [Enable istio service mesh](how-to-enable-service-mesh)
 
 ```{toctree}
 :titlesonly:
@@ -81,4 +83,5 @@ Streaming Jobs<streaming-jobs.md>
 Use GPU<use-gpu.md>
 Advanced Scheduling<advanced-scheduling.md>
 Self-signed certificates<self-signed-certificates.md>
+Enable istio service mesh<enable-service-mesh>
 ```

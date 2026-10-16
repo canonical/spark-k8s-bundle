@@ -29,4 +29,5 @@ Integrate with apps<integrate-with-applications.md>
 Backups<back-up-and-restore.md>
 Upgrades<upgrade.md>
 GPU support<gpu.md>
+Enable istio service mesh<enable-service-mesh.md>
 ```
