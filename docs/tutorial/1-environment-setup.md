@@ -148,9 +148,10 @@ sudo microk8s enable storage hostpath-storage
 
 sudo apt install -y jq
 
-IP_ADDR_START=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
-IP_ADDR_END=$(echo $IP_ADDR_START | awk -F. '{print $1"."$2"."$3"."$4+2}')
-sudo microk8s enable metallb:$IP_ADDR_START-$IP_ADDR_END
+IP_ADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
+LB_IP_ADDR_START=$(echo $IP_ADDR | awk -F. '{print $1"."$2"."$3"."$4+1}')
+LB_IP_ADDR_END=$(echo $IP_ADDR | awk -F. '{print $1"."$2"."$3"."$4+3}')
+sudo microk8s enable metallb:$LB_IP_ADDR_START-$LB_IP_ADDR_END
 ```
 
 Wait for the commands to finish running and check the list of enabled add-ons:
