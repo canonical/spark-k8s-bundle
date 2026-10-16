@@ -15,6 +15,10 @@ from typing import cast
 
 import httpx
 import jubilant
+from lightkube import ApiError, Client
+from lightkube.core.client import LabelSelector
+from lightkube.resources.core_v1 import Pod as KubernetesPod
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 from tests.integration.types import KyuubiCredentials
 
@@ -27,6 +31,64 @@ ZOOKEEPER_NAME = "zookeeper"
 HA_ZNODE_NAME = "/kyuubi"
 
 logger = logging.getLogger(__name__)
+
+
+def get_pods_by_label(
+    lightkube_client: Client, labels: dict[str, str], namespace: str | None = None
+) -> list[str]:
+    """Return the names of all pods that carry the given set of labels.
+
+    Args:
+        lightkube_client: the Lightkube client instance.
+        labels: label key/value pairs a pod must all match.
+        namespace: namespace to search in. If None, searches all namespaces.
+
+    Returns:
+        A list of pod names matching the given labels.
+    """
+    try:
+        pods = lightkube_client.list(
+            KubernetesPod, labels=cast(LabelSelector, labels), namespace=namespace
+        )
+        return [pod.metadata.name for pod in pods if pod.metadata and pod.metadata.name]
+    except ApiError as e:
+        logger.error(f"Error retrieving pods for labels {labels}: {e}")
+        return []
+
+
+def pod_has_labels(
+    lightkube_client: Client, pod_name: str, namespace: str, labels: dict[str, str]
+) -> bool:
+    """Check if a pod has the given set of labels.
+
+    Args:
+        lightkube_client: the Lightkube client instance.
+        pod_name: name of the pod to check.
+        namespace: namespace of the pod.
+        labels: label key/value pairs the pod must all match.
+
+    Returns:
+        True if the pod has all the given labels, False otherwise.
+    """
+    try:
+        pod = lightkube_client.get(KubernetesPod, name=pod_name, namespace=namespace)
+        if not pod.metadata or not pod.metadata.labels:
+            return False
+        return all(pod.metadata.labels.get(k) == v for k, v in labels.items())
+    except ApiError as e:
+        logger.error(f"Error retrieving pod {pod_name} in namespace {namespace}: {e}")
+        return False
+
+
+def get_unit_pod_names(
+    lightkube_client: Client, model: str, application_name: str
+) -> list[str]:
+    """Retrieve names of all pods belonging to a specific Juju application."""
+    return get_pods_by_label(
+        lightkube_client,
+        labels={"app.kubernetes.io/name": application_name},
+        namespace=model,
+    )
 
 
 def get_kyuubi_credentials(
@@ -198,6 +260,27 @@ def get_cos_address(cos_model_name: str) -> str:
     return json.loads(endpoints)["traefik"]["url"]
 
 
+def get_history_server_ingress_url(
+    juju: jubilant.Juju, app: str = "history-server", unit: int = 0
+) -> str:
+    """Return the external ingress URL for the Spark History Server.
+
+    The ingress provider (traefik-k8s or istio-ingress-k8s) publishes the external
+    URL into the `ingress` relation application databag, so this works whether or not
+    the service mesh is enabled.
+    """
+    raw = juju.cli("show-unit", f"{app}/{unit}", "--format", "json")
+    data = json.loads(raw)
+    relations = data[f"{app}/{unit}"].get("relation-info", [])
+    for relation in relations:
+        if relation.get("endpoint") != "ingress":
+            continue
+        ingress = relation.get("application-data", {}).get("ingress")
+        if ingress:
+            return json.loads(ingress)["url"]
+    raise ValueError(f"No ingress URL found for {app}/{unit}")
+
+
 def prometheus_exporter_data(host: str, port: int) -> str | None:
     """Check if a given host has metric service available and it is publishing."""
     url = f"http://{host}:{port}/metrics"
@@ -300,9 +383,10 @@ def published_loki_logs(
     return logs
 
 
+@retry(stop=stop_after_attempt(6), wait=wait_fixed(5), reraise=True)
 def assert_logs(loki_address: str) -> None:
     """Check the existence of the logs."""
-    log_gl = urllib.parse.quote('{app="spark", pebble_service="sparkd"}')
+    log_gl = urllib.parse.quote('{pebble_service="sparkd"}')
     query = httpx.get(
         f"http://{loki_address}:3100/loki/api/v1/query_range?query={log_gl}"
     ).json()

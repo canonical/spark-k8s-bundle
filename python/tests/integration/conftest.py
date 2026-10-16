@@ -15,8 +15,7 @@ import time
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
-from subprocess import PIPE, Popen, TimeoutExpired, check_output
-from psutil import Process
+from subprocess import DEVNULL, Popen, TimeoutExpired, check_output
 from typing import cast
 
 import hcl2
@@ -64,6 +63,11 @@ def pytest_runtest_setup(item):
         and item.config.getoption("--model") is not None
     ):
         pytest.skip("Skipping deployment because --no-deploy was specified.")
+
+    if "skip_if_not_service_mesh" in item.keywords and not item.config.getoption(
+        "--istio-system-model"
+    ):
+        pytest.skip("Skipping test that is relevant only with the service mesh.")
 
 
 def pytest_addoption(parser):
@@ -128,6 +132,17 @@ def pytest_addoption(parser):
         action="store_true",
         help="Do not use the pinned revisions for the product module",
     )
+    parser.addoption(
+        "--istio-system-model",
+        required=False,
+        type=str,
+        nargs="?",
+        const="",
+        default="",
+        help="When provided, it deploys the Istio system model as well. "
+        "If the model already exists, we assume the Istio system model had already been "
+        "deployed.",
+    )
 
 
 def determine_scope(fixture_name, config):
@@ -183,6 +198,12 @@ def juju(request: pytest.FixtureRequest):
 def cos_model(request) -> None | str:
     """The name of the model in which COS is either already deployed or is to be deployed."""
     return request.config.getoption("--cos-model")
+
+
+@pytest.fixture(scope="module")
+def istio_system_model(request) -> None | str:
+    """The name of the model in which COS is either already deployed or is to be deployed."""
+    return request.config.getoption("--istio-system-model")
 
 
 @pytest.fixture(scope="module")
@@ -305,7 +326,7 @@ def cos(cos_model: str, request: pytest.FixtureRequest):
     cos.model = cos_model
     try:
         cos.status()
-        yield cos_model
+        yield cast(str, cos.show_model().model_uuid)
     except jubilant.CLIError:
         cos.add_model(cos_model)
         yield cast(str, cos.show_model().model_uuid)
@@ -322,6 +343,41 @@ def cos(cos_model: str, request: pytest.FixtureRequest):
         keep_models = bool(request.config.getoption("--keep-models"))
         if not keep_models and test_passed:
             cos.destroy_model(cos.model, destroy_storage=True, force=True)
+
+
+@pytest.fixture(scope=determine_scope)
+def istio_system(istio_system_model: str, request: pytest.FixtureRequest):
+    """
+    Handle istio-system Juju model lifecycle and yield its uuid.
+    """
+    if not istio_system_model:
+        yield None
+        return
+
+    istio_system = jubilant.Juju()
+    istio_system.wait_timeout = 30 * 60
+    istio_system.model = istio_system_model
+    try:
+        istio_system.status()
+        yield cast(str, istio_system.show_model().model_uuid)
+    except jubilant.CLIError:
+        istio_system.add_model(istio_system_model)
+        yield cast(str, istio_system.show_model().model_uuid)
+    finally:
+        debug_log = istio_system.debug_log(limit=50)
+        status = istio_system.cli("status")
+
+        test_passed = True
+        if request.session.testsfailed:
+            print(debug_log, end="")
+            logger.info(status)
+            test_passed = False
+
+        keep_models = bool(request.config.getoption("--keep-models"))
+        if not keep_models and test_passed:
+            istio_system.destroy_model(
+                istio_system.model, destroy_storage=True, force=True
+            )
 
 
 @pytest.fixture(scope="module")
@@ -377,51 +433,56 @@ def port_forward(kubectl: str):
         if on_port is None:
             on_port = port
 
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as local_socket:
+            if not local_socket.connect_ex(("127.0.0.1", on_port)):
+                raise RuntimeError(f"Local port {on_port} is already in use")
+
         logger.info(f"Forwarding {pod} port {port} on {on_port}")
-        forwarder = Popen(
-            [kubectl, "port-forward", pod, f"{on_port}:{port}", "-n", namespace],
-            stdout=PIPE,
-            stderr=PIPE,
-        )
-        start = time.monotonic()
-
-        while True:
-            time.sleep(0.5)
-            match forwarder.poll(), time.monotonic():
-                case _, end if (end - start) > FORWARD_TIMEOUT_SECONDS:
-                    # If we cannot connect within a reasonable time span,
-                    # assume that it succeeded but we cannot test it using conventional methods
-                    logging.warning(
-                        "Cannot test port forwarding, moving on with the test anyway",
-                    )
-                    break
-
-                case return_code, _ if return_code is not None:
-                    try:
-                        _, errs = forwarder.communicate(timeout=5)
-                    except TimeoutExpired:
-                        errs = "unknown error"
-                    raise RuntimeError("Unable to forward the port:", errs)
-
-                case _, _:
-                    # Even if the command is actively running, we wait before the port
-                    # is listening before moving on to the tests.
-                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                        if not s.connect_ex(("127.0.0.1", port)):
-                            # All good, the port is in use
-                            break
-
+        forwarder = None
         try:
-            yield
-        except:
-            raise
-        finally:
-            p = Process(forwarder.pid)
-            for child_process in p.children(recursive=True):
-                child_process.kill()
+            forwarder = Popen(
+                [kubectl, "port-forward", pod, f"{on_port}:{port}", "-n", namespace],
+                stdout=DEVNULL,
+                stderr=DEVNULL,
+                start_new_session=True,
+            )
+            start = time.monotonic()
+            while True:
+                if forwarder.poll() is not None:
+                    raise RuntimeError("kubectl port-forward exited before starting")
 
-            forwarder.kill()
-            logger.info(f"Stopped port forwarding {forwarder.pid}")
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as local_socket:
+                    if not local_socket.connect_ex(("127.0.0.1", on_port)):
+                        break
+
+                if time.monotonic() - start > FORWARD_TIMEOUT_SECONDS:
+                    raise TimeoutError(
+                        f"Port-forward did not open local port {on_port} "
+                        f"within {FORWARD_TIMEOUT_SECONDS} seconds"
+                    )
+
+                time.sleep(0.5)
+
+            yield
+        finally:
+            if forwarder is not None:
+                try:
+                    os.killpg(forwarder.pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
+
+                try:
+                    forwarder.wait(timeout=3)
+                except TimeoutExpired:
+                    pass
+
+                try:
+                    os.killpg(forwarder.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+
+                forwarder.wait()
+                logger.info("Stopped port forwarding")
 
     return _forwarder
 
@@ -462,6 +523,7 @@ def spark_bundle(
     admin_password,
     private_key,
     tfvars,
+    istio_system,
 ):
     """Deploy the Spark K8s bundle using Terraform."""
     unpinned_revisions = bool(request.config.getoption("--unpinned-revisions"))
@@ -485,6 +547,7 @@ def spark_bundle(
             "kyuubi_config": {
                 "service-account": "kyuubi-test-user",
                 "profile": "testing",
+                "pause-after-unit-refresh": "none",
             },
             "model_uuid": cast(str, juju.show_model().model_uuid),
             "storage_backend": storage_backend,
@@ -535,7 +598,14 @@ def spark_bundle(
             "s3_secret_key": credentials.secret_key,
         }
 
-    vars = base_vars | cos_vars | storage_vars
+    istio_vars = {}
+    if istio_system:
+        istio_vars = {
+            "istio_system_model_uuid": istio_system,
+            "service_mesh_mode": "managed",
+        }
+
+    vars = base_vars | cos_vars | storage_vars | istio_vars
     logger.info(f"Applying vars: {vars.keys()}")
 
     deployed_applications = bundle.apply(vars=vars)

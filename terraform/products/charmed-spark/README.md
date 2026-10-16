@@ -23,6 +23,8 @@
 | ---- | ------ | ------- |
 | <a name="module_azure_storage"></a> [azure\_storage](#module\_azure\_storage) | ../../charms/azure-storage-integrator | n/a |
 | <a name="module_data_integrator"></a> [data\_integrator](#module\_data\_integrator) | ../../charms/data-integrator | n/a |
+| <a name="module_istio_ambient"></a> [istio\_ambient](#module\_istio\_ambient) | ../../components/istio-ambient | n/a |
+| <a name="module_istio_k8s"></a> [istio\_k8s](#module\_istio\_k8s) | git::https://github.com/canonical/istio-k8s-operator//terraform | rev45 |
 | <a name="module_kyuubi"></a> [kyuubi](#module\_kyuubi) | ../../components/kyuubi | n/a |
 | <a name="module_kyuubi_users"></a> [kyuubi\_users](#module\_kyuubi\_users) | git::https://github.com/canonical/postgresql-k8s-operator//terraform | rev925 |
 | <a name="module_metastore"></a> [metastore](#module\_metastore) | git::https://github.com/canonical/postgresql-k8s-operator//terraform | rev925 |
@@ -40,6 +42,7 @@
 | [juju_access_secret.private_key_secret_access](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/access_secret) | resource |
 | [juju_access_secret.s3_secret_access](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/access_secret) | resource |
 | [juju_access_secret.system_users_secret_access](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/access_secret) | resource |
+| [juju_model.istio_system](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/model) | resource |
 | [juju_model.spark](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/model) | resource |
 | [juju_secret.azure_storage_secret](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/secret) | resource |
 | [juju_secret.private_key_secret](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/secret) | resource |
@@ -68,6 +71,15 @@
 | <a name="input_integration_hub_config"></a> [integration\_hub\_config](#input\_integration\_hub\_config) | Integration Hub configuration options. | `map(any)` | `{}` | no |
 | <a name="input_integration_hub_image"></a> [integration\_hub\_image](#input\_integration\_hub\_image) | Image for spark-integration-hub-k8s | `any` | `null` | no |
 | <a name="input_integration_hub_revision"></a> [integration\_hub\_revision](#input\_integration\_hub\_revision) | Charm revision for spark-integration-hub-k8s | `number` | `null` | no |
+| <a name="input_istio_beacon_k8s_config"></a> [istio\_beacon\_k8s\_config](#input\_istio\_beacon\_k8s\_config) | Configuration for istio-beacon-k8s application | `map(string)` | `{}` | no |
+| <a name="input_istio_beacon_k8s_revision"></a> [istio\_beacon\_k8s\_revision](#input\_istio\_beacon\_k8s\_revision) | Revision of the istio-beacon-k8s application | `number` | `null` | no |
+| <a name="input_istio_ingress_k8s_config"></a> [istio\_ingress\_k8s\_config](#input\_istio\_ingress\_k8s\_config) | Configuration for istio-ingress-k8s application | `map(string)` | `{}` | no |
+| <a name="input_istio_ingress_k8s_revision"></a> [istio\_ingress\_k8s\_revision](#input\_istio\_ingress\_k8s\_revision) | Revision of the istio-ingress-k8s application | `number` | `null` | no |
+| <a name="input_istio_k8s_config"></a> [istio\_k8s\_config](#input\_istio\_k8s\_config) | Configuration for istio-k8s application | `map(string)` | `{}` | no |
+| <a name="input_istio_k8s_platform"></a> [istio\_k8s\_platform](#input\_istio\_k8s\_platform) | Platform value for istio-k8s (always merged into its config as 'platform', including an empty string). | `string` | `""` | no |
+| <a name="input_istio_k8s_revision"></a> [istio\_k8s\_revision](#input\_istio\_k8s\_revision) | Revision of the istio-k8s application | `number` | `null` | no |
+| <a name="input_istio_system_model_name"></a> [istio\_system\_model\_name](#input\_istio\_system\_model\_name) | Name of the Juju model to create for the managed Istio control plane. | `string` | `"istio-system"` | no |
+| <a name="input_istio_system_model_uuid"></a> [istio\_system\_model\_uuid](#input\_istio\_system\_model\_uuid) | Existing Juju model UUID into which managed mode deploys istio-k8s. This does not reuse an existing Istio application and is ignored in external and disabled modes. | `string` | `null` | no |
 | <a name="input_kyuubi_config"></a> [kyuubi\_config](#input\_kyuubi\_config) | Kyuubi configuration options. | `map(any)` | `{}` | no |
 | <a name="input_kyuubi_image"></a> [kyuubi\_image](#input\_kyuubi\_image) | Image for kyuubi-k8s | `any` | `null` | no |
 | <a name="input_kyuubi_revision"></a> [kyuubi\_revision](#input\_kyuubi\_revision) | Charm revision for kyuubi-k8s | `number` | `null` | no |
@@ -88,6 +100,7 @@
 | <a name="input_s3_revision"></a> [s3\_revision](#input\_s3\_revision) | Charm revision for s3-integrator | `number` | `null` | no |
 | <a name="input_s3_secret_key"></a> [s3\_secret\_key](#input\_s3\_secret\_key) | AWS S3 Secret key. | `string` | `null` | no |
 | <a name="input_scrape_config_revision"></a> [scrape\_config\_revision](#input\_scrape\_config\_revision) | Charm revision for scrape\_config | `number` | `null` | no |
+| <a name="input_service_mesh_mode"></a> [service\_mesh\_mode](#input\_service\_mesh\_mode) | Service mesh ownership: disabled, managed (deploy istio-k8s), or external (use an existing compatible control plane on the Spark cluster). | `string` | `"disabled"` | no |
 | <a name="input_spark_model_name"></a> [spark\_model\_name](#input\_spark\_model\_name) | The name of the juju model to deploy Spark to | `string` | `"spark"` | no |
 | <a name="input_spark_risk"></a> [spark\_risk](#input\_spark\_risk) | Spark components risk channel | `string` | `"stable"` | no |
 | <a name="input_ssc_revision"></a> [ssc\_revision](#input\_ssc\_revision) | Charm revision for self-signed-certificates | `number` | `null` | no |
