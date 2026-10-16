@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    description: "Learn how to set up MicroK8s, spark-client snap, MinIO, and Juju on Ubuntu for running Charmed Apache Spark on Kubernetes."
+    description: "Learn how to set up MicroK8s, spark-client snap, MicroCeph, and Juju on Ubuntu for running Charmed Apache Spark on Kubernetes."
 ---
 
 <!-- test:spread
@@ -18,7 +18,7 @@ In this step of the tutorial, we will prepare a lightweight K8s environment, `sp
 
 * [MicroK8s](https://microk8s.io/) — a lightweight Kubernetes that can run locally
 * [Spark-client snap](https://snapcraft.io/spark-client) — a snap that bundles client-side scripts to manage, configure, and run Apache Spark jobs on a Kubernetes cluster
-* [MiniO](https://min.io/) — S3-compliant object storage
+* [MicroCeph](https://canonical.com/ceph/docs) — distributed Ceph storage with an S3-compatible object gateway
 * [Juju](https://juju.is/) — Canonical's orchestration system
 
 ## Minimum system requirements
@@ -148,9 +148,10 @@ sudo microk8s enable storage hostpath-storage
 
 sudo apt install -y jq
 
-IP_ADDR_START=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
-IP_ADDR_END=$(echo $IP_ADDR_START | awk -F. '{print $1"."$2"."$3"."$4+2}')
-sudo microk8s enable metallb:$IP_ADDR_START-$IP_ADDR_END
+IP_ADDR=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
+LB_IP_ADDR_START=$(echo $IP_ADDR | awk -F. '{print $1"."$2"."$3"."$4+1}')
+LB_IP_ADDR_END=$(echo $IP_ADDR | awk -F. '{print $1"."$2"."$3"."$4+3}')
+sudo microk8s enable metallb:$LB_IP_ADDR_START-$LB_IP_ADDR_END
 ```
 
 Wait for the commands to finish running and check the list of enabled add-ons:
@@ -315,33 +316,44 @@ spark-tutorial*  -      admin  superuser  microk8s/localhost       1      1   - 
 
 The Juju setup is complete.
 
-## MinIO
+## MicroCeph
 
 Apache Spark can be configured to use S3 for object storage.
-However, for this tutorial, instead of AWS S3, we'll use [MinIO](https://min.io/): a lightweight S3-compatible object storage.
-It is available as a MicroK8s [add-on](https://microk8s.io/docs/addon-minio) by default, allowing us to create a local S3 bucket, which is more convenient for our local tests.
+However, for this tutorial, instead of AWS S3, we'll use [MicroCeph](https://canonical.com/ceph/docs/) -- a distributed Ceph storage with an S3-compatible object gateway. It is available as a [snap](https://snapcraft.io/microceph), allowing us to create a local S3 bucket, which is more convenient for our local tests.
 
-Let's enable the MinIO add-on for MicroK8s.
+Let's install MicroCeph snap on our machine.
 
 ```shell
-sudo microk8s enable minio
+sudo snap install microceph
+```
+
+Now let's bootstrap a microceph cluster, add a disk and enable RadosGateway (RGW) -- which is a S3-compatible gateway.
+
+```shell
+sudo microceph cluster bootstrap
+sudo microceph disk add loop,1G,3
+sudo microceph enable rgw
 ```
 
 <!-- test:wait --seconds 60 -->
 
-Authentication with MinIO is managed with an access key and a secret key. 
-These credentials are generated and stored as Kubernetes secret when the MinIO add-on is enabled.
-
-Let's fetch credentials and export them as environment variables in order to use them later:
+Authentication with S3 compatible storage is managed with an access key and a secret key. These credentials in Microceph can be generated with the `radosgw-admin` command. Let's create a test user `spark`, with access key `foo` and `bar`, for test purposes.
 
 ```shell
-export ACCESS_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d)
-export SECRET_KEY=$(kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d)
-export S3_ENDPOINT=$(kubectl get service minio -n minio-operator -o jsonpath='{.spec.clusterIP}')
-export S3_BUCKET="spark-tutorial"
+export ACCESS_KEY=foo
+export SECRET_KEY=bar
+
+sudo microceph.radosgw-admin user create \
+    --uid spark --display-name spark \
+    --access-key=$ACCESS_KEY --secret-key=$SECRET_KEY
 ```
 
-The MinIO add-on offers access to a built-in Web UI which can be used to interact with the local S3 object storage. But for this tutorial, we will use CLI commands.
+Let's also export the S3 endpoint and S3 bucket as environment variables in order to use them later.
+
+```shell
+S3_ENDPOINT=$(ip -4 -j route get 2.2.2.2 | jq -r '.[] | .prefsrc')
+export S3_BUCKET="spark-tutorial"
+```
 
 To set up the AWS CLI, run the following commands:
 
@@ -350,14 +362,14 @@ sudo snap install aws-cli --classic
 
 aws configure set aws_access_key_id $ACCESS_KEY 
 aws configure set aws_secret_access_key $SECRET_KEY 
-aws configure set region "us-west-2" 
+aws configure set region default # default region for microceph 
 aws configure set endpoint_url "http://$S3_ENDPOINT"
 ```
 
 Check the tool by listing all S3 buckets:
 
 <!-- test:run
-# Retry aws s3 ls until MinIO is ready (may take a moment after addon enable)
+# Retry aws s3 ls until microceph is ready (may take a moment after addon enable)
 for i in $(seq 1 12); do
   aws s3 ls && break || sleep 10
 done
