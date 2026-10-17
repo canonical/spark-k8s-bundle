@@ -310,9 +310,7 @@ module "observability" {
   source     = "../../components/observability"
   model_uuid = local.model_uuid
 
-  dashboards_offer = var.cos_offers.dashboard
-  logging_offer    = var.cos_offers.logging
-  metrics_offer    = var.cos_offers.metrics
+  offers = var.cos_offers
 
   cos_configuration = { revision = var.cos_configuration_revision }
   grafana_agent = {

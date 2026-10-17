@@ -76,23 +76,13 @@ variable "scrape_config" {
   default = {}
 }
 
-variable "dashboards_offer" {
-  description = "URL of the `grafana_dashboard` interface offer."
-  type        = string
-  nullable    = false
-}
-
-
-variable "logging_offer" {
-  description = "URL of the `loki_push_api` interface offer."
-  type        = string
-  nullable    = false
-}
-
-variable "metrics_offer" {
-  description = "URL of the `prometheus_remote_write` interface offer."
-  type        = string
-  nullable    = false
+variable "offers" {
+  description = "COS integration interface: the offer URLs Spark requires, keyed by the Juju interface each satisfies (grafana_dashboard, loki_push_api, prometheus_remote_write)."
+  type = object({
+    grafana_dashboard       = string
+    loki_push_api           = string
+    prometheus_remote_write = string
+  })
 }
 
 variable "history_server_logging_endpoint" {

@@ -50,8 +50,8 @@ module "spark" {
   s3_config                  = {"endpoint": "https://s3.eu-central-1.amazonaws.com", "region": "eu-central-1", "bucket": "vks-validation", "path": "spark-events/"}
 
   cos_offers                 = {
-    dashboard = module.cos.offers.grafana_dashboards.url
-    logging   = module.cos.offers.loki_logging.url
-    metrics   = module.cos.offers.prometheus_receive_remote_write.url
+    grafana_dashboard       = module.cos.offers.grafana_dashboards.url
+    loki_push_api           = module.cos.offers.loki_logging.url
+    prometheus_remote_write = module.cos.offers.prometheus_receive_remote_write.url
   }
 }
