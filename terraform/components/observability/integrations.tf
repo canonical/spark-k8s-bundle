@@ -110,7 +110,7 @@ resource "juju_integration" "grafana_agent_loki" {
 
   application {
     name     = juju_application.grafana_agent.name
-    endpoint = "logging-consumer"
+    endpoint = "send-loki-logs"
   }
 
   application {
@@ -154,7 +154,7 @@ resource "juju_integration" "history_server_grafana_agent_logging" {
 
   application {
     name     = juju_application.grafana_agent.name
-    endpoint = "logging-provider"
+    endpoint = "receive-loki-logs"
   }
 }
 
@@ -196,7 +196,7 @@ resource "juju_integration" "integration_hub_grafana_agent_logging" {
 
   application {
     name     = juju_application.grafana_agent.name
-    endpoint = "logging-provider"
+    endpoint = "receive-loki-logs"
   }
 }
 
@@ -238,7 +238,7 @@ resource "juju_integration" "kyuubi_grafana_agent_logging" {
 
   application {
     name     = juju_application.grafana_agent.name
-    endpoint = "logging-provider"
+    endpoint = "receive-loki-logs"
   }
 }
 
