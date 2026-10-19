@@ -17,6 +17,15 @@ This guide assumes you already deployed Charmed Apache Spark as
 described in the [Charmed Apache Spark deployment guide](how-to-deploy-spark),
 including a Spark History Server charm configured with an object storage backend.
 
+In this guide, we will use the variable `$SPARK_MODEL` as a placeholder for the Juju model
+where the Spark History Server charm is deployed. If you want to copy the commands in the following
+sections and use it, make sure you set the value of `$SPARK_MODEL` as the actual model where
+the Spark History Server charm is deployed. For example:
+
+```bash
+export $SPARK_MODEL="spark"
+```
+
 ## Enable Authentication
 
 Authentication for Spark History Server charm is provided by the
@@ -70,6 +79,7 @@ an ingress (for example, Traefik).
 Deploy OAuth2 Proxy charm and integrate it with Spark History Server:
 
 ```bash
+juju switch $SPARK_MODEL
 juju deploy oauth2-proxy-k8s --channel latest/stable --trust
 juju integrate oauth2-proxy-k8s spark-history-server-k8s:oauth2-proxy
 ```
@@ -115,10 +125,10 @@ Also offer the endpoint `ingress` from the `core` module:
 juju offer traefik-public:ingress traefik-ingress
 ```
 
-Now, switch back to the model containing Spark History Server app and integrate the ingress with the Spark History Server and the OAuth2 Proxy charms.
+Now, switch back to the model `$SPARK_MODEL` and integrate the ingress with the Spark History Server and the OAuth2 Proxy charms.
 
 ```bash
-juju switch <spark-history-server-model>
+juju switch $SPARK_MODEL
 juju consume core.traefik-ingress
 juju integrate spark-history-server-k8s:ingress traefik-ingress
 juju integrate oauth2-proxy-k8s:ingress traefik-ingress
@@ -157,6 +167,7 @@ Istio ingress should be used. Istio ingress requires the Istio control plane to 
 Deploy `istio-ingress-k8s` charm:
 
 ```bash
+juju switch $SPARK_MODEL
 juju deploy istio-ingress-k8s --channel 2/stable --trust
 ```
 
