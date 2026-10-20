@@ -386,6 +386,7 @@ def published_loki_logs(
 @retry(stop=stop_after_attempt(6), wait=wait_fixed(5), reraise=True)
 def assert_logs(loki_address: str) -> None:
     """Check the existence of the logs."""
+    # TODO: Add app=spark selector after https://github.com/canonical/spark-k8s-bundle/issues/398 is resolved
     log_gl = urllib.parse.quote('{pebble_service="sparkd"}')
     query = httpx.get(
         f"http://{loki_address}:3100/loki/api/v1/query_range?query={log_gl}"
