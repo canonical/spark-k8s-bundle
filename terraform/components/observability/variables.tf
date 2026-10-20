@@ -32,7 +32,7 @@ variable "cos_configuration" {
 variable "otelcol" {
   type = object({
     app_name    = optional(string, "otel-collector")
-    channel     = optional(string, "dev/edge")
+    channel     = optional(string, "2/stable")
     config      = optional(map(string), {})
     constraints = optional(string, "arch=amd64")
     resources   = optional(map(string), {})
