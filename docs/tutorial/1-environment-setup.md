@@ -369,7 +369,7 @@ aws configure set endpoint_url "http://$S3_ENDPOINT"
 Check the tool by listing all S3 buckets:
 
 <!-- test:run
-# Retry aws s3 ls until microceph is ready (may take a moment after addon enable)
+# Retry aws s3 ls until microceph is ready (may take a moment)
 for i in $(seq 1 12); do
   aws s3 ls && break || sleep 10
 done
