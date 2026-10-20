@@ -46,6 +46,7 @@ TEST_DB_NAME = "sparkdb"
 TEST_TABLE_NAME = "sparktable"
 METASTORE_DATABASE_NAME = "hivemetastore"
 KYUUBI_APP_NAME = "kyuubi"
+DATA_INTEGRATOR_APP_NAME = "data-integrator"
 BACKUP_S3_INTEGRATOR_APP_NAME = "metastore-backup"
 MICROCEPH_REVISION = 1169
 
@@ -595,6 +596,24 @@ class TestNewDeployment:
         """Re-add kyuubi <> postgresql relations after the PostgreSQL restoration is complete."""
         juju.integrate(POSTGRESQL_APP_NAME, f"{KYUUBI_APP_NAME}:metastore-db")
         juju.integrate(POSTGRESQL_APP_NAME, f"{KYUUBI_APP_NAME}:auth-db")
+        juju.wait(
+            lambda status: (
+                jubilant.all_active(status) and jubilant.all_agents_idle(status)
+            ),
+            delay=5,
+        )
+
+    def test_recreate_kyuubi_client_relation(self, juju: jubilant.Juju) -> None:
+        """Recreate the client relation so Kyuubi re-creates its user in the restored users db."""
+        juju.remove_relation(
+            f"{KYUUBI_APP_NAME}:jdbc", f"{DATA_INTEGRATOR_APP_NAME}:kyuubi"
+        )
+        juju.wait(
+            lambda status: (
+                "kyuubi" not in status.apps[DATA_INTEGRATOR_APP_NAME].relations
+            )
+        )
+        juju.integrate(f"{KYUUBI_APP_NAME}:jdbc", f"{DATA_INTEGRATOR_APP_NAME}:kyuubi")
         juju.wait(
             lambda status: (
                 jubilant.all_active(status) and jubilant.all_agents_idle(status)
