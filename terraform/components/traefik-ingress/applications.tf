@@ -2,7 +2,7 @@
 # See LICENSE file for licensing details.
 
 module "traefik" {
-  source = "git::https://github.com/canonical/traefik-k8s-operator//terraform?ref=abd922dd7605d7d5b8cdfd0956b1efe47e5649cc"
+  source = "git::https://github.com/canonical/traefik-k8s-operator//terraform?ref=traefik-k8s-rev478"
 
   model_uuid         = var.model_uuid
   app_name           = var.app_name
