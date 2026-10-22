@@ -23,16 +23,13 @@ variable "channel" {
 
 variable "config" {
   description = "Map for configuration options."
-  type = object({
-    database-name = optional(string, "integrator")
-  })
+  type = map(any)
   default = {}
 }
 
 variable "constraints" {
   description = "String listing constraints for this application."
   type        = string
-  default     = "arch=amd64"
 }
 
 variable "model_uuid" {

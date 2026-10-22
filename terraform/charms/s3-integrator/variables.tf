@@ -23,19 +23,7 @@ variable "channel" {
 
 variable "config" {
   description = "Map for configuration options."
-  type = object({
-    attributes                          = optional(string)
-    bucket                              = optional(string)
-    endpoint                            = optional(string)
-    experimental-delete-older-than-days = optional(number)
-    path                                = optional(string)
-    region                              = optional(string)
-    s3-api-version                      = optional(string)
-    s3-uri-style                        = optional(string)
-    storage-class                       = optional(string)
-    tls-ca-chain                        = optional(string)
-    credentials                         = optional(string)
-  })
+  type = map(any)
   default = {}
 }
 

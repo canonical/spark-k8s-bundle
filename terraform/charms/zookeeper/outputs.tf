@@ -12,6 +12,7 @@ output "provides" {
     zookeeper = {
       name     = juju_application.zookeeper.name
       endpoint = "zookeeper"
+      kind     = "endpoint"
     }
   }
 }

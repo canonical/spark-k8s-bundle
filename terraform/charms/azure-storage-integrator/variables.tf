@@ -23,15 +23,7 @@ variable "channel" {
 
 variable "config" {
   description = "Map for configuration options."
-  type = object({
-    connection-protocol = optional(string, "abfss")
-    container           = optional(string)
-    credentials         = optional(string)
-    endpoint            = optional(string)
-    path                = optional(string)
-    resource-group      = optional(string)
-    storage-account     = optional(string)
-  })
+  type = map(any)
   default = {}
 }
 

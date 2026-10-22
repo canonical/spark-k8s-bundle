@@ -20,6 +20,7 @@ output "provides" {
     azure_storage_credentials = {
       name     = juju_application.azure_storage.name
       endpoint = "azure-storage-credentials"
+      kind     = "endpoint"
     }
   }
 }
