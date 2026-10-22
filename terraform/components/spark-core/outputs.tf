@@ -9,21 +9,10 @@ output "components" {
   }
 }
 
-output "requires" {
-  description = "Map of the requires endpoints."
+output "offers" {
+  description = "Map of all offers exposed by the component's charms."
   value = {
-    history_server_logging = {
-      name     = juju_application.history_server.name
-      endpoint = "logging"
-    }
-    integration_hub_cos = {
-      name     = juju_application.integration_hub.name
-      endpoint = "cos"
-    }
-    integration_hub_logging = {
-      name     = juju_application.integration_hub.name
-      endpoint = "logging"
-    }
+    integration_hub_service_account = juju_offer.integration_hub_service_account
   }
 }
 
@@ -45,9 +34,20 @@ output "provides" {
   }
 }
 
-output "offers" {
-  description = "Map of all offers exposed by the component's charms."
+output "requires" {
+  description = "Map of the requires endpoints."
   value = {
-    integration_hub_service_account = juju_offer.integration_hub_service_account
+    history_server_logging = {
+      name     = juju_application.history_server.name
+      endpoint = "logging"
+    }
+    integration_hub_cos = {
+      name     = juju_application.integration_hub.name
+      endpoint = "cos"
+    }
+    integration_hub_logging = {
+      name     = juju_application.integration_hub.name
+      endpoint = "logging"
+    }
   }
 }

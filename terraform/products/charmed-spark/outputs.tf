@@ -1,15 +1,6 @@
 # Copyright 2026 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-
-output "offers" {
-  description = "The name and url of the various offers being exposed"
-  value = merge(
-    module.spark_core.offers,
-    module.kyuubi.offers,
-  )
-}
-
 output "metadata" {
   description = "Metadata of the product deployment."
   value = {
@@ -52,4 +43,12 @@ output "models" {
       )
     }
   }
+}
+
+output "offers" {
+  description = "The name and url of the various offers being exposed"
+  value = merge(
+    module.spark_core.offers,
+    module.kyuubi.offers,
+  )
 }

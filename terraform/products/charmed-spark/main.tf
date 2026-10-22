@@ -193,7 +193,7 @@ module "spark_core" {
   ]
   source     = "../../components/spark-core"
   model_uuid = local.model_uuid
-  risk       = var.spark_risk
+  risk       = var.risk
 
   history_server = {
     config    = var.history_server_config
@@ -227,7 +227,7 @@ module "kyuubi" {
   ]
   source     = "../../components/kyuubi"
   model_uuid = local.model_uuid
-  risk       = var.spark_risk
+  risk       = var.risk
 
   kyuubi = {
     config = merge(
