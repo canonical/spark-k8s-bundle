@@ -34,31 +34,10 @@ variable "azure_storage_secret_key" {
   default     = null
 }
 
-variable "s3_access_key" {
-  description = "AWS S3 Access key."
-  type        = string
-  sensitive   = true
-  default     = null
-}
-
-variable "s3_secret_key" {
-  description = "AWS S3 Secret key."
-  type        = string
-  sensitive   = true
-  default     = null
-}
-
 variable "certificate_common_name" {
   description = "Common name for the certificate to be used in self-signed"
   type        = string
   default     = "charmed-spark"
-}
-
-variable "create_model" {
-  description = "Should terraform create the Juju models? If set to false, assume the models are created by a different mechanism."
-  type        = bool
-  default     = true
-  nullable    = false
 }
 
 variable "cos_configuration_revision" {
@@ -76,6 +55,13 @@ variable "cos_offers" {
     metrics   = string
   })
   default = null
+}
+
+variable "create_model" {
+  description = "Should terraform create the Juju models? If set to false, assume the models are created by a different mechanism."
+  type        = bool
+  default     = true
+  nullable    = false
 }
 
 variable "data_integrator_revision" {
@@ -117,33 +103,20 @@ variable "history_server_revision" {
   nullable    = true
 }
 
-variable "integration_hub_image" {
-  description = "Image for spark-integration-hub-k8s"
-  type        = any
-  default     = null
-}
-
 variable "integration_hub_config" {
   description = "Integration Hub configuration options."
   type        = map(any)
   default     = {}
 }
 
-variable "integration_hub_revision" {
-  description = "Charm revision for spark-integration-hub-k8s"
-  type        = number
-  default     = null
-  nullable    = true
-}
-
-variable "kyuubi_users_image" {
-  description = "Image for postgresql-k8s (auth-db)"
+variable "integration_hub_image" {
+  description = "Image for spark-integration-hub-k8s"
   type        = any
   default     = null
 }
 
-variable "kyuubi_users_revision" {
-  description = "Charm revision for postgresql-k8s (auth-db)"
+variable "integration_hub_revision" {
+  description = "Charm revision for spark-integration-hub-k8s"
   type        = number
   default     = null
   nullable    = true
@@ -173,6 +146,19 @@ variable "kyuubi_units" {
   type        = number
   default     = 3
   nullable    = false
+}
+
+variable "kyuubi_users_image" {
+  description = "Image for postgresql-k8s (auth-db)"
+  type        = any
+  default     = null
+}
+
+variable "kyuubi_users_revision" {
+  description = "Charm revision for postgresql-k8s (auth-db)"
+  type        = number
+  default     = null
+  nullable    = true
 }
 
 variable "kyuubi_users_size" {
@@ -206,43 +192,6 @@ variable "metastore_size" {
   default     = "10G"
 }
 
-variable "pushgateway_image" {
-  description = "Image for pushgateway"
-  type        = any
-  default     = null
-}
-
-variable "pushgateway_revision" {
-  description = "Charm revision for pushgateway"
-  type        = number
-  default     = null
-  nullable    = true
-}
-
-variable "scrape_config_revision" {
-  description = "Charm revision for scrape_config"
-  type        = number
-  default     = null
-  nullable    = true
-}
-
-variable "spark_model_name" {
-  description = "The name of the juju model to deploy Spark to"
-  type        = string
-  default     = "spark"
-}
-
-variable "spark_risk" {
-  description = "Spark components risk channel"
-  type        = string
-  default     = "stable"
-
-  validation {
-    condition     = contains(["edge", "beta", "candidate", "stable"], var.spark_risk)
-    error_message = "'spark_risk' can only take the following value: 'edge', 'beta', 'candidate' or 'stable'."
-  }
-}
-
 variable "model_uuid" {
   description = "Optional existing Juju model UUID to deploy Spark to. If provided, model creation is skipped in higher-level modules."
   type        = string
@@ -259,11 +208,35 @@ variable "proxy" {
   default = {}
 }
 
-variable "ssc_revision" {
-  description = "Charm revision for self-signed-certificates"
+variable "pushgateway_image" {
+  description = "Image for pushgateway"
+  type        = any
+  default     = null
+}
+
+variable "pushgateway_revision" {
+  description = "Charm revision for pushgateway"
   type        = number
   default     = null
   nullable    = true
+}
+
+variable "risk" {
+  description = "Spark components risk channel"
+  type        = string
+  default     = "stable"
+
+  validation {
+    condition     = contains(["edge", "beta", "candidate", "stable"], var.risk)
+    error_message = "'risk' can only take the following value: 'edge', 'beta', 'candidate' or 'stable'."
+  }
+}
+
+variable "s3_access_key" {
+  description = "AWS S3 Access key."
+  type        = string
+  sensitive   = true
+  default     = null
 }
 
 variable "s3_config" {
@@ -285,6 +258,33 @@ variable "s3_config" {
 
 variable "s3_revision" {
   description = "Charm revision for s3-integrator"
+  type        = number
+  default     = null
+  nullable    = true
+}
+
+variable "s3_secret_key" {
+  description = "AWS S3 Secret key."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
+variable "scrape_config_revision" {
+  description = "Charm revision for scrape_config"
+  type        = number
+  default     = null
+  nullable    = true
+}
+
+variable "spark_model_name" {
+  description = "The name of the juju model to deploy Spark to"
+  type        = string
+  default     = "spark"
+}
+
+variable "ssc_revision" {
+  description = "Charm revision for self-signed-certificates"
   type        = number
   default     = null
   nullable    = true

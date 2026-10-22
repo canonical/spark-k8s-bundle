@@ -17,6 +17,7 @@ output "requires" {
     kyuubi = {
       name     = juju_application.data_integrator.name
       endpoint = "kyuubi"
+      kind     = "endpoint"
     }
   }
 }

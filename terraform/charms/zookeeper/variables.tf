@@ -30,7 +30,6 @@ variable "config" {
 variable "constraints" {
   description = "String listing constraints for this application."
   type        = string
-  default     = "arch=amd64"
 }
 
 variable "model_uuid" {
@@ -42,7 +41,7 @@ variable "model_uuid" {
 variable "resources" {
   description = "Resources to attach to the application (e.g. OCI images)."
   type        = map(any)
-  default     = null
+  default     = {}
 }
 
 variable "revision" {
@@ -60,5 +59,5 @@ variable "storage_size" {
 variable "units" {
   description = "Unit count. 3 units are recommended for high availability."
   type        = number
-  default     = 3
+  default     = 1
 }

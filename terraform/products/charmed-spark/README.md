@@ -89,7 +89,7 @@
 | <a name="input_s3_secret_key"></a> [s3\_secret\_key](#input\_s3\_secret\_key) | AWS S3 Secret key. | `string` | `null` | no |
 | <a name="input_scrape_config_revision"></a> [scrape\_config\_revision](#input\_scrape\_config\_revision) | Charm revision for scrape\_config | `number` | `null` | no |
 | <a name="input_spark_model_name"></a> [spark\_model\_name](#input\_spark\_model\_name) | The name of the juju model to deploy Spark to | `string` | `"spark"` | no |
-| <a name="input_spark_risk"></a> [spark\_risk](#input\_spark\_risk) | Spark components risk channel | `string` | `"stable"` | no |
+| <a name="risk"></a> [spark\_risk](#input\_spark\_risk) | Spark components risk channel | `string` | `"stable"` | no |
 | <a name="input_ssc_revision"></a> [ssc\_revision](#input\_ssc\_revision) | Charm revision for self-signed-certificates | `number` | `null` | no |
 | <a name="input_storage_backend"></a> [storage\_backend](#input\_storage\_backend) | Storage backend to be used | `string` | `"s3"` | no |
 | <a name="input_tls_private_key"></a> [tls\_private\_key](#input\_tls\_private\_key) | The file path of the base64 encoded private key to use for TLS certificates. | `string` | `null` | no |

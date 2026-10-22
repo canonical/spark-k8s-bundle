@@ -20,6 +20,7 @@ output "provides" {
     s3_credentials = {
       name     = juju_application.s3_integrator.name
       endpoint = "s3-credentials"
+      kind     = "endpoint"
     }
   }
 }

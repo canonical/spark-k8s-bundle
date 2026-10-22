@@ -502,7 +502,7 @@ def spark_bundle(
                 else {}
             ),
             # TODO: Remove this once we have charms in stable
-            "spark_risk": "beta",
+            "risk": "beta",
         }
     # Merge external Terraform variables
     base_vars.update(tfvars)
