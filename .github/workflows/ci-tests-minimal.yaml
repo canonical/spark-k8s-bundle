@@ -17,7 +17,7 @@ jobs:
     uses: ./.github/workflows/ci-checks.yaml
 
   integration-tests:
-    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark | ${{ matrix.storage-backend }} | ${{ matrix.cos-model }}"
+    name: "${{ matrix.tox-env }} (${{ matrix.k8s-distribution }}:${{ matrix.k8s-version }}): spark | ${{ matrix.storage-backend }} | ${{ matrix.cos-model }} | ${{ matrix.istio-model }}"
     runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
     # runs-on: ubuntu-22.04
     timeout-minutes: 120
@@ -68,6 +68,20 @@ jobs:
             k8s-version: "1.32"
             unpinned: "--unpinned-revisions"
 
+          # Test Spark Job once with service mesh
+          - tox-env: integration-sparkjob
+            storage-backend: s3
+            juju-snap-channel: "3.6/stable"
+            cos-model: cos
+            istio-model: istio-system
+
+          # Test Kyuubi once with service mesh
+          - tox-env: integration-kyuubi
+            storage-backend: s3
+            juju-snap-channel: "3.6/stable"
+            cos-model: cos
+            istio-model: istio-system
+
     needs:
       - checks
 
@@ -87,6 +101,7 @@ jobs:
           azure-storage-key: ${{ secrets.AZURE_STORAGE_KEY }}
           pytest-args: ${{ matrix.tox-env != 'integration-backup-restore' && '--keep-models' || ''}}
           unpinned: ${{ matrix.unpinned }}
+          istio-model: ${{ matrix.istio-model }}
           tfvars-file: ${{ inputs.tfvars-file }}
 
   aggregate-results:

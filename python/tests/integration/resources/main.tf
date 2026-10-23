@@ -15,7 +15,7 @@ terraform {
 variable "create_model" {
   description = "Should terraform create the Juju models? If set to false, assume the models are created by a different mechanism."
   type        = bool
-  default     = true
+  default     = false
   nullable    = false
 }
 
@@ -141,6 +141,13 @@ variable "azure_storage_revision" {
   description = "Revision for Azure storage"
 }
 
+variable "istio_k8s_revision" {
+  description = "Revision of the istio-k8s application"
+  type        = number
+  default     = null
+  nullable    = true
+}
+
 variable "history_server_image" {
   type        = any
   default     = null
@@ -183,10 +190,10 @@ variable "cos_configuration_revision" {
   description = "Revision for COS configuration"
 }
 
-variable "grafana_agent_revision" {
+variable "otelcol_revision" {
   type        = string
   default     = null
-  description = "Revision for the Grafana agent"
+  description = "Revision for the OpenTelemetry Collector"
 }
 
 variable "pushgateway_revision" {
@@ -199,12 +206,6 @@ variable "scrape_config_revision" {
   type        = string
   default     = null
   description = "Revision for the scrape configuration"
-}
-
-variable "grafana_agent_image" {
-  type        = string
-  default     = null
-  description = "Image for the Grafana agent"
 }
 
 variable "pushgateway_image" {
@@ -222,6 +223,35 @@ variable "spark_risk" {
     condition     = contains(["edge", "beta", "candidate", "stable"], var.spark_risk)
     error_message = "'spark_risk' can only take the following value: 'edge', 'beta', 'candidate' or 'stable'."
   }
+}
+
+variable "istio_k8s_platform" {
+  description = "Platform for the Istio k8s application"
+  type        = string
+  default     = "microk8s"
+
+  validation {
+    condition     = contains(["microk8s", "k8s"], var.istio_k8s_platform)
+    error_message = "'istio_k8s_platform' can only take the following value: 'microk8s', or 'k8s'."
+  }
+}
+
+variable "service_mesh_mode" {
+  description = "Service mesh ownership: disabled, managed, or external."
+  type        = string
+  default     = "disabled"
+  nullable    = false
+
+  validation {
+    condition     = contains(["disabled", "managed", "external"], var.service_mesh_mode)
+    error_message = "service_mesh_mode must be disabled, managed, or external."
+  }
+}
+
+variable "istio_system_model_uuid" {
+  description = "UUID of the existing Juju model into which managed mode deploys istio-k8s; not a reference to an existing Istio deployment."
+  type        = string
+  default     = null
 }
 
 module "cos" {
@@ -243,7 +273,7 @@ module "spark" {
   source     = "./products/charmed-spark"
 
   model_uuid   = length(juju_model.spark) != 0 ? juju_model.spark[0].uuid : var.model_uuid
-  create_model = false
+  create_model = var.create_model
 
   admin_password             = var.admin_password
   azure_storage_config       = var.azure_storage_config
@@ -251,8 +281,7 @@ module "spark" {
   azure_storage_secret_key   = var.azure_storage_secret_key
   cos_configuration_revision = var.cos_configuration_revision
   data_integrator_revision   = var.data_integrator_revision
-  grafana_agent_image        = var.grafana_agent_image
-  grafana_agent_revision     = var.grafana_agent_revision
+  otelcol_revision           = var.otelcol_revision
   history_server_image       = var.history_server_image
   history_server_revision    = var.history_server_revision
   integration_hub_image      = var.integration_hub_image
@@ -280,6 +309,11 @@ module "spark" {
   zookeeper_revision         = var.zookeeper_revision
   zookeeper_units            = 1
   spark_risk                 = var.spark_risk
+
+  service_mesh_mode       = var.service_mesh_mode
+  istio_k8s_platform      = var.istio_k8s_platform
+  istio_k8s_revision      = var.istio_k8s_revision
+  istio_system_model_uuid = var.istio_system_model_uuid
 
   cos_offers = module.cos != [] ? {
     dashboard = module.cos[0].offers.grafana_dashboards.url

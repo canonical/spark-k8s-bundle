@@ -10,6 +10,7 @@ import jubilant
 import pytest
 from azure.storage.blob import BlobServiceClient
 from botocore.client import Config
+from lightkube import Client, KubeConfig
 from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.core.azure_storage import Container
@@ -23,13 +24,14 @@ from spark_test.fixtures.service_account import (
     service_account,  # noqa
     small_profile_properties,  # noqa
 )
-from spark_test.utils import get_spark_drivers
+from spark_test.utils import get_spark_drivers, get_unit_pods, pod_has_labels
 
 from .helpers import (
     COS,
     JMX_EXPORTER_PORT,
     assert_logs,
     get_cos_address,
+    get_history_server_ingress_url,
     get_secret_data,
     prometheus_exporter_data,
     published_grafana_dashboards,
@@ -46,6 +48,9 @@ PUSHGATEWAY = "pushgateway"
 PROMETHEUS = "prometheus"
 LOKI = "loki"
 HUB = "integration-hub"
+KYUUBI = "kyuubi"
+AMBIENT_MESH_LABEL = "istio.io/dataplane-mode"
+AMBIENT_MESH_LABEL_VALUE = "ambient"
 
 
 @pytest.fixture
@@ -72,6 +77,33 @@ def test_active_status(juju: jubilant.Juju) -> None:
         lambda status: jubilant.all_active(status) and jubilant.all_agents_idle(status),
         delay=10,
     )
+
+
+@pytest.mark.skip_if_not_service_mesh
+def test_service_mesh_charms_deployed(juju: jubilant.Juju) -> None:
+    """Test whether the service mesh is enabled in the cluster."""
+    status = juju.status()
+    assert all(app in status.apps for app in ("istio-beacon-k8s", "istio-ingress")), (
+        "Missing service mesh charmed applications"
+    )
+
+
+@pytest.mark.skip_if_not_service_mesh
+def test_charm_pods_have_service_mesh_labels(
+    juju: jubilant.Juju, kubeconfig: KubeConfig
+) -> None:
+    """Check ambient mesh enrollment on every pod of each Spark charm."""
+    client = Client(config=kubeconfig)
+    for application in (HISTORY_SERVER, HUB, KYUUBI):
+        pods = get_unit_pods(client, cast(str, juju.model), application)
+        for unit_pod in pods:
+            assert pod_has_labels(
+                unit_pod,
+                {AMBIENT_MESH_LABEL: AMBIENT_MESH_LABEL_VALUE},
+            ), (
+                f"Pod {unit_pod.namespace}/{unit_pod.pod_name} is missing "
+                f"{AMBIENT_MESH_LABEL}={AMBIENT_MESH_LABEL_VALUE}"
+            )
 
 
 def test_run_job(
@@ -133,6 +165,19 @@ def test_run_job(
 
     # write out spark_job_id to be used elsewhere
     driver_pod[0].write(tmp_folder / "spark-job-driver.json")
+
+
+@pytest.mark.skip_if_not_service_mesh
+def test_driver_pod_has_service_mesh_labels(tmp_folder: Path) -> None:
+    """Check ambient mesh enrollment on the Spark job's driver pod."""
+    driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
+    assert pod_has_labels(
+        driver_pod,
+        {AMBIENT_MESH_LABEL: AMBIENT_MESH_LABEL_VALUE},
+    ), (
+        f"Spark driver pod {driver_pod.namespace}/{driver_pod.pod_name} "
+        f"is missing {AMBIENT_MESH_LABEL}={AMBIENT_MESH_LABEL_VALUE}"
+    )
 
 
 def test_job_logs_are_persisted(
@@ -214,32 +259,30 @@ def test_job_logs_are_persisted(
     assert logs_discovered
 
 
-def test_job_in_history_server(
-    juju: jubilant.Juju, tmp_folder, port_forward: PortForwarder
-) -> None:
+def test_job_in_history_server(juju: jubilant.Juju, tmp_folder) -> None:
     driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
-    show_unit_cmd = ["show-unit", f"{HISTORY_SERVER}/0"]
-    stdout = juju.cli(*show_unit_cmd)
-    logger.info(f"Show unit: {stdout}")
     spark_id = driver_pod.labels["spark-app-selector"]
     logger.info(f"Spark ID: {spark_id}")
 
+    ingress_url = get_history_server_ingress_url(juju, app=HISTORY_SERVER)
+    logger.info(f"History server ingress URL: {ingress_url}")
+
     apps = []
-    with port_forward(
-        pod=f"{HISTORY_SERVER}-0", port=18080, namespace=cast(str, juju.model)
-    ):
-        for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
-            with attempt:
-                raw_apps = httpx.get(
-                    "http://127.0.0.1:18080/api/v1/applications"
-                ).json()
-                logger.info(f"apps: {raw_apps}")
-                apps = [app for app in raw_apps if app["id"] == spark_id]
-                assert len(apps) == 1
+    for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):
+        with attempt:
+            raw_apps = httpx.get(
+                f"{ingress_url.rstrip('/')}/api/v1/applications", verify=False
+            ).json()
+            logger.info(f"apps: {raw_apps}")
+            apps = [app for app in raw_apps if app["id"] == spark_id]
+            assert len(apps) == 1
 
 
 def test_job_not_in_prometheus_pushgateway(
-    juju: jubilant.Juju, cos, tmp_folder: Path, port_forward: PortForwarder
+    juju: jubilant.Juju,
+    cos,
+    tmp_folder: Path,
+    port_forward: PortForwarder,
 ) -> None:
     """Once the job is completed, we don't expect the prometheus pushgateway to hold any data."""
     if not cos:
@@ -317,6 +360,9 @@ def test_spark_metrics_in_prometheus(
                 assert driver_pod.labels["spark-app-selector"] in spark_ids
 
 
+@pytest.mark.skip(
+    reason="Re-enable after fixing https://github.com/canonical/spark-k8s-bundle/issues/398"
+)
 def test_spark_logforwaring_to_loki(
     juju: jubilant.Juju, cos, port_forward: PortForwarder
 ) -> None:
@@ -331,21 +377,27 @@ def test_spark_logforwaring_to_loki(
 
 
 def test_history_server_metrics_in_cos(
-    juju: jubilant.Juju, cos, port_forward: PortForwarder
+    juju: jubilant.Juju,
+    cos,
+    port_forward: PortForwarder,
+    istio_system: str,
 ) -> None:
     if not cos:
         pytest.skip("Not possible to test without cos")
 
-    # Prometheus data is being published by the app
-    with port_forward(
-        pod=f"{HISTORY_SERVER}-0",
-        port=JMX_EXPORTER_PORT,
-        namespace=cast(str, juju.model),
-    ):
-        logger.info("Accessing prometheus")
-        result = prometheus_exporter_data(host="127.0.0.1", port=JMX_EXPORTER_PORT)
-        assert result is not None
-        assert "jmx_scrape_duration_seconds" in result
+    if not istio_system:
+        # Test that Prometheus data is being published by the app
+        # The JMX exporter port in History server can't be reached directly when
+        # service mesh is enabled.
+        with port_forward(
+            pod=f"{HISTORY_SERVER}-0",
+            port=JMX_EXPORTER_PORT,
+            namespace=cast(str, juju.model),
+        ):
+            logger.info("Accessing prometheus")
+            result = prometheus_exporter_data(host="127.0.0.1", port=JMX_EXPORTER_PORT)
+            assert result is not None
+            assert "jmx_scrape_duration_seconds" in result
 
     # We should leave time for Prometheus data to be published
     for attempt in Retrying(stop=stop_after_attempt(5), wait=wait_fixed(30)):

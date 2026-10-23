@@ -10,10 +10,12 @@ from typing import cast
 import jubilant
 import psycopg2
 import pytest
+from lightkube import Client
 from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.core.kyuubi import KyuubiClient
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace  # noqa
+from spark_test.utils import get_spark_drivers, get_unit_pods, pod_has_labels
 from tests.integration.types import PortForwarder
 
 from .helpers import (
@@ -33,6 +35,9 @@ logger = logging.getLogger(__name__)
 METASTORE = "metastore"
 METASTORE_DATABASE_NAME = "hivemetastore"
 KYUUBI_APP_NAME = "kyuubi"
+HUB_APP_NAME = "hub"
+AMBIENT_MESH_LABEL = "istio.io/dataplane-mode"
+AMBIENT_MESH_LABEL_VALUE = "ambient"
 
 
 @pytest.mark.skip_if_deployed
@@ -48,6 +53,33 @@ def test_active_status(juju: jubilant.Juju) -> None:
         lambda status: jubilant.all_active(status) and jubilant.all_agents_idle(status),
         delay=10,
     )
+
+
+@pytest.mark.skip_if_not_service_mesh
+def test_service_mesh_charms_deployed(juju: jubilant.Juju) -> None:
+    """Test whether the service mesh is enabled in the cluster."""
+    status = juju.status()
+    assert all(app in status.apps for app in ("istio-beacon-k8s", "istio-ingress")), (
+        "Missing service mesh charmed applications"
+    )
+
+
+@pytest.mark.skip_if_not_service_mesh
+def test_charm_pods_have_service_mesh_labels(
+    juju: jubilant.Juju,
+) -> None:
+    """Check ambient mesh enrollment on every pod of each Spark charm."""
+    client = Client()
+    for application in (HUB_APP_NAME, KYUUBI_APP_NAME):
+        pods = get_unit_pods(client, cast(str, juju.model), application)
+        for pod in pods:
+            assert pod_has_labels(
+                pod,
+                {AMBIENT_MESH_LABEL: AMBIENT_MESH_LABEL_VALUE},
+            ), (
+                f"Pod {pod.namespace}/{pod.pod_name} is missing "
+                f"{AMBIENT_MESH_LABEL}={AMBIENT_MESH_LABEL_VALUE}"
+            )
 
 
 def test_authentication_is_enforced(juju: jubilant.Juju) -> None:
@@ -106,6 +138,20 @@ def test_jdbc_endpoint(juju: jubilant.Juju) -> None:
         ("jordan", "usa", 1963),
     )
     assert len(list(table.rows())) == 3
+
+
+@pytest.mark.skip_if_not_service_mesh
+def test_kyuubi_workload_is_meshed(juju: jubilant.Juju) -> None:
+    """Check ambient mesh enrollment on the Spark job's driver pod."""
+    driver_pods = get_spark_drivers(namespace=cast(str, juju.model))
+    for driver_pod in driver_pods:
+        assert pod_has_labels(
+            driver_pod,
+            {AMBIENT_MESH_LABEL: AMBIENT_MESH_LABEL_VALUE},
+        ), (
+            f"Spark driver pod {driver_pod.namespace}/{driver_pod.pod_name} "
+            f"is missing {AMBIENT_MESH_LABEL}={AMBIENT_MESH_LABEL_VALUE}"
+        )
 
 
 def test_postgresql_metastore_is_used(

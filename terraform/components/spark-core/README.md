@@ -12,10 +12,12 @@ The spark-core module provides the core components for the Spark ecosystem, incl
 
 - `history_server`: Configuration for the Spark History Server application
 - `integration_hub`: Configuration for the Spark Integration Hub application
+- `ingress`: Optional integration for the History Server ingress, such as `traefik-k8s` or `istio-ingress-k8s` (default: null)
 - `object_storage`: External integration for the object storage integrator application
 - `object_storage_interface`: The interface of the object storage backend (s3-credentials or azure-storage-credentials)
 - `model_uuid`: Reference to an existing model uuid
 - `risk`: Component's charms risk channel (edge, beta, candidate, or stable; default: stable)
+- `service_mesh`: Optional integration with an Istio service mesh (default: null)
 
 ### Outputs
 
@@ -48,8 +50,11 @@ No modules.
 | ---- | ---- |
 | [juju_application.history_server](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
 | [juju_application.integration_hub](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
+| [juju_integration.history_server_ingress](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.history_server_object_storage](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.history_server_service_mesh](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.integration_hub_object_storage](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.integration_hub_service_mesh](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_offer.integration_hub_service_account](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/offer) | resource |
 | [juju_charm.spark](https://registry.terraform.io/providers/juju/juju/latest/docs/data-sources/charm) | data source |
 
@@ -58,11 +63,13 @@ No modules.
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_history_server"></a> [history\_server](#input\_history\_server) | n/a | <pre>object({<br/>    app_name    = optional(string, "history-server")<br/>    base        = optional(string, "ubuntu@22.04")<br/>    config      = optional(map(string), {})<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(any))<br/>    revision    = optional(number)<br/>    track       = optional(string, "3")<br/>    units       = optional(number, 1)<br/>  })</pre> | `{}` | no |
+| <a name="input_ingress"></a> [ingress](#input\_ingress) | External integration for the history server ingress (traefik-k8s or istio-ingress-k8s). | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | `null` | no |
 | <a name="input_integration_hub"></a> [integration\_hub](#input\_integration\_hub) | n/a | <pre>object({<br/>    app_name    = optional(string, "integration-hub")<br/>    base        = optional(string, "ubuntu@22.04")<br/>    config      = optional(map(string), {})<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(any))<br/>    revision    = optional(number)<br/>    track       = optional(string, "3")<br/>    units       = optional(number, 1)<br/>  })</pre> | `{}` | no |
 | <a name="input_model_uuid"></a> [model\_uuid](#input\_model\_uuid) | Reference to an existing model uuid. | `string` | n/a | yes |
 | <a name="input_object_storage"></a> [object\_storage](#input\_object\_storage) | External integration for the object storage integrator application. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | n/a | yes |
 | <a name="input_object_storage_interface"></a> [object\_storage\_interface](#input\_object\_storage\_interface) | The interface of the object storage backend. | `string` | n/a | yes |
 | <a name="input_risk"></a> [risk](#input\_risk) | Component's charms risk channel | `string` | `"stable"` | no |
+| <a name="input_service_mesh"></a> [service\_mesh](#input\_service\_mesh) | External integration for the istio service mesh | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | `null` | no |
 
 ### Outputs
 

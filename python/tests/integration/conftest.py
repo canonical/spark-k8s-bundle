@@ -8,7 +8,6 @@ import json
 import logging
 import os
 import shutil
-import signal
 import socket
 import subprocess
 import time
@@ -16,7 +15,6 @@ import uuid
 from contextlib import contextmanager
 from pathlib import Path
 from subprocess import PIPE, Popen, TimeoutExpired, check_output
-from psutil import Process
 from typing import cast
 
 import hcl2
@@ -24,6 +22,7 @@ import jubilant
 import pytest
 import yaml
 from dotenv import load_dotenv
+from psutil import Process
 from spark8t.utils import PropertyFile
 from tenacity import retry, stop_after_attempt
 
@@ -64,6 +63,11 @@ def pytest_runtest_setup(item):
         and item.config.getoption("--model") is not None
     ):
         pytest.skip("Skipping deployment because --no-deploy was specified.")
+
+    if "skip_if_not_service_mesh" in item.keywords and not item.config.getoption(
+        "--istio-system-model"
+    ):
+        pytest.skip("Skipping test that is relevant only with the service mesh.")
 
 
 def pytest_addoption(parser):
@@ -128,6 +132,17 @@ def pytest_addoption(parser):
         action="store_true",
         help="Do not use the pinned revisions for the product module",
     )
+    parser.addoption(
+        "--istio-system-model",
+        required=False,
+        type=str,
+        nargs="?",
+        const="",
+        default="",
+        help="When provided, it deploys the Istio system model as well. "
+        "If the model already exists, we assume the Istio system model had already been "
+        "deployed.",
+    )
 
 
 def determine_scope(fixture_name, config):
@@ -183,6 +198,12 @@ def juju(request: pytest.FixtureRequest):
 def cos_model(request) -> None | str:
     """The name of the model in which COS is either already deployed or is to be deployed."""
     return request.config.getoption("--cos-model")
+
+
+@pytest.fixture(scope="module")
+def istio_system_model(request) -> None | str:
+    """The name of the model in which COS is either already deployed or is to be deployed."""
+    return request.config.getoption("--istio-system-model")
 
 
 @pytest.fixture(scope="module")
@@ -305,7 +326,7 @@ def cos(cos_model: str, request: pytest.FixtureRequest):
     cos.model = cos_model
     try:
         cos.status()
-        yield cos_model
+        yield cast(str, cos.show_model().model_uuid)
     except jubilant.CLIError:
         cos.add_model(cos_model)
         yield cast(str, cos.show_model().model_uuid)
@@ -322,6 +343,41 @@ def cos(cos_model: str, request: pytest.FixtureRequest):
         keep_models = bool(request.config.getoption("--keep-models"))
         if not keep_models and test_passed:
             cos.destroy_model(cos.model, destroy_storage=True, force=True)
+
+
+@pytest.fixture(scope=determine_scope)
+def istio_system(istio_system_model: str, request: pytest.FixtureRequest):
+    """
+    Handle istio-system Juju model lifecycle and yield its uuid.
+    """
+    if not istio_system_model:
+        yield None
+        return
+
+    istio_system = jubilant.Juju()
+    istio_system.wait_timeout = 30 * 60
+    istio_system.model = istio_system_model
+    try:
+        istio_system.status()
+        yield cast(str, istio_system.show_model().model_uuid)
+    except jubilant.CLIError:
+        istio_system.add_model(istio_system_model)
+        yield cast(str, istio_system.show_model().model_uuid)
+    finally:
+        debug_log = istio_system.debug_log(limit=50)
+        status = istio_system.cli("status")
+
+        test_passed = True
+        if request.session.testsfailed:
+            print(debug_log, end="")
+            logger.info(status)
+            test_passed = False
+
+        keep_models = bool(request.config.getoption("--keep-models"))
+        if not keep_models and test_passed:
+            istio_system.destroy_model(
+                istio_system.model, destroy_storage=True, force=True
+            )
 
 
 @pytest.fixture(scope="module")
@@ -462,6 +518,7 @@ def spark_bundle(
     admin_password,
     private_key,
     tfvars,
+    istio_system,
 ):
     """Deploy the Spark K8s bundle using Terraform."""
     unpinned_revisions = bool(request.config.getoption("--unpinned-revisions"))
@@ -485,6 +542,7 @@ def spark_bundle(
             "kyuubi_config": {
                 "service-account": "kyuubi-test-user",
                 "profile": "testing",
+                "pause-after-unit-refresh": "none",
             },
             "model_uuid": cast(str, juju.show_model().model_uuid),
             "storage_backend": storage_backend,
@@ -535,7 +593,14 @@ def spark_bundle(
             "s3_secret_key": credentials.secret_key,
         }
 
-    vars = base_vars | cos_vars | storage_vars
+    istio_vars = {}
+    if istio_system:
+        istio_vars = {
+            "istio_system_model_uuid": istio_system,
+            "service_mesh_mode": "managed",
+        }
+
+    vars = base_vars | cos_vars | storage_vars | istio_vars
     logger.info(f"Applying vars: {vars.keys()}")
 
     deployed_applications = bundle.apply(vars=vars)
