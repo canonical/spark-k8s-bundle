@@ -360,6 +360,9 @@ def test_spark_metrics_in_prometheus(
                 assert driver_pod.labels["spark-app-selector"] in spark_ids
 
 
+@pytest.mark.skip(
+    reason="Re-enable after fixing https://github.com/canonical/spark-k8s-bundle/issues/398"
+)
 def test_spark_logforwaring_to_loki(
     juju: jubilant.Juju, cos, port_forward: PortForwarder
 ) -> None:
