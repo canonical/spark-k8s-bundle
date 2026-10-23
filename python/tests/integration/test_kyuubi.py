@@ -15,7 +15,7 @@ from tenacity import Retrying, stop_after_attempt, wait_fixed
 
 from spark_test.core.kyuubi import KyuubiClient
 from spark_test.fixtures.k8s import envs, interface, kubeconfig, namespace  # noqa
-from spark_test.utils import get_spark_drivers
+from spark_test.utils import get_spark_drivers, get_unit_pods, pod_has_labels
 from tests.integration.types import PortForwarder
 
 from .helpers import (
@@ -24,8 +24,6 @@ from .helpers import (
     get_cos_address,
     get_kyuubi_credentials,
     get_postgresql_credentials,
-    get_unit_pod_names,
-    pod_has_labels,
     published_grafana_dashboards,
     published_loki_logs,
     published_prometheus_alerts,
@@ -73,15 +71,13 @@ def test_charm_pods_have_service_mesh_labels(
     """Check ambient mesh enrollment on every pod of each Spark charm."""
     client = Client()
     for application in (HUB_APP_NAME, KYUUBI_APP_NAME):
-        pod_names = get_unit_pod_names(client, cast(str, juju.model), application)
-        for pod_name in pod_names:
+        pods = get_unit_pods(client, cast(str, juju.model), application)
+        for pod in pods:
             assert pod_has_labels(
-                client,
-                pod_name,
-                cast(str, juju.model),
+                pod,
                 {AMBIENT_MESH_LABEL: AMBIENT_MESH_LABEL_VALUE},
             ), (
-                f"Pod {cast(str, juju.model)}/{pod_name} is missing "
+                f"Pod {pod.namespace}/{pod.pod_name} is missing "
                 f"{AMBIENT_MESH_LABEL}={AMBIENT_MESH_LABEL_VALUE}"
             )
 

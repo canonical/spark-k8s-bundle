@@ -24,7 +24,7 @@ from spark_test.fixtures.service_account import (
     service_account,  # noqa
     small_profile_properties,  # noqa
 )
-from spark_test.utils import get_spark_drivers
+from spark_test.utils import get_spark_drivers, get_unit_pods, pod_has_labels
 
 from .helpers import (
     COS,
@@ -33,8 +33,6 @@ from .helpers import (
     get_cos_address,
     get_history_server_ingress_url,
     get_secret_data,
-    get_unit_pod_names,
-    pod_has_labels,
     prometheus_exporter_data,
     published_grafana_dashboards,
     published_loki_logs,
@@ -97,15 +95,13 @@ def test_charm_pods_have_service_mesh_labels(
     """Check ambient mesh enrollment on every pod of each Spark charm."""
     client = Client(config=kubeconfig)
     for application in (HISTORY_SERVER, HUB, KYUUBI):
-        pod_names = get_unit_pod_names(client, cast(str, juju.model), application)
-        for pod_name in pod_names:
+        pods = get_unit_pods(client, cast(str, juju.model), application)
+        for unit_pod in pods:
             assert pod_has_labels(
-                client,
-                pod_name,
-                cast(str, juju.model),
+                unit_pod,
                 {AMBIENT_MESH_LABEL: AMBIENT_MESH_LABEL_VALUE},
             ), (
-                f"Pod {cast(str, juju.model)}/{pod_name} is missing "
+                f"Pod {unit_pod.namespace}/{unit_pod.pod_name} is missing "
                 f"{AMBIENT_MESH_LABEL}={AMBIENT_MESH_LABEL_VALUE}"
             )
 
@@ -176,9 +172,7 @@ def test_driver_pod_has_service_mesh_labels(tmp_folder: Path) -> None:
     """Check ambient mesh enrollment on the Spark job's driver pod."""
     driver_pod = Pod.load(tmp_folder / "spark-job-driver.json")
     assert pod_has_labels(
-        driver_pod.client,
-        driver_pod.pod_name,
-        driver_pod.namespace,
+        driver_pod,
         {AMBIENT_MESH_LABEL: AMBIENT_MESH_LABEL_VALUE},
     ), (
         f"Spark driver pod {driver_pod.namespace}/{driver_pod.pod_name} "

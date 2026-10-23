@@ -8,15 +8,13 @@ import json
 import logging
 import os
 import shutil
-import signal
 import socket
 import subprocess
 import time
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
-from psutil import Process
-from subprocess import DEVNULL, Popen, TimeoutExpired, check_output, PIPE
+from subprocess import PIPE, Popen, TimeoutExpired, check_output
 from typing import cast
 
 import hcl2
@@ -24,6 +22,7 @@ import jubilant
 import pytest
 import yaml
 from dotenv import load_dotenv
+from psutil import Process
 from spark8t.utils import PropertyFile
 from tenacity import retry, stop_after_attempt
 
