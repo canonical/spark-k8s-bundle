@@ -146,9 +146,7 @@ def test_kyuubi_workload_is_meshed(juju: jubilant.Juju) -> None:
     driver_pods = get_spark_drivers(namespace=cast(str, juju.model))
     for driver_pod in driver_pods:
         assert pod_has_labels(
-            driver_pod.client,
-            driver_pod.pod_name,
-            driver_pod.namespace,
+            driver_pod,
             {AMBIENT_MESH_LABEL: AMBIENT_MESH_LABEL_VALUE},
         ), (
             f"Spark driver pod {driver_pod.namespace}/{driver_pod.pod_name} "
