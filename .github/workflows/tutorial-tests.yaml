@@ -27,6 +27,19 @@ jobs:
     runs-on: [self-hosted, linux, AMD64, X64, xlarge, noble]
     timeout-minutes: 180
     steps:
+
+      - name: Remove docker
+        timeout-minutes: 10
+        run: |
+          sudo systemctl stop docker.service docker.socket containerd.service
+          sudo apt purge -y docker-ce docker-ce-cli containerd.io || true
+          sudo ip link delete docker0 || true
+          sudo iptables -F
+          sudo iptables -t nat -F
+          sudo rm -rf /var/lib/docker /var/lib/containerd /etc/docker /var/run/docker.sock
+          sudo iptables -P FORWARD ACCEPT
+          sudo iptables -F FORWARD
+
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
