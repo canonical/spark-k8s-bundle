@@ -1,6 +1,6 @@
 history_server_revision  = 146 # 3/edge               TODO: use stable
 integration_hub_revision = 164 # 3/edge               TODO: use stable
-kyuubi_revision          = 252 # 3.5/edge/pr-387      TODO: use stable
+kyuubi_revision          = 254 # 3.5/edge             TODO: use stable
 kyuubi_users_revision    = 925 # 14/stable
 metastore_revision       = 925 # 14/stable
 zookeeper_revision       = 78  # 3/stable
