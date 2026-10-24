@@ -21,13 +21,20 @@ jobs:
         storage-backend:
           - s3
           - azure_storage
-        juju:
-          - snap_channel: "3.6/stable"
+        juju-snap-channel: "3.6/stable"
         k8s-version:
           - "1.28"
           - "1.30"
           - "1.32"
           - "1.34"
+        istio-args: ""
+        include:
+          # Test once with service mesh enabled
+          - storage-backend: s3
+            k8s-version: "1.32"
+            istio-args: "--istio-system-model istio"
+            juju-snap-channel: "3.6/stable"
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -40,7 +47,7 @@ jobs:
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@d8217ad61c15f746727a9d41563c13e9b9fe56e3 # main
         with:
-          juju-channel: ${{ matrix.juju.snap_channel }}
+          juju-channel: ${{ matrix.juju-snap-channel }}
           provider: microk8s
           channel: "${{ matrix.k8s-version }}-strict/stable"
           # bootstrap-options: "--agent-version ${{ matrix.juju.agent }}"
@@ -54,12 +61,12 @@ jobs:
       # custom juju agent version. When juju.agent is empty, the controller
       # bootstrapped during environment setup is used as-is.
       - name: Re-install controller with custom agent version
-        if: "${{ matrix.juju.agent != '' }}"
+        if: "${{ matrix.juju-snap-channel != '' }}"
         run: |
           CONTROLLER_NAME=$(juju controllers --format yaml | yq .current-controller)
           juju destroy-controller $CONTROLLER_NAME --destroy-storage --no-prompt --destroy-all-models
           sudo snap refresh juju --revision 33784
-          sudo -i -u ubuntu juju bootstrap microk8s $CONTROLLER_NAME --agent-version "${{ matrix.juju.agent }}"
+          sudo -i -u ubuntu juju bootstrap microk8s $CONTROLLER_NAME --controller-charm-channel "${{ matrix.juju-snap-channel }}"
 
       - name: Install tox & poetry
         run: |
@@ -120,7 +127,7 @@ jobs:
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         run: |
           cd python/
-          tox -e uat -- --storage-backend ${{ matrix.storage-backend }} --cos-model cos
+          tox -e uat -- --storage-backend ${{ matrix.storage-backend }} --cos-model cos ${{ matrix.istio-args }}
       - id: collect-logs
         name: Collect logs if job failed
         shell: bash
