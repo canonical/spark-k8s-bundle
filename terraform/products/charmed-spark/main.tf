@@ -239,6 +239,11 @@ module "spark_core" {
     name     = module.traefik_ingress[0].app_name
     endpoint = module.traefik_ingress[0].provides.ingress
   }
+
+  gateway_metadata = local.service_mesh_enabled ? merge(
+    { kind = "endpoint" },
+    module.istio_ambient[0].provides.istio_ingress_k8s_gateway_metadata
+  ) : null
 }
 
 module "kyuubi" {

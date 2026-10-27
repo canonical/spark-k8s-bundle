@@ -169,3 +169,43 @@ variable "ingress" {
     error_message = "The 'url' attribute must be provided for a cross-model integration."
   }
 }
+
+variable "gateway_metadata" {
+  description = "Optional gateway metadata integration for the integration hub, provided by istio-ingress-k8s."
+  type = object({
+    kind     = string
+    name     = optional(string, null)
+    endpoint = optional(string, null)
+    url      = optional(string, null)
+  })
+  default  = null
+  nullable = true
+
+  validation {
+    condition     = var.gateway_metadata == null || contains(["endpoint", "offer"], var.gateway_metadata.kind)
+    error_message = "The 'kind' attribute must be either 'endpoint' or 'offer'."
+  }
+
+  validation {
+    condition = (
+      var.gateway_metadata == null ? true : (
+        var.gateway_metadata.kind == "endpoint" ? (
+          var.gateway_metadata.name != null && var.gateway_metadata.name != "" &&
+          var.gateway_metadata.endpoint != null && var.gateway_metadata.endpoint != ""
+        ) : true
+      )
+    )
+    error_message = "Both 'name' and 'endpoint' attributes must be provided for an in-model integration."
+  }
+
+  validation {
+    condition = (
+      var.gateway_metadata == null ? true : (
+        var.gateway_metadata.kind == "offer" ? (
+          var.gateway_metadata.url != null && var.gateway_metadata.url != ""
+        ) : true
+      )
+    )
+    error_message = "The 'url' attribute must be provided for a cross-model integration."
+  }
+}
