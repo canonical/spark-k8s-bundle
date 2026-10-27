@@ -6,6 +6,7 @@ import ast
 import json
 import logging
 import re
+import secrets
 import shutil
 import subprocess
 import urllib.parse
@@ -15,7 +16,7 @@ from typing import cast
 
 import httpx
 import jubilant
-from tenacity import retry, stop_after_attempt, wait_fixed
+from tenacity import retry, stop_after_attempt, stop_after_delay, wait_fixed
 
 from tests.integration.types import KyuubiCredentials
 
@@ -26,6 +27,10 @@ JMX_CC_PORT = 9102
 ZOOKEEPER_PORT = 2181
 ZOOKEEPER_NAME = "zookeeper"
 HA_ZNODE_NAME = "/kyuubi"
+POSTGRESQL_APP_NAME = "postgresql"
+
+# Shared across models so a backup restored in a new model keeps the same operator password.
+_POSTGRESQL_OPERATOR_PASSWORD = secrets.token_urlsafe(24)
 
 logger = logging.getLogger(__name__)
 
@@ -128,20 +133,56 @@ def get_active_kyuubi_servers_list(
     return servers
 
 
+@retry(stop=stop_after_delay(600), wait=wait_fixed(5), reraise=True)
+def _wait_for_postgresql_login(
+    juju: jubilant.Juju, application_name: str, num_unit: int, password: str
+) -> None:
+    subprocess.run(
+        [
+            "kubectl",
+            "exec",
+            "-i",
+            f"{application_name}-{num_unit}",
+            "-c",
+            "postgresql",
+            "-n",
+            cast(str, juju.model),
+            "--",
+            "sh",
+            "-c",
+            "read -r PGPASSWORD && export PGPASSWORD && "
+            "psql -h 127.0.0.1 -U operator -d postgres -tAc 'SELECT 1'",
+        ],
+        input=f"{password}\n",
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+
+
 def get_postgresql_credentials(
     juju: jubilant.Juju, application_name: str, num_unit=0
 ) -> dict[str, str]:
     """Return the credentials that can be used to connect to postgresql database."""
-    task = juju.run(f"{application_name}/{num_unit}", "get-password")
-    assert task.return_code == 0
+    secret_uri = juju.config(application_name).get("system-users")
+    if secret_uri:
+        password = juju.show_secret(str(secret_uri), reveal=True).content["operator"]
+    else:
+        password = _POSTGRESQL_OPERATOR_PASSWORD
+        secret_uri = juju.add_secret(
+            f"{application_name}-system-users", {"operator": password}
+        )
+        juju.grant_secret(secret_uri, application_name)
+        juju.config(application_name, {"system-users": secret_uri})
+        # Active/idle can be reported before the charm has applied the new password.
+        _wait_for_postgresql_login(juju, application_name, num_unit, password)
 
-    results = task.results
     status = juju.status()
     address = (
         status.apps[application_name].units[f"{application_name}/{num_unit}"].address
     )
 
-    return {"username": "operator", "password": results["password"], "host": address}
+    return {"username": "operator", "password": password, "host": address}
 
 
 @contextmanager

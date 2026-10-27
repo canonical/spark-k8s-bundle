@@ -139,4 +139,13 @@ Once the restore is complete, remove the relation between the metastore from the
 juju remove-relation <new-metastore-backup> <new-metastore>
 ```
 
+If the same PostgreSQL application also stores the Kyuubi users database (the `auth-db` relation),
+the restore brings back the users of the original deployment and removes the ones created in the new deployment.
+Recreate the relations between Kyuubi and its clients (for example, `data-integrator`) so that Kyuubi creates their users again:
+
+```bash
+juju remove-relation <kyuubi>:jdbc <data-integrator>
+juju integrate <kyuubi>:jdbc <data-integrator>
+```
+
 Now the new deployment is completely restored with the information present in the original deployment.

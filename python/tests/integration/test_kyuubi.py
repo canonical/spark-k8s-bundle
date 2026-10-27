@@ -20,6 +20,7 @@ from tests.integration.types import PortForwarder
 
 from .helpers import (
     COS,
+    POSTGRESQL_APP_NAME,
     get_active_kyuubi_servers_list,
     get_cos_address,
     get_kyuubi_credentials,
@@ -32,7 +33,6 @@ from .helpers import (
 
 logger = logging.getLogger(__name__)
 
-METASTORE = "metastore"
 METASTORE_DATABASE_NAME = "hivemetastore"
 KYUUBI_APP_NAME = "kyuubi"
 HUB_APP_NAME = "hub"
@@ -158,9 +158,11 @@ def test_postgresql_metastore_is_used(
     juju: jubilant.Juju, port_forward: PortForwarder
 ) -> None:
     "Test that PostgreSQL metastore is being used by Kyuubi in the bundle."
-    metastore_credentials = get_postgresql_credentials(juju, METASTORE)
+    metastore_credentials = get_postgresql_credentials(juju, POSTGRESQL_APP_NAME)
 
-    with port_forward(pod=f"{METASTORE}-0", port=5432, namespace=cast(str, juju.model)):
+    with port_forward(
+        pod=f"{POSTGRESQL_APP_NAME}-0", port=5432, namespace=cast(str, juju.model)
+    ):
         connection = psycopg2.connect(
             host="127.0.0.1",
             database=METASTORE_DATABASE_NAME,

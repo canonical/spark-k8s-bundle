@@ -26,9 +26,8 @@
 | <a name="module_istio_ambient"></a> [istio\_ambient](#module\_istio\_ambient) | ../../components/istio-ambient | n/a |
 | <a name="module_istio_k8s"></a> [istio\_k8s](#module\_istio\_k8s) | git::https://github.com/canonical/istio-k8s-operator//terraform | rev45 |
 | <a name="module_kyuubi"></a> [kyuubi](#module\_kyuubi) | ../../components/kyuubi | n/a |
-| <a name="module_kyuubi_users"></a> [kyuubi\_users](#module\_kyuubi\_users) | git::https://github.com/canonical/postgresql-k8s-operator//terraform | rev925 |
-| <a name="module_metastore"></a> [metastore](#module\_metastore) | git::https://github.com/canonical/postgresql-k8s-operator//terraform | rev925 |
 | <a name="module_observability"></a> [observability](#module\_observability) | ../../components/observability | n/a |
+| <a name="module_postgresql"></a> [postgresql](#module\_postgresql) | git::https://github.com/canonical/postgresql-k8s-operator//terraform | rev957 |
 | <a name="module_s3"></a> [s3](#module\_s3) | ../../charms/s3-integrator | n/a |
 | <a name="module_spark_core"></a> [spark\_core](#module\_spark\_core) | ../../components/spark-core | n/a |
 | <a name="module_ssc"></a> [ssc](#module\_ssc) | git::https://github.com/canonical/self-signed-certificates-operator//terraform | rev586 |
@@ -84,14 +83,15 @@
 | <a name="input_kyuubi_image"></a> [kyuubi\_image](#input\_kyuubi\_image) | Image for kyuubi-k8s | `any` | `null` | no |
 | <a name="input_kyuubi_revision"></a> [kyuubi\_revision](#input\_kyuubi\_revision) | Charm revision for kyuubi-k8s | `number` | `null` | no |
 | <a name="input_kyuubi_units"></a> [kyuubi\_units](#input\_kyuubi\_units) | Number of Kyuubi units. 3 units are recommended for high availability. | `number` | `3` | no |
-| <a name="input_kyuubi_users_image"></a> [kyuubi\_users\_image](#input\_kyuubi\_users\_image) | Image for postgresql-k8s (auth-db) | `any` | `null` | no |
-| <a name="input_kyuubi_users_revision"></a> [kyuubi\_users\_revision](#input\_kyuubi\_users\_revision) | Charm revision for postgresql-k8s (auth-db) | `number` | `null` | no |
-| <a name="input_kyuubi_users_size"></a> [kyuubi\_users\_size](#input\_kyuubi\_users\_size) | Storage size for the Kyuubi users database | `string` | `"1G"` | no |
 | <a name="input_logging_config"></a> [logging\_config](#input\_logging\_config) | Logging configuration to be used | `string` | `"<root>=INFO"` | no |
-| <a name="input_metastore_image"></a> [metastore\_image](#input\_metastore\_image) | Image for postgresql-k8s (metastore) | `any` | `null` | no |
-| <a name="input_metastore_revision"></a> [metastore\_revision](#input\_metastore\_revision) | Charm revision for postgresql-k8s (metastore) | `number` | `null` | no |
-| <a name="input_metastore_size"></a> [metastore\_size](#input\_metastore\_size) | Storage size for the metastore database | `string` | `"10G"` | no |
 | <a name="input_model_uuid"></a> [model\_uuid](#input\_model\_uuid) | Optional existing Juju model UUID to deploy Spark to. If provided, model creation is skipped in higher-level modules. | `string` | `null` | no |
+| <a name="input_postgresql_config"></a> [postgresql\_config](#input\_postgresql\_config) | Configuration options for postgresql-k8s (16/stable naming). Only used when postgresql\_kind is "app". | `map(any)` | `{}` | no |
+| <a name="input_postgresql_image"></a> [postgresql\_image](#input\_postgresql\_image) | Image for postgresql-k8s | `any` | `null` | no |
+| <a name="input_postgresql_kind"></a> [postgresql\_kind](#input\_postgresql\_kind) | How PostgreSQL (backing Kyuubi's auth database and the Hive metastore) is provided: "app" (deploy one app in the model), "endpoint" (existing in-model app, set postgresql\_name) or "offer" (cross-model offer, set postgresql\_url). | `string` | `"app"` | no |
+| <a name="input_postgresql_name"></a> [postgresql\_name](#input\_postgresql\_name) | Name of the existing in-model PostgreSQL application. Required when postgresql\_kind is "endpoint". | `string` | `null` | no |
+| <a name="input_postgresql_revision"></a> [postgresql\_revision](#input\_postgresql\_revision) | Charm revision for postgresql-k8s | `number` | `null` | no |
+| <a name="input_postgresql_size"></a> [postgresql\_size](#input\_postgresql\_size) | Storage size for the PostgreSQL database | `string` | `"10G"` | no |
+| <a name="input_postgresql_url"></a> [postgresql\_url](#input\_postgresql\_url) | URL of the PostgreSQL offer. Required when postgresql\_kind is "offer". | `string` | `null` | no |
 | <a name="input_proxy"></a> [proxy](#input\_proxy) | Proxy information for the deployment. | <pre>object({<br/>    http     = optional(string, "")<br/>    https    = optional(string, "")<br/>    no-proxy = optional(string, "")<br/>  })</pre> | `{}` | no |
 | <a name="input_pushgateway_image"></a> [pushgateway\_image](#input\_pushgateway\_image) | Image for pushgateway | `any` | `null` | no |
 | <a name="input_pushgateway_revision"></a> [pushgateway\_revision](#input\_pushgateway\_revision) | Charm revision for pushgateway | `number` | `null` | no |
