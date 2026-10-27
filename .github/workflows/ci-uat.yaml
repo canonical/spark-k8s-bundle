@@ -12,7 +12,7 @@ on:
 
 jobs:
   integration-tests:
-    name: "UATs (MicroK8s:${{ matrix.k8s-version }}): spark | ${{ matrix.storage-backend }} "
+    name: "UATs (MicroK8s:${{ matrix.k8s-version }}): spark | ${{ matrix.storage-backend }} | ${{ matrix.istio-args }}"
     runs-on: ["self-hosted-linux-amd64-jammy-xlarge"]
     timeout-minutes: 120
     strategy:
