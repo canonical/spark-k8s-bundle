@@ -94,3 +94,19 @@ resource "juju_integration" "integration_hub_gateway_metadata" {
     offer_url = var.gateway_metadata.kind == "offer" ? var.gateway_metadata.url : null
   }
 }
+
+resource "juju_integration" "integration_hub_ingress" {
+  count      = var.ingress != null ? 1 : 0
+  model_uuid = var.model_uuid
+
+  application {
+    name     = juju_application.integration_hub.name
+    endpoint = "ingress"
+  }
+
+  application {
+    name      = var.ingress.kind == "endpoint" ? var.ingress.name : null
+    endpoint  = var.ingress.kind == "endpoint" ? var.ingress.endpoint : null
+    offer_url = var.ingress.kind == "offer" ? var.ingress.url : null
+  }
+}
