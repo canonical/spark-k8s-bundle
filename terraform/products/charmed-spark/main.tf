@@ -42,7 +42,7 @@ module "ssc" {
 }
 
 module "postgresql" {
-  count      = var.postgresql_kind == "app" ? 1 : 0
+  count      = var.postgresql_kind == "managed" ? 1 : 0
   depends_on = [juju_model.spark]
   source     = "git::https://github.com/canonical/postgresql-k8s-operator//terraform?ref=rev957&depth=1"
   juju_model = local.model_uuid

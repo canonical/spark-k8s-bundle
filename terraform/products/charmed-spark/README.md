@@ -27,10 +27,11 @@
 | <a name="module_istio_k8s"></a> [istio\_k8s](#module\_istio\_k8s) | git::https://github.com/canonical/istio-k8s-operator//terraform | rev45 |
 | <a name="module_kyuubi"></a> [kyuubi](#module\_kyuubi) | ../../components/kyuubi | n/a |
 | <a name="module_observability"></a> [observability](#module\_observability) | ../../components/observability | n/a |
-| <a name="module_postgresql"></a> [postgresql](#module\_postgresql) | git::https://github.com/canonical/postgresql-k8s-operator//terraform | rev957 |
+| <a name="module_postgresql"></a> [postgresql](#module\_postgresql) | git::https://github.com/canonical/postgresql-k8s-operator//terraform | rev957&depth=1 |
 | <a name="module_s3"></a> [s3](#module\_s3) | ../../charms/s3-integrator | n/a |
 | <a name="module_spark_core"></a> [spark\_core](#module\_spark\_core) | ../../components/spark-core | n/a |
 | <a name="module_ssc"></a> [ssc](#module\_ssc) | git::https://github.com/canonical/self-signed-certificates-operator//terraform | rev586 |
+| <a name="module_traefik_ingress"></a> [traefik\_ingress](#module\_traefik\_ingress) | ../../components/traefik-ingress | n/a |
 | <a name="module_zookeeper"></a> [zookeeper](#module\_zookeeper) | ../../charms/zookeeper | n/a |
 
 ### Resources
@@ -48,6 +49,7 @@
 | [juju_secret.s3_secret](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/secret) | resource |
 | [juju_secret.system_users_secret](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/secret) | resource |
 | [terraform_data.deployed_at](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
+| [terraform_data.postgresql_inputs](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 
 ### Inputs
 
@@ -62,8 +64,6 @@
 | <a name="input_cos_offers"></a> [cos\_offers](#input\_cos\_offers) | Observability stack offers. | <pre>object({<br/>    dashboard = string<br/>    logging   = string<br/>    metrics   = string<br/>  })</pre> | `null` | no |
 | <a name="input_create_model"></a> [create\_model](#input\_create\_model) | Should terraform create the Juju models? If set to false, assume the models are created by a different mechanism. | `bool` | `true` | no |
 | <a name="input_data_integrator_revision"></a> [data\_integrator\_revision](#input\_data\_integrator\_revision) | Charm revision for data-integrator | `number` | `null` | no |
-| <a name="input_grafana_agent_image"></a> [grafana\_agent\_image](#input\_grafana\_agent\_image) | Image for grafana-agent-k8s | `any` | `null` | no |
-| <a name="input_grafana_agent_revision"></a> [grafana\_agent\_revision](#input\_grafana\_agent\_revision) | Charm revision for grafana-agent-k8s | `number` | `null` | no |
 | <a name="input_history_server_config"></a> [history\_server\_config](#input\_history\_server\_config) | History Server configuration options | `map(any)` | `{}` | no |
 | <a name="input_history_server_image"></a> [history\_server\_image](#input\_history\_server\_image) | Image for spark-history-server-k8s | `any` | `null` | no |
 | <a name="input_history_server_revision"></a> [history\_server\_revision](#input\_history\_server\_revision) | Charm revision for spark-history-server-k8s | `number` | `null` | no |
@@ -85,9 +85,10 @@
 | <a name="input_kyuubi_units"></a> [kyuubi\_units](#input\_kyuubi\_units) | Number of Kyuubi units. 3 units are recommended for high availability. | `number` | `3` | no |
 | <a name="input_logging_config"></a> [logging\_config](#input\_logging\_config) | Logging configuration to be used | `string` | `"<root>=INFO"` | no |
 | <a name="input_model_uuid"></a> [model\_uuid](#input\_model\_uuid) | Optional existing Juju model UUID to deploy Spark to. If provided, model creation is skipped in higher-level modules. | `string` | `null` | no |
-| <a name="input_postgresql_config"></a> [postgresql\_config](#input\_postgresql\_config) | Configuration options for postgresql-k8s (16/stable naming). Only used when postgresql\_kind is "app". | `map(any)` | `{}` | no |
+| <a name="input_otelcol_revision"></a> [otelcol\_revision](#input\_otelcol\_revision) | Charm revision for opentelemetry-collector-k8s | `number` | `null` | no |
+| <a name="input_postgresql_config"></a> [postgresql\_config](#input\_postgresql\_config) | Configuration options for postgresql-k8s (16/stable naming). Only used when postgresql\_kind is "managed". | `map(any)` | `{}` | no |
 | <a name="input_postgresql_image"></a> [postgresql\_image](#input\_postgresql\_image) | Image for postgresql-k8s | `any` | `null` | no |
-| <a name="input_postgresql_kind"></a> [postgresql\_kind](#input\_postgresql\_kind) | How PostgreSQL (backing Kyuubi's auth database and the Hive metastore) is provided: "app" (deploy one app in the model), "endpoint" (existing in-model app, set postgresql\_name) or "offer" (cross-model offer, set postgresql\_url). | `string` | `"app"` | no |
+| <a name="input_postgresql_kind"></a> [postgresql\_kind](#input\_postgresql\_kind) | How PostgreSQL (backing Kyuubi's auth database and the Hive metastore) is provided: "managed" (deploy one app in the model), "endpoint" (existing in-model app, set postgresql\_name) or "offer" (cross-model offer, set postgresql\_url). | `string` | `"managed"` | no |
 | <a name="input_postgresql_name"></a> [postgresql\_name](#input\_postgresql\_name) | Name of the existing in-model PostgreSQL application. Required when postgresql\_kind is "endpoint". | `string` | `null` | no |
 | <a name="input_postgresql_revision"></a> [postgresql\_revision](#input\_postgresql\_revision) | Charm revision for postgresql-k8s | `number` | `null` | no |
 | <a name="input_postgresql_size"></a> [postgresql\_size](#input\_postgresql\_size) | Storage size for the PostgreSQL database | `string` | `"10G"` | no |
@@ -106,6 +107,8 @@
 | <a name="input_ssc_revision"></a> [ssc\_revision](#input\_ssc\_revision) | Charm revision for self-signed-certificates | `number` | `null` | no |
 | <a name="input_storage_backend"></a> [storage\_backend](#input\_storage\_backend) | Storage backend to be used | `string` | `"s3"` | no |
 | <a name="input_tls_private_key"></a> [tls\_private\_key](#input\_tls\_private\_key) | The file path of the base64 encoded private key to use for TLS certificates. | `string` | `null` | no |
+| <a name="input_traefik_config"></a> [traefik\_config](#input\_traefik\_config) | Configuration for the traefik-k8s application. | `map(string)` | `{}` | no |
+| <a name="input_traefik_revision"></a> [traefik\_revision](#input\_traefik\_revision) | Revision of the traefik-k8s application (used as history server ingress when the service mesh is disabled). | `number` | `null` | no |
 | <a name="input_zookeeper_image"></a> [zookeeper\_image](#input\_zookeeper\_image) | Image for zookeeper-k8s | `any` | `null` | no |
 | <a name="input_zookeeper_revision"></a> [zookeeper\_revision](#input\_zookeeper\_revision) | Charm revision for zookeeper-k8s | `number` | `null` | no |
 | <a name="input_zookeeper_units"></a> [zookeeper\_units](#input\_zookeeper\_units) | Define the number of zookeeper units. 3 units are recommended for high availability. | `number` | `3` | no |

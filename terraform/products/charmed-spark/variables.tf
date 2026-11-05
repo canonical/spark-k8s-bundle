@@ -163,14 +163,14 @@ variable "logging_config" {
 }
 
 variable "postgresql_kind" {
-  description = "How PostgreSQL (backing Kyuubi's auth database and the Hive metastore) is provided: \"app\" (deploy one app in the model), \"endpoint\" (existing in-model app, set postgresql_name) or \"offer\" (cross-model offer, set postgresql_url)."
+  description = "How PostgreSQL (backing Kyuubi's auth database and the Hive metastore) is provided: \"managed\" (deploy one app in the model), \"endpoint\" (existing in-model app, set postgresql_name) or \"offer\" (cross-model offer, set postgresql_url)."
   type        = string
-  default     = "app"
+  default     = "managed"
   nullable    = false
 
   validation {
-    condition     = contains(["app", "endpoint", "offer"], var.postgresql_kind)
-    error_message = "'postgresql_kind' must be one of: 'app', 'endpoint', 'offer'."
+    condition     = contains(["managed", "endpoint", "offer"], var.postgresql_kind)
+    error_message = "'postgresql_kind' must be one of: 'managed', 'endpoint', 'offer'."
   }
 }
 
@@ -187,7 +187,7 @@ variable "postgresql_url" {
 }
 
 variable "postgresql_config" {
-  description = "Configuration options for postgresql-k8s (16/stable naming). Only used when postgresql_kind is \"app\"."
+  description = "Configuration options for postgresql-k8s (16/stable naming). Only used when postgresql_kind is \"managed\"."
   type        = map(any)
   default     = {}
 }

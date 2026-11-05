@@ -43,7 +43,7 @@ The `traefik-ingress` component deploys the Traefik Kubernetes charm and integra
 
 | Name | Source | Version |
 | ---- | ------ | ------- |
-| <a name="module_traefik"></a> [traefik](#module\_traefik) | git::https://github.com/canonical/traefik-k8s-operator//terraform | abd922dd7605d7d5b8cdfd0956b1efe47e5649cc |
+| <a name="module_traefik"></a> [traefik](#module\_traefik) | git::https://github.com/canonical/traefik-k8s-operator//terraform | traefik-k8s-rev478 |
 
 ### Resources
 
