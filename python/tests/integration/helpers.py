@@ -6,7 +6,6 @@ import ast
 import json
 import logging
 import re
-import secrets
 import shutil
 import subprocess
 import urllib.parse
@@ -30,7 +29,7 @@ HA_ZNODE_NAME = "/kyuubi"
 POSTGRESQL_APP_NAME = "postgresql"
 
 # Shared across models so a backup restored in a new model keeps the same operator password.
-_POSTGRESQL_OPERATOR_PASSWORD = secrets.token_urlsafe(24)
+POSTGRESQL_OPERATOR_PASSWORD = "s3cr3t"
 
 logger = logging.getLogger(__name__)
 
@@ -168,7 +167,7 @@ def get_postgresql_credentials(
     if secret_uri:
         password = juju.show_secret(str(secret_uri), reveal=True).content["operator"]
     else:
-        password = _POSTGRESQL_OPERATOR_PASSWORD
+        password = POSTGRESQL_OPERATOR_PASSWORD
         secret_uri = juju.add_secret(
             f"{application_name}-system-users", {"operator": password}
         )
