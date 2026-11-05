@@ -1,8 +1,7 @@
 history_server_revision  = 146 # 3/edge               TODO: use stable
 integration_hub_revision = 164 # 3/edge               TODO: use stable
 kyuubi_revision          = 254 # 3.5/edge             TODO: use stable
-kyuubi_users_revision    = 925 # 14/stable
-metastore_revision       = 925 # 14/stable
+postgresql_revision      = 957 # 16/stable
 zookeeper_revision       = 78  # 3/stable
 data_integrator_revision = 362 # latest/stable, 24.04
 s3_revision              = 544 # 2/stable
@@ -16,8 +15,7 @@ integration_hub_image = "ghcr.io/canonical/spark-integration-hub@sha256:0a13097c
 kyuubi_image = "ghcr.io/canonical/charmed-spark-kyuubi@sha256:421a56a1f1634282b27157161d9d0b4263854f61e8b4f1552cc9b40b58895d27"
 # rev26, spark-version: 3.5.8, kyuubi-version: 1.10.3, release date 24/06/2026
 
-kyuubi_users_image = 201 # 14/stable, rev925
-metastore_image    = 201 # 14/stable, rev925
+postgresql_image = 207 # 16/stable, rev957
 zookeeper_image    = 34  # 3/stable, rev78
 
 istio_k8s_platform = "microk8s"
