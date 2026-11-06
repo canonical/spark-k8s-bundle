@@ -81,6 +81,7 @@ runs:
         sudo apt-get update -y
         sudo apt-get install -yqq pipx
         pipx ensurepath
+        echo "${HOME}/.local/bin" >> "${GITHUB_PATH}"
 
     - name: Disk usage
       shell: bash
