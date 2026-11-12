@@ -350,7 +350,38 @@ module "observability" {
 
   cos_configuration = { revision = var.cos_configuration_revision }
   otelcol = {
-    revision = var.otelcol_revision
+    revision = var.otelcol_revision,
+    config = {
+      processors = yamlencode({
+        "attributes/spark-loki-labels" = {
+          actions = [
+            {
+              action = "upsert"
+              key    = "loki.attribute.labels"
+              value = join(", ", [
+                "container",
+                "job",
+                "filename",
+                "juju_application",
+                "juju_charm",
+                "juju_model",
+                "juju_model_uuid",
+                "juju_unit",
+                "snap_name",
+                "path",
+                "pebble_service",
+                "product",
+                "app",
+                "role",
+                "spark_job_id",
+                "user",
+                "pod",
+              ])
+            }
+          ]
+        }
+      })
+    }
   }
   pushgateway = {
     revision  = var.pushgateway_revision
