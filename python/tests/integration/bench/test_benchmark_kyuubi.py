@@ -56,49 +56,22 @@ def test_active_status(juju: jubilant.Juju) -> None:
     )
 
 
-def test_setup_env(juju: jubilant.Juju, sf: str, spark_client: str) -> None:
-    """Setup benchmark environment.
-
-    - Persist benchmark data from the connector that generates them on the fly.
-    - Add benchmark configuration to integration hub
-    """
-
-    logger.info("Setup TPC-H connector")
-
-    username = str(juju.config("kyuubi")["service-account"])
-    check_output(
-        [
-            f"{spark_client}.service-account-registry",
-            "add-config",
-            "--username",
-            username,
-            "--namespace",
-            cast(str, juju.model),
-            "--conf",
-            "spark.sql.catalog.tpch=org.apache.kyuubi.spark.connector.tpch.TPCHCatalog",
-        ]
-    )
-    check_output(
-        [
-            f"{spark_client}.service-account-registry",
-            "add-config",
-            "--username",
-            username,
-            "--namespace",
-            cast(str, juju.model),
-            "--conf",
-            "spark.jars.packages=org.apache.kyuubi:kyuubi-spark-connector-tpch_2.12:1.10.1",
-        ]
-    )
-
-    juju.wait(jubilant.all_active, delay=5)
-
+def test_setup_env(juju: jubilant.Juju, sf: str) -> None:
+    """Persist benchmark data from the TPC-H generator in an isolated engine."""
+    # Registry overrides are used by spark-client, not Kyuubi's managed engines.
+    # Supply startup properties when opening the session, and avoid reusing an
+    # existing engine that was launched without the connector JAR.
+    configuration = {
+        "spark.sql.catalog.tpch": "org.apache.kyuubi.spark.connector.tpch.TPCHCatalog",
+        "spark.jars.packages": "org.apache.kyuubi:kyuubi-spark-connector-tpch_2.12:1.10.1",
+        "kyuubi.engine.share.level": "CONNECTION",
+    }
     logger.info("Persist TPC-H data from generator")
     credentials = get_kyuubi_credentials(juju)
-    client = KyuubiClient(**credentials)
+    client = KyuubiClient(**credentials, use_ssl=True)
 
     cursor: Cursor
-    with client.connection as conn, conn.cursor() as cursor:
+    with client.connection as conn, conn.cursor(configuration=configuration) as cursor:
         cursor.execute("CREATE DATABASE IF NOT EXISTS bench;")
         for table in [
             "customer",
@@ -111,7 +84,7 @@ def test_setup_env(juju: jubilant.Juju, sf: str, spark_client: str) -> None:
             "region",
         ]:
             cursor.execute(f"""
-                CREATE TABLE bench.{table} AS
+                CREATE TABLE IF NOT EXISTS bench.{table} AS
                 SELECT *
                 FROM tpch.{sf}.{table};""")
 
@@ -122,11 +95,18 @@ def test_run_benchmark_queries(
     """Run benchmark queries and generate report."""
     logger.info("Running benchmark queries")
     credentials = get_kyuubi_credentials(juju)
-    client = KyuubiClient(**credentials)
+    client = KyuubiClient(**credentials, use_ssl=True)
 
     cursor: Cursor
     report_data = defaultdict(list)
-    with client.connection as conn, conn.cursor() as cursor:
+    # The charm's testing profile uses 1 GiB executors, which are OOM-killed
+    # during the sf1 joins. Isolate benchmark resources from other SQL sessions.
+    configuration = {
+        "kyuubi.engine.share.level": "CONNECTION",
+        "spark.executor.memory": "2g",
+        "spark.executor.memoryOverhead": "1g",
+    }
+    with client.connection as conn, conn.cursor(configuration=configuration) as cursor:
         cursor.execute("USE bench;")
         for i in range(1, 23):
             logger.info(f"Running TPC-H #{i}")
@@ -138,6 +118,7 @@ def test_run_benchmark_queries(
                     cursor.execute(stmt)
                     cursor.fetchall()
                 except Exception:
+                    logger.exception("TPC-H #%s iteration failed", i)
                     report_data[str(i)].append(None)
                 else:
                     end = time.monotonic()
@@ -172,10 +153,10 @@ def test_run_benchmark_queries(
     )
 
     table.write_raw_html(f"{report_name}.html")
-    logger.info("Report written to 'report.html'")
+    logger.info("Report written to '%s.html'", report_name)
 
 
-def cleanup(juju: jubilant.Juju, spark_client: str) -> None:
+def cleanup(juju: jubilant.Juju, service_account_registry: str) -> None:
     """Cleanup deployment.
 
     - Remove persisted data
@@ -183,7 +164,7 @@ def cleanup(juju: jubilant.Juju, spark_client: str) -> None:
     """
     logger.info("Cleaning bench data")
     credentials = get_kyuubi_credentials(juju)
-    client = KyuubiClient(**credentials)
+    client = KyuubiClient(**credentials, use_ssl=True)
 
     with client.connection as conn, conn.cursor() as cursor:
         cursor.execute("DROP DATABASE bench;")
@@ -192,7 +173,7 @@ def cleanup(juju: jubilant.Juju, spark_client: str) -> None:
     username = str(juju.config("kyuubi")["service-account"])
     check_output(
         [
-            f"{spark_client}.service-account-registry",
+            service_account_registry,
             "remove-config",
             "--username",
             username,
@@ -204,7 +185,7 @@ def cleanup(juju: jubilant.Juju, spark_client: str) -> None:
     )
     check_output(
         [
-            f"{spark_client}.service-account-registry",
+            service_account_registry,
             "remove-config",
             "--username",
             username,

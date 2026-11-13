@@ -78,9 +78,10 @@ def hub(request):
 
 
 @pytest.fixture(scope="session")
-def spark_client() -> str:
-    """Check that spark-client is in path."""
-    if (spark_client_path := shutil.which("spark-client")) is None:
-        raise FileNotFoundError("Could not find 'spark-client' in PATH.")
+def service_account_registry() -> str:
+    """Find the service-account-registry command provided by the spark-client snap."""
+    command = "spark-client.service-account-registry"
+    if (command_path := shutil.which(command)) is None:
+        raise FileNotFoundError(f"Could not find '{command}' in PATH.")
 
-    return spark_client_path
+    return command_path

@@ -190,7 +190,13 @@ def juju(request: pytest.FixtureRequest):
         logger.info(status)
         test_passed = False
 
-    if model is not None and not keep_models and test_passed:
+    # A no-deploy run borrows an existing deployment; it must never destroy it.
+    if (
+        model is not None
+        and not keep_models
+        and not request.config.getoption("--no-deploy")
+        and test_passed
+    ):
         juju.destroy_model(model_name, destroy_storage=True, force=True)
 
 
