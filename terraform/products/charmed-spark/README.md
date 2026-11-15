@@ -57,7 +57,6 @@
 | <a name="input_azure_storage_secret_key"></a> [azure\_storage\_secret\_key](#input\_azure\_storage\_secret\_key) | Secret key to the Azure Storage account. | `string` | `null` | no |
 | <a name="input_certificate_common_name"></a> [certificate\_common\_name](#input\_certificate\_common\_name) | Common name for the certificate to be used in self-signed | `string` | `"charmed-spark"` | no |
 | <a name="input_cos_configuration_revision"></a> [cos\_configuration\_revision](#input\_cos\_configuration\_revision) | Charm revision for cos-configuration | `number` | `null` | no |
-| <a name="input_cos_offers"></a> [cos\_offers](#input\_cos\_offers) | COS integration interface: the offer URLs Spark requires, keyed by the Juju interface each satisfies (grafana_dashboard, loki_push_api, prometheus_remote_write). | <pre>object({<br/>    grafana_dashboard       = string<br/>    loki_push_api           = string<br/>    prometheus_remote_write = string<br/>  })</pre> | `null` | no |
 | <a name="input_create_model"></a> [create\_model](#input\_create\_model) | Should terraform create the Juju models? If set to false, assume the models are created by a different mechanism. | `bool` | `true` | no |
 | <a name="input_data_integrator_revision"></a> [data\_integrator\_revision](#input\_data\_integrator\_revision) | Charm revision for data-integrator | `number` | `null` | no |
 | <a name="input_grafana_agent_image"></a> [grafana\_agent\_image](#input\_grafana\_agent\_image) | Image for grafana-agent-k8s | `any` | `null` | no |
@@ -68,6 +67,7 @@
 | <a name="input_integration_hub_config"></a> [integration\_hub\_config](#input\_integration\_hub\_config) | Integration Hub configuration options. | `map(any)` | `{}` | no |
 | <a name="input_integration_hub_image"></a> [integration\_hub\_image](#input\_integration\_hub\_image) | Image for spark-integration-hub-k8s | `any` | `null` | no |
 | <a name="input_integration_hub_revision"></a> [integration\_hub\_revision](#input\_integration\_hub\_revision) | Charm revision for spark-integration-hub-k8s | `number` | `null` | no |
+| <a name="input_interfaces"></a> [interfaces](#input\_interfaces) | Observability products Spark integrates with, keyed by product (`cos`). Each value carries the offer URLs keyed by the Juju interface Spark requires. | <pre>object({<br/>    cos = optional(object({<br/>      grafana_dashboard       = string<br/>      loki_push_api           = string<br/>      prometheus_remote_write = string<br/>    }))<br/>  })</pre> | `{}` | no |
 | <a name="input_kyuubi_config"></a> [kyuubi\_config](#input\_kyuubi\_config) | Kyuubi configuration options. | `map(any)` | `{}` | no |
 | <a name="input_kyuubi_image"></a> [kyuubi\_image](#input\_kyuubi\_image) | Image for kyuubi-k8s | `any` | `null` | no |
 | <a name="input_kyuubi_revision"></a> [kyuubi\_revision](#input\_kyuubi\_revision) | Charm revision for kyuubi-k8s | `number` | `null` | no |

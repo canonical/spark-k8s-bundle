@@ -76,8 +76,8 @@ variable "scrape_config" {
   default = {}
 }
 
-variable "offers" {
-  description = "COS integration interface: the offer URLs Spark requires, keyed by the Juju interface each satisfies (grafana_dashboard, loki_push_api, prometheus_remote_write)."
+variable "interfaces" {
+  description = "The COS integration interfaces Spark requires: offer URLs keyed by the Juju interface each satisfies (grafana_dashboard, loki_push_api, prometheus_remote_write)."
   type = object({
     grafana_dashboard       = string
     loki_push_api           = string

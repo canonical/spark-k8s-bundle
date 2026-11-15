@@ -2,15 +2,15 @@
 # See LICENSE file for licensing details.
 
 data "juju_offer" "grafana_dashboards" {
-  url = var.offers.grafana_dashboard
+  url = var.interfaces.grafana_dashboard
 }
 
 data "juju_offer" "prometheus_receive_remote_write" {
-  url = var.offers.prometheus_remote_write
+  url = var.interfaces.prometheus_remote_write
 }
 
 data "juju_offer" "loki_logging" {
-  url = var.offers.loki_push_api
+  url = var.interfaces.loki_push_api
 }
 
 ## Component internal integrations

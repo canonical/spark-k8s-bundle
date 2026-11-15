@@ -306,11 +306,11 @@ resource "juju_access_secret" "system_users_secret_access" {
 
 module "observability" {
   depends_on = [juju_model.spark, module.spark_core, module.kyuubi]
-  count      = var.cos_offers == null ? 0 : 1
+  count      = var.interfaces.cos == null ? 0 : 1
   source     = "../../components/observability"
   model_uuid = local.model_uuid
 
-  offers = var.cos_offers
+  interfaces = var.interfaces.cos
 
   cos_configuration = { revision = var.cos_configuration_revision }
   grafana_agent = {

@@ -68,14 +68,16 @@ variable "cos_configuration_revision" {
   nullable    = true
 }
 
-variable "cos_offers" {
-  description = "COS integration interface: the offer URLs Spark requires, keyed by the Juju interface each satisfies (grafana_dashboard, loki_push_api, prometheus_remote_write)."
+variable "interfaces" {
+  description = "Observability products Spark integrates with, keyed by product (`cos`). Each value carries the offer URLs keyed by the Juju interface Spark requires."
   type = object({
-    grafana_dashboard       = string
-    loki_push_api           = string
-    prometheus_remote_write = string
+    cos = optional(object({
+      grafana_dashboard       = string
+      loki_push_api           = string
+      prometheus_remote_write = string
+    }))
   })
-  default = null
+  default = {}
 }
 
 variable "data_integrator_revision" {

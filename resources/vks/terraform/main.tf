@@ -49,5 +49,5 @@ module "spark" {
   s3_secret_key              = var.S3_SECRET_KEY
   s3_config                  = {"endpoint": "https://s3.eu-central-1.amazonaws.com", "region": "eu-central-1", "bucket": "vks-validation", "path": "spark-events/"}
 
-  cos_offers                 = module.cos.interfaces
+  interfaces                 = { cos = module.cos.interfaces }
 }

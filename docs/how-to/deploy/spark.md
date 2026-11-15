@@ -195,11 +195,11 @@ module "spark" {
   s3_secret_key              = "<s3-secret-key>"
   s3_config                  = {"endpoint": "<s3-endpoint>", "region": "<s3-region>", "bucket": "<s3-bucket>", "path": "spark-events/"}
 
-  cos_offers                 = module.cos.interfaces
+  interfaces                 = { cos = module.cos.interfaces }
 }
 ```
 
-The added section creates a new Juju model named `cos`, deploys COS Lite in that model, and wires its `interfaces` output into `cos_offers`. That output maps the offers COS Lite exposes to the Juju interface each satisfies, and Terraform drops the interfaces Spark does not use, so the same wiring works against COS or COS Lite.
+The added section creates a new Juju model named `cos`, deploys COS Lite in that model, and wires its `interfaces` output into `interfaces.cos`. That output maps the offers COS Lite exposes to the Juju interface each satisfies, and Terraform drops the interfaces Spark does not use, so the same wiring works against COS or COS Lite.
 
 For the full list of input configurations supported, and the reference of the Charmed Apache Spark Terraform bundle, please refer to the README corresponding to the product module in [`spark-k8s-bundle` repository](https://github.com/canonical/spark-k8s-bundle/tree/main/terraform/products).
 

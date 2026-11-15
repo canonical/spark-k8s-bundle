@@ -281,7 +281,7 @@ module "spark" {
   zookeeper_units            = 1
   spark_risk                 = var.spark_risk
 
-  cos_offers = module.cos != [] ? module.cos[0].interfaces : null
+  interfaces = module.cos != [] ? { cos = module.cos[0].interfaces } : {}
 }
 
 output "models" {
