@@ -172,10 +172,10 @@ resource "juju_model" "cos" {
 }
 
 module "cos" {
-  # the source is pinned to the last commit on branch track/2 that's still compatible with Juju TF < 1.4.0. 
-  # For more details, see this section in cos-lite docs: https://github.com/canonical/observability-stack/blob/track/2/terraform/cos-lite/README.md#provider--100--140
-  source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=7448dadb996835c1c0ae1d79d2f435992652d410" 
-  model_uuid   = juju_model.cos.uuid
+  # Temporarily pinned to the canonical/observability-stack#557 branch, which
+  # adds the `interfaces` output. Repin to the merged commit or tag before merging.
+  source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=feat/cos-typed-interfaces"
+  model        = { uuid = juju_model.cos.uuid }
 }
 
 module "spark" {
@@ -195,15 +195,11 @@ module "spark" {
   s3_secret_key              = "<s3-secret-key>"
   s3_config                  = {"endpoint": "<s3-endpoint>", "region": "<s3-region>", "bucket": "<s3-bucket>", "path": "spark-events/"}
 
-  cos_offers                 = {
-    grafana_dashboard       = module.cos.offers.grafana_dashboards.url
-    loki_push_api           = module.cos.offers.loki_logging.url
-    prometheus_remote_write = module.cos.offers.prometheus_receive_remote_write.url
-  }
+  cos_offers                 = module.cos.interfaces
 }
 ```
 
-The added section creates a new Juju model named `cos`, deploys COS in that model, and the `grafana_dashboards`, `loki_logging` and `prometheus_receive_remote_write` offers are provided as `cos_offers` to the `spark` module.
+The added section creates a new Juju model named `cos`, deploys COS Lite in that model, and wires its `interfaces` output into `cos_offers`. That output maps the offers COS Lite exposes to the Juju interface each satisfies, and Terraform drops the interfaces Spark does not use, so the same wiring works against COS or COS Lite.
 
 For the full list of input configurations supported, and the reference of the Charmed Apache Spark Terraform bundle, please refer to the README corresponding to the product module in [`spark-k8s-bundle` repository](https://github.com/canonical/spark-k8s-bundle/tree/main/terraform/products).
 

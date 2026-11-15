@@ -22,10 +22,10 @@ resource "juju_model" "cos" {
 }
 
 module "cos" {
-  # the source is pinned to the last commit on branch track/2 that's still compatible with Juju TF < 1.4.0. 
-  # For more details, see this section in cos-lite docs: https://github.com/canonical/observability-stack/blob/track/2/terraform/cos-lite/README.md#provider--100--140
-  source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=7448dadb996835c1c0ae1d79d2f435992652d410" 
-  model_uuid   = juju_model.cos.uuid
+  # Temporarily pinned to the canonical/observability-stack#557 branch, which
+  # adds the `interfaces` output. Repin to the merged commit or tag before merging.
+  source       = "git::https://github.com/canonical/observability-stack//terraform/cos-lite?ref=feat/cos-typed-interfaces"
+  model        = { uuid = juju_model.cos.uuid }
 }
 
 
@@ -49,9 +49,5 @@ module "spark" {
   s3_secret_key              = var.S3_SECRET_KEY
   s3_config                  = {"endpoint": "https://s3.eu-central-1.amazonaws.com", "region": "eu-central-1", "bucket": "vks-validation", "path": "spark-events/"}
 
-  cos_offers                 = {
-    grafana_dashboard       = module.cos.offers.grafana_dashboards.url
-    loki_push_api           = module.cos.offers.loki_logging.url
-    prometheus_remote_write = module.cos.offers.prometheus_receive_remote_write.url
-  }
+  cos_offers                 = module.cos.interfaces
 }
