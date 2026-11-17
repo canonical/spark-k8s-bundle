@@ -349,8 +349,13 @@ module "observability" {
   metrics_offer    = var.cos_offers.metrics
 
   cos_configuration = { revision = var.cos_configuration_revision }
-  otelcol = {
-    revision = var.otelcol_revision,
+  charms_otelcol = {
+    revision  = var.otelcol_revision,
+    resources = var.otelcol_image != null ? { "opentelemetry-collector-image" = var.otelcol_image } : null
+  }
+  workloads_otelcol = {
+    revision  = var.otelcol_revision,
+    resources = var.otelcol_image != null ? { "opentelemetry-collector-image" = var.otelcol_image } : null
     config = {
       processors = yamlencode({
         "attributes/spark-loki-labels" = {
