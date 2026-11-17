@@ -15,9 +15,7 @@ You can find the resources used in the guide in the `spark-k8s-bundle` repositor
 
 ### System Access
 
-Validation has been done on the VMware Lab. The platform is available at the link: [https://labplatform.broadcom.com/isv-lab/](https://labplatform.broadcom.com/isv-lab/).
-
-Login using username and password as provided by VMware. Once logged in, start a new session by clicking "ENROLLED" in the "ISV VKS Validation" Lab. This will provide connection to the a small VVF 9.0.2 environment running WCP 3.6.2 with a 2 node VKS cluster for ISV software validation.
+Validation has been done on the VMware Lab. Login to the VMware Lab using username and password as provided by VMware. Once logged in, start a new session by clicking "ENROLLED" in the "ISV VKS Validation" Lab. This will provide connection to the a small VVF 9.0.2 environment running WCP 3.6.2 with a 2 node VKS cluster for ISV software validation.
 
 The edge node contains a number of useful scripts under `/home/holuser/Desktop/Scripts/`.
 
