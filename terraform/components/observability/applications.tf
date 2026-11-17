@@ -1,21 +1,38 @@
 # Copyright 2026 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-resource "juju_application" "otel_collector" {
-  name       = var.otelcol.app_name
+resource "juju_application" "workloads_otel_collector" {
+  name       = var.workloads_otelcol.app_name
   model_uuid = var.model_uuid
 
   charm {
     name     = "opentelemetry-collector-k8s"
-    channel  = var.otelcol.channel
-    revision = var.otelcol.revision
+    channel  = var.workloads_otelcol.channel
+    revision = var.workloads_otelcol.revision
   }
 
-  config      = var.otelcol.config
-  constraints = var.otelcol.constraints
-  resources   = var.otelcol.resources
+  config      = var.workloads_otelcol.config
+  constraints = var.workloads_otelcol.constraints
+  resources   = var.workloads_otelcol.resources
   trust       = true
-  units       = var.otelcol.units
+  units       = var.workloads_otelcol.units
+}
+
+resource "juju_application" "charms_otel_collector" {
+  name       = var.charms_otelcol.app_name
+  model_uuid = var.model_uuid
+
+  charm {
+    name     = "opentelemetry-collector-k8s"
+    channel  = var.charms_otelcol.channel
+    revision = var.charms_otelcol.revision
+  }
+
+  config      = var.charms_otelcol.config
+  constraints = var.charms_otelcol.constraints
+  resources   = var.charms_otelcol.resources
+  trust       = true
+  units       = var.charms_otelcol.units
 }
 
 resource "juju_application" "cos_configuration" {
