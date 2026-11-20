@@ -105,6 +105,15 @@ This feature is available from Charmed Apache Spark version
 and requires a working Loki. Hence, we recommend using it with
 [COS](https://charmhub.io/topics/canonical-observability-stack).
 
+The driver and executor logs exported to Loki are additionally labelled with the following labels such that it is easier to
+query them in in Loki: `container`, `job`, `filename`, `juju_application`, `juju_charm`, `juju_model`, `juju_model_uuid`, `juju_unit`, `snap_name`, `path`, `pebble_service`, `product`, `app`, `role`, `spark_job_id`, `user` and `pod`.
+
+For instance, the following query can be used in Loki to filter out only the logs from driver pods, using the `role` label:
+
+```sh
+curl https://<loki-address>/loki/api/v1/query_range?query={role="driver"}
+```
+
 Charmed Apache Spark also allows you to store these logs in S3 or Azure storage so that they can
 be re-read and visualized using the Spark History Server, allowing users to monitor
 and visualize the information and metrics about the job execution.
