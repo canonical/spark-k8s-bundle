@@ -33,25 +33,31 @@ No modules.
 
 | Name | Type |
 | ---- | ---- |
+| [juju_application.charms_otel_collector](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
 | [juju_application.cos_configuration](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
-| [juju_application.otel_collector](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
 | [juju_application.pushgateway](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
 | [juju_application.scrape_config](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
-| [juju_integration.cos_configuration_otel_collector](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_application.workloads_otel_collector](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/application) | resource |
+| [juju_integration.charms_otel_collector_grafana_dashboards](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.charms_otel_collector_loki](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.charms_otel_collector_prometheus](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.cos_configuration_charms_otel_collector](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.cos_configuration_workloads_otel_collector](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.history_server_otel_collector_dashboard](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.history_server_otel_collector_logging](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.history_server_otel_collector_metrics](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
-| [juju_integration.integration_hub_otel_collector_logging](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.integration_hub_pushgateway](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.integration_hub_workloads_otel_collector_logging](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.kyuubi_otel_collector_dashboards](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.kyuubi_otel_collector_logging](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.kyuubi_otel_collector_metrics](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
-| [juju_integration.otel_collector_grafana_dashboards](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
-| [juju_integration.otel_collector_loki](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
-| [juju_integration.otel_collector_prometheus](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.otel_collector_service_mesh](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_integration.pushgateway_scrape_config](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
-| [juju_integration.scrape_config_otel_collector](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.scrape_config_charms_otel_collector](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.scrape_config_workloads_otel_collector](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.workloads_otel_collector_grafana_dashboards](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.workloads_otel_collector_loki](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
+| [juju_integration.workloads_otel_collector_prometheus](https://registry.terraform.io/providers/juju/juju/latest/docs/resources/integration) | resource |
 | [juju_offer.grafana_dashboards](https://registry.terraform.io/providers/juju/juju/latest/docs/data-sources/offer) | data source |
 | [juju_offer.loki_logging](https://registry.terraform.io/providers/juju/juju/latest/docs/data-sources/offer) | data source |
 | [juju_offer.prometheus_receive_remote_write](https://registry.terraform.io/providers/juju/juju/latest/docs/data-sources/offer) | data source |
@@ -60,6 +66,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
+| <a name="input_charms_otelcol"></a> [charms\_otelcol](#input\_charms\_otelcol) | n/a | <pre>object({<br/>    app_name    = optional(string, "charms-otel-collector")<br/>    channel     = optional(string, "2/stable")<br/>    config      = optional(map(string), {})<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>  })</pre> | `{}` | no |
 | <a name="input_cos_configuration"></a> [cos\_configuration](#input\_cos\_configuration) | n/a | <pre>object({<br/>    app_name = optional(string, "cos-configuration")<br/>    base     = optional(string, "ubuntu@22.04")<br/>    channel  = optional(string, "1/stable")<br/>    config = optional(map(string), {<br/>      git_branch              = "main"<br/>      git_depth               = 1<br/>      git_repo                = "https://github.com/canonical/spark-k8s-bundle"<br/>      grafana_dashboards_path = "resources/grafana/"<br/>    })<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    # TODO: Remove this pin once both of the following issue gets fixed:<br/>    # https://github.com/canonical/cos-configuration-k8s-operator/issues/128 <br/>    # https://github.com/canonical/cos-configuration-k8s-operator/issues/84<br/>    revision = optional(number, 65)<br/>    units    = optional(number, 1)<br/>  })</pre> | `{}` | no |
 | <a name="input_dashboards_offer"></a> [dashboards\_offer](#input\_dashboards\_offer) | URL of the `grafana_dashboard` interface offer. | `string` | n/a | yes |
 | <a name="input_history_server_dashboard_endpoint"></a> [history\_server\_dashboard\_endpoint](#input\_history\_server\_dashboard\_endpoint) | In-model endpoint for the History Server dashboard integration. | <pre>object({<br/>    name     = string<br/>    endpoint = string<br/>  })</pre> | n/a | yes |
@@ -77,6 +84,7 @@ No modules.
 | <a name="input_pushgateway"></a> [pushgateway](#input\_pushgateway) | n/a | <pre>object({<br/>    app_name    = optional(string, "pushgateway")<br/>    base        = optional(string, "ubuntu@24.04")<br/>    channel     = optional(string, "2/stable")<br/>    config      = optional(map(string), {})<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number)<br/>    storage_directives = optional(map(string), {<br/>      pushgateway-store = "10G"<br/>    })<br/>    units = optional(number, 1)<br/>  })</pre> | `{}` | no |
 | <a name="input_scrape_config"></a> [scrape\_config](#input\_scrape\_config) | n/a | <pre>object({<br/>    app_name = optional(string, "scrape-config")<br/>    base     = optional(string, "ubuntu@24.04")<br/>    channel  = optional(string, "2/stable")<br/>    config = optional(map(string), {<br/>      scrape_interval = "10s"<br/>    })<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>  })</pre> | `{}` | no |
 | <a name="input_service_mesh"></a> [service\_mesh](#input\_service\_mesh) | External integration for the istio service mesh. | <pre>object({<br/>    kind     = string<br/>    name     = optional(string, null)<br/>    endpoint = optional(string, null)<br/>    url      = optional(string, null)<br/>  })</pre> | `null` | no |
+| <a name="input_workloads_otelcol"></a> [workloads\_otelcol](#input\_workloads\_otelcol) | n/a | <pre>object({<br/>    app_name    = optional(string, "workloads-otel-collector")<br/>    channel     = optional(string, "2/stable")<br/>    config      = optional(map(string), {})<br/>    constraints = optional(string, "arch=amd64")<br/>    resources   = optional(map(string), {})<br/>    revision    = optional(number)<br/>    units       = optional(number, 1)<br/>  })</pre> | `{}` | no |
 
 ### Outputs
 

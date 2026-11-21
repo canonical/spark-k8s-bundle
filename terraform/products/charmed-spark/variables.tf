@@ -85,6 +85,12 @@ variable "data_integrator_revision" {
   nullable    = true
 }
 
+variable "otelcol_image" {
+  description = "Image for opentelemetry-collector-k8s"
+  type        = any
+  default     = null
+}
+
 variable "otelcol_revision" {
   description = "Charm revision for opentelemetry-collector-k8s"
   type        = number

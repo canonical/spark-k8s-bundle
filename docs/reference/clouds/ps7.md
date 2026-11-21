@@ -100,11 +100,13 @@ sudo concierge prepare
 Once the command has finished, test that all the services are up and running:
 
 * K8s
+
 ```bash
 kubectl get pod -A
 ```
 
 * Juju
+
 ```bash
 juju model-config
 ```

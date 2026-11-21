@@ -15,7 +15,7 @@ data "juju_offer" "loki_logging" {
 
 ## Component internal integrations
 
-resource "juju_integration" "cos_configuration_otel_collector" {
+resource "juju_integration" "cos_configuration_charms_otel_collector" {
   model_uuid = var.model_uuid
 
   application {
@@ -24,7 +24,21 @@ resource "juju_integration" "cos_configuration_otel_collector" {
   }
 
   application {
-    name     = juju_application.otel_collector.name
+    name     = juju_application.charms_otel_collector.name
+    endpoint = "grafana-dashboards-consumer"
+  }
+}
+
+resource "juju_integration" "cos_configuration_workloads_otel_collector" {
+  model_uuid = var.model_uuid
+
+  application {
+    name     = juju_application.cos_configuration.name
+    endpoint = "grafana-dashboards"
+  }
+
+  application {
+    name     = juju_application.workloads_otel_collector.name
     endpoint = "grafana-dashboards-consumer"
   }
 }
@@ -43,7 +57,7 @@ resource "juju_integration" "pushgateway_scrape_config" {
   }
 }
 
-resource "juju_integration" "scrape_config_otel_collector" {
+resource "juju_integration" "scrape_config_charms_otel_collector" {
   model_uuid = var.model_uuid
 
   application {
@@ -52,18 +66,33 @@ resource "juju_integration" "scrape_config_otel_collector" {
   }
 
   application {
-    name     = juju_application.otel_collector.name
+    name     = juju_application.charms_otel_collector.name
     endpoint = "metrics-endpoint"
   }
 }
 
-## Cross-model COS integrations
-
-resource "juju_integration" "otel_collector_grafana_dashboards" {
+resource "juju_integration" "scrape_config_workloads_otel_collector" {
   model_uuid = var.model_uuid
 
   application {
-    name     = juju_application.otel_collector.name
+    name     = juju_application.scrape_config.name
+    endpoint = "metrics-endpoint"
+  }
+
+  application {
+    name     = juju_application.workloads_otel_collector.name
+    endpoint = "metrics-endpoint"
+  }
+}
+
+
+## Cross-model COS integrations
+
+resource "juju_integration" "charms_otel_collector_grafana_dashboards" {
+  model_uuid = var.model_uuid
+
+  application {
+    name     = juju_application.charms_otel_collector.name
     endpoint = "grafana-dashboards-provider"
   }
 
@@ -73,20 +102,43 @@ resource "juju_integration" "otel_collector_grafana_dashboards" {
 
   lifecycle {
     replace_triggered_by = [
-      juju_application.otel_collector.name,
-      juju_application.otel_collector.model,
-      juju_application.otel_collector.constraints,
-      juju_application.otel_collector.placement,
-      juju_application.otel_collector.charm.name,
+      juju_application.charms_otel_collector.name,
+      juju_application.charms_otel_collector.model,
+      juju_application.charms_otel_collector.constraints,
+      juju_application.charms_otel_collector.placement,
+      juju_application.charms_otel_collector.charm.name,
     ]
   }
 }
 
-resource "juju_integration" "otel_collector_prometheus" {
+resource "juju_integration" "workloads_otel_collector_grafana_dashboards" {
   model_uuid = var.model_uuid
 
   application {
-    name     = juju_application.otel_collector.name
+    name     = juju_application.workloads_otel_collector.name
+    endpoint = "grafana-dashboards-provider"
+  }
+
+  application {
+    offer_url = data.juju_offer.grafana_dashboards.url
+  }
+
+  lifecycle {
+    replace_triggered_by = [
+      juju_application.workloads_otel_collector.name,
+      juju_application.workloads_otel_collector.model,
+      juju_application.workloads_otel_collector.constraints,
+      juju_application.workloads_otel_collector.placement,
+      juju_application.workloads_otel_collector.charm.name,
+    ]
+  }
+}
+
+resource "juju_integration" "charms_otel_collector_prometheus" {
+  model_uuid = var.model_uuid
+
+  application {
+    name     = juju_application.charms_otel_collector.name
     endpoint = "send-remote-write"
   }
 
@@ -96,20 +148,43 @@ resource "juju_integration" "otel_collector_prometheus" {
 
   lifecycle {
     replace_triggered_by = [
-      juju_application.otel_collector.name,
-      juju_application.otel_collector.model,
-      juju_application.otel_collector.constraints,
-      juju_application.otel_collector.placement,
-      juju_application.otel_collector.charm.name,
+      juju_application.charms_otel_collector.name,
+      juju_application.charms_otel_collector.model,
+      juju_application.charms_otel_collector.constraints,
+      juju_application.charms_otel_collector.placement,
+      juju_application.charms_otel_collector.charm.name,
     ]
   }
 }
 
-resource "juju_integration" "otel_collector_loki" {
+resource "juju_integration" "workloads_otel_collector_prometheus" {
   model_uuid = var.model_uuid
 
   application {
-    name     = juju_application.otel_collector.name
+    name     = juju_application.workloads_otel_collector.name
+    endpoint = "send-remote-write"
+  }
+
+  application {
+    offer_url = data.juju_offer.prometheus_receive_remote_write.url
+  }
+
+  lifecycle {
+    replace_triggered_by = [
+      juju_application.workloads_otel_collector.name,
+      juju_application.workloads_otel_collector.model,
+      juju_application.workloads_otel_collector.constraints,
+      juju_application.workloads_otel_collector.placement,
+      juju_application.workloads_otel_collector.charm.name,
+    ]
+  }
+}
+
+resource "juju_integration" "charms_otel_collector_loki" {
+  model_uuid = var.model_uuid
+
+  application {
+    name     = juju_application.charms_otel_collector.name
     endpoint = "send-loki-logs"
   }
 
@@ -119,11 +194,34 @@ resource "juju_integration" "otel_collector_loki" {
 
   lifecycle {
     replace_triggered_by = [
-      juju_application.otel_collector.name,
-      juju_application.otel_collector.model,
-      juju_application.otel_collector.constraints,
-      juju_application.otel_collector.placement,
-      juju_application.otel_collector.charm.name,
+      juju_application.charms_otel_collector.name,
+      juju_application.charms_otel_collector.model,
+      juju_application.charms_otel_collector.constraints,
+      juju_application.charms_otel_collector.placement,
+      juju_application.charms_otel_collector.charm.name,
+    ]
+  }
+}
+
+resource "juju_integration" "workloads_otel_collector_loki" {
+  model_uuid = var.model_uuid
+
+  application {
+    name     = juju_application.workloads_otel_collector.name
+    endpoint = "send-loki-logs"
+  }
+
+  application {
+    offer_url = data.juju_offer.loki_logging.url
+  }
+
+  lifecycle {
+    replace_triggered_by = [
+      juju_application.workloads_otel_collector.name,
+      juju_application.workloads_otel_collector.model,
+      juju_application.workloads_otel_collector.constraints,
+      juju_application.workloads_otel_collector.placement,
+      juju_application.workloads_otel_collector.charm.name,
     ]
   }
 }
@@ -139,7 +237,7 @@ resource "juju_integration" "history_server_otel_collector_dashboard" {
   }
 
   application {
-    name     = juju_application.otel_collector.name
+    name     = juju_application.charms_otel_collector.name
     endpoint = "grafana-dashboards-consumer"
   }
 }
@@ -153,7 +251,7 @@ resource "juju_integration" "history_server_otel_collector_logging" {
   }
 
   application {
-    name     = juju_application.otel_collector.name
+    name     = juju_application.charms_otel_collector.name
     endpoint = "receive-loki-logs"
   }
 }
@@ -167,7 +265,7 @@ resource "juju_integration" "history_server_otel_collector_metrics" {
   }
 
   application {
-    name     = juju_application.otel_collector.name
+    name     = juju_application.charms_otel_collector.name
     endpoint = "metrics-endpoint"
   }
 }
@@ -186,7 +284,7 @@ resource "juju_integration" "integration_hub_pushgateway" {
   }
 }
 
-resource "juju_integration" "integration_hub_otel_collector_logging" {
+resource "juju_integration" "integration_hub_workloads_otel_collector_logging" {
   model_uuid = var.model_uuid
 
   application {
@@ -195,7 +293,7 @@ resource "juju_integration" "integration_hub_otel_collector_logging" {
   }
 
   application {
-    name     = juju_application.otel_collector.name
+    name     = juju_application.workloads_otel_collector.name
     endpoint = "receive-loki-logs"
   }
 }
@@ -209,7 +307,7 @@ resource "juju_integration" "kyuubi_otel_collector_metrics" {
   }
 
   application {
-    name     = juju_application.otel_collector.name
+    name     = juju_application.charms_otel_collector.name
     endpoint = "metrics-endpoint"
   }
 }
@@ -223,7 +321,7 @@ resource "juju_integration" "kyuubi_otel_collector_dashboards" {
   }
 
   application {
-    name     = juju_application.otel_collector.name
+    name     = juju_application.charms_otel_collector.name
     endpoint = "grafana-dashboards-consumer"
   }
 }
@@ -237,7 +335,7 @@ resource "juju_integration" "kyuubi_otel_collector_logging" {
   }
 
   application {
-    name     = juju_application.otel_collector.name
+    name     = juju_application.charms_otel_collector.name
     endpoint = "receive-loki-logs"
   }
 }
@@ -247,7 +345,7 @@ resource "juju_integration" "otel_collector_service_mesh" {
   model_uuid = var.model_uuid
 
   application {
-    name     = juju_application.otel_collector.name
+    name     = juju_application.charms_otel_collector.name
     endpoint = "service-mesh"
   }
 

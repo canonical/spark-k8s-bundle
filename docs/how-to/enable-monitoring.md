@@ -79,6 +79,15 @@ There are two ways to provide the `LOKI_URL` variables:
    juju integrate spark-integration-hub-k8s:logging grafana-agent-k8s:logging-provider
    ```
 
+The driver and executor logs exported to Loki are additionally labelled with the following labels such that it is easier to
+query them in in Loki: `container`, `job`, `filename`, `juju_application`, `juju_charm`, `juju_model`, `juju_model_uuid`, `juju_unit`, `snap_name`, `path`, `pebble_service`, `product`, `app`, `role`, `spark_job_id`, `user` and `pod`.
+
+For instance, the following query can be used in Loki to filter out only the logs from driver pods, using the `role` label:
+
+```sh
+curl https://<loki-address>/loki/api/v1/query_range?query={role="driver"}
+```
+
 ## Configure Apache Spark service account
 
 Charmed Apache Spark service account created by `spark-client` snap and `spark8t` Python library

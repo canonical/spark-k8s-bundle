@@ -29,9 +29,22 @@ variable "cos_configuration" {
   default = {}
 }
 
-variable "otelcol" {
+variable "charms_otelcol" {
   type = object({
-    app_name    = optional(string, "otel-collector")
+    app_name    = optional(string, "charms-otel-collector")
+    channel     = optional(string, "2/stable")
+    config      = optional(map(string), {})
+    constraints = optional(string, "arch=amd64")
+    resources   = optional(map(string), {})
+    revision    = optional(number)
+    units       = optional(number, 1)
+  })
+  default = {}
+}
+
+variable "workloads_otelcol" {
+  type = object({
+    app_name    = optional(string, "workloads-otel-collector")
     channel     = optional(string, "2/stable")
     config      = optional(map(string), {})
     constraints = optional(string, "arch=amd64")
