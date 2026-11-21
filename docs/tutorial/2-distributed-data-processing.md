@@ -181,7 +181,7 @@ Let's upload it to our S3 storage:
 aws s3 cp ./twcs/twcs.csv s3://spark-tutorial/twitter.csv --checksum-algorithm SHA256
 ```
 
-Now the dataset is stored in our MinIO instance: in the `spark-tutorial` bucket with the filename `twitter.csv`.
+Now the dataset is stored in the `spark-tutorial` bucket with the filename `twitter.csv`.
 You can check this by listing all files in the bucket:
 
 ```bash

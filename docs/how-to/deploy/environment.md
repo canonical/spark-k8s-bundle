@@ -333,7 +333,6 @@ Charmed Apache Spark provides out-of-box integration with the following object s
 
 * S3-compatible object storages, such as:
   * Ceph with RadosGW
-  * MinIO
   * AWS S3 bucket
 * Azure Storage 
   * Azure Blob Storage 
@@ -443,28 +442,6 @@ sudo microceph.radosgw-admin user create --uid test --display-name test --access
 ```
 
 The RadosGW API can then be reached at `<hostname>:<port>`, where `hostname` is the IP provided by the `sudo microceph status` command, and the `port` is the one chosen when enabling the RadosGW (that defaults to 80 if not otherwise specified).
-
-#### MicroK8s MinIO
-
-If you have already a MicroK8s cluster running, you can enable the MinIO storage with the dedicated add-on
-
-```shell
-microk8s.enable minio
-```
-
-Refer to the [add-on documentation](https://microk8s.io/docs/addon-minio) for more information on how to customize your MinIO MicroK8s deployment.
-
-You can then use the following commands to obtain the `access_key`, the `secret_key` and the MinIO `endpoint`:
-
-* `access_key`: `microk8s.kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d`
-* `secret_key`: `microk8s.kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_SECRET_KEY}' | base64 -d`
-* `endpoint`: `microk8s.kubectl get services -n minio-operator | grep minio | awk '{ print $3 }'`
-
-Configure the AWS CLI snap with these parameters, as shown above. After that, you can create a bucket using
-
-```shell
-aws s3 mb s3://<S3_BUCKET>
-```
 
 #### AWS S3
 

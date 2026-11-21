@@ -47,7 +47,7 @@ The following charms form the foundation of any Charmed Apache Spark deployment,
 | Charm | Description |
 |---|---|
 | [`spark-integration-hub-k8s`](https://charmhub.io/spark-integration-hub-k8s) | Central hub that manages Spark service account configurations and writes them into Kubernetes Secrets. It allows high-level configuration of Spark properties and seamless integration with external services, such as object storage backends and COS deployments. |
-| [`s3-integrator`](https://charmhub.io/s3-integrator) | Supplies S3-compatible object storage credentials (endpoint, bucket, access key) to the Integration Hub and History Server. Supports MinIO, AWS S3, and any S3-compatible backend. |
+| [`s3-integrator`](https://charmhub.io/s3-integrator) | Supplies S3-compatible object storage credentials (endpoint, bucket, access key) to the Integration Hub and History Server. Supports MicroCeph, AWS S3, and any S3-compatible backend. |
 | [`azure-storage-integrator`](https://charmhub.io/azure-storage-integrator) | Alternative to `s3-integrator` for deployments using Azure Blob Storage. |
 | [`spark-history-server-k8s`](https://charmhub.io/spark-history-server-k8s) | Exposes a web UI for browsing and analyzing event logs of completed Spark jobs stored in object storage. Receives credentials from `s3-integrator` or `azure-storage-integrator`. |
 | [`traefik-k8s`](https://charmhub.io/traefik-k8s) | Kubernetes ingress proxy. Exposes the History Server web UI at a stable URL outside the cluster. |
@@ -85,7 +85,7 @@ The following diagram shows how the components relate in a full deployment:
 ```{mermaid}
 flowchart TB
     client["<b>spark-client snap</b><br>spark-submit · pyspark<br>beeline · service-account-registry"]
-    backend[("<b>Object Storage</b><br>MinIO · AWS S3 · Azure Blob")]
+    backend[("<b>Object Storage</b><br>MicroCeph · AWS S3 · Azure Blob")]
 
     subgraph spark-model["Spark Juju Model"]
         direction TB

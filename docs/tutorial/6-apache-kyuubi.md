@@ -28,7 +28,7 @@ To create our simple, minimal datalake, we need an object storage.
 
 ### Object storage
 
-We will use the MinIO instance installed in the environment setup stage of this tutorial.
+We will use the same MicroCeph setup installed in the environment setup stage of this tutorial.
 Let's set up a new directory for Kyuubi's event logs inside the existing `spark-tutorial` bucket:
 
 ```shell
