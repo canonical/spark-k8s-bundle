@@ -1,0 +1,29 @@
+juju:
+  channel: 3.6/stable
+  model-defaults:
+    logging-config: <root>=INFO; unit=DEBUG
+    juju-http-proxy: http://egress.ps7.internal:3128
+    juju-https-proxy: http://egress.ps7.internal:3128
+    juju-no-proxy: 10.0.0.0/8,127.0.0.1,192.168.0.0/16,localhost,10.126.43.168
+
+providers:
+  microk8s:
+    enable: true
+    bootstrap: true
+    channel: 1.34-strict/stable
+    addons:
+      - dns
+      - hostpath-storage
+      - rbac
+      - storage
+      - metallb:10.151.42.205-10.151.42.210
+      
+  lxd:
+    enable: true
+    bootstrap: false
+    channel: latest/stable
+
+host:
+  snaps:
+    charmcraft:
+      channel: 3.x/stable

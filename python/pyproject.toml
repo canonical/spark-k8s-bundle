@@ -57,6 +57,7 @@ httpx = "^0.28.1"
 jubilant = "^1.11.0"
 python-dotenv = "^1.2.2"
 python-hcl2 = "^8.1.2"
+psutil = "^7.2.2"
 
 [tool.poetry.group.benchmark]
 optional = true
