@@ -1,7 +1,14 @@
-## Description
+## Summary
 
-<!-- add description here -->
+<!-- What was wrong or missing, what you changed, and why. -->
+
+- **Problem:**
+- **Solution:**
+- **Verification:** <!-- Test output, screenshots, or the steps you used to verify the change. -->
 
 ## Checklist
 
-- [ ] I have added or updated any relevant documentation.
+- [ ] My changes follow the existing structure of the codebase and the documentation.
+- [ ] I have added or updated the relevant documentation and tests.
+- [ ] I have tested these changes locally and can explain them during review.
+- [ ] My branch is rebased onto the target branch.

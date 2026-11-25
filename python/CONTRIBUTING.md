@@ -2,17 +2,23 @@
 
 ## Overview
 
-This documents explains the processes and practices recommended for contributing enhancements to this repository.
+This document explains the processes and practices for contributing to this repository. We welcome contributions of all sizes, from typo fixes to new features.
 
-- Generally, before developing enhancements to this component, you should consider [opening an issue](https://github.com/canonical/spark-k8s-bundle/issues) explaining your problem with examples, and your desired use case.
-- If you would like to chat with us about your use-cases or proposed implementation, you can reach us at [Data Platform Canonical Matrix public channel](https://matrix.to/#/#charmhub-data-platform:ubuntu.com) or [Discourse](https://discourse.charmhub.io/).
-- All enhancements require review before being merged. Code review typically examines
-  - code quality
-  - test coverage
-  - user experience for interacting with the other components of the Charmed Apache Spark solution.
-- Please help us out in ensuring easy to review branches by rebasing your pull request branch onto the `main` branch. This also avoids merge commits and creates a linear Git commit history.
+If you would like to discuss use cases or a proposed implementation, reach out on the [Data Platform Canonical Matrix public channel](https://matrix.to/#/#charmhub-data-platform:ubuntu.com) or [Discourse](https://discourse.charmhub.io/).
 
-To build and develop the package in this repository, we advise to use [Poetry](https://python-poetry.org/). For installing poetry on different platforms, please refer to [here](https://python-poetry.org/docs/#installation).
+To build and develop the package in this repository, we recommend using [Poetry](https://python-poetry.org/). For installing Poetry on different platforms, see the [Poetry installation guide](https://python-poetry.org/docs/#installation).
+
+## Before you open a pull request
+
+To make your pull request (PR) easier to review:
+
+- For new features, architectural changes, or major documentation updates, [open an issue](https://github.com/canonical/spark-k8s-bundle/issues) first. Explain your problem with examples and your desired use case, so we can agree on the approach before you spend time on it.
+- Keep your changes focused and consistent with the structure of the codebase and the documentation.
+- In your PR description, say what was wrong or missing, why you chose your approach, and how you verified the result (for example, test output or a local docs build).
+- Whether you write code or documentation by hand or with AI or other tools, test your changes locally and make sure you can explain how they work during review.
+- Rebase your branch onto the target branch before opening or updating your PR. This avoids merge commits and keeps the Git history linear.
+
+All changes require review before being merged. Code review typically examines code quality, test coverage, and the user experience for interacting with the other components of the Charmed Apache Spark solution.
 
 ## Install from source
 
@@ -89,6 +95,7 @@ For documentation in this repository the following conventions are applied (see 
 The full form must be used at least once per page.
 The full form must be used at the first entry to the page’s headings, body of text, callouts, and graphics.
 For subsequent usage, the full form can be substituted by alternatives.
+
 ### Kubernetes Terminology
 
 When documenting Kubernetes concepts, follow the [Kubernetes Documentation Style Guide](https://kubernetes.io/docs/contribute/style/style-guide/#use-upper-camel-case-for-api-objects) for API object capitalization:
@@ -103,6 +110,7 @@ Special cases:
 - **kubeconfig**: Use lowercase when referring to the configuration file (e.g., "update the kubeconfig file").
 - **KUBECONFIG**: Use uppercase when referring to the environment variable.
 - **Product names**: Capitalize properly (e.g., "Azure Kubernetes Service", "Amazon Elastic Kubernetes Service").
+
 ## Canonical Contributor Agreement
 
 Canonical welcomes contributions to Charmed Apache Spark. Please check out our [contributor agreement](https://ubuntu.com/legal/contributors) if you're interested in contributing to the solution.
