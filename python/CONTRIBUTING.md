@@ -4,7 +4,7 @@
 
 This document explains the processes and practices for contributing to this repository. We welcome contributions of all sizes, from typo fixes to new features.
 
-If you would like to discuss use cases or a proposed implementation, reach out on the [Data Platform Canonical Matrix public channel](https://matrix.to/#/#charmhub-data-platform:ubuntu.com) or [Discourse](https://discourse.charmhub.io/).
+If you would like to discuss use cases or a proposed implementation, reach out on the [Analytics Canonical Matrix public channel](https://matrix.to/#/#charmhub-analytics:ubuntu.com) or [Discourse](https://discourse.charmhub.io/).
 
 To build and develop the package in this repository, we recommend using [Poetry](https://python-poetry.org/). For installing Poetry on different platforms, see the [Poetry installation guide](https://python-poetry.org/docs/#installation).
 
