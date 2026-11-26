@@ -15,8 +15,7 @@ To make your pull request (PR) easier to review:
 - For new features, architectural changes, or major documentation updates, [open an issue](https://github.com/canonical/spark-k8s-bundle/issues) first. Explain your problem with examples and your desired use case, so we can agree on the approach before you or we spend time on its implementation and review.
 - Keep your changes focused and consistent with the structure of the codebase. The PR should also add or update relevant documentation and tests or agreed with the maintainers that these changes will follow up on a dedicated work item.
 - In your PR description, say what was wrong or missing, why you chose your approach, and how you verified the result (for example, test output or a local docs build).
-- Whether you write code or documentation by hand or with AI or other tools, test your changes locally and make sure you can explain how they work during review. PRs raised by contributors not willing to critically understand and discuss changes done by agents will be closed. 
-- Rebase your branch onto the target branch before opening or updating your PR. This avoids merge commits and keeps the Git history linear.
+- Whether you write code or documentation by hand or with AI or other tools, test your changes locally and make sure you can explain how they work during review. PRs raised by contributors not willing to critically understand and discuss changes done by agents will be closed.
 
 All changes require review before being merged. Code review typically examines code quality, test coverage, and the user experience for interacting with the other components of the Charmed Apache Spark solution.
 
