@@ -4,7 +4,7 @@
 
 - **Problem:**
 - **Solution:**
-- **Verification:** <!-- Test output, screenshots, or the steps you used to verify the change. -->
+- **Verification (if relevant):** <!-- Test output, screenshots, or the steps you used to verify the change. -->
 
 ## Checklist
 
