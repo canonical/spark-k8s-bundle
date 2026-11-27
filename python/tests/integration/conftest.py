@@ -603,7 +603,7 @@ def spark_bundle(
     if istio_system:
         istio_vars = {
             "istio_system_model_uuid": istio_system,
-            "service_mesh_mode": "managed",
+            "service_mesh_mode": tfvars.get("service_mesh_mode", "managed"),
         }
 
     vars = base_vars | cos_vars | storage_vars | istio_vars

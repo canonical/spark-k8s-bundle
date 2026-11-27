@@ -53,3 +53,6 @@ dist
 tmp
 
 .spread-reuse.*.yaml
+
+### Benchmark reports ###
+python/bench-reports/

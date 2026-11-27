@@ -84,6 +84,21 @@ Here is an example running the `benchmarks` environment to stress-test a deploym
 tox run -e benchmarks -- --backend terraform --backend-storage azure --no-deploy --keep-models --model spark-model
 ```
 
+### Configurable Kyuubi benchmark
+
+The `benchmarks-kyuubi` environment measures one benchmark configuration per run
+(TPC-H-derived, not an official TPC-H result) and writes `report.html`,
+`results.json` and the Spark engine pod logs to `<output-dir>/<report-name>/`:
+```shell
+tox run -e benchmarks-kyuubi -- --no-deploy --model spark-model \
+    --bench-sf sf10 --bench-ambient --no-bench-cos \
+    --bench-exclude-queries 9,21 --bench-runs 5 --report-name sf10-ambient
+```
+Other options: `--bench-warmup`, `--bench-output-dir`, `--bench-overwrite`,
+`--bench-spark-conf KEY=VALUE`, `--bench-query-timeout` and `--bench-cleanup`.
+With `--no-deploy`, `--bench-ambient`/`--bench-cos` are checked against the model
+and the run aborts on a mismatch.
+
 ## Contributing
 
 Canonical welcomes contributions to the `spark-k8s-test` library. Please check out our [guidelines](./CONTRIBUTING.md) if you're interested in contributing to the solution. Also, if you truly enjoy working on open-source projects like this one and you would like to be part of the OSS revolution, please don't forget to check out the [open positions](https://canonical.com/careers/all) we have at [Canonical](https://canonical.com/).  
